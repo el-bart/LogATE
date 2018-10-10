@@ -1,20 +1,14 @@
-FROM debian:testing
+FROM baszerr/but-sdk:v1.1.0
 
 RUN apt-get update
 RUN apt-get dist-upgrade -y
 
-RUN apt-get install -y cmake
-RUN apt-get install -y make ninja-build
-
-RUN apt-get install -y g++-6
-RUN apt-get install -y g++-7
-RUN apt-get install -y g++-8
-
-RUN apt-get install -y clang-6.0 llvm-6.0
-
-RUN apt-get install -y g++
-RUN apt-get install -y clang llvm
-
-RUN apt-get install -y googletest
-RUN apt-get install -y libboost-all-dev
-RUN apt-get install -y nlohmann-json-dev
+RUN apt-get install -y git wget
+ENV BUT_VER=1.1.0
+RUN cd /usr/src/ && \
+    wget https://github.com/el-bart/but/archive/v${BUT_VER}.tar.gz && \
+    tar xzvf v${BUT_VER}.tar.gz && \
+    cd but-${BUT_VER}/build && \
+    cmake -G Ninja -DCMAKE_BUILD_TYPE=Release .. && \
+    ninja && \
+    ninja install
