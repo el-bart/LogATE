@@ -21,7 +21,7 @@ env:
         - SCRIPT="build_gcc7_Release_none"
 
 script:
-    - docker build -t but-sdk --cache-from baszerr/logate-sdk sdk/
+    - docker build -t logate-sdk --cache-from baszerr/logate-sdk docker/sdk/
     - >
         docker run
         --rm
