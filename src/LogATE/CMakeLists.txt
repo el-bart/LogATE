@@ -30,6 +30,7 @@ if(LOGATE_ENABLE_TESTS)
   )
 
   foreach(app LogATE_uts LogATE_mts LogATE_its)
+    message(STATUS "LogATE: adding automated test target ${app}")
     target_link_libraries(${app} LogATE)
     target_link_libraries(${app} gmock_main gmock gtest)
     add_test(NAME run_${app}
@@ -41,12 +42,14 @@ if(LOGATE_ENABLE_TESTS)
   endforeach()
 
   set(SOURCES_MANUAL
+    placeholder.manual.cpp
   )
 
   foreach(src ${SOURCES_MANUAL})
     get_filename_component(dir  ${src} DIRECTORY)
     get_filename_component(name ${src} NAME_WE)
     set(app LogATE_${name}.manual)
+    message(STATUS "LogATE: adding manual test target ${app}")
     add_executable(${app} ${src})
     target_link_libraries(${app} LogATE)
     list(APPEND TEST_TARGETS_MANUAL ${app})
