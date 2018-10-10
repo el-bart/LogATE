@@ -55,6 +55,4 @@ if(LOGATE_ENABLE_TESTS)
     list(APPEND TEST_TARGETS_MANUAL ${app})
     list(APPEND TEST_TARGETS        ${app})
   endforeach()
-
-  add_custom_target(LogATE_tests_manual DEPENDS ${TEST_TARGETS_MANUAL})
 endif()
