@@ -26,3 +26,8 @@
 * colored highlighting of searched elements
 * auto-hiding columns used for value-based "explode" filtering
 * column priorities for displaying
+
+
+## misc
+
+* runtime image - autobuilding version, taht can be used just by downloading from docker hub.
