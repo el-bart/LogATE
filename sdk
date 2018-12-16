@@ -1,0 +1,4 @@
+#!/bin/bash
+set -e
+DIR=$(dirname "$(readlink -e "$0")")
+exec docker run -u 1000:1000 -v "$DIR:/mnt/prj" -it --rm "baszerr/logate-sdk"
