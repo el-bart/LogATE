@@ -6,7 +6,7 @@
 namespace LogATE
 {
 
-using Log = But::NotNullShared<nlohmann::json>;
+using Log = But::NotNullShared<const nlohmann::json>;
 
 Log parseLog(std::string const& in);
 
