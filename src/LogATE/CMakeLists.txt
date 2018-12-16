@@ -20,6 +20,7 @@ install(TARGETS LogATE
 
 if(LOGATE_ENABLE_TESTS)
   add_executable(LogATE_uts
+    Tree/Path.ut.cpp
     placeholder.ut.cpp
     main.ut.cpp
   )
