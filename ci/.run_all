@@ -12,7 +12,7 @@ FAILED=""
 for bs in build_*
 do
   ((++RUNS))
-  time "./$bs" "$@" || { ((++ERRORS)) ; FAILED+=" $bs" ; }
+  time "../sdk" "/mnt/prj/ci/$bs" "$@" || { ((++ERRORS)) ; FAILED+=" $bs" ; }
 done
 
 if [ "$ERRORS" -gt 0 ]
