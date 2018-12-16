@@ -13,4 +13,4 @@ structured logs in C++ can be generated with BUT::Log (https://github.com/el-bar
 
 [![travis CI build status](https://travis-ci.org/el-bart/LogATE.svg?branch=master)](https://travis-ci.org/el-bart/LogATE)
 
-download automated build of [BUT's SDK Docker image](https://hub.docker.com/r/baszerr/logate-sdk/), with a command: `docker pull baszerr/logate-sdk`.
+download automated build of [LogATE's SDK Docker image](https://hub.docker.com/r/baszerr/logate-sdk/), with a command: `docker pull baszerr/logate-sdk`.
