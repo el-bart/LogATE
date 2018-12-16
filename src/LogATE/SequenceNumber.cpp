@@ -1,4 +1,5 @@
 #include "LogATE/SequenceNumber.hpp"
+#include <atomic>
 
 namespace LogATE
 {
@@ -12,7 +13,7 @@ auto nextFreeSN()
 }
 }
 
-SequenceNumber::SequenceNumber()
+SequenceNumber::SequenceNumber():
   value_{ nextFreeSN() }
 { }
 
