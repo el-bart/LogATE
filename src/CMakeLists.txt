@@ -10,8 +10,6 @@ include(cmake/flags/${COMPILER_FLAGS}.cmake)
 
 if(LOGATE_ENABLE_TESTS)
   message(STATUS "LogATE: enabling tests")
-  add_subdirectory(/usr/src/googletest ${CMAKE_CURRENT_BINARY_DIR}/gtest)
-  include_directories(${CMAKE_CURRENT_BINARY_DIR}/gtest)
   enable_testing()
 endif()
 

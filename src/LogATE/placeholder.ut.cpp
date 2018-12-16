@@ -1,17 +1,12 @@
-#include <gtest/gtest.h>
+#include <doctest/doctest.h>
 #include <LogATE/placeholder.hpp>
 
 namespace
 {
 
-struct PlaceholderTests: public testing::Test
+TEST_CASE("valid is ok")
 {
-};
-
-
-TEST_F(PlaceholderTests, ValidIsOk)
-{
-  EXPECT_EQ(42, answer());
+  CHECK( 42 == answer() );
 }
 
 }
