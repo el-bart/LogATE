@@ -17,8 +17,6 @@ env:
         - SCRIPT="build_gcc8_Profile_none"
         - SCRIPT="build_gcc8_Release_none"
         - SCRIPT="build_gcc8_Relwithdebinfo_none"
-        - SCRIPT="build_gcc7_Debug_none"
-        - SCRIPT="build_gcc7_Release_none"
 
 script:
     - docker build -t logate-sdk --cache-from baszerr/logate-sdk docker/sdk/
