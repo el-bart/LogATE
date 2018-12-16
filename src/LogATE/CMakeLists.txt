@@ -2,8 +2,9 @@ cmake_minimum_required(VERSION 3.0)
 project(LogATE)
 
 add_library(LogATE
-  placeholder.cpp
   Log.cpp
+  SequenceNumber.cpp
+  placeholder.cpp
 )
 target_include_directories(LogATE PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(LogATE
