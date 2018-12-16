@@ -8,4 +8,5 @@ exec docker run \
        --cap-add SYS_PTRACE \
        -it \
        --rm \
-       "baszerr/logate-sdk"
+       "baszerr/logate-sdk" \
+       "$@"
