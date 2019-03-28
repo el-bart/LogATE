@@ -3,12 +3,14 @@ project(LogATE)
 
 add_library(LogATE
   Log.cpp
+  Tree/Logs.cpp
   SequenceNumber.cpp
   placeholder.cpp
 )
 target_include_directories(LogATE PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(LogATE
-    pthread
+  /usr/local/lib/libbut.a
+  pthread
 )
 
 
@@ -22,6 +24,7 @@ install(TARGETS LogATE
 
 if(LOGATE_ENABLE_TESTS)
   add_executable(LogATE_uts
+    Tree/Logs.ut.cpp
     Tree/Path.ut.cpp
     placeholder.ut.cpp
     main.ut.cpp
