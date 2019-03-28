@@ -1,5 +1,4 @@
 #include "LogATE/SequenceNumber.hpp"
-#include <iostream>
 #include <atomic>
 
 namespace LogATE
@@ -17,11 +16,6 @@ auto nextFreeSN()
 SequenceNumber SequenceNumber::next()
 {
   return SequenceNumber{ nextFreeSN() };
-}
-
-std::ostream& operator<<(std::ostream& os, const SequenceNumber sn)
-{
-  return os << "S/N=" << sn.value_;
 }
 
 }

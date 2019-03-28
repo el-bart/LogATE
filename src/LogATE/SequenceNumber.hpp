@@ -1,7 +1,6 @@
 #pragma once
 #include "But/Mpl/FreeOperators.hpp"
 #include <cinttypes>
-#include <iosfwd>
 
 namespace LogATE
 {
@@ -17,7 +16,5 @@ struct SequenceNumber final
 };
 
 BUT_MPL_FREE_OPERATORS_COMPARE(SequenceNumber, .value_);
-
-std::ostream& operator<<(std::ostream& os, SequenceNumber sn);
 
 }
