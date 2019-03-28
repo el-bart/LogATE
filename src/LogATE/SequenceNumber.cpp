@@ -13,8 +13,9 @@ auto nextFreeSN()
 }
 }
 
-SequenceNumber::SequenceNumber():
-  value_{ nextFreeSN() }
-{ }
+SequenceNumber SequenceNumber::next()
+{
+  return SequenceNumber{ nextFreeSN() };
+}
 
 }

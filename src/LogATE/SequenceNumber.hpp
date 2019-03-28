@@ -7,10 +7,9 @@ namespace LogATE
 
 struct SequenceNumber final
 {
-  SequenceNumber();
-  explicit SequenceNumber(uint64_t value): value_{value} { }
+  static SequenceNumber next();
 
-  uint64_t value_;
+  uint64_t value_{0};
 };
 
 BUT_MPL_FREE_OPERATORS_COMPARE(SequenceNumber, .value_);
