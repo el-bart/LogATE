@@ -13,6 +13,6 @@ struct Log
   But::NotNullShared<const nlohmann::json> log_;
 };
 
-Log parseLog(std::string const& in);
+Log json2log(std::string const& in);
 
 }
