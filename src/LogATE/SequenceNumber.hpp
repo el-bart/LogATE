@@ -9,7 +9,10 @@ struct SequenceNumber final
 {
   static SequenceNumber next();
 
-  uint64_t value_{0};
+  SequenceNumber() = delete;
+  explicit SequenceNumber(uint64_t value): value_{value} { }
+
+  uint64_t value_;
 };
 
 BUT_MPL_FREE_OPERATORS_COMPARE(SequenceNumber, .value_);
