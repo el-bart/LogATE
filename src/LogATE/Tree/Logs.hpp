@@ -25,8 +25,40 @@ public:
     return size() == 0u;
   }
 
-  Log first() const;
-  Log last() const;
+  Log first() const
+  {
+    BUT_ASSERT( locked() );
+    BUT_ASSERT( not empty() );
+    return logs_.front();
+  }
+
+  Log last() const
+  {
+    BUT_ASSERT( locked() );
+    BUT_ASSERT( not empty() );
+    return logs_.back();
+  }
+
+  auto begin()
+  {
+    BUT_ASSERT( locked() );
+    return logs_.begin();
+  }
+  auto end()
+  {
+    BUT_ASSERT( locked() );
+    return logs_.end();
+  }
+  auto begin() const
+  {
+    BUT_ASSERT( locked() );
+    return logs_.begin();
+  }
+  auto end() const
+  {
+    BUT_ASSERT( locked() );
+    return logs_.end();
+  }
 
   void insert(Log log);
 
