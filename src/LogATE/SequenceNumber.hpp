@@ -8,6 +8,7 @@ namespace LogATE
 struct SequenceNumber final
 {
   SequenceNumber();
+  explicit SequenceNumber(uint64_t value): value_{value} { }
 
   uint64_t value_;
 };
