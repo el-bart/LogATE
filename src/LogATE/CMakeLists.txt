@@ -4,6 +4,7 @@ project(LogATE)
 add_library(LogATE
   Log.cpp
   Tree/Logs.cpp
+  Tree/SimpleNode.cpp
   SequenceNumber.cpp
   placeholder.cpp
 )
@@ -26,6 +27,7 @@ if(LOGATE_ENABLE_TESTS)
   add_executable(LogATE_uts
     Tree/Logs.ut.cpp
     Tree/Path.ut.cpp
+    Tree/SimpleNode.ut.cpp
     placeholder.ut.cpp
     main.ut.cpp
   )

@@ -2,6 +2,7 @@
 #include "LogATE/SequenceNumber.hpp"
 #include "LogATE/Log.hpp"
 #include "LogATE/Tree/Logs.hpp"
+#include "LogATE/Tree/Path.hpp"
 #include <string>
 #include <vector>
 
@@ -36,8 +37,8 @@ public:
   auto const& type() const { return type_; }
   auto const& trimFields() const { return trimFields_; }
 
-  Log& logs()             { return logs_; }
-  Log const& logs() const { return logs_; }
+  Logs& logs()             { return logs_; }
+  Logs const& logs() const { return logs_; }
 
 protected:
   Node(Type type, Name name, TrimFields trimFields):
