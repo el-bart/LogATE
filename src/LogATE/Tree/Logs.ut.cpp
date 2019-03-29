@@ -1,8 +1,12 @@
 #include <doctest/doctest.h>
 #include "LogATE/Tree/Logs.hpp"
 #include "LogATE/TestPrints.ut.hpp"
+#include "LogATE/TestHelpers.ut.hpp"
 
 using LogATE::Tree::Logs;
+using LogATE::Tree::makeLog;
+using LogATE::Tree::makeSns;
+using LogATE::Tree::logs2sns;
 using SN = LogATE::SequenceNumber;
 
 namespace
@@ -13,40 +17,7 @@ TEST_SUITE("Tree::Logs")
 
 struct Fixture
 {
-  auto makeLog(unsigned num) const
-  {
-    auto log = LogATE::json2log(R"({ "foo": "bar" })");
-    log.sn_.value_ = num;
-    return log;
-  }
-
-  auto allSns() const
-  {
-    std::vector<SN> out;
-    auto locked = logs_.withLock();
-    out.reserve( locked->size() );
-    for(auto it=locked->begin(); it!=locked->end(); ++it)
-      out.push_back( it->sn_ );
-    return out;
-  }
-
-  auto makeSns(std::initializer_list<unsigned> lst) const
-  {
-    std::vector<SN> out;
-    out.reserve( lst.size() );
-    for(auto sn: lst)
-      out.push_back( SN{sn} );
-    return out;
-  }
-
-  auto logs2sns(std::vector<LogATE::Log> const& in)
-  {
-    std::vector<SN> out;
-    out.reserve(in.size());
-    for(auto log: in)
-      out.push_back(log.sn_);
-    return out;
-  }
+  auto allSns() const { return LogATE::Tree::allSns(logs_); }
 
   Logs logs_;
 };
