@@ -18,6 +18,7 @@ protected:
 
 private:
   virtual bool matches(Log const& log) const = 0;
+
   void insertToChildren(Log const& log);
   void insertToChild(NodeShPtr const& child, Log const& log);
   void passAllLogsToChild(NodeShPtr const& child);
