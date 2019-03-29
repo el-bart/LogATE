@@ -3,21 +3,23 @@
 namespace LogATE::Tree
 {
 
-SequenceNumber SimpleNode::insert(Log log)
+void SimpleNode::insert(Log const& log)
 {
-  (void)log;
-  throw 42;
+  if( not matches(log) )
+    return;
+  logs().withLock()->insert(log);
 }
 
 SimpleNode::Children SimpleNode::children() const
 {
-  throw 42;
+  const Lock lock{mutex_};
+  return children_;
 }
 
-void SimpleNode::add(NodeShPtr node)
+void SimpleNode::add(NodePtr node)
 {
-  (void)node;
-  throw 42;
+  const Lock lock{mutex_};
+  children_.push_back( std::move(node) );
 }
 
 }

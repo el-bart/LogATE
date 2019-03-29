@@ -10,6 +10,7 @@ namespace LogATE::Tree
 {
 
 class Node;
+using NodePtr = But::NotNullUnique<Node>;
 using NodeShPtr = But::NotNullShared<Node>;
 
 
@@ -28,10 +29,10 @@ public:
   Node(Node&&) = delete;
   Node const& operator=(Node&&) = delete;
 
-  virtual SequenceNumber insert(Log log) = 0;
+  virtual void insert(Log const& log) = 0;
 
   virtual Children children() const = 0;
-  virtual void add(NodeShPtr node) = 0;
+  virtual void add(NodePtr node) = 0;
 
   auto const& name() const { return name_; }
   auto const& type() const { return type_; }

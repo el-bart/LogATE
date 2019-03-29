@@ -7,9 +7,9 @@ namespace LogATE::Tree
 class SimpleNode: public Node
 {
 public:
-  SequenceNumber insert(Log log) override;
+  void insert(Log const& log) override;
   Children children() const override;
-  void add(NodeShPtr node) override;
+  void add(NodePtr node) override;
 
 protected:
   SimpleNode(Type type, Name name, TrimFields trimFields):
@@ -19,6 +19,7 @@ protected:
 private:
   virtual bool matches(Log const& log) const = 0;
 
+  using Lock = std::lock_guard<std::mutex>;
   mutable std::mutex mutex_;
   Children children_;
 };

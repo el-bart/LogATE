@@ -16,27 +16,46 @@ namespace
 TEST_SUITE("Tree::SimpleNode")
 {
 
-struct TestFilter: SimpleNode
+template<unsigned N>
+struct ModFilter: SimpleNode
 {
-  TestFilter():
-    SimpleNode(Node::Type{"test"}, Node::Name{"testing"}, {})
+  ModFilter():
+    SimpleNode(Node::Type{"test%2"}, Node::Name{"testing%2"}, {})
   { }
 
 private:
   bool matches(LogATE::Log const& log) const override
   {
-    return ( log.sn_.value_ % 2 ) == 0;
+    return ( log.sn_.value_ % N ) == 0;
   }
 };
 
+
 struct Fixture
 {
-  auto allSns() const { return LogATE::Tree::allSns( tf_.logs() ); }
+  auto allSns() const { return LogATE::Tree::allSns( f2_.logs() ); }
 
-  TestFilter tf_;
+  ModFilter<2> f2_;
 };
 
-TEST_CASE_FIXTURE(Fixture, "xxxx")
+
+TEST_CASE_FIXTURE(Fixture, "filtering rule is applied")
+{
+  for(auto i: {1,2,3,4,5})
+    f2_.insert( makeLog(i) );
+  CHECK( allSns() == makeSns({2,4}) );
+}
+
+TEST_CASE_FIXTURE(Fixture, "adding children works")
+{
+  CHECK( f2_.children().size() == 0 );
+  f2_.add( But::makeUniqueNN<ModFilter<4>>() );
+  CHECK( f2_.children().size() == 1 );
+  f2_.add( But::makeUniqueNN<ModFilter<3>>() );
+  CHECK( f2_.children().size() == 2 );
+}
+
+TEST_CASE_FIXTURE(Fixture, "filtering is cascading to children")
 {
   // TODO
 }
