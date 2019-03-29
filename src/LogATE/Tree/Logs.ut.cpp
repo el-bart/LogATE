@@ -1,7 +1,7 @@
 #include <doctest/doctest.h>
 #include "LogATE/Tree/Logs.hpp"
+#include "LogATE/Tree/TestHelpers.ut.hpp"
 #include "LogATE/TestPrints.ut.hpp"
-#include "LogATE/TestHelpers.ut.hpp"
 
 using LogATE::Tree::Logs;
 using LogATE::Tree::makeLog;
