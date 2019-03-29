@@ -1,21 +1,24 @@
 #pragma once
 #include "LogATE/SequenceNumber.hpp"
 #include "LogATE/Log.hpp"
+#include "LogATE/Tree/Logs.hpp"
 #include <string>
-#include <mutex>
+#include <vector>
 
 namespace LogATE::Tree
 {
 
+class Node;
+using NodeShPtr = But::NotNullShared<Node>;
+
+
 class Node
 {
 public:
-  enum class CompareElement
-  {
-      Key,
-      Value
-  };
+  struct Type final { std::string value_; };
   struct Name final { std::string value_; };
+  using TrimFields = std::vector<Path>;
+  using Children = std::vector<NodeShPtr>;
 
   virtual ~Node() = default;
 
@@ -24,29 +27,31 @@ public:
   Node(Node&&) = delete;
   Node const& operator=(Node&&) = delete;
 
-  virtual Name name() const = 0;
-  virtual Path processedField() const = 0;
+  virtual SequenceNumber insert(Log log) = 0;
 
-  Log first() const;
-  Log last() const;
+  virtual Children children() const = 0;
+  virtual void add(NodeShPtr node) = 0;
 
-  SequenceNumber insert(Log log) const;
+  auto const& name() const { return name_; }
+  auto const& type() const { return type_; }
+  auto const& trimFields() const { return trimFields_; }
 
-  // pruneUpTo(SeqN)
-  std::vector<Log> range(SequenceNumber begin, SequenceNumber end) const;
-  std::vector<Log> from(SequenceNumber first, size_t count) const;
-  std::vector<Log> to(SequenceNumber last, size_t count) const;
-  std::vector<But::NotNullRaw<Node>> children() const;
+  Log& logs()             { return logs_; }
+  Log const& logs() const { return logs_; }
 
 protected:
-  Node(Name filterName, Path path);
+  Node(Type type, Name name, TrimFields trimFields):
+      type_{ std::move(type) },
+      name_{ std::move(name) },
+      trimFields_{ std::move(trimFields) }
+  { }
+
+  Logs logs_;
 
 private:
-  virtual bool matchesFilter(Log const& log) = 0;
-
-  mutable std::mutex mutex_;
-  std::vector<Log> logs_;
-  std::vector<But::NotNullUnique<Node>> children_;
+  const Type type_;
+  const Name name_;
+  const TrimFields trimFields_;
 };
 
 }
