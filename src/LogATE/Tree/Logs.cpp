@@ -43,7 +43,7 @@ size_t Logs::pruneUpTo(const SequenceNumber firstToKeep)
   return count;
 }
 
-std::vector<Log> Logs::range(SequenceNumber beginIt, SequenceNumber endIt) const
+std::vector<Log> Logs::range(const SequenceNumber beginIt, const SequenceNumber endIt) const
 {
   BUT_ASSERT( locked() );
   BUT_ASSERT( std::is_sorted( begin(), end(), OrderBySequenceNumber{} ) );
@@ -54,18 +54,24 @@ std::vector<Log> Logs::range(SequenceNumber beginIt, SequenceNumber endIt) const
   return std::vector<Log>{low, high};
 }
 
-std::vector<Log> Logs::from(SequenceNumber first, size_t count) const
+std::vector<Log> Logs::from(const SequenceNumber first, const size_t count) const
 {
-  (void)first;
-  (void)count;
-  return {};
+  BUT_ASSERT( locked() );
+  BUT_ASSERT( std::is_sorted( begin(), end(), OrderBySequenceNumber{} ) );
+  const auto low = std::lower_bound( begin(), end(), first, OrderBySequenceNumber{} );
+  const auto maxCount = std::distance(low, end());
+  const auto elements = std::min<size_t>(maxCount, count);
+  return std::vector<Log>{low, low+elements};
 }
 
-std::vector<Log> Logs::to(SequenceNumber last, size_t count) const
+std::vector<Log> Logs::to(const SequenceNumber last, const size_t count) const
 {
-  (void)last;
-  (void)count;
-  return {};
+  BUT_ASSERT( locked() );
+  BUT_ASSERT( std::is_sorted( begin(), end(), OrderBySequenceNumber{} ) );
+  const auto high = std::upper_bound( begin(), end(), last, OrderBySequenceNumber{} );
+  const auto maxCount = std::distance(begin(), high);
+  const auto elements = std::min<size_t>(maxCount, count);
+  return std::vector<Log>{high-elements, high};
 }
 
 }

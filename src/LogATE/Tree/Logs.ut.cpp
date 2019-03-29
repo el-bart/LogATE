@@ -125,6 +125,39 @@ TEST_CASE_FIXTURE(Fixture, "getting given range")
   CHECK( logs2sns( logs_.withLock()->range(SN{3}, SN{6})  ) == makeSns({3,5}) );
 }
 
+TEST_CASE_FIXTURE(Fixture, "getting count starting with a given position")
+{
+  for(auto sn: {2,3,5,7,8,9})
+    logs_.withLock()->insert( makeLog(sn) );
+  CHECK( logs2sns( logs_.withLock()->from(SN{3}, 0)  ) == makeSns({}) );
+  CHECK( logs2sns( logs_.withLock()->from(SN{2}, 1)  ) == makeSns({2}) );
+  CHECK( logs2sns( logs_.withLock()->from(SN{9}, 1)  ) == makeSns({9}) );
+  CHECK( logs2sns( logs_.withLock()->from(SN{1}, 1)  ) == makeSns({2}) );
+  CHECK( logs2sns( logs_.withLock()->from(SN{6}, 1)  ) == makeSns({7}) );
+  CHECK( logs2sns( logs_.withLock()->from(SN{4}, 2)  ) == makeSns({5,7}) );
+  CHECK( logs2sns( logs_.withLock()->from(SN{9}, 1)  ) == makeSns({9}) );
+  CHECK( logs2sns( logs_.withLock()->from(SN{3}, 99)  ) == makeSns({3,5,7,8,9}) );
+  CHECK( logs2sns( logs_.withLock()->from(SN{13}, 5)  ) == makeSns({}) );
+  CHECK( logs2sns( logs_.withLock()->from(SN{0}, 99)  ) == makeSns({2,3,5,7,8,9}) );
+}
+
+TEST_CASE_FIXTURE(Fixture, "getting count ending with a given position")
+{
+  for(auto sn: {2,3,5,7,8,9})
+    logs_.withLock()->insert( makeLog(sn) );
+  CHECK( logs2sns( logs_.withLock()->to(SN{3}, 0)  ) == makeSns({}) );
+  CHECK( logs2sns( logs_.withLock()->to(SN{99}, 0)  ) == makeSns({}) );
+  CHECK( logs2sns( logs_.withLock()->to(SN{2}, 1)  ) == makeSns({2}) );
+  CHECK( logs2sns( logs_.withLock()->to(SN{9}, 1)  ) == makeSns({9}) );
+  CHECK( logs2sns( logs_.withLock()->to(SN{0}, 1)  ) == makeSns({}) );
+  CHECK( logs2sns( logs_.withLock()->to(SN{13}, 1)  ) == makeSns({9}) );
+  CHECK( logs2sns( logs_.withLock()->to(SN{9}, 2)  ) == makeSns({8,9}) );
+  CHECK( logs2sns( logs_.withLock()->to(SN{9}, 6)  ) == makeSns({2,3,5,7,8,9}) );
+  CHECK( logs2sns( logs_.withLock()->to(SN{9}, 666)  ) == makeSns({2,3,5,7,8,9}) );
+  CHECK( logs2sns( logs_.withLock()->to(SN{5}, 666)  ) == makeSns({2,3,5}) );
+  CHECK( logs2sns( logs_.withLock()->to(SN{5}, 2)  ) == makeSns({3,5}) );
+}
+
 }
 
 }
