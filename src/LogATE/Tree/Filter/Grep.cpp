@@ -1,4 +1,5 @@
 #include "LogATE/Tree/Filter/Grep.hpp"
+#include "But/Optional.hpp"
 
 namespace LogATE::Tree::Filter
 {
@@ -16,7 +17,7 @@ auto regexType(const Grep::Case c)
 }
 }
 
-Grep::Grep(Name name, Path path, std::string regex, Compare cmp, Case c):
+Grep::Grep(Name name, Path path, std::string regex, const Compare cmp, const Case c):
   SimpleNode{ Type{"grep"}, std::move(name), TrimFields{path} },
   path_{ std::move(path) },
   cmp_{cmp},
@@ -26,9 +27,92 @@ Grep::Grep(Name name, Path path, std::string regex, Compare cmp, Case c):
 
 bool Grep::matches(Log const& log) const
 {
-  (void)cmp_;
+  if( path_.value_.empty() )
+    return false;
+  if( path_.root() )
+    return matchesAbsolute(log);
+  return matchesRelative(log);
+}
+
+bool Grep::matchesAbsolute(Log const& log) const
+{
+  switch(cmp_)
+  {
+    case Compare::Key:   return matchesAbsoluteKey(log);
+    case Compare::Value: return matchesAbsoluteValue(log);
+  }
+}
+
+bool Grep::matchesRelative(Log const& log) const
+{
+  switch(cmp_)
+  {
+    case Compare::Key:   return matchesRelativeKey(log);
+    case Compare::Value: return matchesRelativeValue(log);
+  }
+}
+
+namespace
+{
+using PathIter = std::vector<std::string>::const_iterator;
+nlohmann::json getNodeByPath(Log const& log, PathIter pathBegin, PathIter pathEnd)
+{
+  auto n = *log.log_;
+  for(auto it=pathBegin; it!=pathEnd; ++it)
+  {
+    const auto p = n.find(*it);
+    if( p == n.end() )
+      return {};
+    n = *p;
+  }
+  return n;
+}
+
+But::Optional<std::string> value2str(nlohmann::json const& node)
+{
+  if( node.is_string() )
+    return node.get<std::string>();
+  if( node.is_number() )
+    return std::to_string( node.get<double>() );
+  if( node.is_boolean() )
+    return std::string{ node.get<bool>() ? "true" : "false" };
+  return {};
+}
+
+But::Optional<std::string> key2str(nlohmann::json const& node)
+{
+  (void)node;
+  throw 42;
+  return {};
+}
+}
+
+bool Grep::matchesAbsoluteKey(Log const& log) const
+{
   (void)log;
-  throw std::runtime_error{"not implemented yet :P"};
+  throw std::runtime_error{"N/A :P"};
+}
+
+bool Grep::matchesAbsoluteValue(Log const& log) const
+{
+  const auto n = getNodeByPath(log, path_.begin()+1, path_.end());
+  const auto str = value2str(n);
+  if(not str)
+    return false;
+  return std::regex_search(*str, re_);
+}
+
+bool Grep::matchesRelativeKey(Log const& log) const
+{
+  key2str({});      // TODO...  
+  (void)log;
+  throw std::runtime_error{"N/A :P"};
+}
+
+bool Grep::matchesRelativeValue(Log const& log) const
+{
+  (void)log;
+  throw std::runtime_error{"N/A :P"};
 }
 
 }
