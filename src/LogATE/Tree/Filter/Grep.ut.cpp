@@ -102,24 +102,21 @@ TEST_CASE_FIXTURE(Fixture, "case-sensitive value comparison of relative path")
   case_    = Grep::Case::Sensitive;
   CHECK( testMatch( Path{{"fran"}},               "a+c" ) == 1 );
   CHECK( testMatch( Path{{"narf", "fran"}},       "a+c" ) == 1 );
-  CHECK( testMatch( Path{{"NARF", "FRAN"}},       "a+c" ) == 1 );
+  CHECK( testMatch( Path{{"NARF", "FRAN"}},       "a+c" ) == 0 );
   CHECK( testMatch( Path{{"foo"}},                "bar" ) == 0 );
   CHECK( testMatch( Path{{"no", "such", "node"}}, "a=c" ) == 0 );
   CHECK( testMatch( Path{{}},                     "a=c" ) == 0 );
 }
 
 
-/*
 TEST_CASE_FIXTURE(Fixture, "case-sensitive key comparison of absolute path")
 {
-  Grep g{name_, Path{{".", "foo", "bar"}}, re_, Grep::Compare::Key, Grep::Case::Sensitive};
-  (void)g;
+  FAIL("TODO"); // TODO
 }
 
 TEST_CASE_FIXTURE(Fixture, "case-sensitive key comparison of relative path")
 {
-  Grep g{name_, Path{{"foo", "bar"}}, re_, Grep::Compare::Key, Grep::Case::Sensitive};
-  (void)g;
+  FAIL("TODO"); // TODO
 }
 
 
@@ -127,29 +124,40 @@ TEST_CASE_FIXTURE(Fixture, "case-sensitive key comparison of relative path")
 
 TEST_CASE_FIXTURE(Fixture, "case-insensitive value comparison of absolute path")
 {
-  Grep g{name_, Path{{".", "foo", "bar"}}, re_, Grep::Compare::Value, Grep::Case::Insensitive};
-  (void)g;
+  compare_ = Grep::Compare::Value;
+  case_    = Grep::Case::Insensitive;
+  CHECK( testMatch( Path{{".", "foo", "bar"}},         "a/c" ) == 1 );
+  CHECK( testMatch( Path{{".", "FOO", "BAR"}},         "a/c" ) == 1 );
+  CHECK( testMatch( Path{{".", "foo"}},                "bar" ) == 0 );
+  CHECK( testMatch( Path{{".", "no", "such", "node"}}, "a=c" ) == 0 );
+  CHECK( testMatch( Path{{"."}},                       "a=c" ) == 0 );
 }
 
 TEST_CASE_FIXTURE(Fixture, "case-insensitive value comparison of relative path")
 {
-  Grep g{name_, Path{{"foo", "bar"}}, re_, Grep::Compare::Value, Grep::Case::Insensitive};
-  (void)g;
+  compare_ = Grep::Compare::Value;
+  case_    = Grep::Case::Insensitive;
+  CHECK( testMatch( Path{{"fran"}},               "a+c" ) == 1 );
+  CHECK( testMatch( Path{{"narf", "fran"}},       "a+c" ) == 1 );
+  CHECK( testMatch( Path{{"NARF", "FRAN"}},       "a+c" ) == 1 );
+  CHECK( testMatch( Path{{"foo"}},                "bar" ) == 0 );
+  CHECK( testMatch( Path{{"no", "such", "node"}}, "a=c" ) == 0 );
+  CHECK( testMatch( Path{{}},                     "a=c" ) == 0 );
 }
 
 
 TEST_CASE_FIXTURE(Fixture, "case-insensitive key comparison of absolute path")
 {
-  Grep g{name_, Path{{".", "foo", "bar"}}, re_, Grep::Compare::Key, Grep::Case::Insensitive};
-  (void)g;
+  FAIL("TODO"); // TODO
 }
 
 TEST_CASE_FIXTURE(Fixture, "case-insensitive key comparison of relative path")
 {
-  Grep g{name_, Path{{"foo", "bar"}}, re_, Grep::Compare::Key, Grep::Case::Insensitive};
-  (void)g;
+  FAIL("TODO"); // TODO
 }
-*/
+
+
+// TODO: test for arrays as well!
 
 }
 
