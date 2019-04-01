@@ -15,3 +15,4 @@ RUN cd /usr/src/ && \
     wget "https://github.com/onqtam/doctest/archive/${DOCTEST_VER}.tar.gz" && \
     tar xzvf "${DOCTEST_VER}.tar.gz" && \
     cp -rv "doctest-${DOCTEST_VER}/doctest" /usr/local/include
+RUN apt-get install -y gdb
