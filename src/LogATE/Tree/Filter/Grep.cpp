@@ -88,6 +88,8 @@ bool hasMatchingKey(nlohmann::json const& node, std::regex const& re)
 {
   if( node.is_null() )
     return false;
+  if( node.is_boolean() || node.is_string() || node.is_number() )
+    return false;
   for(auto it=node.begin(); it!=node.end(); ++it)
     if( std::regex_search(it.key(), re) )
       return true;
@@ -98,12 +100,7 @@ bool hasMatchingKey(nlohmann::json const& node, std::regex const& re)
 bool Grep::matchesAbsoluteKey(Log const& log) const
 {
   const auto n = getNodeByPath(log, path_.begin()+1, path_.end());
-  if( n.is_null() )
-    return false;
-  for(auto it=n.begin(); it!=n.end(); ++it)
-    if( std::regex_search(it.key(), re_) )
-      return true;
-  return false;
+  return hasMatchingKey(n, re_);
 }
 
 bool Grep::matchesAbsoluteValue(Log const& log) const
@@ -121,12 +118,7 @@ namespace
 bool matchesRelativeKeyDirect(nlohmann::json const& log, Path const& path, std::regex const& re)
 {
   const auto n = getNodeByPath(log, path.begin(), path.end());
-  if(n.is_null())
-    return false;
-  for(auto it=n.begin(); it!=n.end(); ++it)
-    if( std::regex_search(it.key(), re) )
-      return true;
-  return false;
+  return hasMatchingKey(n, re);
 }
 
 bool matchesRelativeKeyRecursive(nlohmann::json const& log, Path const& path, std::regex const& re);

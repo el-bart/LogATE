@@ -14,12 +14,21 @@ TEST_SUITE("Tree::Filter::Grep")
 
 struct Fixture
 {
-  auto testMatch(Path const& path, std::string const& re) const
+  auto testMatch(Path const& path, std::string const& re, Log const& log) const
   {
     Grep g{Grep::Name{"foo"}, path, re, compare_, case_};
     REQUIRE( g.logs().withLock()->empty() );
-    g.insert(log_);
+    g.insert(log);
     return g.logs().withLock()->size();
+  }
+
+  auto testMatch(Path const& path, std::string const& re) const
+  {
+    return testMatch(path, re, log_);
+  }
+  auto testMatchMulti(Path const& path, std::string const& re) const
+  {
+    return testMatch(path, re, logMulti_);
   }
 
   const Log log_{ json2log(R"({
@@ -32,6 +41,34 @@ struct Fixture
                                 },
                                 "foo": {
                                   "bar": "a/c"
+                                }
+                              })") };
+  const Log logMulti_{ json2log(R"({
+                                "one": {
+                                  "PING": {
+                                    "PONG": {
+                                      "narf": 42
+                                    }
+                                  }
+                                },
+                                "two": {
+                                  "PING": {
+                                    "PONG": {
+                                      "narf": {
+                                        "fran": "aaa"
+                                      }
+                                    }
+                                  }
+                                },
+                                "three": {
+                                  "foo": {
+                                    "bar": "xxx"
+                                  }
+                                },
+                                "four": {
+                                  "foo": {
+                                    "bar": "yyy"
+                                  }
                                 }
                               })") };
   Grep::Compare compare_;
@@ -110,6 +147,13 @@ TEST_CASE_FIXTURE(Fixture, "case-sensitive value comparison of relative path")
   CHECK( testMatch( Path{{"foo"}},                "bar" ) == 0 );
   CHECK( testMatch( Path{{"no", "such", "node"}}, "a=c" ) == 0 );
   CHECK( testMatch( Path{{}},                     "a=c" ) == 0 );
+  CHECK( testMatchMulti( Path{{"narf"}},          "42"  ) == 1 );
+  CHECK( testMatchMulti( Path{{"bar"}},           "xxx" ) == 1 );
+  CHECK( testMatchMulti( Path{{"bar"}},           "yyy" ) == 1 );
+  CHECK( testMatchMulti( Path{{"bar"}},           "zzz" ) == 0 );
+  CHECK( testMatchMulti( Path{{"foo", "bar"}},    "xxx" ) == 1 );
+  CHECK( testMatchMulti( Path{{"foo", "bar"}},    "yyy" ) == 1 );
+  CHECK( testMatchMulti( Path{{"foo", "bar"}},    "zzz" ) == 0 );
 }
 
 
@@ -142,6 +186,12 @@ TEST_CASE_FIXTURE(Fixture, "case-sensitive key comparison of relative path")
   CHECK( testMatch( Path{{"foo"}},                "ba$"    ) == 0 );
   CHECK( testMatch( Path{{"no", "such", "node"}}, "bar"    ) == 0 );
   CHECK( testMatch( Path{{}},                     "bar"    ) == 0 );
+  CHECK( testMatchMulti( Path{{"narf"}},          "fran"   ) == 1 );
+  CHECK( testMatchMulti( Path{{"narf"}},          "FRAN"   ) == 1 );
+  CHECK( testMatchMulti( Path{{"foo"}},           "bar" ) == 1 );
+  CHECK( testMatchMulti( Path{{"foo"}},           "BAR" ) == 1 );
+  CHECK( testMatchMulti( Path{{"foo"}},           "zzz" ) == 0 );
+  CHECK( testMatchMulti( Path{{"foo"}},           "ZZZ" ) == 0 );
 }
 
 
@@ -172,6 +222,18 @@ TEST_CASE_FIXTURE(Fixture, "case-insensitive value comparison of relative path")
   CHECK( testMatch( Path{{"foo"}},                "bar" ) == 0 );
   CHECK( testMatch( Path{{"no", "such", "node"}}, "a=c" ) == 0 );
   CHECK( testMatch( Path{{}},                     "a=c" ) == 0 );
+  CHECK( testMatchMulti( Path{{"narf"}},          "42"  ) == 1 );
+  CHECK( testMatchMulti( Path{{"bar"}},           "xxx" ) == 1 );
+  CHECK( testMatchMulti( Path{{"bar"}},           "XXX" ) == 1 );
+  CHECK( testMatchMulti( Path{{"bar"}},           "yyy" ) == 1 );
+  CHECK( testMatchMulti( Path{{"bar"}},           "YYY" ) == 1 );
+  CHECK( testMatchMulti( Path{{"bar"}},           "zzz" ) == 0 );
+  CHECK( testMatchMulti( Path{{"bar"}},           "ZZZ" ) == 0 );
+  CHECK( testMatchMulti( Path{{"foo", "bar"}},    "xxx" ) == 1 );
+  CHECK( testMatchMulti( Path{{"foo", "bar"}},    "XXX" ) == 1 );
+  CHECK( testMatchMulti( Path{{"foo", "bar"}},    "yyy" ) == 1 );
+  CHECK( testMatchMulti( Path{{"foo", "bar"}},    "YYY" ) == 1 );
+  CHECK( testMatchMulti( Path{{"foo", "bar"}},    "zzz" ) == 0 );
 }
 
 
@@ -204,6 +266,7 @@ TEST_CASE_FIXTURE(Fixture, "case-insensitive key comparison of relative path")
   CHECK( testMatch( Path{{"foo"}},                "ba$"    ) == 0 );
   CHECK( testMatch( Path{{"no", "such", "node"}}, "bar"    ) == 0 );
   CHECK( testMatch( Path{{}},                     "bar"    ) == 0 );
+  // TODO: multi match test
 }
 
 
