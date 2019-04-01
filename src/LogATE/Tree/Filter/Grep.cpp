@@ -86,9 +86,7 @@ But::Optional<std::string> value2str(nlohmann::json const& node)
 
 bool hasMatchingKey(nlohmann::json const& node, std::regex const& re)
 {
-  if( node.is_null() )
-    return false;
-  if( node.is_boolean() || node.is_string() || node.is_number() )
+  if( not node.is_object() )
     return false;
   for(auto it=node.begin(); it!=node.end(); ++it)
     if( std::regex_search(it.key(), re) )

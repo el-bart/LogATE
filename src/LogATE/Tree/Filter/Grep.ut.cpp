@@ -41,7 +41,11 @@ struct Fixture
                                 },
                                 "foo": {
                                   "bar": "a/c"
-                                }
+                                },
+                                "array": [
+                                  { "one": 1 },
+                                  { "two": 2 }
+                                ]
                               })") };
   const Log logMulti_{ json2log(R"({
                                 "one": {
@@ -69,6 +73,12 @@ struct Fixture
                                   "foo": {
                                     "bar": "yyy"
                                   }
+                                },
+                                "five": {
+                                  "foo": [
+                                    { "one": 1 },
+                                    { "two": 2 }
+                                  ]
                                 }
                               })") };
   Grep::Compare compare_;
@@ -276,7 +286,6 @@ TEST_CASE_FIXTURE(Fixture, "case-insensitive key comparison of relative path")
 
 
 // TODO: test for arrays as well!
-// TODO: test for case where relative path is repeated in different subnodes, but some of them do not match while others do
 
 }
 
