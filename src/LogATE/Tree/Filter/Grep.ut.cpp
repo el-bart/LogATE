@@ -139,7 +139,7 @@ TEST_CASE_FIXTURE(Fixture, "case-sensitive key comparison of relative path")
   CHECK( testMatch( Path{{"PONG", "narf"}},       "franXX" ) == 0 );
   CHECK( testMatch( Path{{"PONG", "narf"}},       "FRANxx" ) == 0 );
   CHECK( testMatch( Path{{"foo"}},                "bar"    ) == 1 );
-  CHECK( testMatch( Path{{"foo"}},                "ba"     ) == 0 );
+  CHECK( testMatch( Path{{"foo"}},                "ba$"    ) == 0 );
   CHECK( testMatch( Path{{"no", "such", "node"}}, "bar"    ) == 0 );
   CHECK( testMatch( Path{{}},                     "bar"    ) == 0 );
 }
@@ -201,7 +201,7 @@ TEST_CASE_FIXTURE(Fixture, "case-insensitive key comparison of relative path")
   CHECK( testMatch( Path{{"PONG", "narf"}},       "franXX" ) == 0 );
   CHECK( testMatch( Path{{"PONG", "narf"}},       "FRANxx" ) == 0 );
   CHECK( testMatch( Path{{"foo"}},                "bar"    ) == 1 );
-  CHECK( testMatch( Path{{"foo"}},                "ba"     ) == 0 );
+  CHECK( testMatch( Path{{"foo"}},                "ba$"    ) == 0 );
   CHECK( testMatch( Path{{"no", "such", "node"}}, "bar"    ) == 0 );
   CHECK( testMatch( Path{{}},                     "bar"    ) == 0 );
 }
