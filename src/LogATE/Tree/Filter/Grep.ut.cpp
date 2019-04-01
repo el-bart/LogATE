@@ -8,7 +8,6 @@ using LogATE::Tree::Filter::Grep;
 
 namespace
 {
-
 TEST_SUITE("Tree::Filter::Grep")
 {
 
@@ -284,9 +283,5 @@ TEST_CASE_FIXTURE(Fixture, "case-insensitive key comparison of relative path")
   CHECK( testMatchMulti( Path{{"foo"}},           "ZZZ" ) == 0 );
 }
 
-
-// TODO: test for arrays as well!
-
 }
-
 }

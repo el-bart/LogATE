@@ -1,6 +1,10 @@
 #include "LogATE/Tree/Filter/Grep.hpp"
 #include "But/Optional.hpp"
 
+// TODO: arrays are ignored for now (i.e. nothing is searched inside them) - this should change
+// TODO: there are a lot of searches, recursion and comparisons. there is a need for a fundamental change in an
+//       underlying data structure, so that searches can be performed significantly faster with lesser (no?) allocations.
+
 namespace LogATE::Tree::Filter
 {
 
