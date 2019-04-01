@@ -55,9 +55,9 @@ bool Grep::matchesRelative(Log const& log) const
 namespace
 {
 using PathIter = std::vector<std::string>::const_iterator;
-nlohmann::json getNodeByPath(Log const& log, PathIter pathBegin, PathIter pathEnd)
+
+nlohmann::json getNodeByPath(nlohmann::json n, PathIter pathBegin, PathIter pathEnd)
 {
-  auto n = *log.log_;
   for(auto it=pathBegin; it!=pathEnd; ++it)
   {
     const auto p = n.find(*it);
@@ -66,6 +66,11 @@ nlohmann::json getNodeByPath(Log const& log, PathIter pathBegin, PathIter pathEn
     n = *p;
   }
   return n;
+}
+
+nlohmann::json getNodeByPath(Log const& log, PathIter pathBegin, PathIter pathEnd)
+{
+  return getNodeByPath(*log.log_, pathBegin, pathEnd);
 }
 
 But::Optional<std::string> value2str(nlohmann::json const& node)
@@ -102,6 +107,27 @@ bool Grep::matchesAbsoluteValue(Log const& log) const
   return std::regex_search(*str, re_);
 }
 
+namespace
+{
+bool matchesRelativeValueRecursive(nlohmann::json const& log, Path const& path, std::regex const& re)
+{
+  if( not log.is_object() && not log.is_array() )
+    return false;
+
+  {
+    const auto n = getNodeByPath(log, path.begin(), path.end());
+    const auto str = value2str(n);
+    if(str && std::regex_search(*str, re))
+      return true;
+  }
+
+  for(auto it=log.begin(); it!=log.end(); ++it)
+    if( matchesRelativeValueRecursive(*it, path, re) )
+      return true;
+  return false;
+}
+}
+
 bool Grep::matchesRelativeKey(Log const& log) const
 {
   key2str({});      // TODO...  
@@ -111,8 +137,7 @@ bool Grep::matchesRelativeKey(Log const& log) const
 
 bool Grep::matchesRelativeValue(Log const& log) const
 {
-  (void)log;
-  throw std::runtime_error{"N/A :P"};
+  return matchesRelativeValueRecursive(*log.log_, path_, re_);
 }
 
 }

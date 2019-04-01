@@ -26,7 +26,7 @@ struct Fixture
                                 "PING": {
                                   "PONG": {
                                     "narf": {
-                                      "fran": "a+c"
+                                      "fran": "a_c"
                                     }
                                   }
                                 },
@@ -101,12 +101,12 @@ TEST_CASE_FIXTURE(Fixture, "case-sensitive value comparison of relative path")
 {
   compare_ = Grep::Compare::Value;
   case_    = Grep::Case::Sensitive;
-  CHECK( testMatch( Path{{"fran"}},               "a+c" ) == 1 );
-  CHECK( testMatch( Path{{"fran"}},               "A+C" ) == 0 );
-  CHECK( testMatch( Path{{"narf", "fran"}},       "a+c" ) == 1 );
-  CHECK( testMatch( Path{{"narf", "fran"}},       "A+C" ) == 0 );
-  CHECK( testMatch( Path{{"NARF", "FRAN"}},       "a+c" ) == 0 );
-  CHECK( testMatch( Path{{"ping", "fran"}},       "a+c" ) == 0 );
+  CHECK( testMatch( Path{{"fran"}},               "a_c" ) == 1 );
+  CHECK( testMatch( Path{{"fran"}},               "A_C" ) == 0 );
+  CHECK( testMatch( Path{{"narf", "fran"}},       "a_c" ) == 1 );
+  CHECK( testMatch( Path{{"narf", "fran"}},       "A_C" ) == 0 );
+  CHECK( testMatch( Path{{"NARF", "FRAN"}},       "a_c" ) == 0 );
+  CHECK( testMatch( Path{{"ping", "fran"}},       "a_c" ) == 0 );
   CHECK( testMatch( Path{{"foo"}},                "bar" ) == 0 );
   CHECK( testMatch( Path{{"no", "such", "node"}}, "a=c" ) == 0 );
   CHECK( testMatch( Path{{}},                     "a=c" ) == 0 );
@@ -142,12 +142,12 @@ TEST_CASE_FIXTURE(Fixture, "case-insensitive value comparison of relative path")
 {
   compare_ = Grep::Compare::Value;
   case_    = Grep::Case::Insensitive;
-  CHECK( testMatch( Path{{"fran"}},               "a+c" ) == 1 );
-  CHECK( testMatch( Path{{"fran"}},               "A+C" ) == 1 );
-  CHECK( testMatch( Path{{"narf", "fran"}},       "a+c" ) == 1 );
-  CHECK( testMatch( Path{{"narf", "fran"}},       "A+C" ) == 1 );
-  CHECK( testMatch( Path{{"NARF", "FRAN"}},       "a+c" ) == 0 );
-  CHECK( testMatch( Path{{"ping", "fran"}},       "a+c" ) == 0 );
+  CHECK( testMatch( Path{{"fran"}},               "a_c" ) == 1 );
+  CHECK( testMatch( Path{{"fran"}},               "A_C" ) == 1 );
+  CHECK( testMatch( Path{{"narf", "fran"}},       "a_c" ) == 1 );
+  CHECK( testMatch( Path{{"narf", "fran"}},       "A_C" ) == 1 );
+  CHECK( testMatch( Path{{"NARF", "FRAN"}},       "a_c" ) == 0 );
+  CHECK( testMatch( Path{{"ping", "fran"}},       "a_c" ) == 0 );
   CHECK( testMatch( Path{{"foo"}},                "bar" ) == 0 );
   CHECK( testMatch( Path{{"no", "such", "node"}}, "a=c" ) == 0 );
   CHECK( testMatch( Path{{}},                     "a=c" ) == 0 );
