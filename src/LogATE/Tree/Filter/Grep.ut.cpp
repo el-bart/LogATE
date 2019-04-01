@@ -208,6 +208,7 @@ TEST_CASE_FIXTURE(Fixture, "case-insensitive key comparison of relative path")
 
 
 // TODO: test for arrays as well!
+// TODO: test for case where relative path is repeated in different subnodes, but some of them do not match while others do
 
 }
 

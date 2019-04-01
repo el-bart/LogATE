@@ -118,28 +118,41 @@ bool Grep::matchesAbsoluteValue(Log const& log) const
 
 namespace
 {
-bool matchesRelativeKeyRecursive(nlohmann::json const& log, Path const& path, std::regex const& re)
+bool matchesRelativeKeyDirect(nlohmann::json const& log, Path const& path, std::regex const& re)
 {
-  if( log.is_null() )
+  const auto n = getNodeByPath(log, path.begin(), path.end());
+  if(n.is_null())
     return false;
-
-  {
-    const auto n = getNodeByPath(log, path.begin(), path.end());
-    const auto str = value2str(n);
-    if(str && std::regex_search(*str, re))
+  for(auto it=n.begin(); it!=n.end(); ++it)
+    if( std::regex_search(it.key(), re) )
       return true;
-  }
+  return false;
+}
 
+bool matchesRelativeKeyRecursive(nlohmann::json const& log, Path const& path, std::regex const& re);
+
+bool matchesRelativeKeyInDirectChildren(nlohmann::json const& log, Path const& path, std::regex const& re)
+{
   for(auto it=log.begin(); it!=log.end(); ++it)
     if( matchesRelativeKeyRecursive(*it, path, re) )
       return true;
+  return false;
+}
+
+bool matchesRelativeKeyRecursive(nlohmann::json const& log, Path const& path, std::regex const& re)
+{
+  if( matchesRelativeKeyDirect(log, path, re) )
+    return true;
+  if( log.is_boolean() || log.is_number() || log.is_string() )
+    return false;
+  if( matchesRelativeKeyInDirectChildren(log, path, re) )
+    return true;
   return false;
 }
 }
 
 bool Grep::matchesRelativeKey(Log const& log) const
 {
-  throw 42;                                                                                         
   return matchesRelativeKeyRecursive(*log.log_, path_, re_);
 }
 
