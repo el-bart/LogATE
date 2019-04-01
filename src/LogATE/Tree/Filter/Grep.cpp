@@ -90,6 +90,16 @@ But::Optional<std::string> key2str(nlohmann::json const& node)
   throw 42;
   return {};
 }
+
+template<typename F>
+bool matchesAbsoluteComparator(Log const& log, Path const& path, std::regex const& re, F const& extract)
+{
+  const auto n = getNodeByPath(log, path.begin()+1, path.end());
+  const auto str = extract(n);
+  if(not str)
+    return false;
+  return std::regex_search(*str, re);
+}
 }
 
 bool Grep::matchesAbsoluteKey(Log const& log) const
@@ -100,29 +110,26 @@ bool Grep::matchesAbsoluteKey(Log const& log) const
 
 bool Grep::matchesAbsoluteValue(Log const& log) const
 {
-  const auto n = getNodeByPath(log, path_.begin()+1, path_.end());
-  const auto str = value2str(n);
-  if(not str)
-    return false;
-  return std::regex_search(*str, re_);
+  return matchesAbsoluteComparator(log, path_, re_, value2str);
 }
 
 namespace
 {
-bool matchesRelativeValueRecursive(nlohmann::json const& log, Path const& path, std::regex const& re)
+template<typename F>
+bool matchesRelativeValueRecursive(nlohmann::json const& log, Path const& path, std::regex const& re, F const& extract)
 {
   if( not log.is_object() && not log.is_array() )
     return false;
 
   {
     const auto n = getNodeByPath(log, path.begin(), path.end());
-    const auto str = value2str(n);
+    const auto str = extract(n);
     if(str && std::regex_search(*str, re))
       return true;
   }
 
   for(auto it=log.begin(); it!=log.end(); ++it)
-    if( matchesRelativeValueRecursive(*it, path, re) )
+    if( matchesRelativeValueRecursive(*it, path, re, extract) )
       return true;
   return false;
 }
@@ -137,7 +144,7 @@ bool Grep::matchesRelativeKey(Log const& log) const
 
 bool Grep::matchesRelativeValue(Log const& log) const
 {
-  return matchesRelativeValueRecursive(*log.log_, path_, re_);
+  return matchesRelativeValueRecursive(*log.log_, path_, re_, value2str);
 }
 
 }
