@@ -4,6 +4,7 @@
 #include "LogATE/Tree/Logs.hpp"
 #include "LogATE/Tree/Path.hpp"
 #include <But/Exception.hpp>
+#include <But/Mpl/FreeOperators.hpp>
 #include <string>
 #include <vector>
 
@@ -60,5 +61,9 @@ private:
   const Name name_;
   const TrimFields trimFields_;
 };
+
+
+BUT_MPL_FREE_OPERATORS_COMPARE(Node::Name, .value_)
+BUT_MPL_FREE_OPERATORS_COMPARE(Node::Type, .value_)
 
 }
