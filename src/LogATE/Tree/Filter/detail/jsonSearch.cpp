@@ -8,50 +8,8 @@
 namespace LogATE::Tree::Filter::detail
 {
 
-auto regexType(const Grep::Case c)
+namespace
 {
-  const auto def = std::regex_constants::optimize | std::regex_constants::egrep;
-  switch(c)
-  {
-    case Grep::Case::Sensitive:   return def;
-    case Grep::Case::Insensitive: return def | std::regex_constants::icase;
-  }
-}
-
-Grep::Grep(Name name, Path path, std::string regex, const Compare cmp, const Case c):
-  SimpleNode{ Type{"grep"}, std::move(name), TrimFields{path} },
-  path_{ std::move(path) },
-  cmp_{cmp},
-  re_{ std::move(regex), regexType(c) }
-{ }
-
-
-bool Grep::matches(Log const& log) const
-{
-  if( path_.value_.empty() )
-    return false;
-  if( path_.root() )
-    return matchesAbsolute(log);
-  return matchesRelative(log);
-}
-
-bool Grep::matchesAbsolute(Log const& log) const
-{
-  switch(cmp_)
-  {
-    case Compare::Key:   return matchesAbsoluteKey(log);
-    case Compare::Value: return matchesAbsoluteValue(log);
-  }
-}
-
-bool Grep::matchesRelative(Log const& log) const
-{
-  switch(cmp_)
-  {
-    case Compare::Key:   return matchesRelativeKey(log);
-    case Compare::Value: return matchesRelativeValue(log);
-  }
-}
 
 using PathIter = std::vector<std::string>::const_iterator;
 
@@ -93,19 +51,19 @@ bool hasMatchingKey(nlohmann::json const& node, std::regex const& re)
   return false;
 }
 
-bool Grep::matchesAbsoluteKey(Log const& log) const
+auto matchesAbsoluteKey(Log const& log, Path const& path, std::regex const& re)
 {
-  const auto n = getNodeByPath(log, path_.begin()+1, path_.end());
-  return hasMatchingKey(n, re_);
+  const auto n = getNodeByPath(log, path.begin()+1, path.end());
+  return hasMatchingKey(n, re);
 }
 
-bool Grep::matchesAbsoluteValue(Log const& log) const
+auto matchesAbsoluteValue(Log const& log, Path const& path, std::regex const& re)
 {
-  const auto n = getNodeByPath(log, path_.begin()+1, path_.end());
+  const auto n = getNodeByPath(log, path.begin()+1, path.end());
   const auto str = value2str(n);
   if(not str)
     return false;
-  return std::regex_search(*str, re_);
+  return std::regex_search(*str, re);
 }
 
 
@@ -136,9 +94,9 @@ bool matchesRelativeKeyRecursive(nlohmann::json const& log, Path const& path, st
   return false;
 }
 
-bool Grep::matchesRelativeKey(Log const& log) const
+auto matchesRelativeKey(Log const& log, Path const& path, std::regex const& re)
 {
-  return matchesRelativeKeyRecursive(*log.log_, path_, re_);
+  return matchesRelativeKeyRecursive(*log.log_, path, re);
 }
 
 
@@ -160,27 +118,31 @@ bool matchesRelativeValueRecursive(nlohmann::json const& log, Path const& path, 
   return false;
 }
 
-bool Grep::matchesRelativeValue(Log const& log) const
+auto matchesRelativeValue(Log const& log, Path const& path, std::regex const& re)
 {
-  return matchesRelativeValueRecursive(*log.log_, path_, re_);
+  return matchesRelativeValueRecursive(*log.log_, path, re);
 }
 
 }
 
 
-bool matchesKey(Log const& log, std::regex const& re)
+bool matchesKey(Log const& log, Path const& path, std::regex const& re)
 {
-  (void)log;
-  (void)re;
-  throw 42;
+  if( path.value_.empty() )
+    return false;
+  if( path.root() )
+    return matchesAbsoluteKey(log, path, re);
+  return matchesRelativeKey(log, path, re);
 }
 
 
-bool matchesValue(Log const& log, std::regex const& re)
+bool matchesValue(Log const& log, Path const& path, std::regex const& re)
 {
-  (void)log;
-  (void)re;
-  throw 42;
+  if( path.value_.empty() )
+    return false;
+  if( path.root() )
+    return matchesAbsoluteValue(log, path, re);
+  return matchesRelativeValue(log, path, re);
 }
 
 }

@@ -1,24 +1,25 @@
 #include <doctest/doctest.h>
-#include "LogATE/Tree/Filter/Grep.hpp"
+#include "LogATE/Tree/Filter/detail/jsonSearch.hpp"
 
 using LogATE::Log;
 using LogATE::json2log;
 using LogATE::Tree::Path;
-using LogATE::Tree::Filter::Grep;
+using LogATE::Tree::Filter::detail::matchesKey;
+using LogATE::Tree::Filter::detail::matchesValue;
+using LogATE::Tree::Filter::detail::g_defaultRegexType;
 
 namespace
 {
-TEST_SUITE("Tree::Filter::Grep")
+TEST_SUITE("Tree::Filter::detail::jsonSearch")
 {
 
 struct Fixture
 {
   auto testMatch(Path const& path, std::string const& re, Log const& log) const
   {
-    Grep g{Grep::Name{"foo"}, path, re, compare_, case_};
-    REQUIRE( g.logs().withLock()->empty() );
-    g.insert(log);
-    return g.logs().withLock()->size();
+    const std::regex reg{re, g_defaultRegexType};
+    REQUIRE(matchFunction);
+    return (*matchFunction)(log, path, reg);
   }
 
   auto testMatch(Path const& path, std::string const& re) const
@@ -80,207 +81,116 @@ struct Fixture
                                   ]
                                 }
                               })") };
-  Grep::Compare compare_;
-  Grep::Case case_;
+  bool (*matchFunction)(Log const&, Path const&, std::regex const&) = nullptr;
 };
 
 
 TEST_CASE_FIXTURE(Fixture, "converting all basic types for value comparison")
 {
+  matchFunction = matchesValue;
   SUBCASE("string")
   {
-    Grep g{Grep::Name{"foo"}, Path{{".", "val"}}, "ax*", Grep::Compare::Value, Grep::Case::Sensitive};
-    g.insert( json2log(R"({ "val": "axxx" })") );
-    CHECK( g.logs().withLock()->size() == 1 );
+    const auto log = json2log(R"({ "val": "axxx" })");
+    CHECK( testMatch(Path{{".", "val"}}, "ax*", log) );
   }
   SUBCASE("int")
   {
-    Grep g{Grep::Name{"foo"}, Path{{".", "val"}}, "42", Grep::Compare::Value, Grep::Case::Sensitive};
-    g.insert( json2log(R"({ "val": 42 })") );
-    CHECK( g.logs().withLock()->size() == 1 );
+    const auto log = json2log(R"({ "val": 42 })");
+    CHECK( testMatch(Path{{".", "val"}}, "42", log) );
   }
   SUBCASE("float")
   {
-    Grep g{Grep::Name{"foo"}, Path{{".", "val"}}, "4.0", Grep::Compare::Value, Grep::Case::Sensitive};
-    g.insert( json2log(R"({ "val": 4.0 })") );
-    CHECK( g.logs().withLock()->size() == 1 );
+    const auto log = json2log(R"({ "val": 4.0 })");
+    CHECK( testMatch(Path{{".", "val"}}, "4.0", log) );
   }
   SUBCASE("bool")
   {
-    Grep g{Grep::Name{"foo"}, Path{{".", "val"}}, "true", Grep::Compare::Value, Grep::Case::Sensitive};
-    g.insert( json2log(R"({ "val": true })") );
-    CHECK( g.logs().withLock()->size() == 1 );
+    const auto log = json2log(R"({ "val": true })");
+    CHECK( testMatch(Path{{".", "val"}}, "true", log) );
   }
   SUBCASE("regex matches in the middle as well")
   {
-    Grep g{Grep::Name{"foo"}, Path{{".", "val"}}, "xxx", Grep::Compare::Value, Grep::Case::Sensitive};
-    g.insert( json2log(R"({ "val": "foo-xxx-bar" })") );
-    CHECK( g.logs().withLock()->size() == 1 );
+    const auto log = json2log(R"({ "val": "foo-xxx-bar" })");
+    CHECK( testMatch(Path{{".", "val"}}, "xxx", log) );
   }
 }
 
-
-TEST_CASE_FIXTURE(Fixture, "case-sensitive value comparison of absolute path with regexs")
+TEST_CASE_FIXTURE(Fixture, "value comparison of absolute path with regexs")
 {
-  compare_ = Grep::Compare::Value;
-  case_    = Grep::Case::Sensitive;
-  CHECK( testMatch( Path{{".", "foo", "bar"}},         "a.*c" ) == 1 );
-  CHECK( testMatch( Path{{".", "FOO", "BAR"}},         "a.*c" ) == 0 );
-  CHECK( testMatch( Path{{".", "foo"}},                "b.*r" ) == 0 );
-  CHECK( testMatch( Path{{".", "no", "such", "node"}}, "a.*c" ) == 0 );
-  CHECK( testMatch( Path{{"."}},                       "a.*c" ) == 0 );
+  matchFunction = matchesValue;
+  CHECK( testMatch( Path{{".", "foo", "bar"}},         "a.*c" ) == true  );
+  CHECK( testMatch( Path{{".", "FOO", "BAR"}},         "a.*c" ) == false );
+  CHECK( testMatch( Path{{".", "foo"}},                "b.*r" ) == false );
+  CHECK( testMatch( Path{{".", "no", "such", "node"}}, "a.*c" ) == false );
+  CHECK( testMatch( Path{{"."}},                       "a.*c" ) == false );
 }
 
-TEST_CASE_FIXTURE(Fixture, "case-sensitive value comparison of absolute path")
+TEST_CASE_FIXTURE(Fixture, "value comparison of absolute path")
 {
-  compare_ = Grep::Compare::Value;
-  case_    = Grep::Case::Sensitive;
-  CHECK( testMatch( Path{{".", "foo", "bar"}},         "a/c" ) == 1 );
-  CHECK( testMatch( Path{{".", "foo", "bar"}},         "A/C" ) == 0 );
-  CHECK( testMatch( Path{{".", "FOO", "BAR"}},         "a/c" ) == 0 );
-  CHECK( testMatch( Path{{".", "foo"}},                "bar" ) == 0 );
-  CHECK( testMatch( Path{{".", "no", "such", "node"}}, "a=c" ) == 0 );
-  CHECK( testMatch( Path{{"."}},                       "a=c" ) == 0 );
+  matchFunction = matchesValue;
+  CHECK( testMatch( Path{{".", "foo", "bar"}},         "a/c" ) == true  );
+  CHECK( testMatch( Path{{".", "foo", "bar"}},         "A/C" ) == false );
+  CHECK( testMatch( Path{{".", "FOO", "BAR"}},         "a/c" ) == false );
+  CHECK( testMatch( Path{{".", "foo"}},                "bar" ) == false );
+  CHECK( testMatch( Path{{".", "no", "such", "node"}}, "a=c" ) == false );
+  CHECK( testMatch( Path{{"."}},                       "a=c" ) == false );
 }
 
-TEST_CASE_FIXTURE(Fixture, "case-sensitive value comparison of relative path")
+TEST_CASE_FIXTURE(Fixture, "value comparison of relative path")
 {
-  compare_ = Grep::Compare::Value;
-  case_    = Grep::Case::Sensitive;
-  CHECK( testMatch( Path{{"fran"}},               "a_c" ) == 1 );
-  CHECK( testMatch( Path{{"fran"}},               "A_C" ) == 0 );
-  CHECK( testMatch( Path{{"narf", "fran"}},       "a_c" ) == 1 );
-  CHECK( testMatch( Path{{"narf", "fran"}},       "A_C" ) == 0 );
-  CHECK( testMatch( Path{{"NARF", "FRAN"}},       "a_c" ) == 0 );
-  CHECK( testMatch( Path{{"ping", "fran"}},       "a_c" ) == 0 );
-  CHECK( testMatch( Path{{"foo"}},                "bar" ) == 0 );
-  CHECK( testMatch( Path{{"no", "such", "node"}}, "a=c" ) == 0 );
-  CHECK( testMatch( Path{{}},                     "a=c" ) == 0 );
-  CHECK( testMatchMulti( Path{{"narf"}},          "42"  ) == 1 );
-  CHECK( testMatchMulti( Path{{"bar"}},           "xxx" ) == 1 );
-  CHECK( testMatchMulti( Path{{"bar"}},           "yyy" ) == 1 );
-  CHECK( testMatchMulti( Path{{"bar"}},           "zzz" ) == 0 );
-  CHECK( testMatchMulti( Path{{"foo", "bar"}},    "xxx" ) == 1 );
-  CHECK( testMatchMulti( Path{{"foo", "bar"}},    "yyy" ) == 1 );
-  CHECK( testMatchMulti( Path{{"foo", "bar"}},    "zzz" ) == 0 );
+  matchFunction = matchesValue;
+  CHECK( testMatch( Path{{"fran"}},               "a_c" ) == true  );
+  CHECK( testMatch( Path{{"fran"}},               "A_C" ) == false );
+  CHECK( testMatch( Path{{"narf", "fran"}},       "a_c" ) == true  );
+  CHECK( testMatch( Path{{"narf", "fran"}},       "A_C" ) == false );
+  CHECK( testMatch( Path{{"NARF", "FRAN"}},       "a_c" ) == false );
+  CHECK( testMatch( Path{{"ping", "fran"}},       "a_c" ) == false );
+  CHECK( testMatch( Path{{"foo"}},                "bar" ) == false );
+  CHECK( testMatch( Path{{"no", "such", "node"}}, "a=c" ) == false );
+  CHECK( testMatch( Path{{}},                     "a=c" ) == false );
+  CHECK( testMatchMulti( Path{{"narf"}},          "42"  ) == true  );
+  CHECK( testMatchMulti( Path{{"bar"}},           "xxx" ) == true  );
+  CHECK( testMatchMulti( Path{{"bar"}},           "yyy" ) == true  );
+  CHECK( testMatchMulti( Path{{"bar"}},           "zzz" ) == false );
+  CHECK( testMatchMulti( Path{{"foo", "bar"}},    "xxx" ) == true  );
+  CHECK( testMatchMulti( Path{{"foo", "bar"}},    "yyy" ) == true  );
+  CHECK( testMatchMulti( Path{{"foo", "bar"}},    "zzz" ) == false );
 }
 
 
-TEST_CASE_FIXTURE(Fixture, "case-sensitive key comparison of absolute path")
+TEST_CASE_FIXTURE(Fixture, "key comparison of absolute path")
 {
-  compare_ = Grep::Compare::Key;
-  case_    = Grep::Case::Sensitive;
-  CHECK( testMatch( Path{{".", "PING", "PONG", "narf"}}, "fran"   ) == 1 );
-  CHECK( testMatch( Path{{".", "PING", "PONG", "narf"}}, "FRAN"   ) == 0 );
-  CHECK( testMatch( Path{{".", "PING", "PONG", "narf"}}, "FRANxx" ) == 0 );
-  CHECK( testMatch( Path{{".", "PONG", "narf"}},         "fran"   ) == 0 );
-  CHECK( testMatch( Path{{".", "foo"}},                "bar"    ) == 1 );
-  CHECK( testMatch( Path{{".", "foo"}},                "BAR"    ) == 0 );
-  CHECK( testMatch( Path{{".", "foo"}},                "ba$"    ) == 0 );
-  CHECK( testMatch( Path{{".", "no", "such", "node"}}, "bar"    ) == 0 );
-  CHECK( testMatch( Path{{"."}},                       "bar"    ) == 0 );
+  matchFunction = matchesKey;
+  CHECK( testMatch( Path{{".", "PING", "PONG", "narf"}}, "fran"   ) == true  );
+  CHECK( testMatch( Path{{".", "PING", "PONG", "narf"}}, "FRAN"   ) == false );
+  CHECK( testMatch( Path{{".", "PING", "PONG", "narf"}}, "FRANxx" ) == false );
+  CHECK( testMatch( Path{{".", "PONG", "narf"}},         "fran"   ) == false );
+  CHECK( testMatch( Path{{".", "foo"}},                  "bar"    ) == true  );
+  CHECK( testMatch( Path{{".", "foo"}},                  "BAR"    ) == false );
+  CHECK( testMatch( Path{{".", "foo"}},                  "ba$"    ) == false );
+  CHECK( testMatch( Path{{".", "no", "such", "node"}},   "bar"    ) == false );
+  CHECK( testMatch( Path{{"."}},                         "bar"    ) == false );
 }
 
-TEST_CASE_FIXTURE(Fixture, "case-sensitive key comparison of relative path")
+TEST_CASE_FIXTURE(Fixture, "key comparison of relative path")
 {
-  compare_ = Grep::Compare::Key;
-  case_    = Grep::Case::Sensitive;
-  CHECK( testMatch( Path{{"narf"}},               "fran"   ) == 1 );
-  CHECK( testMatch( Path{{"narf"}},               "FRAN"   ) == 0 );
-  CHECK( testMatch( Path{{"PONG", "narf"}},       "fran"   ) == 1 );
-  CHECK( testMatch( Path{{"PONG", "narf"}},       "FRAN"   ) == 0 );
-  CHECK( testMatch( Path{{"PONG", "narf"}},       "franXX" ) == 0 );
-  CHECK( testMatch( Path{{"PONG", "narf"}},       "FRANxx" ) == 0 );
-  CHECK( testMatch( Path{{"foo"}},                "bar"    ) == 1 );
-  CHECK( testMatch( Path{{"foo"}},                "ba$"    ) == 0 );
-  CHECK( testMatch( Path{{"no", "such", "node"}}, "bar"    ) == 0 );
-  CHECK( testMatch( Path{{}},                     "bar"    ) == 0 );
-  CHECK( testMatchMulti( Path{{"narf"}},          "fran"   ) == 1 );
-  CHECK( testMatchMulti( Path{{"narf"}},          "FRAN"   ) == 0 );
-  CHECK( testMatchMulti( Path{{"foo"}},           "bar" ) == 1 );
-  CHECK( testMatchMulti( Path{{"foo"}},           "BAR" ) == 0 );
-  CHECK( testMatchMulti( Path{{"foo"}},           "zzz" ) == 0 );
-  CHECK( testMatchMulti( Path{{"foo"}},           "ZZZ" ) == 0 );
-}
-
-
-
-
-TEST_CASE_FIXTURE(Fixture, "case-insensitive value comparison of absolute path")
-{
-  compare_ = Grep::Compare::Value;
-  case_    = Grep::Case::Insensitive;
-  CHECK( testMatch( Path{{".", "foo", "bar"}},         "a/c" ) == 1 );
-  CHECK( testMatch( Path{{".", "foo", "bar"}},         "A/C" ) == 1 );
-  CHECK( testMatch( Path{{".", "FOO", "BAR"}},         "a/c" ) == 0 );
-  CHECK( testMatch( Path{{".", "foo"}},                "bar" ) == 0 );
-  CHECK( testMatch( Path{{".", "no", "such", "node"}}, "a=c" ) == 0 );
-  CHECK( testMatch( Path{{"."}},                       "a=c" ) == 0 );
-}
-
-TEST_CASE_FIXTURE(Fixture, "case-insensitive value comparison of relative path")
-{
-  compare_ = Grep::Compare::Value;
-  case_    = Grep::Case::Insensitive;
-  CHECK( testMatch( Path{{"fran"}},               "a_c" ) == 1 );
-  CHECK( testMatch( Path{{"fran"}},               "A_C" ) == 1 );
-  CHECK( testMatch( Path{{"narf", "fran"}},       "a_c" ) == 1 );
-  CHECK( testMatch( Path{{"narf", "fran"}},       "A_C" ) == 1 );
-  CHECK( testMatch( Path{{"NARF", "FRAN"}},       "a_c" ) == 0 );
-  CHECK( testMatch( Path{{"ping", "fran"}},       "a_c" ) == 0 );
-  CHECK( testMatch( Path{{"foo"}},                "bar" ) == 0 );
-  CHECK( testMatch( Path{{"no", "such", "node"}}, "a=c" ) == 0 );
-  CHECK( testMatch( Path{{}},                     "a=c" ) == 0 );
-  CHECK( testMatchMulti( Path{{"narf"}},          "42"  ) == 1 );
-  CHECK( testMatchMulti( Path{{"bar"}},           "xxx" ) == 1 );
-  CHECK( testMatchMulti( Path{{"bar"}},           "XXX" ) == 1 );
-  CHECK( testMatchMulti( Path{{"bar"}},           "yyy" ) == 1 );
-  CHECK( testMatchMulti( Path{{"bar"}},           "YYY" ) == 1 );
-  CHECK( testMatchMulti( Path{{"bar"}},           "zzz" ) == 0 );
-  CHECK( testMatchMulti( Path{{"bar"}},           "ZZZ" ) == 0 );
-  CHECK( testMatchMulti( Path{{"foo", "bar"}},    "xxx" ) == 1 );
-  CHECK( testMatchMulti( Path{{"foo", "bar"}},    "XXX" ) == 1 );
-  CHECK( testMatchMulti( Path{{"foo", "bar"}},    "yyy" ) == 1 );
-  CHECK( testMatchMulti( Path{{"foo", "bar"}},    "YYY" ) == 1 );
-  CHECK( testMatchMulti( Path{{"foo", "bar"}},    "zzz" ) == 0 );
-}
-
-
-TEST_CASE_FIXTURE(Fixture, "case-insensitive key comparison of absolute path")
-{
-  compare_ = Grep::Compare::Key;
-  case_    = Grep::Case::Insensitive;
-  CHECK( testMatch( Path{{".", "PING", "PONG", "narf"}}, "fran"   ) == 1 );
-  CHECK( testMatch( Path{{".", "PING", "PONG", "narf"}}, "FRAN"   ) == 1 );
-  CHECK( testMatch( Path{{".", "PING", "PONG", "narf"}}, "FRANxx" ) == 0 );
-  CHECK( testMatch( Path{{".", "PONG", "narf"}},         "fran"   ) == 0 );
-  CHECK( testMatch( Path{{".", "foo"}},                "bar"    ) == 1 );
-  CHECK( testMatch( Path{{".", "foo"}},                "BAR"    ) == 1 );
-  CHECK( testMatch( Path{{".", "foo"}},                "ba$"    ) == 0 );
-  CHECK( testMatch( Path{{".", "no", "such", "node"}}, "bar"    ) == 0 );
-  CHECK( testMatch( Path{{"."}},                       "bar"    ) == 0 );
-}
-
-TEST_CASE_FIXTURE(Fixture, "case-insensitive key comparison of relative path")
-{
-  compare_ = Grep::Compare::Key;
-  case_    = Grep::Case::Insensitive;
-  CHECK( testMatch( Path{{"narf"}},               "fran"   ) == 1 );
-  CHECK( testMatch( Path{{"narf"}},               "FRAN"   ) == 1 );
-  CHECK( testMatch( Path{{"PONG", "narf"}},       "fran"   ) == 1 );
-  CHECK( testMatch( Path{{"PONG", "narf"}},       "FRAN"   ) == 1 );
-  CHECK( testMatch( Path{{"PONG", "narf"}},       "franXX" ) == 0 );
-  CHECK( testMatch( Path{{"PONG", "narf"}},       "FRANxx" ) == 0 );
-  CHECK( testMatch( Path{{"foo"}},                "bar"    ) == 1 );
-  CHECK( testMatch( Path{{"foo"}},                "ba$"    ) == 0 );
-  CHECK( testMatch( Path{{"no", "such", "node"}}, "bar"    ) == 0 );
-  CHECK( testMatch( Path{{}},                     "bar"    ) == 0 );
-  CHECK( testMatchMulti( Path{{"narf"}},          "fran"   ) == 1 );
-  CHECK( testMatchMulti( Path{{"narf"}},          "FRAN"   ) == 1 );
-  CHECK( testMatchMulti( Path{{"foo"}},           "bar" ) == 1 );
-  CHECK( testMatchMulti( Path{{"foo"}},           "BAR" ) == 1 );
-  CHECK( testMatchMulti( Path{{"foo"}},           "zzz" ) == 0 );
-  CHECK( testMatchMulti( Path{{"foo"}},           "ZZZ" ) == 0 );
+  matchFunction = matchesKey;
+  CHECK( testMatch( Path{{"narf"}},               "fran"   ) == true  );
+  CHECK( testMatch( Path{{"narf"}},               "FRAN"   ) == false );
+  CHECK( testMatch( Path{{"PONG", "narf"}},       "fran"   ) == true  );
+  CHECK( testMatch( Path{{"PONG", "narf"}},       "FRAN"   ) == false );
+  CHECK( testMatch( Path{{"PONG", "narf"}},       "franXX" ) == false );
+  CHECK( testMatch( Path{{"PONG", "narf"}},       "FRANxx" ) == false );
+  CHECK( testMatch( Path{{"foo"}},                "bar"    ) == true  );
+  CHECK( testMatch( Path{{"foo"}},                "ba$"    ) == false );
+  CHECK( testMatch( Path{{"no", "such", "node"}}, "bar"    ) == false );
+  CHECK( testMatch( Path{{}},                     "bar"    ) == false );
+  CHECK( testMatchMulti( Path{{"narf"}},          "fran"   ) == true  );
+  CHECK( testMatchMulti( Path{{"narf"}},          "FRAN"   ) == false );
+  CHECK( testMatchMulti( Path{{"foo"}},           "bar"    ) == true  );
+  CHECK( testMatchMulti( Path{{"foo"}},           "BAR"    ) == false );
+  CHECK( testMatchMulti( Path{{"foo"}},           "zzz"    ) == false );
+  CHECK( testMatchMulti( Path{{"foo"}},           "ZZZ"    ) == false );
 }
 
 }

@@ -1,12 +1,14 @@
 #pragma once
 #include "LogATE/Log.hpp"
-#include "LogATE/Path.hpp"
+#include "LogATE/Tree/Path.hpp"
 #include <regex>
 
 namespace LogATE::Tree::Filter::detail
 {
 
-bool matchesKey(Log const& log, std::regex const& re);
-bool matchesValue(Log const& log, std::regex const& re);
+static constexpr auto g_defaultRegexType = std::regex_constants::egrep;
+
+bool matchesKey(Log const& log, Path const& path, std::regex const& re);
+bool matchesValue(Log const& log, Path const& path, std::regex const& re);
 
 }
