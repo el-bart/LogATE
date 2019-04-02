@@ -8,9 +8,9 @@ namespace LogATE::Tree::Filter
 class Explode: public Node
 {
 public:
-  BUT_DEFINE_EXCEPTION(ExplicitNodeAddNotSupported, But::Exception, "explicit node addition not available for 'explode' node");
+  BUT_DEFINE_EXCEPTION(ExplicitNodeAddNotSupported, Node::Error, "explicit node addition not available for 'explode' node");
 
-  Explode(Type type, Name name, Path path);
+  Explode(Name name, Path path);
 
   void insert(Log const& log) override;
   Children children() const override;

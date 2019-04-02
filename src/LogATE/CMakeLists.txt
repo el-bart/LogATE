@@ -8,8 +8,8 @@ add_library(LogATE
   Tree/Filter/AcceptAll.cpp
   Tree/Filter/Explode.cpp
   Tree/Filter/Grep.cpp
+  Tree/Filter/jsonSearch.cpp
   SequenceNumber.cpp
-  placeholder.cpp
 )
 target_include_directories(LogATE PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(LogATE
@@ -33,7 +33,7 @@ if(LOGATE_ENABLE_TESTS)
     Tree/SimpleNode.ut.cpp
     Tree/Filter/Explode.ut.cpp
     Tree/Filter/Grep.ut.cpp
-    placeholder.ut.cpp
+    Tree/Filter/jsonSearch.ut.cpp
     main.ut.cpp
   )
   add_executable(LogATE_mts
