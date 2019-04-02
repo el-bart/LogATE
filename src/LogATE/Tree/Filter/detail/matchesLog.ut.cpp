@@ -1,5 +1,5 @@
 #include <doctest/doctest.h>
-#include "LogATE/Tree/Filter/detail/jsonSearch.hpp"
+#include "LogATE/Tree/Filter/detail/matchesLog.hpp"
 
 using LogATE::Log;
 using LogATE::json2log;

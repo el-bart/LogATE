@@ -1,4 +1,4 @@
-#include "LogATE/Tree/Filter/Grep.hpp"
+#include "LogATE/Tree/Filter/detail/matchesLog.hpp"
 #include "But/Optional.hpp"
 
 // TODO: arrays are ignored for now (i.e. nothing is searched inside them) - this should change
