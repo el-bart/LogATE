@@ -6,7 +6,7 @@
 namespace LogATE::Tree::Filter::detail
 {
 
-static constexpr auto g_defaultRegexType = std::regex_constants::egrep;
+static constexpr auto g_defaultRegexType = std::regex_constants::egrep | std::regex_constants::optimize;
 
 bool matchesKey(Log const& log, Path const& path, std::regex const& re);
 bool matchesValue(Log const& log, Path const& path, std::regex const& re);
