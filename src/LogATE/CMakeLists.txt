@@ -3,6 +3,7 @@ project(LogATE)
 
 add_library(LogATE
   Log.cpp
+  Tree/Node.cpp
   Tree/Logs.cpp
   Tree/SimpleNode.cpp
   Tree/Filter/AcceptAll.cpp
@@ -29,6 +30,7 @@ install(TARGETS LogATE
 if(LOGATE_ENABLE_TESTS)
   add_executable(LogATE_uts
     Tree/Logs.ut.cpp
+    Tree/Node.ut.cpp
     Tree/Path.ut.cpp
     Tree/SimpleNode.ut.cpp
     Tree/Filter/Explode.ut.cpp

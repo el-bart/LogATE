@@ -44,6 +44,8 @@ public:
   Logs& logs()             { return logs_; }
   Logs const& logs() const { return logs_; }
 
+  void pruneUpTo(const SequenceNumber sn);
+
 protected:
   Node(Type type, Name name, TrimFields trimFields):
       type_{ std::move(type) },
