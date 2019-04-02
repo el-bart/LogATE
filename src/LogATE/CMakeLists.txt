@@ -5,6 +5,8 @@ add_library(LogATE
   Log.cpp
   Tree/Logs.cpp
   Tree/SimpleNode.cpp
+  Tree/Filter/AcceptAll.cpp
+  Tree/Filter/Explode.cpp
   Tree/Filter/Grep.cpp
   SequenceNumber.cpp
   placeholder.cpp
@@ -29,6 +31,7 @@ if(LOGATE_ENABLE_TESTS)
     Tree/Logs.ut.cpp
     Tree/Path.ut.cpp
     Tree/SimpleNode.ut.cpp
+    Tree/Filter/Explode.ut.cpp
     Tree/Filter/Grep.ut.cpp
     placeholder.ut.cpp
     main.ut.cpp
