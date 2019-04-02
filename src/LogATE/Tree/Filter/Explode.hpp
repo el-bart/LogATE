@@ -19,6 +19,7 @@ public:
 private:
   const Path path_;
   std::vector<NodeShPtr> children_;
+  const NodeShPtr nonMatchingChild_;
 };
 
 }
