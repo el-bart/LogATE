@@ -3,6 +3,7 @@
 #include "LogATE/Log.hpp"
 #include "LogATE/Tree/Logs.hpp"
 #include "LogATE/Tree/Path.hpp"
+#include <But/Exception.hpp>
 #include <string>
 #include <vector>
 
@@ -17,6 +18,8 @@ using NodeShPtr = But::NotNullShared<Node>;
 class Node
 {
 public:
+  BUT_DEFINE_EXCEPTION(Error, But::Exception, "log node error");
+
   struct Type final { std::string value_; };
   struct Name final { std::string value_; };
   using TrimFields = std::vector<Path>;
