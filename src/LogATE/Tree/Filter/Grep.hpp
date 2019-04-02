@@ -18,15 +18,20 @@ public:
     Sensitive,
     Insensitive
   };
+  enum class Search
+  {
+    Regular,
+    Inverse
+  };
 
-  // TODO: add inverted search flag
-  Grep(Name name, Path path, std::string regex, Compare cmp, Case c = Case::Sensitive);
+  Grep(Name name, Path path, std::string regex, Compare cmp, Case c = Case::Sensitive, Search search = Search::Regular);
 
 private:
   bool matches(Log const& log) const override;
 
   const Path path_;
   const Compare cmp_;
+  const Search search_;
   const std::regex re_;
 };
 

@@ -18,20 +18,34 @@ auto regexType(const Grep::Case c)
 }
 }
 
-Grep::Grep(Name name, Path path, std::string regex, const Compare cmp, const Case c):
+Grep::Grep(Name name, Path path, std::string regex, const Compare cmp, const Case c, const Search search):
   SimpleNode{ Type{"grep"}, std::move(name), TrimFields{path} },
   path_{ std::move(path) },
   cmp_{cmp},
+  search_{search},
   re_{ std::move(regex), regexType(c) }
 { }
 
 
+namespace
+{
+auto checkMatch(Log const& log, Path const& path, std::regex const& re, const Grep::Compare cmp)
+{
+  switch(cmp)
+  {
+    case Grep::Compare::Key:   return detail::matchesKey(log, path, re);
+    case Grep::Compare::Value: return detail::matchesValue(log, path, re);
+  }
+}
+}
+
 bool Grep::matches(Log const& log) const
 {
-  switch(cmp_)
+  const auto res = checkMatch(log, path_, re_, cmp_);
+  switch(search_)
   {
-    case Compare::Key:   return detail::matchesKey(log, path_, re_);
-    case Compare::Value: return detail::matchesValue(log, path_, re_);
+    case Search::Regular: return res;
+    case Search::Inverse: return not res;
   }
 }
 
