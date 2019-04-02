@@ -19,6 +19,7 @@ public:
     Insensitive
   };
 
+  // TODO: add inverted search flag
   Grep(Name name, Path path, std::string regex, Compare cmp, Case c = Case::Sensitive);
 
 private:
