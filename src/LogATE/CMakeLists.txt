@@ -3,6 +3,7 @@ project(LogATE)
 
 add_library(LogATE
   Log.cpp
+  Net/TcpServer.cpp
   Tree/Node.cpp
   Tree/Logs.cpp
   Tree/SimpleNode.cpp
@@ -39,10 +40,10 @@ if(LOGATE_ENABLE_TESTS)
     main.ut.cpp
   )
   add_executable(LogATE_mts
-    placeholder.mt.cpp
     main.mt.cpp
   )
   add_executable(LogATE_its
+    Net/TcpServer.it.cpp
     main.it.cpp
   )
 
