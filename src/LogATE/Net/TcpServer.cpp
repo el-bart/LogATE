@@ -24,12 +24,18 @@ TcpServer::~TcpServer()
 
 But::Optional<Log> TcpServer::readNextLog()
 {
-  return {};            // TODO
+  Queue::lock_type lock{queue_};
+  if( queue_.empty() )
+    queue_.waitForNonEmpty(lock);
+  auto tmp = std::move( queue_.top() );
+  queue_.pop();
+  return tmp;
 }
 
 void TcpServer::interrupt()
 {
-  // TODO
+  quit_ = true;
+  queue_.withLock()->push( Queue::value_type{} );
 }
 
 void TcpServer::workerLoop()
@@ -42,7 +48,7 @@ void TcpServer::workerLoop()
     Poco::Net::SocketStream client{clientSocket};
     nlohmann::json tmp;
     client >> tmp;
-    queue_.withLock()->push_back( std::move(tmp) );
+    queue_.withLock()->push( makeLog( std::move(tmp) ) );
   }
 }
 

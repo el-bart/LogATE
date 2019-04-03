@@ -29,9 +29,9 @@ private:
 
   const Poco::Timespan pollTimeout_;
   std::atomic<bool> quit_{false};
+  Queue queue_;
   Poco::Net::ServerSocket ss_;
   But::Threading::JoiningThread<std::thread> workerThread_;
-  Queue queue_;
 };
 
 }
