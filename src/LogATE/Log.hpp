@@ -14,5 +14,6 @@ struct Log
 };
 
 Log json2log(std::string const& in);
+Log makeLog(nlohmann::json json);
 
 }
