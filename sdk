@@ -8,5 +8,6 @@ exec docker run \
        --cap-add SYS_PTRACE \
        -it \
        --rm \
+       --network=host \
        "baszerr/logate-sdk" \
        "$@"
