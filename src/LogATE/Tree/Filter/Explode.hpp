@@ -16,6 +16,8 @@ public:
   Children children() const override;
   void add(NodePtr node) override;
 
+  static auto nonMatchingChildName() { return Name{"<unmatched>"}; }
+
 private:
   const Path path_;
   std::vector<NodeShPtr> children_;

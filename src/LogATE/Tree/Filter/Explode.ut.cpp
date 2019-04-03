@@ -48,7 +48,7 @@ struct Fixture
 TEST_CASE_FIXTURE(Fixture, "there is always a default child for getting all unmatched logs")
 {
   const auto out = extractLogs();
-  (void)out;
+  CHECK( out.count( Explode::nonMatchingChildName() ) == 1 );
 }
 
 TEST_CASE_FIXTURE(Fixture, "trimming search field")
