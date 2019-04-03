@@ -1,5 +1,5 @@
 #include "LogATE/Net/TcpServer.hpp"
 
-namespace LogATE::Net::TcpServer
+namespace LogATE::Net
 {
 }

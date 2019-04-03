@@ -8,6 +8,8 @@
 //#include <Poco/StreamCopier.h>
 #include <Poco/Timespan.h>
 //#include <Poco/FileStream.h>
+#include <chrono>
+#include <atomic>
 
 namespace LogATE::Net
 {
@@ -25,7 +27,7 @@ public:
 
 private:
 //  struct ClientThread
-  const Timespan pollTimeout_;
+  const Poco::Timespan pollTimeout_;
   std::atomic<bool> quit_{false};
 //  std::vector<But::Treading::JoiningThread> threads_;
   Poco::Net::ServerSocket ss_;
