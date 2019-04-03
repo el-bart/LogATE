@@ -7,9 +7,9 @@ namespace LogATE::Tree
 class SimpleNode: public Node
 {
 public:
-  void insert(Log const& log) override;
-  Children children() const override;
-  void add(NodePtr node) override;
+  void insert(Log const& log) override final;
+  Children children() const override final;
+  void add(NodePtr node) override final;
 
 protected:
   SimpleNode(Type type, Name name, TrimFields trimFields):
