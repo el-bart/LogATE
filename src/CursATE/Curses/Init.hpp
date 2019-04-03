@@ -8,6 +8,8 @@ struct Init
   Init()
   {
     initscr();
+    cbreak();
+    noecho();
   }
 
   ~Init()
