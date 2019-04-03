@@ -1,6 +1,7 @@
 #pragma once
 #include "LogATE/Tree/Node.hpp"
 #include <unordered_map>
+#include <mutex>
 #include <regex>
 
 namespace LogATE::Tree::Filter
@@ -26,10 +27,13 @@ private:
     std::hash<std::string> hash_;
   };
 
+  NodeShPtr nodeFor(Name const& name);
+
   const Path path_;
-  std::unordered_map<Node::Name, NodeShPtr, NodeNameHash> children_;
   const NodeShPtr nonMatchingChild_;
   const std::regex matchAny_;
+  mutable std::mutex mutex_;
+  std::unordered_map<Node::Name, NodeShPtr, NodeNameHash> children_;
 };
 
 }
