@@ -3,6 +3,7 @@ project(LogATE)
 
 add_library(LogATE
   Log.cpp
+  Net/TcpClient.cpp
   Net/TcpServer.cpp
   Tree/Node.cpp
   Tree/Logs.cpp
@@ -15,6 +16,8 @@ add_library(LogATE
 )
 target_include_directories(LogATE PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(LogATE
+  PocoNet
+  PocoFoundation
   /usr/local/lib/libbut.a
   pthread
 )
