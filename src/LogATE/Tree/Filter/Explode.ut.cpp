@@ -1,5 +1,6 @@
 #include <doctest/doctest.h>
 #include "LogATE/Tree/Filter/Explode.hpp"
+#include "LogATE/Tree/Filter/AcceptAll.hpp"
 #include "LogATE/Tree/TestHelpers.ut.hpp"
 #include "LogATE/TestPrints.ut.hpp"
 #include <vector>
@@ -37,6 +38,8 @@ struct Fixture
     return log;
   }
 
+  auto name(std::string const& name) const { return Explode::Name{name}; }
+
   Explode explode_{ Explode::Name{"foo"}, Path{{".", "foo"}} };
   const Log log1_{ makeLog(1, R"( { "foo": "xxx", "bar": 42 } )") };
   const Log log2_{ makeLog(2, R"( { "foo": "yyy", "bar": 44 } )") };
@@ -73,6 +76,8 @@ TEST_CASE_FIXTURE(Fixture, "field can be specified with a relative path")
 
 TEST_CASE_FIXTURE(Fixture, "explicit addition of child fails")
 {
+  using LogATE::Tree::Filter::AcceptAll;
+  CHECK_THROWS_AS( explode_.add( But::makeUniqueNN<AcceptAll>(name("xxx")) ), Explode::ExplicitNodeAddNotSupported );
 }
 
 }

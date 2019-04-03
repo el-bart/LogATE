@@ -33,8 +33,7 @@ Explode::Children Explode::children() const
 
 void Explode::add(NodePtr node)
 {
-  (void)node;
-  throw 43;
+  BUT_THROW(ExplicitNodeAddNotSupported, "while trying to add node: " << node->name().value_);
 }
 
 }
