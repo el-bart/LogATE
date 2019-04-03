@@ -1,6 +1,6 @@
 #pragma once
 #include "LogATE/Tree/Node.hpp"
-#include <unordered_set>
+#include <unordered_map>
 #include <regex>
 
 namespace LogATE::Tree::Filter
@@ -20,19 +20,14 @@ public:
   static auto nonMatchingChildName() { return Name{"<unmatched>"}; }
 
 private:
-  struct NodeHash final
+  struct NodeNameHash final
   {
-    size_t operator()(NodeShPtr const& node) const { return hash_( node->name().value_ ); }
+    size_t operator()(Node::Name const& name) const { return hash_( name.value_ ); }
     std::hash<std::string> hash_;
   };
 
-  struct NodeCompare final
-  {
-    bool operator()(NodeShPtr const& lhs, NodeShPtr const& rhs) const { return lhs.get() == rhs.get(); }
-  };
-
   const Path path_;
-  std::unordered_set<NodeShPtr, NodeHash, NodeCompare> children_;
+  std::unordered_map<Node::Name, NodeShPtr, NodeNameHash> children_;
   const NodeShPtr nonMatchingChild_;
   const std::regex matchAny_;
 };

@@ -39,6 +39,8 @@ struct Fixture
   }
 
   auto name(std::string const& name) const { return Explode::Name{name}; }
+  template<typename ...Args>
+  auto sns(Args... args) { return std::vector<SequenceNumber>{args.sn_...}; }
 
   Explode explode_{ Explode::Name{"foo"}, Path{{".", "foo"}} };
   const Log log1_{ makeLog(1, R"( { "foo": "xxx", "bar": 42 } )") };
@@ -63,22 +65,57 @@ TEST_CASE_FIXTURE(Fixture, "trimming search field")
 
 TEST_CASE_FIXTURE(Fixture, "hitting one destination")
 {
+  explode_.insert(log1_);
+  explode_.insert(log3_);
+  const auto out = extractLogs();
+  REQUIRE( out.size() == 2 );
+  CHECK( out.at( Explode::nonMatchingChildName() ) == sns() );
+  CHECK( out.at( name("xxx") ) == sns(log1_, log3_) );
 }
 
 TEST_CASE_FIXTURE(Fixture, "new value creates new destination")
 {
+  explode_.insert(log1_);
+  explode_.insert(log2_);
+  explode_.insert(log3_);
+  const auto out = extractLogs();
+  REQUIRE( out.size() == 3 );
+  CHECK( out.at( Explode::nonMatchingChildName() ) == sns() );
+  CHECK( out.at( name("xxx") ) == sns(log1_, log3_) );
+  CHECK( out.at( name("yyy") ) == sns(log2_) );
 }
 
 TEST_CASE_FIXTURE(Fixture, "logs w/o required fieled go to default location")
 {
+  explode_.insert(log4_);
+  const auto out = extractLogs();
+  REQUIRE( out.size() == 1 );
+  CHECK( out.at( Explode::nonMatchingChildName() ) == sns(log4_) );
 }
 
 TEST_CASE_FIXTURE(Fixture, "field can be specified with a relative path")
 {
+  Explode explode{ Explode::Name{"foo"}, Path{{"foo"}} };
+  explode.insert(log1_);
+  explode.insert(log2_);
+  explode.insert(log3_);
+  const auto out = extractLogs(explode);
+  REQUIRE( out.size() == 3 );
+  CHECK( out.at( Explode::nonMatchingChildName() ) == sns() );
+  CHECK( out.at( name("xxx") ) == sns(log1_, log3_) );
+  CHECK( out.at( name("yyy") ) == sns(log2_) );
 }
 
 TEST_CASE_FIXTURE(Fixture, "ambigous relative path adds logs to multiple cathegories")
 {
+  const auto log = makeLog(1, R"( { "foo": "xxx", "bar": { "foo": "yyy" } } )");
+  Explode explode{ Explode::Name{"foo"}, Path{{"foo"}} };
+  explode.insert(log);
+  const auto out = extractLogs(explode);
+  REQUIRE( out.size() == 3 );
+  CHECK( out.at( Explode::nonMatchingChildName() ) == sns() );
+  CHECK( out.at( name("xxx") ) == sns(log) );
+  CHECK( out.at( name("yyy") ) == sns(log) );
 }
 
 TEST_CASE_FIXTURE(Fixture, "explicit addition of child fails")

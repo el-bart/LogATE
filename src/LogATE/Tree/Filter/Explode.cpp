@@ -22,13 +22,28 @@ Explode::Explode(Name name, Path path):
 
 void Explode::insert(Log const& log)
 {
-  (void)log;
-  throw 41;
+  auto values = detail::allValues(log, path_);
+  if( values.empty() )
+  {
+    nonMatchingChild_->insert(log);
+    return;
+  }
+  for(auto value: values)
+  {
+    auto name = Name{value};
+    auto it = children_.find(name);
+    if( it == end(children_) )
+      it = children_.insert( std::make_pair(name, acceptAllOutput(name.value_)) ).first;
+    it->second->insert(log);
+  }
 }
 
 Explode::Children Explode::children() const
 {
   Children out;
+  out.reserve( children_.size() + 1 );
+  for(auto child: children_)
+    out.push_back(child.second);
   out.push_back(nonMatchingChild_);
   return out;
 }
