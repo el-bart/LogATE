@@ -65,7 +65,7 @@ if(LOGATE_ENABLE_TESTS)
   endforeach()
 
   set(SOURCES_MANUAL
-    placeholder.manual.cpp
+    Net/TcpClient.manual.cpp
   )
 
   foreach(src ${SOURCES_MANUAL})
