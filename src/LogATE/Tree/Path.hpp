@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <string>
+#include <But/Mpl/FreeOperators.hpp>
 
 namespace LogATE::Tree
 {
@@ -13,5 +14,7 @@ struct Path final
 
   std::vector<std::string> value_;
 };
+
+BUT_MPL_FREE_OPERATORS_COMPARE(Path, .value_);
 
 }
