@@ -6,6 +6,7 @@ using LogATE::json2log;
 using LogATE::Tree::Path;
 using LogATE::Tree::Filter::detail::matchesKey;
 using LogATE::Tree::Filter::detail::matchesValue;
+using LogATE::Tree::Filter::detail::allValues;
 using LogATE::Tree::Filter::detail::g_defaultRegexType;
 
 namespace
@@ -191,6 +192,59 @@ TEST_CASE_FIXTURE(Fixture, "key comparison of relative path")
   CHECK( testMatchMulti( Path{{"foo"}},           "BAR"    ) == false );
   CHECK( testMatchMulti( Path{{"foo"}},           "zzz"    ) == false );
   CHECK( testMatchMulti( Path{{"foo"}},           "ZZZ"    ) == false );
+}
+
+TEST_CASE_FIXTURE(Fixture, "getting all key values for an aboslute path")
+{
+  SUBCASE("existing key")
+  {
+    const auto out = allValues(log_, Path{{".", "foo", "bar"}});
+    REQUIRE( out.size() == 1 );
+    CHECK( out[0] == "a/c" );
+  }
+  SUBCASE("non-existing key")
+  {
+    const auto out = allValues(log_, Path{{".", "xxx", "yyy"}});
+    CHECK( out.size() == 0 );
+  }
+}
+
+TEST_CASE_FIXTURE(Fixture, "getting all key values for a relative path")
+{
+  SUBCASE("existing key")
+  {
+    auto out = allValues(logMulti_, Path{{"foo", "bar"}});
+    REQUIRE( out.size() == 2 );
+    std::sort( begin(out), end(out) );
+    CHECK( out[0] == "xxx" );
+    CHECK( out[1] == "yyy" );
+  }
+  SUBCASE("non-existing key")
+  {
+    const auto out = allValues(log_, Path{{"xxx", "yyy"}});
+    CHECK( out.size() == 0 );
+  }
+}
+
+TEST_CASE_FIXTURE(Fixture, "keys can only be taken out of key:value pair (not object/array)")
+{
+  auto out = allValues(logMulti_, Path{{"foo"}});
+  REQUIRE( out.size() == 0 );
+}
+
+TEST_CASE_FIXTURE(Fixture, "relative paths leading to the same values are unified")
+{
+  const Log repeatedLog{ json2log(R"({
+                                "one": {
+                                  "bar": "xx"
+                                },
+                                "two": {
+                                  "bar": "xx"
+                                }
+                              })") };
+  auto out = allValues(repeatedLog, Path{{"bar"}});
+  REQUIRE( out.size() == 1 );
+  CHECK( out[0] == "xx" );
 }
 
 }

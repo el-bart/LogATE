@@ -1,5 +1,7 @@
 #include "LogATE/Tree/Filter/detail/matchesLog.hpp"
 #include "But/Optional.hpp"
+#include <string>
+#include <vector>
 
 // TODO: arrays are ignored for now (i.e. nothing is searched inside them) - this should change
 // TODO: there are a lot of searches, recursion and comparisons. there is a need for a fundamental change in an
@@ -41,66 +43,75 @@ But::Optional<std::string> value2str(nlohmann::json const& node)
   return {};
 }
 
-bool hasMatchingKey(nlohmann::json const& node, std::regex const& re)
+template<typename F>
+bool hasMatchingKey(nlohmann::json const& node, F const& cmp)
 {
   if( not node.is_object() )
     return false;
   for(auto it=node.begin(); it!=node.end(); ++it)
-    if( std::regex_search(it.key(), re) )
+    if( cmp( it.key() ) )
       return true;
   return false;
 }
 
-auto matchesAbsoluteKey(Log const& log, Path const& path, std::regex const& re)
+template<typename F>
+auto matchesAbsoluteKey(Log const& log, Path const& path, F const& cmp)
 {
   const auto n = getNodeByPath(log, path.begin()+1, path.end());
-  return hasMatchingKey(n, re);
+  return hasMatchingKey(n, cmp);
 }
 
-auto matchesAbsoluteValue(Log const& log, Path const& path, std::regex const& re)
+template<typename F>
+auto matchesAbsoluteValue(Log const& log, Path const& path, F const& cmp)
 {
   const auto n = getNodeByPath(log, path.begin()+1, path.end());
   const auto str = value2str(n);
   if(not str)
     return false;
-  return std::regex_search(*str, re);
+  return cmp(*str);
 }
 
 
-bool matchesRelativeKeyDirect(nlohmann::json const& log, Path const& path, std::regex const& re)
+template<typename F>
+bool matchesRelativeKeyDirect(nlohmann::json const& log, Path const& path, F const& cmp)
 {
   const auto n = getNodeByPath(log, path.begin(), path.end());
-  return hasMatchingKey(n, re);
+  return hasMatchingKey(n, cmp);
 }
 
-bool matchesRelativeKeyRecursive(nlohmann::json const& log, Path const& path, std::regex const& re);
+template<typename F>
+bool matchesRelativeKeyRecursive(nlohmann::json const& log, Path const& path, F const& cmp);
 
-bool matchesRelativeKeyInDirectChildren(nlohmann::json const& log, Path const& path, std::regex const& re)
+template<typename F>
+bool matchesRelativeKeyInDirectChildren(nlohmann::json const& log, Path const& path, F const& cmp)
 {
   for(auto it=log.begin(); it!=log.end(); ++it)
-    if( matchesRelativeKeyRecursive(*it, path, re) )
+    if( matchesRelativeKeyRecursive(*it, path, cmp) )
       return true;
   return false;
 }
 
-bool matchesRelativeKeyRecursive(nlohmann::json const& log, Path const& path, std::regex const& re)
+template<typename F>
+bool matchesRelativeKeyRecursive(nlohmann::json const& log, Path const& path, F const& cmp)
 {
-  if( matchesRelativeKeyDirect(log, path, re) )
+  if( matchesRelativeKeyDirect(log, path, cmp) )
     return true;
   if( log.is_boolean() || log.is_number() || log.is_string() )
     return false;
-  if( matchesRelativeKeyInDirectChildren(log, path, re) )
+  if( matchesRelativeKeyInDirectChildren(log, path, cmp) )
     return true;
   return false;
 }
 
-auto matchesRelativeKey(Log const& log, Path const& path, std::regex const& re)
+template<typename F>
+auto matchesRelativeKey(Log const& log, Path const& path, F const& cmp)
 {
-  return matchesRelativeKeyRecursive(*log.log_, path, re);
+  return matchesRelativeKeyRecursive(*log.log_, path, cmp);
 }
 
 
-bool matchesRelativeValueRecursive(nlohmann::json const& log, Path const& path, std::regex const& re)
+template<typename F>
+bool matchesRelativeValueRecursive(nlohmann::json const& log, Path const& path, F const& cmp)
 {
   if( not log.is_object() && not log.is_array() )
     return false;
@@ -108,41 +119,89 @@ bool matchesRelativeValueRecursive(nlohmann::json const& log, Path const& path, 
   {
     const auto n = getNodeByPath(log, path.begin(), path.end());
     const auto str = value2str(n);
-    if(str && std::regex_search(*str, re))
+    if(str && cmp(*str))
       return true;
   }
 
   for(auto it=log.begin(); it!=log.end(); ++it)
-    if( matchesRelativeValueRecursive(*it, path, re) )
+    if( matchesRelativeValueRecursive(*it, path, cmp) )
       return true;
   return false;
 }
 
-auto matchesRelativeValue(Log const& log, Path const& path, std::regex const& re)
+template<typename F>
+auto matchesRelativeValue(Log const& log, Path const& path, F const& cmp)
 {
-  return matchesRelativeValueRecursive(*log.log_, path, re);
+  return matchesRelativeValueRecursive(*log.log_, path, cmp);
 }
+
+
+template<typename F>
+bool matchesKeyImpl(Log const& log, Path const& path, F const& cmp)
+{
+  if( path.value_.empty() )
+    return false;
+  if( path.root() )
+    return matchesAbsoluteKey(log, path, cmp);
+  return matchesRelativeKey(log, path, cmp);
+}
+
+template<typename F>
+bool matchesValueImpl(Log const& log, Path const& path, F const& cmp)
+{
+  if( path.value_.empty() )
+    return false;
+  if( path.root() )
+    return matchesAbsoluteValue(log, path, cmp);
+  return matchesRelativeValue(log, path, cmp);
+}
+
+struct RegexCompare
+{
+  bool operator()(std::string const& str) const { return std::regex_search(str, *re_); }
+  std::regex const* re_{nullptr};
+};
 
 }
 
 
 bool matchesKey(Log const& log, Path const& path, std::regex const& re)
 {
-  if( path.value_.empty() )
-    return false;
-  if( path.root() )
-    return matchesAbsoluteKey(log, path, re);
-  return matchesRelativeKey(log, path, re);
+  return matchesKeyImpl(log, path, RegexCompare{&re});
 }
 
 
 bool matchesValue(Log const& log, Path const& path, std::regex const& re)
 {
-  if( path.value_.empty() )
+  return matchesValueImpl(log, path, RegexCompare{&re});
+}
+
+
+namespace
+{
+struct GatherAllValues
+{
+  bool operator()(std::string const& str) const
+  {
+    BUT_ASSERT(out_ != nullptr);
+    BUT_ASSERT( std::is_sorted( begin(*out_), end(*out_) ) );
+    const auto it = std::lower_bound( begin(*out_), end(*out_), str );
+    if( it != end(*out_) && *it == str )
+      return false;
+    out_->insert(it, str);
+    BUT_ASSERT( std::is_sorted( begin(*out_), end(*out_) ) );
     return false;
-  if( path.root() )
-    return matchesAbsoluteValue(log, path, re);
-  return matchesRelativeValue(log, path, re);
+  }
+
+  std::vector<std::string>* out_{nullptr};
+};
+}
+
+std::vector<std::string> allValues(Log const& log, Path const& path)
+{
+  std::vector<std::string> out;
+  matchesValueImpl(log, path, GatherAllValues{&out});
+  return out;
 }
 
 }
