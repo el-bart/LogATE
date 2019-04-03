@@ -56,6 +56,9 @@ TEST_CASE_FIXTURE(Fixture, "there is always a default child for getting all unma
 
 TEST_CASE_FIXTURE(Fixture, "trimming search field")
 {
+  const auto tf = explode_.trimFields();
+  REQUIRE( tf.size() == 1 );
+  CHECK( tf[0] == Path{{".", "foo"}} );
 }
 
 TEST_CASE_FIXTURE(Fixture, "hitting one destination")
@@ -71,6 +74,10 @@ TEST_CASE_FIXTURE(Fixture, "logs w/o required fieled go to default location")
 }
 
 TEST_CASE_FIXTURE(Fixture, "field can be specified with a relative path")
+{
+}
+
+TEST_CASE_FIXTURE(Fixture, "ambigous relative path adds logs to multiple cathegories")
 {
 }
 

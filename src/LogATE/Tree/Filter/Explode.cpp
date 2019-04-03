@@ -1,5 +1,6 @@
 #include "LogATE/Tree/Filter/Explode.hpp"
 #include "LogATE/Tree/Filter/AcceptAll.hpp"
+#include "LogATE/Tree/Filter/detail/matchesLog.hpp"
 
 namespace LogATE::Tree::Filter
 {
@@ -15,7 +16,8 @@ auto acceptAllOutput(std::string name)
 Explode::Explode(Name name, Path path):
   Node{ Type{"Explode"}, std::move(name), {path}},
   path_{std::move(path)},
-  nonMatchingChild_{ acceptAllOutput( nonMatchingChildName().value_ ) }
+  nonMatchingChild_{ acceptAllOutput( nonMatchingChildName().value_ ) },
+  matchAny_{"", detail::g_defaultRegexType}
 { }
 
 void Explode::insert(Log const& log)
