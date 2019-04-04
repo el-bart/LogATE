@@ -12,6 +12,7 @@ struct Init
     cbreak();   // ^Z and ^C shall generate signals
     noecho();
     keypad(stdscr, TRUE);   // enable funciton keys, arrows, etc...
+    refresh();
   }
 
   ~Init()

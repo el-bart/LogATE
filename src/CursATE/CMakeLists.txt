@@ -19,6 +19,7 @@ if(LOGATE_ENABLE_TESTS)
   set(SOURCES_MANUAL
     Curses/hello_world.manual.cpp
     Curses/screen_size_monitor.manual.cpp
+    Curses/show_new_window.manual.cpp
   )
 
   foreach(src ${SOURCES_MANUAL})
