@@ -11,6 +11,7 @@ struct Server
 
   virtual But::Optional<Log> readNextLog() = 0;
   virtual void interrupt() = 0;
+  virtual size_t errors() const = 0;
 };
 
 }

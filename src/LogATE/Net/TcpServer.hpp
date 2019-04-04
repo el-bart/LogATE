@@ -23,6 +23,7 @@ public:
 
   But::Optional<Log> readNextLog() override;
   void interrupt() override;
+  size_t errors() const override { return errors_; }
 
 private:
   void workerLoop();
@@ -31,6 +32,7 @@ private:
   using Queue = But::Threading::Fifo<But::Optional<Log>>;
 
   const Poco::Timespan pollTimeout_;
+  std::atomic<size_t> errors_{0};
   std::atomic<bool> quit_{false};
   Queue queue_;
   Poco::Net::ServerSocket ss_;

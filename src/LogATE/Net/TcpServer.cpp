@@ -49,6 +49,7 @@ void TcpServer::workerLoop()
     }
     catch(...)
     {
+      ++errors_;
       // what can we do aside from disconnection? :/
     }
   }
@@ -79,6 +80,7 @@ void TcpServer::processClient(Poco::Net::StreamSocket clientSocket)
     }
     catch(...)
     {
+      ++errors_;
       // ignore any parse erorrs. if stream is disconnected, this will be detected next time loop condition is checked.
     }
   }
