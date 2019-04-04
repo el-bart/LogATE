@@ -1,7 +1,6 @@
 #include "LogATE/Net/TcpServer.hpp"
 #include <Poco/Net/SocketAddress.h>
 #include <Poco/Net/Socket.h>
-#include <Poco/Net/StreamSocket.h>
 #include <Poco/Net/SocketStream.h>
 
 namespace LogATE::Net
@@ -42,14 +41,46 @@ void TcpServer::workerLoop()
 {
   while(not quit_)
   {
-    // TODO: handle exceptions here
-    if( not ss_.poll(pollTimeout_, Poco::Net::Socket::SELECT_READ) )
-      continue;
-    Poco::Net::StreamSocket clientSocket = ss_.acceptConnection();
-    Poco::Net::SocketStream client{clientSocket};
-    nlohmann::json tmp;
-    client >> tmp;
-    queue_.withLock()->push( makeLog( std::move(tmp) ) );
+    try
+    {
+      if( not ss_.poll(pollTimeout_, Poco::Net::Socket::SELECT_READ) )
+        continue;
+      processClient( ss_.acceptConnection() );
+    }
+    catch(...)
+    {
+      // what can we do aside from disconnection? :/
+    }
+  }
+}
+
+namespace
+{
+auto isStreamUsable(std::ostream const& os)
+{
+  if( os.bad() || os.fail() )
+    return false;
+  if( os.eof() )
+    return false;
+  return os.good();
+}
+}
+
+void TcpServer::processClient(Poco::Net::StreamSocket clientSocket)
+{
+  Poco::Net::SocketStream clientStream{clientSocket};
+  nlohmann::json tmp;
+  while( isStreamUsable(clientStream) )
+  {
+    try
+    {
+      clientStream >> tmp;
+      queue_.withLock()->push( makeLog( std::move(tmp) ) );
+    }
+    catch(...)
+    {
+      // ignore any parse erorrs. if stream is disconnected, this will be detected next time loop condition is checked.
+    }
   }
 }
 

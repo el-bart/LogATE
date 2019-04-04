@@ -32,10 +32,25 @@ TEST_CASE_FIXTURE(Fixture, "server can handle one client")
 {
   TcpServer s{port_};
   TcpClient c{host_, port_};
+
   c.write(log1_);
   const auto log = s.readNextLog();
   REQUIRE(log);
   CHECK( *log->log_ == log1_ );
+}
+
+TEST_CASE_FIXTURE(Fixture, "server can handle one client and multiple messages")
+{
+  TcpServer s{port_};
+  TcpClient c{host_, port_};
+
+  for(auto const& json: {log1_, log2_})
+  {
+    c.write(json);
+    const auto log = s.readNextLog();
+    REQUIRE(log);
+    CHECK( *log->log_ == json );
+  }
 }
 
 }

@@ -5,6 +5,7 @@
 #include <But/Threading/Fifo.hpp>
 #include <But/Threading/JoiningThread.hpp>
 #include <Poco/Net/ServerSocket.h>
+#include <Poco/Net/StreamSocket.h>
 #include <Poco/Timespan.h>
 #include <chrono>
 #include <thread>
@@ -25,6 +26,7 @@ public:
 
 private:
   void workerLoop();
+  void processClient(Poco::Net::StreamSocket clientSocket);
 
   using Queue = But::Threading::Fifo<But::Optional<Log>>;
 
