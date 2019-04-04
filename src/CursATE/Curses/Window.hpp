@@ -18,17 +18,13 @@ struct Window
   };
 
   Window(const ScreenPosition sp, const ScreenSize ss, const Boxed boxed):
+    boxed_{boxed},
     window_{ newwin(ss.rows_.value_, ss.columns_.value_,
                     sp.row_.value_,  sp.column_.value_) }
   {
     if(not window_)
       BUT_THROW(FailedToCreateWindow, "nullptr received");
     keypad(window_, TRUE);   // enable funciton keys, arrows, etc...
-    switch(boxed)
-    {
-      case Boxed::True: box(window_, 0, 0); break;
-      case Boxed::False: break;
-    }
   }
 
   ~Window()
@@ -44,8 +40,17 @@ struct Window
   Window(Window&&) = delete;
   Window& operator=(Window&&) = delete;
 
-  void refresh() { wrefresh(window_); }
+  void refresh()
+  {
+    switch(boxed_)
+    {
+      case Boxed::True: box(window_, 0, 0); break;
+      case Boxed::False: break;
+    }
+    wrefresh(window_);
+  }
 
+  const Boxed boxed_;
   WINDOW* window_;
 };
 
