@@ -3,6 +3,7 @@
 
 namespace CursATE::Curses
 {
+
 struct Init
 {
   Init()
@@ -24,4 +25,5 @@ struct Init
   Init(Init&&) = delete;
   Init& operator=(Init&&) = delete;
 };
-};
+
+}
