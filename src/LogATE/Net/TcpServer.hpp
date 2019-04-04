@@ -1,4 +1,5 @@
 #pragma once
+#include "LogATE/Log.hpp"
 #include "LogATE/Net/Port.hpp"
 #include "LogATE/Net/Server.hpp"
 #include <But/Threading/Fifo.hpp>

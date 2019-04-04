@@ -42,6 +42,7 @@ void TcpServer::workerLoop()
 {
   while(not quit_)
   {
+    // TODO: handle exceptions here
     if( not ss_.poll(pollTimeout_, Poco::Net::Socket::SELECT_READ) )
       continue;
     Poco::Net::StreamSocket clientSocket = ss_.acceptConnection();
