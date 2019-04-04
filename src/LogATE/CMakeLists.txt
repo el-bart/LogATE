@@ -4,6 +4,7 @@ project(LogATE)
 add_library(LogATE
   Log.cpp
   Net/TcpClient.cpp
+  Net/TcpRawClient.cpp
   Net/TcpServer.cpp
   Tree/Node.cpp
   Tree/Logs.cpp
