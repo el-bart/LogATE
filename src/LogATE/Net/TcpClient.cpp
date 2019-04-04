@@ -13,7 +13,7 @@ TcpClient::TcpClient(std::string const& host, Port port)
 void TcpClient::write(nlohmann::json const& json)
 {
   Poco::Net::SocketStream strm{ss_};
-  strm << json;
+  strm << json << std::endl;
 }
 
 }
