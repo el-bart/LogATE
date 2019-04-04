@@ -1,6 +1,7 @@
 #pragma once
 #include <ncurses.h>
 #include <But/Mpl/FreeOperators.hpp>
+#include <But/assert.hpp>
 
 namespace CursATE::Curses
 {
@@ -13,13 +14,18 @@ BUT_MPL_FREE_OPERATORS_COMPARE(Rows, .value_)
 
 struct ScreenSize
 {
-  explicit ScreenSize(decltype(stdscr) screen = stdscr)
+  explicit ScreenSize(WINDOW* screen)
   {
+    BUT_ASSERT(screen);
     getmaxyx(screen, rows_.value_, columns_.value_);
   }
+  ScreenSize(const Rows rows, const Columns columns):
+    rows_{rows},
+    columns_{columns}
+  { }
 
-  Columns columns_;
   Rows rows_;
+  Columns columns_;
 };
 
 }
