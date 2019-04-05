@@ -4,7 +4,7 @@
 
 using namespace CursATE::Curses;
 
-struct StringDataSource: public ScrolableWindow::DataSource
+struct StringDataSource: public DataSource
 {
   size_t size() const override { return data_.size(); }
 
@@ -80,6 +80,10 @@ int main()
   auto dataSource = But::makeSharedNN<StringDataSource>();
   ScrolableWindow win{ dataSource, ScreenPosition{Row{2}, Column{10}}, ScreenSize{Rows{12}, Columns{60}}, Window::Boxed::True };
 
+  if(true) // preinit
+    for(auto i=0; i<5; ++i)
+      dataSource->addNewest( "preinit #" + std::to_string(i) );
+
   auto lastKey = std::string{"no key pressed yet"};
   auto quit = false;
   for(auto i=0; not quit; ++i)
@@ -95,16 +99,16 @@ int main()
       case 'a': lastKey = "a"; dataSource->addNewest( "data from iteration " + std::to_string(i) ); break;
       case 'd': lastKey = "d"; dataSource->removeOldest(); break;
 
-      case KEY_UP:    lastKey = "up";    win.scrollUp(); break;
-      case KEY_DOWN:  lastKey = "down";  win.scrollDown(); break;
+      case KEY_UP:    lastKey = "up";    win.selectUp(); break;
+      case KEY_DOWN:  lastKey = "down";  win.selectDown(); break;
       case KEY_LEFT:  lastKey = "left";  win.scrollLeft(); break;
       case KEY_RIGHT: lastKey = "right"; win.scrollRight(); break;
 
       case KEY_PPAGE: lastKey = "pg-up";   win.scrollPageUp(); break;
       case KEY_NPAGE: lastKey = "pg-down"; win.scrollPageDown(); break;
 
-      case ctrl(KEY_HOME): lastKey = "^home"; win.scrollToListBegin(); break;
-      case ctrl(KEY_END):  lastKey = "^end";  win.scrollToListEnd(); break;
+      case ctrl(KEY_HOME): lastKey = "^home"; win.selectFirst(); break;
+      case ctrl(KEY_END):  lastKey = "^end";  win.selectLast(); break;
       case KEY_HOME: lastKey = "home"; win.scrollToLineBegin(); break;
       case KEY_END:  lastKey = "end";  win.scrollToLineEnd(); break;
 

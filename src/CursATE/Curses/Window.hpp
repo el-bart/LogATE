@@ -59,6 +59,20 @@ struct Window
   auto boxed() const { return boxed_ == Boxed::True; }
   auto get() const { return window_; }
 
+  auto userAreaStartPosition() const
+  {
+    if( boxed() )
+      return ScreenPosition{ Row{1}, Column{1} };
+    return ScreenPosition{ Row{0}, Column{0} };
+  }
+  auto userAreaSize() const
+  {
+    const auto ss = size();
+    if( boxed() )
+      return ScreenSize{ Rows{std::max(ss.rows_.value_-1, 0)}, Columns{std::max(ss.columns_.value_-1, 0)} };
+    return ss;
+  }
+
 private:
   const Boxed boxed_;
   WINDOW* window_;
