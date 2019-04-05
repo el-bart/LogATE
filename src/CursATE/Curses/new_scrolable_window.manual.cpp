@@ -80,30 +80,36 @@ int main()
   auto dataSource = But::makeSharedNN<StringDataSource>();
   ScrolableWindow win{ dataSource, ScreenPosition{Row{2}, Column{10}}, ScreenSize{Rows{12}, Columns{60}}, Window::Boxed::True };
 
+  auto lastKey = std::string{"no key pressed yet"};
   auto quit = false;
   for(auto i=0; not quit; ++i)
   {
-    mvprintw(0,0, "iteration %d", i);
+    mvprintw(0,0, "iteration %d (last pressed key: %s)", i, lastKey.c_str());
+    clrtoeol();
     win.refresh();
-    switch( getch() )
+    const auto ch = getch();
+    switch(ch)
     {
       case 'q': quit = true; break;
 
-      case 'a': dataSource->addNewest( "data from iteration " + std::to_string(i) ); break;
-      case 'd': dataSource->removeOldest(); break;
+      case 'a': lastKey = "a"; dataSource->addNewest( "data from iteration " + std::to_string(i) ); break;
+      case 'd': lastKey = "d"; dataSource->removeOldest(); break;
 
-      case KEY_UP:    win.scrollUp(); break;
-      case KEY_DOWN:  win.scrollDown(); break;
-      case KEY_LEFT:  win.scrollLeft(); break;
-      case KEY_RIGHT: win.scrollRight(); break;
+      case KEY_UP:    lastKey = "up";    win.scrollUp(); break;
+      case KEY_DOWN:  lastKey = "down";  win.scrollDown(); break;
+      case KEY_LEFT:  lastKey = "left";  win.scrollLeft(); break;
+      case KEY_RIGHT: lastKey = "right"; win.scrollRight(); break;
 
-      case KEY_PPAGE: win.scrollPageUp(); break;
-      case KEY_NPAGE: win.scrollPageDown(); break;
+      case KEY_PPAGE: lastKey = "pg-up";   win.scrollPageUp(); break;
+      case KEY_NPAGE: lastKey = "pg-down"; win.scrollPageDown(); break;
 
-      case ctrl(KEY_HOME): win.scrollToListBegin(); break;
-      case ctrl(KEY_END):  win.scrollToListEnd(); break;
-      case KEY_HOME: win.scrollToLineBegin(); break;
-      case KEY_END:  win.scrollToLineEnd(); break;
+      case ctrl(KEY_HOME): lastKey = "^home"; win.scrollToListBegin(); break;
+      case ctrl(KEY_END):  lastKey = "^end";  win.scrollToListEnd(); break;
+      case KEY_HOME: lastKey = "home"; win.scrollToLineBegin(); break;
+      case KEY_END:  lastKey = "end";  win.scrollToLineEnd(); break;
+
+      default: lastKey = "unknown key"; break;
     }
+    lastKey += ": " + std::to_string(ch) + " / " + keyname(ch);
   }
 }
