@@ -60,6 +60,13 @@ void ScrolableWindowBackend::scrollToLineEnd()
 
 void ScrolableWindowBackend::selectUp()
 {
+  auto it = buffer_.find( currentSelection() );
+  /*
+  if( it == end(buffer_) )
+    returnr
+    */
+  ++it;
+  currentSelection_ = it->first;
   // TODO
 }
 
@@ -91,10 +98,10 @@ void ScrolableWindowBackend::selectLast()
 ScrolableWindowBackend::DisplayData ScrolableWindowBackend::displayData(const ScreenSize ss)
 {
   DisplayData out;
-  ensureEnoughData(ss.rows_.value_);
+  loadEnoughData(ss.rows_.value_);
+  BUT_ASSERT( buffer_.size() <= static_cast<size_t>(ss.rows_.value_) );
   if( buffer_.empty() )
     return out;
-  BUT_ASSERT( buffer_.size() <= static_cast<size_t>(ss.rows_.value_) );
   const auto lines = std::min<size_t>( buffer_.size(), ss.rows_.value_ );
 
   const auto selectionIt = buffer_.find( currentSelection() );
@@ -115,53 +122,39 @@ ScrolableWindowBackend::DisplayData ScrolableWindowBackend::displayData(const Sc
   return out;
 }
 
-bool ScrolableWindowBackend::ensureEnoughData(const size_t lines)
+void ScrolableWindowBackend::loadEnoughData(const size_t lines)
 {
-  (void)lines;
-  return false;
-
-/*
-  if( buffer_.size() == lines )
+  if(lines == 0)
   {
-    // TODO
-    if( buffer_.size() == dataSource_->size() )
-      return false;
-
+    buffer_.clear();
+    currentSelection_ = DataSource::Id{};
+    return;
   }
-
-  if( buffer_.size() < rows )
-  {
-    if( buffer_.size() != dataSource_->size() )
-      return loadEnoughData();
-    return false
-  }
-  return buffer_.size() == rows;
-  */
-}
-
-bool ScrolableWindowBackend::loadEnoughData(const size_t lines)
-{
-  (void)lines;
-  return false;
-  /*
-  const auto needUpTo = static_cast<size_t>(window_.userAreaSize().rows_.value_);
 
   if( buffer_.empty() )
   {
     if( dataSource_->size() == 0 )
-      return false;
+      return;
     currentSelection_ = dataSource_->first();
-    buffer_ = dataSource_->get(0, currentSelection(), std::max<size_t>(needUpTo-1, 0));
-    return true;
+    auto opt = dataSource_->get(currentSelection_);
+    if(not opt)
+      return;
+    buffer_.insert(*opt);
+  }
+  BUT_ASSERT( not buffer_.empty() );
+  BUT_ASSERT( buffer_.size() <= lines );
+
+  auto lastId = currentSelection_;
+  while( buffer_.size() < lines )
+  {
+    auto opt = dataSource_->next(lastId);
+    if(not opt)
+      return;
+    lastId = opt->first;
+    buffer_.insert( std::move(*opt) );
   }
 
-  const auto needSurrounding = std::max<size_t>(needUpTo-1, 0);
-  const auto needBefore = std::min<size_t>( currentSelectionDistanceFromTheTop(), needSurrounding );
-  BUT_ASSERT( needSurrounding >= needBefore );
-  const auto needAfter = needSurrounding - needBefore;
-  buffer_ = dataSource_->get(needBefore, currentSelection(), needAfter);
-  return true;
-  */
+  BUT_ASSERT( buffer_.size() <= lines );
 }
 
 size_t ScrolableWindowBackend::currentSelectionDistanceFromTheTop() const
