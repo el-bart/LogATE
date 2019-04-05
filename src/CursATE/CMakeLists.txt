@@ -25,7 +25,7 @@ install(TARGETS CursATE
 
 if(LOGATE_ENABLE_TESTS)
   add_executable(CursATE_uts
-    Curses/detail/ScrolableWindowBackend.cpp
+    Curses/detail/ScrolableWindowBackend.ut.cpp
     main.ut.cpp
   )
   add_executable(CursATE_mts

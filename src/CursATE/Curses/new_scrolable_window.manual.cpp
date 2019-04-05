@@ -1,83 +1,15 @@
 #include "CursATE/Curses/Init.hpp"
 #include "CursATE/Curses/ScrolableWindow.hpp"
+#include "CursATE/Curses/detail/StringDataSource.ut.hpp"
 #include "CursATE/Curses/ctrl.hpp"
 
 using namespace CursATE::Curses;
-
-struct StringDataSource: public DataSource
-{
-  size_t size() const override { return data_.size(); }
-
-  Id first() const override
-  {
-    if( data_.empty() )
-      return {};
-    return data_.begin()->first;
-  }
-
-  virtual Id last() const override
-  {
-    if( data_.empty() )
-      return {};
-    return data_.rbegin()->first;
-  }
-
-  std::map<Id, std::string> get(size_t before, Id id, size_t after) const override
-  {
-    std::map<Id, std::string> out;
-    const auto it = data_.find(id);
-    if( it == end(data_) )
-      return out;
-
-    out[it->first] = it->second;
-
-    {
-      auto beforeIt = it;
-      for(auto i=0u; i<before; ++i)
-      {
-        if( beforeIt == begin(data_) )
-          break;
-        --beforeIt;
-        out[beforeIt->first] = beforeIt->second;
-      }
-    }
-
-    {
-      auto afterIt = it;
-      for(auto i=0u; i<after; ++i)
-      {
-        ++afterIt;
-        if( afterIt == end(data_) )
-          break;
-        out[afterIt->first] = afterIt->second;
-      }
-    }
-
-    return out;
-  }
-
-  void addNewest(std::string str)
-  {
-    Id id{nextFreeId_+=str.size()+1};
-    data_[id] = std::move(str);
-  }
-
-  void removeOldest()
-  {
-    if( data_.empty() )
-      return;
-    data_.erase(data_.begin());
-  }
-
-  size_t nextFreeId_{42};
-  std::map<Id, std::string> data_;
-};
 
 
 int main()
 {
   const Init init;
-  auto dataSource = But::makeSharedNN<StringDataSource>();
+  auto dataSource = But::makeSharedNN<detail::StringDataSource>();
   ScrolableWindow win{ dataSource, ScreenPosition{Row{2}, Column{10}}, ScreenSize{Rows{12}, Columns{60}}, Window::Boxed::True };
 
   if(true) // preinit
