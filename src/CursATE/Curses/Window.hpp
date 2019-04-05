@@ -29,7 +29,11 @@ struct Window
 
   ~Window()
   {
-    wborder(window_, ' ', ' ', ' ',' ',' ',' ',' ',' ');
+    switch(boxed_)
+    {
+      case Boxed::True: wborder(window_, ' ', ' ', ' ',' ',' ',' ',' ',' '); break;
+      case Boxed::False: break;
+    }
     wrefresh(window_);
     delwin(window_);
   }
@@ -40,7 +44,7 @@ struct Window
   Window(Window&&) = delete;
   Window& operator=(Window&&) = delete;
 
-  void refresh()
+  void refresh() const
   {
     switch(boxed_)
     {
