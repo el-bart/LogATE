@@ -54,6 +54,9 @@ struct Window
     wrefresh(window_);
   }
 
+  auto size() const { return ScreenSize{window_}; }
+  auto position() const { return ScreenPosition{window_}; }
+
   const Boxed boxed_;
   WINDOW* window_;
 };
