@@ -56,7 +56,10 @@ struct Window
 
   auto size() const { return ScreenSize{window_}; }
   auto position() const { return ScreenPosition{window_}; }
+  auto boxed() const { return boxed_ == Boxed::True; }
+  auto get() const { return window_; }
 
+private:
   const Boxed boxed_;
   WINDOW* window_;
 };

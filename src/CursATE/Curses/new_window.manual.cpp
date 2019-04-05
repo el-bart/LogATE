@@ -11,11 +11,11 @@ int main()
   for(auto i=0; ; ++i)
   {
     const auto ss = win.size();
-    mvwprintw(win.window_, 1, 1, "iteration %d: screen is %d rows and %d cols", i, ss.rows_.value_, ss.columns_.value_);
+    mvwprintw(win.get(), 1, 1, "iteration %d: screen is %d rows and %d cols", i, ss.rows_.value_, ss.columns_.value_);
     clrtoeol();
 
     const auto sp = win.position();
-    mvwprintw(win.window_, 2, 1, "iteration %d: last cursor position was %d row and %d col", i, sp.row_.value_, sp.column_.value_);
+    mvwprintw(win.get(), 2, 1, "iteration %d: last cursor position was %d row and %d col", i, sp.row_.value_, sp.column_.value_);
     clrtoeol();
 
     win.refresh();
