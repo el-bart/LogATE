@@ -1,5 +1,6 @@
 #pragma once
 #include "CursATE/Curses/DataSource.hpp"
+#include "CursATE/Curses/ScreenSize.hpp"
 #include <string>
 #include <vector>
 #include <map>
@@ -38,10 +39,10 @@ struct ScrolableWindowBackend
   struct DisplayData
   {
     std::vector<std::string> lines_;
-    size_t selectionIndex_;
+    size_t selectionIndex_{0};
   };
 
-  DisplayData displayData(ScreenSize ss) const;
+  DisplayData displayData(ScreenSize ss);
 
 private:
   bool ensureEnoughData(size_t lines);

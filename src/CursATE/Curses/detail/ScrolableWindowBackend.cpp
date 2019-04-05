@@ -3,7 +3,6 @@
 namespace CursATE::Curses::detail
 {
 
-/*
 void ScrolableWindowBackend::scrollUp()
 {
   //const auto ss = window_.size();
@@ -89,37 +88,39 @@ void ScrolableWindowBackend::selectLast()
   // TODO
 }
 
-DisplayData ScrolableWindowBackendBackend::displayData(const ScreenSize ss) const;
+ScrolableWindowBackend::DisplayData ScrolableWindowBackend::displayData(const ScreenSize ss)
 {
+  DisplayData out;
   ensureEnoughData(ss.rows_.value_);
   if( buffer_.empty() )
-  {
-    window_.refresh();
-    return;
-  }
-  const auto uas = window_.userAreaSize();
-  const auto uap = window_.userAreaStartPosition();
-  BUT_ASSERT( buffer_.size() <= static_cast<size_t>(uas.rows_.value_) );
-  const auto lines = std::min<size_t>( buffer_.size(), uas.rows_.value_ );
+    return out;
+  BUT_ASSERT( buffer_.size() <= static_cast<size_t>(ss.rows_.value_) );
+  const auto lines = std::min<size_t>( buffer_.size(), ss.rows_.value_ );
 
   const auto selectionIt = buffer_.find( currentSelection() );
   BUT_ASSERT( selectionIt != end(buffer_) );
+  out.lines_.reserve(lines);
   auto it = begin(buffer_);
   for(auto i=0u; i<lines; ++i)
   {
+    if( it == selectionIt )
+      out.selectionIndex_ = i;
     auto& input = it->second;
     const auto from = input.begin() + std::min( input.size(), sideScrollOffset_ );
-    const auto to   = from + std::min<size_t>( input.size() - sideScrollOffset_, uas.columns_.value_ );
-    const auto str = std::string{from, to};
-    mvwprintw( window_.get(), uap.row_.value_+i, uap.column_.value_, "%s", str.c_str() );
+    const auto to   = from + std::min<size_t>( input.size() - sideScrollOffset_, ss.columns_.value_ );
+    out.lines_.emplace_back(from, to);
     ++it;
   }
 
-  window_.refresh();
+  return out;
 }
 
 bool ScrolableWindowBackend::ensureEnoughData(const size_t lines)
 {
+  (void)lines;
+  return false;
+
+/*
   if( buffer_.size() == lines )
   {
     // TODO
@@ -135,10 +136,14 @@ bool ScrolableWindowBackend::ensureEnoughData(const size_t lines)
     return false
   }
   return buffer_.size() == rows;
+  */
 }
 
 bool ScrolableWindowBackend::loadEnoughData(const size_t lines)
 {
+  (void)lines;
+  return false;
+  /*
   const auto needUpTo = static_cast<size_t>(window_.userAreaSize().rows_.value_);
 
   if( buffer_.empty() )
@@ -156,10 +161,12 @@ bool ScrolableWindowBackend::loadEnoughData(const size_t lines)
   const auto needAfter = needSurrounding - needBefore;
   buffer_ = dataSource_->get(needBefore, currentSelection(), needAfter);
   return true;
+  */
 }
 
 size_t ScrolableWindowBackend::currentSelectionDistanceFromTheTop() const
 {
+  /*
   auto it = buffer_.find( currentSelection() );
   if( it == end(buffer_) )
     return 0;
@@ -171,8 +178,8 @@ size_t ScrolableWindowBackend::currentSelectionDistanceFromTheTop() const
     --it;
   }
   return pos;
+  */
+  return 0;
 }
-*/
-
 
 }
