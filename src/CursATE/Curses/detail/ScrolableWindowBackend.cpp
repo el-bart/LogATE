@@ -103,14 +103,14 @@ ScrolableWindowBackend::DisplayData ScrolableWindowBackend::displayData(const Sc
   auto it = begin(buffer_);
   for(auto i=0u; i<lines; ++i)
   {
-    if( it == selectionIt )
-      out.selectionIndex_ = i;
     auto& input = it->second;
     const auto from = input.begin() + std::min( input.size(), sideScrollOffset_ );
     const auto to   = from + std::min<size_t>( input.size() - sideScrollOffset_, ss.columns_.value_ );
-    out.lines_.emplace_back(from, to);
+    out.lines_.emplace_back(it->first, std::string{from, to});
     ++it;
   }
+
+  out.currentSelection_ = currentSelection_;
 
   return out;
 }

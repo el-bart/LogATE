@@ -12,8 +12,11 @@ void ScrolableWindow::refresh()
 
   for(auto i=0u; i<displayData.lines_.size(); ++i)
   {
-    // TODO: add higlight for a selected item.
-    mvwprintw( window_.get(), uap.row_.value_+i, uap.column_.value_, "%s", displayData.lines_[i].c_str() );
+    if( displayData.lines_[i].first == displayData.currentSelection_ )
+    {
+      // TODO: add higlight for a selected item.
+    }
+    mvwprintw( window_.get(), uap.row_.value_+i, uap.column_.value_, "%s", displayData.lines_[i].second.c_str() );
     clrtoeol();
   }
 

@@ -36,10 +36,10 @@ struct ScrolableWindowBackend
   void selectLast();
   DataSource::Id currentSelection() const { return currentSelection_; }
 
-  struct DisplayData
+  struct DisplayData final
   {
-    std::vector<std::string> lines_;
-    size_t selectionIndex_{0};
+    std::vector<std::pair<DataSource::Id, std::string>> lines_;
+    DataSource::Id currentSelection_;
   };
 
   DisplayData displayData(ScreenSize ss);
