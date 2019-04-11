@@ -1,6 +1,7 @@
 #pragma once
 #include "CursATE/Curses/DataSource.hpp"
 #include "CursATE/Curses/ScreenSize.hpp"
+#include <But/Optional.hpp>
 #include <string>
 #include <vector>
 #include <map>
@@ -14,7 +15,8 @@ struct ScrolableWindowBackend
     dataSource_{std::move(dataSource)}
   { }
 
-  void refresh();
+  void resize(ScreenSize ss) { ss_ = ss; }
+  void update();
 
   void scrollLeft();
   void scrollRight();
@@ -27,7 +29,7 @@ struct ScrolableWindowBackend
   void selectPageDown();
   void selectFirst();
   void selectLast();
-  DataSource::Id currentSelection() const { return currentSelection_; }
+  DataSource::Id currentSelection() const { return *currentSelection_; }
 
   struct DisplayData final
   {
@@ -35,16 +37,19 @@ struct ScrolableWindowBackend
     DataSource::Id currentSelection_;
   };
 
-  DisplayData displayData(ScreenSize ss);
+  DisplayData displayData() const;
 
 private:
+  auto rows() const { return static_cast<size_t>(ss_.rows_.value_); }
   bool ensureEnoughData(size_t lines);
   bool loadEnoughData(size_t lines);
   size_t currentSelectionDistanceFromTheTop() const;
+  size_t currentSelectionDistanceFromTheBottom() const;
 
   DataSourceShNN dataSource_;
+  ScreenSize ss_{Rows{1}, Columns{1}};
   std::map<DataSource::Id, std::string> buffer_;
-  DataSource::Id currentSelection_;
+  But::Optional<DataSource::Id> currentSelection_;
   size_t sideScrollOffset_{0};
   size_t upDownScrollOffset_{0};
 };

@@ -5,11 +5,13 @@ namespace CursATE::Curses
 
 void ScrolableWindow::refresh()
 {
-  const auto uap = window_.userAreaStartPosition();
   const auto uas = window_.userAreaSize();
-  const auto displayData = backend_.displayData(uas);
+  backend_.resize(uas);
+  backend_.update();
+  const auto displayData = backend_.displayData();
   BUT_ASSERT( displayData.lines_.size() <= static_cast<size_t>(uas.rows_.value_) );
 
+  const auto uap = window_.userAreaStartPosition();
   for(auto i=0u; i<displayData.lines_.size(); ++i)
   {
     if( displayData.lines_[i].first == displayData.currentSelection_ )

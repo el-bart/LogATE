@@ -9,14 +9,14 @@ struct StringDataSource: public DataSource
 {
   size_t size() const override { return data_.size(); }
 
-  Id first() const override
+  But::Optional<Id> first() const override
   {
     if( data_.empty() )
       return {};
     return data_.begin()->first;
   }
 
-  virtual Id last() const override
+  But::Optional<Id> last() const override
   {
     if( data_.empty() )
       return {};

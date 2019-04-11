@@ -3,6 +3,31 @@
 namespace CursATE::Curses::detail
 {
 
+void ScrolableWindowBackend::update()
+{
+  const auto before = currentSelectionDistanceFromTheTop();
+  auto after  = currentSelectionDistanceFromTheBottom();
+  if( before + 1u + after < rows() )
+    after = rows() -1u - before;
+  const auto wasEmpty = buffer_.empty();
+  const auto selected = currentSelection_ ? currentSelection_ : dataSource_->first();
+  if(not selected)
+    return;
+
+  // TODO: no need to do this each and evey time...
+  buffer_ = dataSource_->get(before, *selected, after);
+  if( buffer_.empty() )
+    return;
+  if(wasEmpty)
+    currentSelection_ = selected;
+
+  // TODO: apply row offset here
+  // TODO: apply column offset here
+
+  (void)sideScrollOffset_;
+  (void)upDownScrollOffset_;
+}
+
 void ScrolableWindowBackend::scrollLeft()
 {
   // TODO
@@ -54,30 +79,16 @@ void ScrolableWindowBackend::selectLast()
   // TODO
 }
 
-ScrolableWindowBackend::DisplayData ScrolableWindowBackend::displayData(const ScreenSize ss)
+ScrolableWindowBackend::DisplayData ScrolableWindowBackend::displayData() const
 {
   DisplayData out;
-  ensureEnoughData(ss.rows_.value_);
-  if( buffer_.empty() )
-    return out;
-  BUT_ASSERT( buffer_.size() <= static_cast<size_t>(ss.rows_.value_) );
-  const auto lines = std::min<size_t>( buffer_.size(), ss.rows_.value_ );
-
-  const auto selectionIt = buffer_.find( currentSelection() );
-  BUT_ASSERT( selectionIt != end(buffer_) );
-  out.lines_.reserve(lines);
-  auto it = begin(buffer_);
-  for(auto i=0u; i<lines; ++i)
+  for(auto& e: buffer_)
+    out.lines_.push_back(e);
+  if(currentSelection_)
   {
-    auto& input = it->second;
-    const auto from = input.begin() + std::min( input.size(), sideScrollOffset_ );
-    const auto to   = from + std::min<size_t>( input.size() - sideScrollOffset_, ss.columns_.value_ );
-    out.lines_.emplace_back(it->first, std::string{from, to});
-    ++it;
+    BUT_ASSERT( not buffer_.empty() );
+    out.currentSelection_ = *currentSelection_;
   }
-
-  out.currentSelection_ = currentSelection_;
-
   return out;
 }
 
@@ -131,6 +142,24 @@ bool ScrolableWindowBackend::loadEnoughData(const size_t lines)
 }
 
 size_t ScrolableWindowBackend::currentSelectionDistanceFromTheTop() const
+{
+  /*
+  auto it = buffer_.find( currentSelection() );
+  if( it == end(buffer_) )
+    return 0;
+
+  size_t pos = 1;
+  while( it != begin(buffer_) )
+  {
+    ++pos;
+    --it;
+  }
+  return pos;
+  */
+  return 0;
+}
+
+size_t ScrolableWindowBackend::currentSelectionDistanceFromTheBottom() const
 {
   /*
   auto it = buffer_.find( currentSelection() );
