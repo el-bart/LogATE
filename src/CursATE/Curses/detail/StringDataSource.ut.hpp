@@ -23,36 +23,38 @@ struct StringDataSource: public DataSource
     return data_.rbegin()->first;
   }
 
-  optional_value get(const Id id) const override
+  std::map<Id, std::string> get(size_t before, Id id, size_t after) const override
   {
+    std::map<Id, std::string> out;
     const auto it = data_.find(id);
     if( it == end(data_) )
-      return {};
-    return value_type{*it};
-  }
+      return out;
 
-  optional_value next(const Id id) const override
-  {
-    auto it = data_.find(id);
-    if( it == end(data_) )
-      return {};
-    ++it;
-    if( it == end(data_) )
-      return {};
-    return value_type{*it};
-  }
+    out[it->first] = it->second;
 
-  optional_value previous(const Id id) const override
-  {
-    auto it = data_.find(id);
-    if( it == end(data_) )
-      return {};
-    if( it == begin(data_) )
-      return {};
-    --it;
-    if( it == end(data_) )
-      return {};
-    return value_type{*it};
+    {
+      auto beforeIt = it;
+      for(auto i=0u; i<before; ++i)
+      {
+        if( beforeIt == begin(data_) )
+          break;
+        --beforeIt;
+        out[beforeIt->first] = beforeIt->second;
+      }
+    }
+
+    {
+      auto afterIt = it;
+      for(auto i=0u; i<after; ++i)
+      {
+        ++afterIt;
+        if( afterIt == end(data_) )
+          break;
+        out[afterIt->first] = afterIt->second;
+      }
+    }
+
+    return out;
   }
 
   void addNewest(std::string str)

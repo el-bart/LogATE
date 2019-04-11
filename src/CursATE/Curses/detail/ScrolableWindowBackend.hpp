@@ -45,7 +45,8 @@ struct ScrolableWindowBackend
   DisplayData displayData(ScreenSize ss);
 
 private:
-  void loadEnoughData(size_t lines);
+  bool ensureEnoughData(size_t lines);
+  bool loadEnoughData(size_t lines);
   size_t currentSelectionDistanceFromTheTop() const;
 
   DataSourceShNN dataSource_;
