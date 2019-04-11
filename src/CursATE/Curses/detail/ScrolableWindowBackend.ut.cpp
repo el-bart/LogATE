@@ -125,6 +125,41 @@ TEST_CASE_FIXTURE(Fixture, "iterating over bigger set of elements")
     swb_.selectDown();
     CHECK( displayData().lines_ == dsSubset(2,5) );
     CHECK( displayData().currentSelection_.value_ == 52 );
+
+    swb_.selectUp();
+    CHECK( displayData().lines_ == dsSubset(2,5) );
+    CHECK( displayData().currentSelection_.value_ == 48 );
+    swb_.selectUp();
+    CHECK( displayData().lines_ == dsSubset(2,5) );
+    CHECK( displayData().currentSelection_.value_ == 45 );
+    swb_.selectUp();
+    CHECK( displayData().lines_ == dsSubset(1,4) );
+    CHECK( displayData().currentSelection_.value_ == 43 );
+    swb_.selectUp();
+    CHECK( displayData().lines_ == dsSubset(0,3) );
+    CHECK( displayData().currentSelection_.value_ == 42 );
+    swb_.selectUp();
+    CHECK( displayData().lines_ == dsSubset(0,3) );
+    CHECK( displayData().currentSelection_.value_ == 42 );
+  }
+  SUBCASE("moving down pass the end element does not move cursor")
+  {
+    /*
+    CHECK( displayData().lines_ == dsSubset(0,3) );
+    CHECK( displayData().currentSelection_.value_ == 42 );
+    swb_.selectDown();
+    CHECK( displayData().lines_ == dsSubset(0,3) );
+    CHECK( displayData().currentSelection_.value_ == 43 );
+    swb_.selectDown();
+    CHECK( displayData().lines_ == dsSubset(0,3) );
+    CHECK( displayData().currentSelection_.value_ == 45 );
+    swb_.selectDown();
+    CHECK( displayData().lines_ == dsSubset(1,4) );
+    CHECK( displayData().currentSelection_.value_ == 48 );
+    swb_.selectDown();
+    CHECK( displayData().lines_ == dsSubset(2,5) );
+    CHECK( displayData().currentSelection_.value_ == 52 );
+    */
   }
 }
 

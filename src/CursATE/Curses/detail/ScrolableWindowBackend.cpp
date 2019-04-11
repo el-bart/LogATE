@@ -68,7 +68,7 @@ void ScrolableWindowBackend::scrollToLineEnd()
 
 void ScrolableWindowBackend::selectUp()
 {
-  // TODO
+  --upDownScrollOffset_;
 }
 
 void ScrolableWindowBackend::selectDown()
@@ -162,8 +162,10 @@ But::Optional<DataSource::Id> ScrolableWindowBackend::moveSelection(const DataSo
 
   if(upDown < 0)
   {
-    // TODO
-    return now;
+    const auto tmp = dataSource_->get(-upDown, now, 0);
+    if( tmp.empty() )
+      return {};
+    return tmp.begin()->first;
   }
 
   BUT_ASSERT(!"code never reaches here");
