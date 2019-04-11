@@ -13,6 +13,7 @@ void ScrolableWindowBackend::resize(const ScreenSize in)
   if( windowTooSmall(in) )
     BUT_THROW(WindowTooSmall, "got: " << in.rows_.value_ << 'x' << in.columns_.value_);
   ss_ = in;
+  trimBufferToFitNewSize();
   update();
 }
 
@@ -175,6 +176,39 @@ void ScrolableWindowBackend::offsetBy(const int offset)
   if(offset > 0)
     buffer_ = dataSource_->get(surround, *selected, 0);
   currentSelection_ = selected;
+}
+
+
+void ScrolableWindowBackend::trimBufferToFitNewSize()
+{
+  if( buffer_.size() <= rows() )
+    return;
+  if(not currentSelection_)
+    return;
+  trimFromEnd();
+  trimFromBegin();
+}
+
+
+void ScrolableWindowBackend::trimFromEnd()
+{
+  BUT_ASSERT( not buffer_.empty() );
+  while( buffer_.size() > rows() && buffer_.rbegin()->first != *currentSelection_)
+  {
+    buffer_.erase( buffer_.rbegin()->first );
+    BUT_ASSERT( buffer_.find(*currentSelection_) != end(buffer_) );
+  }
+}
+
+
+void ScrolableWindowBackend::trimFromBegin()
+{
+  BUT_ASSERT( not buffer_.empty() );
+  while( buffer_.size() > rows() && buffer_.begin()->first != *currentSelection_)
+  {
+    buffer_.erase( buffer_.begin() );
+    BUT_ASSERT( buffer_.find(*currentSelection_) != end(buffer_) );
+  }
 }
 
 }

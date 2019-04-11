@@ -238,12 +238,68 @@ TEST_CASE_FIXTURE(Fixture, "iterating over empty data set")
   }
 }
 
+
+TEST_CASE_FIXTURE(Fixture, "resizing window on a fly")
+{
+  for(auto i=0; i<5; ++i)
+    ds_->addNewest("foo" + std::to_string(i));
+  INFO("source data buffer: " << ds_->data_);
+
+  swb_.selectDown();
+  REQUIRE( displayData().lines_ == dsSubset(0,3) );
+  REQUIRE( displayData().currentSelection_.value_ == 43 );
+
+  SUBCASE("increasing size")
+  {
+    auto tmp = ss_;
+    tmp.rows_.value_ = 4;
+    swb_.resize(tmp);
+    CHECK( displayData().lines_ == dsSubset(0,4) );
+    CHECK( displayData().currentSelection_.value_ == 43 );
+  }
+
+  SUBCASE("increasing size beyond window size")
+  {
+    auto tmp = ss_;
+    tmp.rows_.value_ = 10;
+    swb_.resize(tmp);
+    CHECK( displayData().lines_ == dsSubset(0,5) );
+    CHECK( displayData().currentSelection_.value_ == 43 );
+  }
+
+  SUBCASE("decreasing size")
+  {
+    auto tmp = ss_;
+    tmp.rows_.value_ = 2;
+    swb_.resize(tmp);
+    CHECK( displayData().lines_ == dsSubset(0,2) );
+    CHECK( displayData().currentSelection_.value_ == 43 );
+  }
+
+  SUBCASE("decreasing size such that current selection is out of scope")
+  {
+    auto tmp = ss_;
+    tmp.rows_.value_ = 1;
+    swb_.resize(tmp);
+    CHECK( displayData().lines_ == dsSubset(1,2) );
+    CHECK( displayData().currentSelection_.value_ == 43 );
+  }
+}
+
+
+TEST_CASE_FIXTURE(Fixture, "resizing window on a fly, when data set is empty")
+{
+  REQUIRE( ds_->data_.empty() );
+  auto tmp = ss_;
+  tmp.rows_.value_ = 2;
+  swb_.resize(tmp);
+  CHECK( displayData().lines_.empty() );
+}
+
 // TODO: tests line scrolling by character
 // TODO: tests line scrolling to begin/end
 
 // TODO: test when selection is no longer in the input set (should reset to the latest log)
-
-// TODO: test screen resizing on a fly
 
 }
 }

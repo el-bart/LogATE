@@ -43,15 +43,20 @@ struct ScrolableWindowBackend
   DisplayData displayData() const;
 
 private:
+  using Buffer = std::map<DataSource::Id, std::string>;
+
   auto rows() const { return static_cast<size_t>(ss_.rows_.value_); }
   size_t currentSelectionDistanceFromTheTop() const;
   But::Optional<DataSource::Id> moveSelection(DataSource::Id now, int upDown) const;
   auto surround() const { return rows() > 0 ? rows()-1u : 0u; }
   void offsetBy(int offset);
+  void trimBufferToFitNewSize();
+  void trimFromEnd();
+  void trimFromBegin();
 
   DataSourceShNN dataSource_;
   ScreenSize ss_{Rows{1}, Columns{1}};
-  std::map<DataSource::Id, std::string> buffer_;
+  Buffer buffer_;
   But::Optional<DataSource::Id> currentSelection_;
   int sideScrollOffset_{0};
 };
