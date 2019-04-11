@@ -43,6 +43,7 @@ private:
   auto rows() const { return static_cast<size_t>(ss_.rows_.value_); }
   size_t currentSelectionDistanceFromTheTop() const;
   But::Optional<DataSource::Id> moveSelection(DataSource::Id now, int upDown) const;
+  auto surround() const { return rows() > 0 ? rows()-1u : 0u; }
 
   DataSourceShNN dataSource_;
   ScreenSize ss_{Rows{1}, Columns{1}};

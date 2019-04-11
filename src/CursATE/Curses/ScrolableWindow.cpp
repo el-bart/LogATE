@@ -7,7 +7,7 @@ void ScrolableWindow::refresh()
 {
   const auto uas = window_.userAreaSize();
   backend_.resize(uas);
-  backend_.update();
+  //backend_.update();
   const auto displayData = backend_.displayData();
   BUT_ASSERT( displayData.lines_.size() <= static_cast<size_t>(uas.rows_.value_) );
 

@@ -167,15 +167,47 @@ TEST_CASE_FIXTURE(Fixture, "iterating over bigger set of elements")
     CHECK( displayData().lines_ == dsSubset(1,4) );
     CHECK( displayData().currentSelection_.value_ == 43 );
   }
+
+  SUBCASE("jumping to first/last elements")
+  {
+    swb_.selectLast();
+    CHECK( displayData().lines_ == dsSubset(27,30) );
+    CHECK( displayData().currentSelection_.value_ == 477 );
+
+    swb_.selectFirst();
+    CHECK( displayData().lines_ == dsSubset(0,3) );
+    CHECK( displayData().currentSelection_.value_ == 42 );
+  }
 }
 
-// TODO: test selecting first log
-// TODO: test selecting last log
+TEST_CASE_FIXTURE(Fixture, "iterating over empty data set")
+{
+  INFO("source data buffer: " << ds_->data_);
+
+  for(auto i=0; i<2; ++i)
+  {
+    CHECK( displayData().lines_.empty() );
+    swb_.selectUp();
+    CHECK( displayData().lines_.empty() );
+    swb_.selectDown();
+    CHECK( displayData().lines_.empty() );
+    swb_.selectPageDown();
+    CHECK( displayData().lines_.empty() );
+    swb_.selectPageDown();
+    CHECK( displayData().lines_.empty() );
+    swb_.selectLast();
+    CHECK( displayData().lines_.empty() );
+    swb_.selectFirst();
+    CHECK( displayData().lines_.empty() );
+  }
+}
 
 // TODO: tests line scrolling by character
 // TODO: tests line scrolling to begin/end
 
 // TODO: test when selection is no longer in the input set (should reset to the latest log)
+
+// TODO: test screen resizing on a fly
 
 }
 }

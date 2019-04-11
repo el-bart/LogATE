@@ -5,7 +5,7 @@ namespace CursATE::Curses::detail
 
 void ScrolableWindowBackend::update()
 {
-  const auto surround = rows() > 0 ? rows()-1u : 0u;
+  const auto surround = this->surround();
 
   if(not currentSelection_)
   {
@@ -88,12 +88,20 @@ void ScrolableWindowBackend::selectPageDown()
 
 void ScrolableWindowBackend::selectFirst()
 {
-  // TODO
+  upDownScrollOffset_ = 0;
+  currentSelection_ = dataSource_->first();
+  if(not currentSelection_)
+    return;
+  buffer_ = dataSource_->get( 0, *currentSelection_, surround() );
 }
 
 void ScrolableWindowBackend::selectLast()
 {
-  // TODO
+  upDownScrollOffset_ = 0;
+  currentSelection_ = dataSource_->last();
+  if(not currentSelection_)
+    return;
+  buffer_ = dataSource_->get( surround(), *currentSelection_, 0 );
 }
 
 ScrolableWindowBackend::DisplayData ScrolableWindowBackend::displayData() const
