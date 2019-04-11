@@ -1,6 +1,7 @@
 #pragma once
 #include "CursATE/Curses/DataSource.hpp"
 #include "CursATE/Curses/ScreenSize.hpp"
+#include "CursATE/Curses/Exception.hpp"
 #include <But/Optional.hpp>
 #include <string>
 #include <vector>
@@ -11,11 +12,13 @@ namespace CursATE::Curses::detail
 
 struct ScrolableWindowBackend
 {
+  BUT_DEFINE_EXCEPTION(WindowTooSmall, Exception, "window is too small - minumum size is 1x1");
+
   explicit ScrolableWindowBackend(DataSourceShNN dataSource):
     dataSource_{std::move(dataSource)}
   { }
 
-  void resize(ScreenSize ss) { ss_ = ss; }
+  void resize(ScreenSize ss);
   void update();
 
   void scrollLeft();

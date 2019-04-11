@@ -23,18 +23,11 @@ struct Fixture
 {
   Fixture()
   {
-    update();
-  }
-
-  void update()
-  {
     swb_.resize(ss_);
-    swb_.update();
   }
 
   auto displayData()
   {
-    update();
     return swb_.displayData();
   }
 
@@ -54,8 +47,42 @@ struct Fixture
 
   But::NotNullShared<StringDataSource> ds_{ But::makeSharedNN<StringDataSource>() };
   ScrolableWindowBackend swb_{ds_};
-  ScreenSize ss_{Rows{3}, Columns{10}};
+  const ScreenSize ss_{Rows{3}, Columns{10}};
 };
+
+
+TEST_CASE_FIXTURE(Fixture, "minimal window size is respected")
+{
+  SUBCASE("resize to 0xN")
+  {
+    auto tmp = ss_;
+    tmp.rows_.value_ = 0;
+    CHECK_THROWS_AS( swb_.resize(tmp), ScrolableWindowBackend::WindowTooSmall );
+  }
+  SUBCASE("resize to Nx0")
+  {
+    auto tmp = ss_;
+    tmp.columns_.value_ = 0;
+    CHECK_THROWS_AS( swb_.resize(tmp), ScrolableWindowBackend::WindowTooSmall );
+  }
+}
+
+
+TEST_CASE_FIXTURE(Fixture, "default-sized window yields some results, regardless of number of entries in a DB")
+{
+  ScrolableWindowBackend swb{ds_};
+  swb.update();
+  CHECK( swb.displayData().lines_.size() == 0 );
+
+  ds_->addNewest("foo");
+  swb.update();
+  CHECK( swb.displayData().lines_.size() == 1 );
+
+  ds_->addNewest("bar");
+  swb.update();
+  CHECK( swb.displayData().lines_.size() == 1 );
+}
+
 
 TEST_CASE_FIXTURE(Fixture, "no elements yield empty result")
 {
@@ -66,17 +93,21 @@ TEST_CASE_FIXTURE(Fixture, "no elements yield empty result")
   }
 }
 
+
 TEST_CASE_FIXTURE(Fixture, "adding elements starting from a default selection")
 {
   SUBCASE("one at a time")
   {
     ds_->addNewest("foo1");
+    swb_.update();
     CHECK( displayData().lines_ == dsSubset(0,1) );
     CHECK( displayData().currentSelection_.value_ == 42 );
     ds_->addNewest("foo2");
+    swb_.update();
     CHECK( displayData().lines_ == dsSubset(0,2) );
     CHECK( displayData().currentSelection_.value_ == 42 );
     ds_->addNewest("foo3");
+    swb_.update();
     CHECK( displayData().lines_ == dsSubset(0,3) );
     CHECK( displayData().currentSelection_.value_ == 42 );
   }
@@ -85,6 +116,7 @@ TEST_CASE_FIXTURE(Fixture, "adding elements starting from a default selection")
     for(auto i=0; i<3; ++i)
       ds_->addNewest("foo" + std::to_string(i));
     INFO("source data buffer: " << ds_->data_);
+    swb_.update();
     CHECK( displayData().lines_ == dsSubset(0,3) );
     CHECK( displayData().currentSelection_.value_ == 42 );
   }
@@ -93,16 +125,19 @@ TEST_CASE_FIXTURE(Fixture, "adding elements starting from a default selection")
     for(auto i=0; i<10; ++i)
       ds_->addNewest("foo" + std::to_string(i));
     INFO("source data buffer: " << ds_->data_);
+    swb_.update();
     CHECK( displayData().lines_ == dsSubset(0,3) );
     CHECK( displayData().currentSelection_.value_ == 42 );
   }
 }
+
 
 TEST_CASE_FIXTURE(Fixture, "iterating over bigger set of elements")
 {
   for(auto i=0; i<30; ++i)
     ds_->addNewest("foo" + std::to_string(i));
   INFO("source data buffer: " << ds_->data_);
+  swb_.update();
 
   SUBCASE("moving up at the end of the top does not change anything")
   {
@@ -179,6 +214,7 @@ TEST_CASE_FIXTURE(Fixture, "iterating over bigger set of elements")
     CHECK( displayData().currentSelection_.value_ == 42 );
   }
 }
+
 
 TEST_CASE_FIXTURE(Fixture, "iterating over empty data set")
 {

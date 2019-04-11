@@ -3,6 +3,19 @@
 namespace CursATE::Curses::detail
 {
 
+namespace
+{
+auto windowTooSmall(const ScreenSize ss) { return ss.rows_.value_ == 0 || ss.columns_.value_ == 0; }
+}
+
+void ScrolableWindowBackend::resize(const ScreenSize in)
+{
+  if( windowTooSmall(in) )
+    BUT_THROW(WindowTooSmall, "got: " << in.rows_.value_ << 'x' << in.columns_.value_);
+  ss_ = in;
+  update();
+}
+
 void ScrolableWindowBackend::update()
 {
   offsetBy(0);
@@ -68,8 +81,8 @@ void ScrolableWindowBackend::selectLast()
 
 ScrolableWindowBackend::DisplayData ScrolableWindowBackend::displayData() const
 {
-  BUT_ASSERT( buffer_.size() <= rows() );
   DisplayData out;
+  BUT_ASSERT( buffer_.size() <= rows() );
   for(auto& e: buffer_)
     out.lines_.push_back(e);
   if(currentSelection_)
