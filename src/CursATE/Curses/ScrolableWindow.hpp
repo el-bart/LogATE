@@ -14,13 +14,6 @@ struct ScrolableWindow
 
   void refresh();
 
-  void scrollUp() { backend_.scrollUp(); }
-  void scrollDown() { backend_.scrollDown(); }
-  void scrollPageUp() { backend_.scrollPageUp(); }
-  void scrollPageDown() { backend_.scrollPageDown(); }
-  void scrollToListBegin() { backend_.scrollToListBegin(); }
-  void scrollToListEnd() { backend_.scrollToListEnd(); }
-
   void scrollLeft() { backend_.scrollLeft(); }
   void scrollRight() { backend_.scrollRight(); }
   void scrollToLineBegin() { backend_.scrollToLineBegin(); }

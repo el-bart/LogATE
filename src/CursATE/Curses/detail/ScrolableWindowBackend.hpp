@@ -16,13 +16,6 @@ struct ScrolableWindowBackend
 
   void refresh();
 
-  void scrollUp();
-  void scrollDown();
-  void scrollPageUp();
-  void scrollPageDown();
-  void scrollToListBegin();
-  void scrollToListEnd();
-
   void scrollLeft();
   void scrollRight();
   void scrollToLineBegin();
@@ -53,6 +46,7 @@ private:
   std::map<DataSource::Id, std::string> buffer_;
   DataSource::Id currentSelection_;
   size_t sideScrollOffset_{0};
+  size_t upDownScrollOffset_{0};
 };
 
 }

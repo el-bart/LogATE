@@ -36,8 +36,8 @@ int main()
       case KEY_LEFT:  lastKey = "left";  win.scrollLeft(); break;
       case KEY_RIGHT: lastKey = "right"; win.scrollRight(); break;
 
-      case KEY_PPAGE: lastKey = "pg-up";   win.scrollPageUp(); break;
-      case KEY_NPAGE: lastKey = "pg-down"; win.scrollPageDown(); break;
+      case KEY_PPAGE: lastKey = "pg-up";   win.selectPageUp(); break;
+      case KEY_NPAGE: lastKey = "pg-down"; win.selectPageDown(); break;
 
       case ctrl(KEY_HOME): lastKey = "^home"; win.selectFirst(); break;
       case ctrl(KEY_END):  lastKey = "^end";  win.selectLast(); break;

@@ -3,40 +3,6 @@
 namespace CursATE::Curses::detail
 {
 
-void ScrolableWindowBackend::scrollUp()
-{
-  //const auto ss = window_.size();
-  //const auto sel = currentSelection();
-  //buffer_ = loadData(ss, sel);
-  // TODO
-}
-
-void ScrolableWindowBackend::scrollDown()
-{
-  // TODO
-}
-
-void ScrolableWindowBackend::scrollPageUp()
-{
-  // TODO
-}
-
-void ScrolableWindowBackend::scrollPageDown()
-{
-  // TODO
-}
-
-void ScrolableWindowBackend::scrollToListBegin()
-{
-  // TODO
-}
-
-void ScrolableWindowBackend::scrollToListEnd()
-{
-  // TODO
-}
-
-
 void ScrolableWindowBackend::scrollLeft()
 {
   // TODO
