@@ -41,17 +41,16 @@ struct ScrolableWindowBackend
 
 private:
   auto rows() const { return static_cast<size_t>(ss_.rows_.value_); }
-  bool ensureEnoughData(size_t lines);
-  bool loadEnoughData(size_t lines);
   size_t currentSelectionDistanceFromTheTop() const;
   size_t currentSelectionDistanceFromTheBottom() const;
+  But::Optional<DataSource::Id> moveSelection(DataSource::Id now, int upDown) const;
 
   DataSourceShNN dataSource_;
   ScreenSize ss_{Rows{1}, Columns{1}};
   std::map<DataSource::Id, std::string> buffer_;
   But::Optional<DataSource::Id> currentSelection_;
-  size_t sideScrollOffset_{0};
-  size_t upDownScrollOffset_{0};
+  int sideScrollOffset_{0};
+  int upDownScrollOffset_{0};
 };
 
 }

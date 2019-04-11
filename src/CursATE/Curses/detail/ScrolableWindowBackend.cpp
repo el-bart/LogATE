@@ -5,27 +5,44 @@ namespace CursATE::Curses::detail
 
 void ScrolableWindowBackend::update()
 {
-  const auto before = currentSelectionDistanceFromTheTop();
-  auto after  = currentSelectionDistanceFromTheBottom();
-  if( before + 1u + after < rows() )
-    after = rows() -1u - before;
-  const auto wasEmpty = buffer_.empty();
-  const auto selected = currentSelection_ ? currentSelection_ : dataSource_->first();
+  const auto surround = rows() > 0 ? rows()-1u : 0u;
+
+  if(not currentSelection_)
+  {
+    currentSelection_ = dataSource_->first();
+    if(not currentSelection_)
+      return;
+    buffer_ = dataSource_->get(0, *currentSelection_, surround);
+  }
+  BUT_ASSERT(currentSelection_);
+  BUT_ASSERT( not buffer_.empty() );
+  if( buffer_.size() < dataSource_->size() )
+  {
+    const auto before = currentSelectionDistanceFromTheTop();
+    const auto after = surround - before;
+    buffer_ = dataSource_->get(before, *currentSelection_, after);
+  }
+
+  const auto selected = moveSelection(*currentSelection_, upDownScrollOffset_);
   if(not selected)
     return;
-
-  // TODO: no need to do this each and evey time...
-  buffer_ = dataSource_->get(before, *selected, after);
-  if( buffer_.empty() )
-    return;
-  if(wasEmpty)
+  const auto lastOffset = upDownScrollOffset_;
+  upDownScrollOffset_ = 0;
+  if( buffer_.find(*selected) != end(buffer_) )
+  {
     currentSelection_ = selected;
+    return;
+  }
 
-  // TODO: apply row offset here
+  if(lastOffset < 0)
+    buffer_ = dataSource_->get(0, *selected, surround);
+  if(lastOffset > 0)
+    buffer_ = dataSource_->get(surround, *selected, 0);
+  currentSelection_ = selected;
+
   // TODO: apply column offset here
 
   (void)sideScrollOffset_;
-  (void)upDownScrollOffset_;
 }
 
 void ScrolableWindowBackend::scrollLeft()
@@ -56,7 +73,7 @@ void ScrolableWindowBackend::selectUp()
 
 void ScrolableWindowBackend::selectDown()
 {
-  // TODO
+  ++upDownScrollOffset_;
 }
 
 void ScrolableWindowBackend::selectPageUp()
@@ -81,6 +98,7 @@ void ScrolableWindowBackend::selectLast()
 
 ScrolableWindowBackend::DisplayData ScrolableWindowBackend::displayData() const
 {
+  BUT_ASSERT( buffer_.size() <= rows() );
   DisplayData out;
   for(auto& e: buffer_)
     out.lines_.push_back(e);
@@ -89,92 +107,67 @@ ScrolableWindowBackend::DisplayData ScrolableWindowBackend::displayData() const
     BUT_ASSERT( not buffer_.empty() );
     out.currentSelection_ = *currentSelection_;
   }
+  BUT_ASSERT( out.lines_.size() <= rows() );
   return out;
 }
 
-bool ScrolableWindowBackend::ensureEnoughData(const size_t lines)
-{
-  (void)lines;
-  return false;
-
-/*
-  if( buffer_.size() == lines )
-  {
-    // TODO
-    if( buffer_.size() == dataSource_->size() )
-      return false;
-
-  }
-
-  if( buffer_.size() < rows )
-  {
-    if( buffer_.size() != dataSource_->size() )
-      return loadEnoughData();
-    return false
-  }
-  return buffer_.size() == rows;
-  */
-}
-
-bool ScrolableWindowBackend::loadEnoughData(const size_t lines)
-{
-  (void)lines;
-  return false;
-  /*
-  const auto needUpTo = static_cast<size_t>(window_.userAreaSize().rows_.value_);
-
-  if( buffer_.empty() )
-  {
-    if( dataSource_->size() == 0 )
-      return false;
-    currentSelection_ = dataSource_->first();
-    buffer_ = dataSource_->get(0, currentSelection(), std::max<size_t>(needUpTo-1, 0));
-    return true;
-  }
-
-  const auto needSurrounding = std::max<size_t>(needUpTo-1, 0);
-  const auto needBefore = std::min<size_t>( currentSelectionDistanceFromTheTop(), needSurrounding );
-  BUT_ASSERT( needSurrounding >= needBefore );
-  const auto needAfter = needSurrounding - needBefore;
-  buffer_ = dataSource_->get(needBefore, currentSelection(), needAfter);
-  return true;
-  */
-}
 
 size_t ScrolableWindowBackend::currentSelectionDistanceFromTheTop() const
 {
-  /*
-  auto it = buffer_.find( currentSelection() );
+  if(not currentSelection_)
+    return 0;
+  auto it = buffer_.find(*currentSelection_);
   if( it == end(buffer_) )
     return 0;
-
-  size_t pos = 1;
+  size_t pos = 0;
   while( it != begin(buffer_) )
   {
     ++pos;
     --it;
   }
+  BUT_ASSERT( pos < rows() );
   return pos;
-  */
-  return 0;
 }
 
 size_t ScrolableWindowBackend::currentSelectionDistanceFromTheBottom() const
 {
-  /*
-  auto it = buffer_.find( currentSelection() );
+  if(not currentSelection_)
+    return 0;
+  auto it = buffer_.find(*currentSelection_);
   if( it == end(buffer_) )
     return 0;
-
-  size_t pos = 1;
-  while( it != begin(buffer_) )
+  ++it;
+  size_t pos = 0;
+  while( it != end(buffer_) )
   {
     ++pos;
-    --it;
+    ++it;
   }
+  BUT_ASSERT( pos < rows() );
   return pos;
-  */
-  return 0;
+}
+
+But::Optional<DataSource::Id> ScrolableWindowBackend::moveSelection(const DataSource::Id now, const int upDown) const
+{
+  if(upDown == 0)
+    return now;
+
+  if(upDown > 0)
+  {
+    const auto tmp = dataSource_->get(0, now, upDown);
+    if( tmp.empty() )
+      return {};
+    return tmp.rbegin()->first;
+  }
+
+  if(upDown < 0)
+  {
+    // TODO
+    return now;
+  }
+
+  BUT_ASSERT(!"code never reaches here");
+  throw std::logic_error{"code should never reach here"};
 }
 
 }
