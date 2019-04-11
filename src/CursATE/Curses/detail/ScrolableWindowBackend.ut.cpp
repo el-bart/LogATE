@@ -84,6 +84,7 @@ TEST_CASE_FIXTURE(Fixture, "adding elements starting from a default selection")
   {
     for(auto i=0; i<3; ++i)
       ds_->addNewest("foo" + std::to_string(i));
+    INFO("source data buffer: " << ds_->data_);
     CHECK( displayData().lines_ == dsSubset(0,3) );
     CHECK( displayData().currentSelection_.value_ == 42 );
   }
@@ -91,6 +92,7 @@ TEST_CASE_FIXTURE(Fixture, "adding elements starting from a default selection")
   {
     for(auto i=0; i<10; ++i)
       ds_->addNewest("foo" + std::to_string(i));
+    INFO("source data buffer: " << ds_->data_);
     CHECK( displayData().lines_ == dsSubset(0,3) );
     CHECK( displayData().currentSelection_.value_ == 42 );
   }
@@ -100,6 +102,7 @@ TEST_CASE_FIXTURE(Fixture, "iterating over bigger set of elements")
 {
   for(auto i=0; i<30; ++i)
     ds_->addNewest("foo" + std::to_string(i));
+  INFO("source data buffer: " << ds_->data_);
 
   SUBCASE("moving up at the end of the top does not change anything")
   {
@@ -109,6 +112,7 @@ TEST_CASE_FIXTURE(Fixture, "iterating over bigger set of elements")
     CHECK( pre.lines_ == post.lines_ );
     CHECK( pre.currentSelection_ == post.currentSelection_ );
   }
+
   SUBCASE("moving down one element at a time")
   {
     CHECK( displayData().lines_ == dsSubset(0,3) );
@@ -142,24 +146,26 @@ TEST_CASE_FIXTURE(Fixture, "iterating over bigger set of elements")
     CHECK( displayData().lines_ == dsSubset(0,3) );
     CHECK( displayData().currentSelection_.value_ == 42 );
   }
-  SUBCASE("moving down pass the end element does not move cursor")
+
+  SUBCASE("selecting page by page")
   {
-    /*
-    CHECK( displayData().lines_ == dsSubset(0,3) );
-    CHECK( displayData().currentSelection_.value_ == 42 );
     swb_.selectDown();
     CHECK( displayData().lines_ == dsSubset(0,3) );
     CHECK( displayData().currentSelection_.value_ == 43 );
-    swb_.selectDown();
-    CHECK( displayData().lines_ == dsSubset(0,3) );
-    CHECK( displayData().currentSelection_.value_ == 45 );
-    swb_.selectDown();
-    CHECK( displayData().lines_ == dsSubset(1,4) );
-    CHECK( displayData().currentSelection_.value_ == 48 );
-    swb_.selectDown();
+
+    swb_.selectPageDown();
     CHECK( displayData().lines_ == dsSubset(2,5) );
     CHECK( displayData().currentSelection_.value_ == 52 );
-    */
+    swb_.selectPageDown();
+    CHECK( displayData().lines_ == dsSubset(5,8) );
+    CHECK( displayData().currentSelection_.value_ == 70 );
+
+    swb_.selectPageUp();
+    CHECK( displayData().lines_ == dsSubset(4,7) );
+    CHECK( displayData().currentSelection_.value_ == 52 );
+    swb_.selectPageUp();
+    CHECK( displayData().lines_ == dsSubset(1,4) );
+    CHECK( displayData().currentSelection_.value_ == 43 );
   }
 }
 

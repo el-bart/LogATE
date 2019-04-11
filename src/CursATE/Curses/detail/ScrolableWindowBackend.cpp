@@ -78,12 +78,12 @@ void ScrolableWindowBackend::selectDown()
 
 void ScrolableWindowBackend::selectPageUp()
 {
-  // TODO
+  upDownScrollOffset_ -= rows();
 }
 
 void ScrolableWindowBackend::selectPageDown()
 {
-  // TODO
+  upDownScrollOffset_ += rows();
 }
 
 void ScrolableWindowBackend::selectFirst()
