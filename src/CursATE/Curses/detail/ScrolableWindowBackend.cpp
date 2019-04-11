@@ -5,48 +5,12 @@ namespace CursATE::Curses::detail
 
 void ScrolableWindowBackend::update()
 {
-  const auto surround = this->surround();
-
-  if(not currentSelection_)
-  {
-    currentSelection_ = dataSource_->first();
-    if(not currentSelection_)
-      return;
-    buffer_ = dataSource_->get(0, *currentSelection_, surround);
-  }
-  BUT_ASSERT(currentSelection_);
-  BUT_ASSERT( not buffer_.empty() );
-  if( buffer_.size() < dataSource_->size() )
-  {
-    const auto before = currentSelectionDistanceFromTheTop();
-    const auto after = surround - before;
-    buffer_ = dataSource_->get(before, *currentSelection_, after);
-  }
-
-  const auto selected = moveSelection(*currentSelection_, upDownScrollOffset_);
-  if(not selected)
-    return;
-  const auto lastOffset = upDownScrollOffset_;
-  upDownScrollOffset_ = 0;
-  if( buffer_.find(*selected) != end(buffer_) )
-  {
-    currentSelection_ = selected;
-    return;
-  }
-
-  if(lastOffset < 0)
-    buffer_ = dataSource_->get(0, *selected, surround);
-  if(lastOffset > 0)
-    buffer_ = dataSource_->get(surround, *selected, 0);
-  currentSelection_ = selected;
-
-  // TODO: apply column offset here
-
-  (void)sideScrollOffset_;
+  offsetBy(0);
 }
 
 void ScrolableWindowBackend::scrollLeft()
 {
+  (void)sideScrollOffset_;
   // TODO
 }
 
@@ -68,27 +32,26 @@ void ScrolableWindowBackend::scrollToLineEnd()
 
 void ScrolableWindowBackend::selectUp()
 {
-  --upDownScrollOffset_;
+  offsetBy(-1);
 }
 
 void ScrolableWindowBackend::selectDown()
 {
-  ++upDownScrollOffset_;
+  offsetBy(+1);
 }
 
 void ScrolableWindowBackend::selectPageUp()
 {
-  upDownScrollOffset_ -= rows();
+  offsetBy( -rows() );
 }
 
 void ScrolableWindowBackend::selectPageDown()
 {
-  upDownScrollOffset_ += rows();
+  offsetBy( +rows() );
 }
 
 void ScrolableWindowBackend::selectFirst()
 {
-  upDownScrollOffset_ = 0;
   currentSelection_ = dataSource_->first();
   if(not currentSelection_)
     return;
@@ -97,7 +60,6 @@ void ScrolableWindowBackend::selectFirst()
 
 void ScrolableWindowBackend::selectLast()
 {
-  upDownScrollOffset_ = 0;
   currentSelection_ = dataSource_->last();
   if(not currentSelection_)
     return;
@@ -160,6 +122,46 @@ But::Optional<DataSource::Id> ScrolableWindowBackend::moveSelection(const DataSo
 
   BUT_ASSERT(!"code never reaches here");
   throw std::logic_error{"code should never reach here"};
+}
+
+
+void ScrolableWindowBackend::offsetBy(const int offset)
+{
+  const auto surround = this->surround();
+
+  if(not currentSelection_)
+  {
+    currentSelection_ = dataSource_->first();
+    if(not currentSelection_)
+      return;
+    buffer_ = dataSource_->get(0, *currentSelection_, surround);
+  }
+  BUT_ASSERT(currentSelection_);
+  BUT_ASSERT( not buffer_.empty() );
+  if( buffer_.size() < dataSource_->size() )
+  {
+    const auto before = currentSelectionDistanceFromTheTop();
+    const auto after = surround - before;
+    buffer_ = dataSource_->get(before, *currentSelection_, after);
+  }
+
+  if(offset == 0)
+    return;
+
+  const auto selected = moveSelection(*currentSelection_, offset);
+  if(not selected)
+    return;
+  if( buffer_.find(*selected) != end(buffer_) )
+  {
+    currentSelection_ = selected;
+    return;
+  }
+
+  if(offset < 0)
+    buffer_ = dataSource_->get(0, *selected, surround);
+  if(offset > 0)
+    buffer_ = dataSource_->get(surround, *selected, 0);
+  currentSelection_ = selected;
 }
 
 }

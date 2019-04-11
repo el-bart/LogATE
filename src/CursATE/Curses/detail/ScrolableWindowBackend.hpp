@@ -44,13 +44,13 @@ private:
   size_t currentSelectionDistanceFromTheTop() const;
   But::Optional<DataSource::Id> moveSelection(DataSource::Id now, int upDown) const;
   auto surround() const { return rows() > 0 ? rows()-1u : 0u; }
+  void offsetBy(int offset);
 
   DataSourceShNN dataSource_;
   ScreenSize ss_{Rows{1}, Columns{1}};
   std::map<DataSource::Id, std::string> buffer_;
   But::Optional<DataSource::Id> currentSelection_;
   int sideScrollOffset_{0};
-  int upDownScrollOffset_{0};
 };
 
 }
