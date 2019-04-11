@@ -3,6 +3,7 @@
 #include "CursATE/Curses/DataSource.hpp"
 #include <iostream>
 #include <vector>
+#include <map>
 
 namespace CursATE::Curses
 {
@@ -21,6 +22,14 @@ inline std::ostream& operator<<(std::ostream& os, vector<pair<CursATE::Curses::D
 {
   vector<string> tmp;
   for(auto& e: lines)
+    tmp.push_back( std::to_string(e.first.value_) + ":" + e.second );
+  return LogATE::printVector(os, tmp);
+}
+
+inline std::ostream& operator<<(std::ostream& os, map<CursATE::Curses::DataSource::Id, string> const& data)
+{
+  vector<string> tmp;
+  for(auto& e: data)
     tmp.push_back( std::to_string(e.first.value_) + ":" + e.second );
   return LogATE::printVector(os, tmp);
 }
