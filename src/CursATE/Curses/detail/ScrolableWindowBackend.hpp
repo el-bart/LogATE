@@ -42,7 +42,6 @@ struct ScrolableWindowBackend
 private:
   auto rows() const { return static_cast<size_t>(ss_.rows_.value_); }
   size_t currentSelectionDistanceFromTheTop() const;
-  size_t currentSelectionDistanceFromTheBottom() const;
   But::Optional<DataSource::Id> moveSelection(DataSource::Id now, int upDown) const;
 
   DataSourceShNN dataSource_;

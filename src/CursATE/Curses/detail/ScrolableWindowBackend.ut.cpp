@@ -169,8 +169,13 @@ TEST_CASE_FIXTURE(Fixture, "iterating over bigger set of elements")
   }
 }
 
+// TODO: test selecting first log
+// TODO: test selecting last log
 
-// TODO: tests for all possible moves
+// TODO: tests line scrolling by character
+// TODO: tests line scrolling to begin/end
+
+// TODO: test when selection is no longer in the input set (should reset to the latest log)
 
 }
 }

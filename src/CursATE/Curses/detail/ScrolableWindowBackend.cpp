@@ -129,24 +129,6 @@ size_t ScrolableWindowBackend::currentSelectionDistanceFromTheTop() const
   return pos;
 }
 
-size_t ScrolableWindowBackend::currentSelectionDistanceFromTheBottom() const
-{
-  if(not currentSelection_)
-    return 0;
-  auto it = buffer_.find(*currentSelection_);
-  if( it == end(buffer_) )
-    return 0;
-  ++it;
-  size_t pos = 0;
-  while( it != end(buffer_) )
-  {
-    ++pos;
-    ++it;
-  }
-  BUT_ASSERT( pos < rows() );
-  return pos;
-}
-
 But::Optional<DataSource::Id> ScrolableWindowBackend::moveSelection(const DataSource::Id now, const int upDown) const
 {
   if(upDown == 0)
