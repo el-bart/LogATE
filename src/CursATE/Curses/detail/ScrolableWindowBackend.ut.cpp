@@ -45,9 +45,18 @@ struct Fixture
     return out;
   }
 
+  auto dsSubsetStr(size_t from, size_t to, std::vector<std::string> const& in) const
+  {
+    auto out = dsSubset(from, to);
+    BUT_ASSERT( out.size() == in.size() );
+    for(auto i=0u; i<out.size(); ++i)
+      out[i].second = in[i];
+    return out;
+  }
+
   But::NotNullShared<StringDataSource> ds_{ But::makeSharedNN<StringDataSource>() };
   ScrolableWindowBackend swb_{ds_};
-  const ScreenSize ss_{Rows{3}, Columns{10}};
+  const ScreenSize ss_{Rows{3}, Columns{5}};
 };
 
 
@@ -343,8 +352,65 @@ TEST_CASE_FIXTURE(Fixture, "dropping selected item scrolls back to the first ele
   }
 }
 
-// TODO: tests line scrolling by character
-// TODO: tests line scrolling to begin/end
+
+TEST_CASE_FIXTURE(Fixture, "scrolling columns")
+{
+  auto ss = ss_;
+  ss.rows_.value_ = 4;
+  ds_->addNewest("");
+  ds_->addNewest("012");
+  ds_->addNewest("01234");
+  ds_->addNewest("0123456");
+  INFO("source data buffer: " << ds_->data_);
+  swb_.resize(ss);
+  swb_.update();
+
+  REQUIRE( displayData().currentSelection_.value_ == 42 );
+  REQUIRE( displayData().lines_ == dsSubsetStr(0,4, {"", "012", "01234", "01234"}) );
+
+  SUBCASE("scroll left and right")
+  {
+    swb_.scrollRight();
+    CHECK( displayData().currentSelection_.value_ == 42 );
+    CHECK( displayData().lines_ == dsSubsetStr(0,4, {"", "12", "1234", "12345"}) );
+
+    swb_.scrollRight();
+    CHECK( displayData().currentSelection_.value_ == 42 );
+    CHECK( displayData().lines_ == dsSubsetStr(0,4, {"", "2", "234", "23456"}) );
+
+    swb_.scrollLeft();
+    CHECK( displayData().currentSelection_.value_ == 42 );
+    CHECK( displayData().lines_ == dsSubsetStr(0,4, {"", "12", "1234", "12345"}) );
+
+    swb_.scrollLeft();
+    CHECK( displayData().currentSelection_.value_ == 42 );
+    CHECK( displayData().lines_ == dsSubsetStr(0,4, {"", "012", "01234", "01234"}) );
+  }
+
+  SUBCASE("scroll to begin and end of line")
+  {
+    swb_.scrollToLineEnd();
+    CHECK( displayData().currentSelection_.value_ == 42 );
+    CHECK( displayData().lines_ == dsSubsetStr(0,4, {"", "2", "234", "23456"}) );
+
+    swb_.scrollToLineBegin();
+    CHECK( displayData().currentSelection_.value_ == 42 );
+    CHECK( displayData().lines_ == dsSubsetStr(0,4, {"", "012", "01234", "01234"}) );
+  }
+
+  SUBCASE("scrolling pass the begin/end does nothing")
+  {
+    for(auto i=0; i<10; ++i)
+      swb_.scrollRight();
+    CHECK( displayData().currentSelection_.value_ == 42 );
+    CHECK( displayData().lines_ == dsSubsetStr(0,4, {"", "2", "234", "23456"}) );
+
+    for(auto i=0; i<20; ++i)
+      swb_.scrollLeft();
+    CHECK( displayData().currentSelection_.value_ == 42 );
+    CHECK( displayData().lines_ == dsSubsetStr(0,4, {"", "012", "01234", "01234"}) );
+  }
+}
 
 }
 }

@@ -55,12 +55,14 @@ private:
   void trimFromBegin();
   bool existsInDataSet(DataSource::Id id) const;
   void dropLeadingDeadElementsFromBuffer();
+  size_t longestStringInBuffer() const;
+  std::string trimStringToFitOffset(std::string const& in) const;
 
   DataSourceShNN dataSource_;
   ScreenSize ss_{Rows{1}, Columns{1}};
   Buffer buffer_;
   But::Optional<DataSource::Id> currentSelection_;
-  int sideScrollOffset_{0};
+  unsigned sideScrollOffset_{0};
 };
 
 }

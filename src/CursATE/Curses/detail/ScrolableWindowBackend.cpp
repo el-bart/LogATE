@@ -26,23 +26,33 @@ void ScrolableWindowBackend::update()
 
 void ScrolableWindowBackend::scrollLeft()
 {
-  (void)sideScrollOffset_;
-  // TODO
+  if( sideScrollOffset_ == 0 )
+    return;
+  --sideScrollOffset_;
 }
 
 void ScrolableWindowBackend::scrollRight()
 {
-  // TODO
+  const auto maxSize = longestStringInBuffer();
+  const auto columns = static_cast<size_t>(ss_.columns_.value_);
+  if( sideScrollOffset_ + columns >= maxSize )
+    return;
+  ++sideScrollOffset_;
 }
 
 void ScrolableWindowBackend::scrollToLineBegin()
 {
-  // TODO
+  sideScrollOffset_ = 0;
 }
 
 void ScrolableWindowBackend::scrollToLineEnd()
 {
-  // TODO
+  const auto maxSize = longestStringInBuffer();
+  const auto columns = static_cast<size_t>(ss_.columns_.value_);
+  if( maxSize <= columns )
+    sideScrollOffset_ = 0;
+  else
+    sideScrollOffset_ = maxSize - columns;
 }
 
 
@@ -90,7 +100,7 @@ ScrolableWindowBackend::DisplayData ScrolableWindowBackend::displayData() const
   DisplayData out;
   BUT_ASSERT( buffer_.size() <= rows() );
   for(auto& e: buffer_)
-    out.lines_.push_back(e);
+    out.lines_.push_back( std::make_pair( e.first, trimStringToFitOffset(e.second) ) );
   if(currentSelection_)
   {
     BUT_ASSERT( not buffer_.empty() );
@@ -238,6 +248,28 @@ void ScrolableWindowBackend::dropLeadingDeadElementsFromBuffer()
     currentSelection_.reset();
   else
     currentSelection_ = buffer_.begin()->first;
+}
+
+
+size_t ScrolableWindowBackend::longestStringInBuffer() const
+{
+  size_t maxLen = 0u;
+  for(auto& e: buffer_)
+    if( e.second.size() > maxLen )
+      maxLen = e.second.size();
+  return maxLen;
+}
+
+
+std::string ScrolableWindowBackend::trimStringToFitOffset(std::string const& in) const
+{
+  if( in.size() <= sideScrollOffset_ )
+    return "";
+  const auto from = begin(in) + sideScrollOffset_;
+  const auto columns = static_cast<size_t>(ss_.columns_.value_);
+  if( in.size() < sideScrollOffset_ + columns )
+    return std::string{ from, end(in) };
+  return std::string{ from, from + columns };
 }
 
 }
