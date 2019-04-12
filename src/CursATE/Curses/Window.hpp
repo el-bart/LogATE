@@ -44,6 +44,11 @@ struct Window
   Window(Window&&) = delete;
   Window& operator=(Window&&) = delete;
 
+  void clear() const
+  {
+    wclear(window_);
+  }
+
   void refresh() const
   {
     switch(boxed_)

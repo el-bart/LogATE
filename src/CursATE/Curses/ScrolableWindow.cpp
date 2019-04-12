@@ -5,6 +5,8 @@ namespace CursATE::Curses
 
 void ScrolableWindow::refresh()
 {
+  window_.clear();
+
   const auto uas = window_.userAreaSize();
   backend_.resize(uas);
   const auto displayData = backend_.displayData();
