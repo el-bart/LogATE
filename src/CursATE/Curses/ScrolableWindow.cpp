@@ -22,7 +22,7 @@ void ScrolableWindow::refresh()
 
     mvwprintw( window_.get(), uap.row_.value_+i, uap.column_.value_, "%s", displayData.lines_[i].second.c_str() );
     for(auto j = displayData.lines_[i].second.size(); j < static_cast<size_t>(uas.columns_.value_); ++j)
-      mvwprintw( window_.get(), uap.row_.value_+i, uap.column_.value_+j, " ");
+      wprintw( window_.get(), " ");
 
     if(isSelected)
       wattr_off( window_.get(), markAttr, nullptr);
