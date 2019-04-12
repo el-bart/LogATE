@@ -1,5 +1,6 @@
 #include "CursATE/Curses/Init.hpp"
 #include "CursATE/Curses/ScrolableWindow.hpp"
+#include "CursATE/Curses/CursorVisibility.hpp"
 #include "CursATE/Curses/detail/StringDataSource.ut.hpp"
 #include "CursATE/Curses/ctrl.hpp"
 
@@ -9,6 +10,7 @@ using namespace CursATE::Curses;
 int main()
 {
   const Init init;
+  set(CursorVisibility::Invisible);
   auto dataSource = But::makeSharedNN<detail::StringDataSource>();
   ScrolableWindow win{ dataSource, ScreenPosition{Row{2}, Column{10}}, ScreenSize{Rows{12}, Columns{20}}, Window::Boxed::True };
 

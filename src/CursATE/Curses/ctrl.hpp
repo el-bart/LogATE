@@ -14,6 +14,7 @@ inline constexpr auto ctrl(const int k)
   {
     case KEY_HOME: return 535;
     case KEY_END:  return 530;
+    case 'l':      return 12;
   }
   throw std::logic_error{"unknown key mapping requested"};
 }

@@ -1,4 +1,5 @@
 #include "CursATE/Curses/Init.hpp"
+#include "CursATE/Curses/CursorVisibility.hpp"
 #include "CursATE/Curses/Window.hpp"
 
 using namespace CursATE::Curses;
@@ -6,6 +7,7 @@ using namespace CursATE::Curses;
 int main()
 {
   const Init init;
+  set(CursorVisibility::Invisible);
   Window win{ ScreenPosition{Row{2}, Column{10}}, ScreenSize{Rows{5}, Columns{60}}, Window::Boxed::True };
 
   for(auto i=0; ; ++i)
