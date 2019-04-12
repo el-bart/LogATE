@@ -21,7 +21,6 @@ void ScrolableWindow::refresh()
       wattr_on( window_.get(), markAttr, nullptr);
 
     mvwprintw( window_.get(), uap.row_.value_+i, uap.column_.value_, "%s", displayData.lines_[i].second.c_str() );
-    wclrtoeol( window_.get() );
 
     if(isSelected)
       wattr_off( window_.get(), markAttr, nullptr);
