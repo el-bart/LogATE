@@ -17,10 +17,12 @@ void ScrolableWindowBackend::resize(const ScreenSize in)
   update();
 }
 
+
 void ScrolableWindowBackend::update()
 {
   offsetBy(0);
 }
+
 
 void ScrolableWindowBackend::scrollLeft()
 {
@@ -64,6 +66,7 @@ void ScrolableWindowBackend::selectPageDown()
   offsetBy( +rows() );
 }
 
+
 void ScrolableWindowBackend::selectFirst()
 {
   currentSelection_ = dataSource_->first();
@@ -72,6 +75,7 @@ void ScrolableWindowBackend::selectFirst()
   buffer_ = dataSource_->get( 0, *currentSelection_, surround() );
 }
 
+
 void ScrolableWindowBackend::selectLast()
 {
   currentSelection_ = dataSource_->last();
@@ -79,6 +83,7 @@ void ScrolableWindowBackend::selectLast()
     return;
   buffer_ = dataSource_->get( surround(), *currentSelection_, 0 );
 }
+
 
 ScrolableWindowBackend::DisplayData ScrolableWindowBackend::displayData() const
 {
@@ -113,6 +118,7 @@ size_t ScrolableWindowBackend::currentSelectionDistanceFromTheTop() const
   return pos;
 }
 
+
 But::Optional<DataSource::Id> ScrolableWindowBackend::moveSelection(const DataSource::Id now, const int upDown) const
 {
   if(upDown == 0)
@@ -141,6 +147,8 @@ But::Optional<DataSource::Id> ScrolableWindowBackend::moveSelection(const DataSo
 
 void ScrolableWindowBackend::offsetBy(const int offset)
 {
+  dropLeadingDeadElementsFromBuffer();
+
   const auto surround = this->surround();
 
   if(not currentSelection_)
@@ -209,6 +217,27 @@ void ScrolableWindowBackend::trimFromBegin()
     buffer_.erase( buffer_.begin() );
     BUT_ASSERT( buffer_.find(*currentSelection_) != end(buffer_) );
   }
+}
+
+
+bool ScrolableWindowBackend::existsInDataSet(DataSource::Id id) const
+{
+  return not dataSource_->get(0, id, 0).empty();
+}
+
+
+void ScrolableWindowBackend::dropLeadingDeadElementsFromBuffer()
+{
+  while( not buffer_.empty() && not existsInDataSet( buffer_.begin()->first ) )
+    buffer_.erase( buffer_.begin() );
+  if(not currentSelection_)
+    return;
+  if( buffer_.find(*currentSelection_) != end(buffer_) )
+    return;
+  if( buffer_.empty() )
+    currentSelection_.reset();
+  else
+    currentSelection_ = buffer_.begin()->first;
 }
 
 }

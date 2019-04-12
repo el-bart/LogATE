@@ -53,6 +53,8 @@ private:
   void trimBufferToFitNewSize();
   void trimFromEnd();
   void trimFromBegin();
+  bool existsInDataSet(DataSource::Id id) const;
+  void dropLeadingDeadElementsFromBuffer();
 
   DataSourceShNN dataSource_;
   ScreenSize ss_{Rows{1}, Columns{1}};

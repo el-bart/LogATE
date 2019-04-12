@@ -296,10 +296,55 @@ TEST_CASE_FIXTURE(Fixture, "resizing window on a fly, when data set is empty")
   CHECK( displayData().lines_.empty() );
 }
 
+
+TEST_CASE_FIXTURE(Fixture, "dropping selected item scrolls back to the first element")
+{
+  for(auto i=0; i<5; ++i)
+    ds_->addNewest("foo" + std::to_string(i));
+  INFO("source data buffer: " << ds_->data_);
+
+  swb_.selectDown();
+  REQUIRE( displayData().lines_ == dsSubset(0,3) );
+  REQUIRE( displayData().currentSelection_.value_ == 43 );
+
+  SUBCASE("drop element right before selected only moves window")
+  {
+    ds_->removeOldest();
+    swb_.update();
+    CHECK( displayData().lines_ == dsSubset(0,3) );
+    CHECK( displayData().currentSelection_.value_ == 43 );
+  }
+
+  SUBCASE("drop selected element moves window at the begining")
+  {
+    for(auto i=0; i<2; ++i)
+      ds_->removeOldest();
+    swb_.update();
+    CHECK( displayData().lines_ == dsSubset(0,3) );
+    CHECK( displayData().currentSelection_.value_ == 45 );
+  }
+
+  SUBCASE("whole window removal moves to the next one")
+  {
+    for(auto i=0; i<3; ++i)
+      ds_->removeOldest();
+    swb_.update();
+    CHECK( displayData().lines_ == dsSubset(0,2) );
+    CHECK( displayData().currentSelection_.value_ == 48 );
+  }
+
+  SUBCASE("all elements were removed - not data left")
+  {
+    for(auto i=0; i<5; ++i)
+      ds_->removeOldest();
+    swb_.update();
+    CHECK( displayData().lines_ == dsSubset(0,0) );
+    CHECK( displayData().currentSelection_.value_ == 0 );
+  }
+}
+
 // TODO: tests line scrolling by character
 // TODO: tests line scrolling to begin/end
-
-// TODO: test when selection is no longer in the input set (should reset to the latest log)
 
 }
 }
