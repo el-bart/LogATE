@@ -69,7 +69,7 @@ struct Window
   {
     const auto ss = size();
     if( boxed() )
-      return ScreenSize{ Rows{std::max(ss.rows_.value_-1, 0)}, Columns{std::max(ss.columns_.value_-1, 0)} };
+      return ScreenSize{ Rows{std::max(ss.rows_.value_-2, 0)}, Columns{std::max(ss.columns_.value_-2, 0)} };
     return ss;
   }
 
