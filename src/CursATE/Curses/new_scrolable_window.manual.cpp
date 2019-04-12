@@ -12,7 +12,7 @@ int main()
   const Init init;
   set(CursorVisibility::Invisible);
   auto dataSource = But::makeSharedNN<detail::StringDataSource>();
-  ScrolableWindow win{ dataSource, ScreenPosition{Row{2}, Column{10}}, ScreenSize{Rows{12}, Columns{20}}, Window::Boxed::True };
+  ScrolableWindow win{ dataSource, ScreenPosition{Row{2}, Column{10}}, ScreenSize{Rows{12}, Columns{60}}, Window::Boxed::True };
 
   if(true) // preinit
     for(auto i=0; i<5; ++i)

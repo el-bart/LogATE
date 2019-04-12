@@ -4,6 +4,7 @@ project(CursATE)
 add_library(CursATEimpl
   Curses/ScrolableWindow.cpp
   Curses/detail/ScrolableWindowBackend.cpp
+  Main.cpp
 )
 target_include_directories(CursATEimpl PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(CursATEimpl
