@@ -14,6 +14,8 @@ BUT_MPL_FREE_OPERATORS_COMPARE(Rows, .value_)
 
 struct ScreenSize
 {
+  static auto global() { return ScreenSize{stdscr}; }
+
   explicit ScreenSize(WINDOW* screen)
   {
     BUT_ASSERT(screen);
