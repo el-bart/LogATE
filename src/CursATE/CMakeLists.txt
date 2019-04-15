@@ -5,6 +5,7 @@ add_library(CursATEimpl
   Curses/Init.cpp
   Curses/ScrolableWindow.cpp
   Curses/detail/ScrolableWindowBackend.cpp
+  detail/FilterWindows.cpp
   detail/LogDataSource.cpp
   Main.cpp
 )
