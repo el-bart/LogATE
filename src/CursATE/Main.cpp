@@ -6,7 +6,8 @@ namespace CursATE
 
 Main::Main(const LogATE::Net::Port port):
   root_{ But::makeSharedNN<LogATE::Tree::Filter::AcceptAll>(LogATE::Tree::Node::Name{"root"}) },
-  server_{port}
+  server_{port},
+  dataPump_{ [&] { this->dataPumpLoop(); } }
 {
 }
 
@@ -18,6 +19,7 @@ Main::~Main()
 
 void Main::run()
 {
+  dataPump_.join();
   // TODO
 }
 
