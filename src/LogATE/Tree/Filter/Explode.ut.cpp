@@ -118,10 +118,11 @@ TEST_CASE_FIXTURE(Fixture, "ambigous relative path adds logs to multiple cathego
   CHECK( out.at( name("yyy") ) == sns(log) );
 }
 
-TEST_CASE_FIXTURE(Fixture, "explicit addition of child fails")
+TEST_CASE_FIXTURE(Fixture, "explicit addition/removal of a child fails")
 {
   using LogATE::Tree::Filter::AcceptAll;
   CHECK_THROWS_AS( explode_.add( But::makeUniqueNN<AcceptAll>(name("xxx")) ), Explode::ExplicitNodeAddNotSupported );
+  CHECK_THROWS_AS( explode_.remove( But::makeUniqueNN<AcceptAll>(name("xxx")) ), Explode::ExplicitNodeRemoveNotSupported );
 }
 
 }

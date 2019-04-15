@@ -12,7 +12,6 @@ using SN = LogATE::SequenceNumber;
 
 namespace
 {
-
 TEST_SUITE("Tree::SimpleNode")
 {
 
@@ -104,6 +103,27 @@ TEST_CASE_FIXTURE(Fixture, "exception in passing through to one child does not a
   CHECK( allSns(*f2_.children()[1]) == makeSns({0,4,8,12}) );
 }
 
+TEST_CASE_FIXTURE(Fixture, "cascading log through children works")
+{
+  f2_.add( But::makeUniqueNN<ModFilter<3>>() );
+  f2_.add( But::makeUniqueNN<ModFilter<4>>() );
+  REQUIRE( f2_.children().size() == 2 );
+
+  SUBCASE("removal of existing child works")
+  {
+    const auto node = f2_.children()[0];
+    f2_.remove(node);
+    CHECK( f2_.children().size() == 1 );
+  }
+
+  SUBCASE("double-removal of a child does not do anything")
+  {
+    const auto node = f2_.children()[0];
+    for(auto i=0; i<2; ++i)
+      f2_.remove(node);
+    CHECK( f2_.children().size() == 1 );
+  }
 }
 
+}
 }

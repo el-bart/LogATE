@@ -27,6 +27,17 @@ void SimpleNode::add(NodePtr node)
   passAllLogsToChild(shared);
 }
 
+void SimpleNode::remove(NodeShPtr node)
+{
+  const Lock lock{mutex_};
+  for(auto it=begin(children_); it!=end(children_); ++it)
+    if( it->get() == node.get() )
+    {
+      children_.erase(it);
+      return;
+    }
+}
+
 void SimpleNode::insertToChildren(Log const& log)
 {
   for(auto c: children_)

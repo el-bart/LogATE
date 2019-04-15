@@ -51,6 +51,11 @@ void Explode::add(NodePtr node)
   BUT_THROW(ExplicitNodeAddNotSupported, "while trying to add node: " << node->name().value_);
 }
 
+void Explode::remove(NodeShPtr node)
+{
+  BUT_THROW(ExplicitNodeRemoveNotSupported, "while trying to remove node: " << node->name().value_);
+}
+
 NodeShPtr Explode::nodeFor(Name const& name)
 {
   const Lock lock{mutex_};

@@ -11,12 +11,14 @@ class Explode: public Node
 {
 public:
   BUT_DEFINE_EXCEPTION(ExplicitNodeAddNotSupported, Node::Error, "explicit node addition not available for 'explode' node");
+  BUT_DEFINE_EXCEPTION(ExplicitNodeRemoveNotSupported, Node::Error, "explicit node removal not available for 'explode' node");
 
   Explode(Name name, Path path);
 
   void insert(Log const& log) override;
   Children children() const override;
   void add(NodePtr node) override;
+  void remove(NodeShPtr node) override;
 
   static auto nonMatchingChildName() { return Name{"<unmatched>"}; }
 

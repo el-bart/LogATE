@@ -37,6 +37,7 @@ public:
 
   virtual Children children() const = 0;
   virtual void add(NodePtr node) = 0;
+  virtual void remove(NodeShPtr node) = 0;
 
   auto const& name() const { return name_; }
   auto const& type() const { return type_; }
