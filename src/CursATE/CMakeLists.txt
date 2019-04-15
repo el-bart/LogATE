@@ -5,7 +5,7 @@ add_library(CursATEimpl
   Curses/Init.cpp
   Curses/ScrolableWindow.cpp
   Curses/detail/ScrolableWindowBackend.cpp
-  LogDataSource.cpp
+  detail/LogDataSource.cpp
   Main.cpp
 )
 target_include_directories(CursATEimpl PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
@@ -29,7 +29,7 @@ install(TARGETS CursATE
 if(LOGATE_ENABLE_TESTS)
   add_executable(CursATE_uts
     Curses/detail/ScrolableWindowBackend.ut.cpp
-    LogDataSource.ut.cpp
+    detail/LogDataSource.ut.cpp
     main.ut.cpp
   )
   add_executable(CursATE_mts

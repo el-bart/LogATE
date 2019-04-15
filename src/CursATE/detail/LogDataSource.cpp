@@ -1,6 +1,6 @@
-#include "CursATE/LogDataSource.hpp"
+#include "CursATE/detail/LogDataSource.hpp"
 
-namespace CursATE
+namespace CursATE::detail
 {
 
 namespace

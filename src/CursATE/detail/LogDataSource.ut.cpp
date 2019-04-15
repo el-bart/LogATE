@@ -1,5 +1,5 @@
 #include <doctest/doctest.h>
-#include "CursATE/LogDataSource.hpp"
+#include "CursATE/detail/LogDataSource.hpp"
 #include "CursATE/Curses/TestPrints.ut.hpp"
 #include "LogATE/Tree/Filter/AcceptAll.hpp"
 #include <sstream>
@@ -8,7 +8,7 @@ using CursATE::Curses::DataSource;
 
 namespace
 {
-TEST_SUITE("CursATE::LogDataSource")
+TEST_SUITE("CursATE::detail::LogDataSource")
 {
 
 std::string log2str(LogATE::Log const& log)
@@ -27,7 +27,7 @@ struct Fixture
   }
 
   LogATE::Tree::NodeShPtr node_{ But::makeSharedNN<LogATE::Tree::Filter::AcceptAll>(LogATE::Tree::Node::Name{"foo-bar"}) };
-  CursATE::LogDataSource lds_{node_, log2str};
+  CursATE::detail::LogDataSource lds_{node_, log2str};
 };
 
 

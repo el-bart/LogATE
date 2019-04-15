@@ -3,7 +3,7 @@
 #include "CursATE/Curses/DataSource.hpp"
 #include <functional>
 
-namespace CursATE
+namespace CursATE::detail
 {
 
 class LogDataSource final: public Curses::DataSource
