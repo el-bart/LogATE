@@ -27,4 +27,3 @@ RUN cd /usr/src/ && \
 RUN apt-get install -y libpoco-dev
 RUN apt-get install -y libncurses-dev
 RUN apt-get install -y gdb
-RUN apt-get install -y libcdk5-doc libcdk5-dev
