@@ -14,6 +14,7 @@ namespace LogATE::Tree
 class Node;
 using NodePtr = But::NotNullUnique<Node>;
 using NodeShPtr = But::NotNullShared<Node>;
+using NodeWeakPtr = std::weak_ptr<Node>;
 
 
 class Node
