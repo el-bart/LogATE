@@ -25,14 +25,14 @@ public:
     return size() == 0u;
   }
 
-  Log first() const
+  Log const& first() const
   {
     BUT_ASSERT( locked() );
     BUT_ASSERT( not empty() );
     return logs_.front();
   }
 
-  Log last() const
+  Log const& last() const
   {
     BUT_ASSERT( locked() );
     BUT_ASSERT( not empty() );
