@@ -3,6 +3,7 @@
 #include "LogATE/Net/TcpClient.hpp"
 #include "LogATE/Net/TcpRawClient.hpp"
 #include "LogATE/TestPrints.ut.hpp"
+#include "But/Optional.hpp"
 
 using LogATE::Log;
 using LogATE::Net::Port;
@@ -122,6 +123,13 @@ TEST_CASE_FIXTURE(Fixture, "server gets back to accepting connections once curre
     REQUIRE(log);
     CHECK( *log->log_ == log1_ );
   }
+}
+
+TEST_CASE_FIXTURE(Fixture, "server can be stopped even when client is still connected")
+{
+  But::Optional<TcpRawClient> rc;
+  TcpServer s{port_};
+  rc.emplace(host_, port_);
 }
 
 }

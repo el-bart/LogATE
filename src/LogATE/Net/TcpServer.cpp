@@ -71,7 +71,7 @@ void TcpServer::processClient(Poco::Net::StreamSocket clientSocket)
 {
   Poco::Net::SocketStream clientStream{clientSocket};
   nlohmann::json tmp;
-  while( isStreamUsable(clientStream) )
+  while( not quit_ && isStreamUsable(clientStream) )
   {
     try
     {
