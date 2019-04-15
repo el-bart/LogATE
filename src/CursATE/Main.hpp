@@ -3,8 +3,7 @@
 #include "LogATE/Net/TcpServer.hpp"
 #include "LogATE/Tree/Node.hpp"
 #include "CursATE/Curses/Init.hpp"
-//#include "CursATE/Curses/ScrolableWindow.hpp"
-//#include "CursATE/Curses/CursorVisibility.hpp"
+#include "CursATE/Curses/ScrolableWindow.hpp"       
 #include <But/Threading/JoiningThread.hpp>
 #include <atomic>
 
@@ -24,6 +23,7 @@ public:
   Main& operator=(Main&&) = delete;
 
   void run();
+  void stop();
 
 private:
   void dataPumpLoop();
@@ -33,6 +33,7 @@ private:
   LogATE::Net::TcpServer server_;
   std::atomic<bool> quit_{false};
   But::Threading::JoiningThread<std::thread> dataPump_;
+  Curses::ScrolableWindow win_;         
 };
 
 }
