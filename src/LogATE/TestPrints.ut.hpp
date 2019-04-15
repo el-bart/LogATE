@@ -1,6 +1,7 @@
 #pragma once
 #include "LogATE/SequenceNumber.hpp"
 #include "LogATE/Log.hpp"
+#include "LogATE/Tree/Path.hpp"
 #include <iostream>
 #include <vector>
 
@@ -33,6 +34,16 @@ inline std::ostream& printVector(std::ostream& os, std::vector<T> const& c)
   }
   os << " ]";
   return os;
+}
+
+namespace Tree
+{
+
+inline std::ostream& operator<<(std::ostream& os, Tree::Path const& path)
+{
+  return LogATE::printVector(os, path.value_);
+}
+
 }
 
 }

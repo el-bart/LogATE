@@ -8,6 +8,7 @@ add_library(LogATE
   Net/TcpServer.cpp
   Tree/Node.cpp
   Tree/Logs.cpp
+  Tree/Path.cpp
   Tree/SimpleNode.cpp
   Tree/Filter/AcceptAll.cpp
   Tree/Filter/Explode.cpp
