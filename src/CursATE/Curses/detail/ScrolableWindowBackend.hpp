@@ -37,6 +37,7 @@ struct ScrolableWindowBackend
   struct DisplayData final
   {
     std::vector<std::pair<DataSource::Id, std::string>> lines_;
+    //                                    ^^^^^^^^^^^ TODO: can be std::string_view
     DataSource::Id currentSelection_;
   };
 
