@@ -5,6 +5,7 @@ namespace CursATE::Curses
 
 enum class Change
 {
+  Update,
   Next,
   Previous,
   Exit

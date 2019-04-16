@@ -4,6 +4,9 @@ project(CursATE)
 add_library(CursATEimpl
   Curses/CursorVisibility.cpp
   Curses/Init.cpp
+  Curses/Field/Button.cpp
+  Curses/Field/Input.cpp
+  Curses/Field/Radio.cpp
   Curses/ScrolableWindow.cpp
   Curses/detail/ScrolableWindowBackend.cpp
   detail/FilterWindows.cpp

@@ -1,5 +1,6 @@
 #pragma once
 #include "CursATE/Curses/Change.hpp"
+#include "CursATE/Curses/FieldSize.hpp"
 #include "CursATE/Curses/Window.hpp"
 #include "CursATE/Curses/Field/Input.hpp"
 #include "CursATE/Curses/Field/Radio.hpp"
@@ -29,9 +30,11 @@ struct Form final
     auto selected = 0;
     while(true)
     {
+      drawAll();
       const auto action = processElement(selected);
       switch(action)
       {
+        case Change::Update: break;
         case Change::Next: selected = (selected+1) % size(); break;
         case Change::Previous: selected = (selected == 0) ? size()-1u : selected-1; break;
         case Change::Exit: return prepareResult();
@@ -47,6 +50,33 @@ private:
     auto writer = [&](auto const& e) { out[n++] = this->getResult(e); };
     detail::TupleForEach<0, size()>::visit(fields_, writer);
     return out;
+  }
+
+  auto calculateSpacing() const
+  {
+    FieldSize fs;
+    auto updateSize = [&](auto const& e)
+        {
+          const auto tmp = Field::size(e);
+          fs.label_ = std::max(fs.label_, tmp.label_);
+          fs.value_ = std::max(fs.value_, tmp.value_);
+        };
+    detail::TupleForEach<0, size()>::visit(fields_, updateSize);
+    return fs;
+  }
+
+  void drawAll()
+  {
+    window_->clear();
+    const auto fs = calculateSpacing();
+    auto uasp = window_->userAreaStartPosition();
+    auto draw = [&](auto const& e)
+        {
+          Field::draw(*window_, uasp, fs, e);
+          ++uasp.row_.value_;
+        };
+    detail::TupleForEach<0, size()>::visit(fields_, draw);
+    window_->refresh();
   }
 
   std::string getResult(Field::Button const& button) const { return button.clicked_ ? "true" : "false"; }
