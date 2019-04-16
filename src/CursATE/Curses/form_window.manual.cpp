@@ -11,7 +11,6 @@ auto processForm()
                         Field::Button{"ok"},
                         Field::Button{"cancel"} );
 
-  form.refresh();
   return form.process();
 }
 
@@ -24,7 +23,7 @@ int main()
   mvwprintw( stdscr, 1, 1, "user input:      %s", res[0].c_str() );
   mvwprintw( stdscr, 2, 1, "radio selection: %s", res[1].c_str() );
   mvwprintw( stdscr, 3, 1, "OK button:       %s", res[2].c_str() );
-  mvwprintw( stdscr, 3, 1, "cancel button:   %s", res[3].c_str() );
+  mvwprintw( stdscr, 4, 1, "cancel button:   %s", res[3].c_str() );
   refresh();
   getch();
 }
