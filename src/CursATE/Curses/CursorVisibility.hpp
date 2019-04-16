@@ -1,5 +1,4 @@
 #pragma once
-#include <ncurses.h>
 #include "CursATE/Curses/Exception.hpp"
 
 namespace CursATE::Curses
@@ -14,11 +13,28 @@ enum class CursorVisibility
 
 BUT_DEFINE_EXCEPTION(FailedToSetCursorVisibility, Exception, "failed to set cursor visibility");
 
-inline void set(const CursorVisibility cv)
+void set(const CursorVisibility cv);
+CursorVisibility cursorVisibility();
+
+
+struct CursorVisibilityGuard final
 {
-  const auto cvn = static_cast<int>(cv);
-  if( curs_set(cvn) == ERR )
-    BUT_THROW(FailedToSetCursorVisibility, "expected cursor visibility: " << cvn);
-}
+  explicit CursorVisibilityGuard(CursorVisibility newVisibility):
+    previous_{ cursorVisibility() }
+  {
+    set(newVisibility);
+  }
+
+  ~CursorVisibilityGuard() { set(previous_); }
+
+  CursorVisibilityGuard(CursorVisibilityGuard const&) = delete;
+  CursorVisibilityGuard& operator=(CursorVisibilityGuard const&) = delete;
+
+  CursorVisibilityGuard(CursorVisibilityGuard&&) = delete;
+  CursorVisibilityGuard& operator=(CursorVisibilityGuard&&) = delete;
+
+private:
+  CursorVisibility previous_;
+};
 
 }
