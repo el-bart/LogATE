@@ -23,7 +23,6 @@ struct TupleForEach<N,N>
   {
     (void)t;
     (void)f;
-    throw std::logic_error{"requested index is out of bound"};
   }
 };
 
