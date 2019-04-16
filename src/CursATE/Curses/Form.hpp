@@ -109,6 +109,7 @@ private:
     }
     return Change::Update;
   }
+
   Change action(Field::Input& input)
   {
     (void)input;
@@ -122,20 +123,15 @@ private:
     }
     return Change::Update;
   }
+
   Change action(Field::Radio& radio)
   {
-    (void)radio;
-    // TODO
     switch( getch() )
     {
       case KEY_UP: return Change::Previous;
       case KEY_DOWN: return Change::Next;
-                     /*
-      case KEY_LEFT: return Change::Previous;
-      case KEY_RIGHT: return Change::Next;
-      case KEY_ENTER:
-      case ' ': button.clicked_ = true; return Change::Exit;
-      */
+      case KEY_RIGHT: radio.selection_ = (radio.selection_ + 1) % radio.values_.size(); break;
+      case KEY_LEFT:  radio.selection_ = (radio.selection_ == 0) ? radio.values_.size()-1u : radio.selection_-1; break;
       case 'q': return Change::Exit;
     }
     return Change::Update;
