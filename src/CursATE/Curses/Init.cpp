@@ -1,4 +1,5 @@
 #include "CursATE/Curses/Init.hpp"
+#include "CursATE/Curses/CursorVisibility.hpp"
 #include <ncurses.h>
 #include <mutex>
 
@@ -23,6 +24,7 @@ Init::Init()
   if(not has_colors())
     BUT_THROW(ColorsNotSupported, "has_colors() returned false");
   start_color();
+  set(CursorVisibility::Normal);
   cbreak();   // ^Z and ^C shall generate signals
   noecho();
   keypad(stdscr, TRUE);   // enable funciton keys, arrows, etc...
