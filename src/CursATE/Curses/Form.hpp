@@ -5,6 +5,7 @@
 #include "CursATE/Curses/Field/Radio.hpp"
 #include "CursATE/Curses/Field/Button.hpp"
 #include "CursATE/Curses/detail/TupleVisitor.hpp"
+#include "CursATE/Curses/detail/TupleForEach.hpp"
 #include <But/NotNull.hpp>
 #include <tuple>
 
@@ -42,9 +43,9 @@ private:
   Result prepareResult()
   {
     Result out;
-    auto writer = [&](auto const& e) { return this->getResult(e); };
-    for(auto i=0u; i<size(); ++i)
-      detail::TupleVisitor<0, size()>::visit(i, fields_, writer);
+    auto n = 0;
+    auto writer = [&](auto const& e) { out[n++] = this->getResult(e); };
+    detail::TupleForEach<0, size()>::visit(fields_, writer);
     return out;
   }
 
