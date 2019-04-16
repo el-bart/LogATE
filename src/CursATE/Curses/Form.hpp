@@ -1,9 +1,9 @@
 #pragma once
+#include "CursATE/Curses/Change.hpp"
 #include "CursATE/Curses/Window.hpp"
 #include "CursATE/Curses/Field/Input.hpp"
 #include "CursATE/Curses/Field/Radio.hpp"
 #include "CursATE/Curses/Field/Button.hpp"
-#include "CursATE/Curses/Field/Change.hpp"
 #include "CursATE/Curses/detail/TupleVisitor.hpp"
 #include <But/NotNull.hpp>
 #include <tuple>
@@ -31,9 +31,9 @@ struct Form final
       const auto action = processElement(selected);
       switch(action)
       {
-        case Field::Change::Next: selected = (selected+1) % size(); break;
-        case Field::Change::Previous: selected = (selected == 0) ? size()-1u : selected-1; break;
-        case Field::Change::Exit: return prepareResult();
+        case Change::Next: selected = (selected+1) % size(); break;
+        case Change::Previous: selected = (selected == 0) ? size()-1u : selected-1; break;
+        case Change::Exit: return prepareResult();
       }
     }
   }
@@ -56,29 +56,29 @@ private:
     return radio.values_[radio.selection_];
   }
 
-  Field::Change processElement(int n)
+  Change processElement(int n)
   {
     auto processor = [&](auto& e) { return this->action(e); };
     return detail::TupleVisitor<0, size()>::visit(n, fields_, processor);
   }
 
-  Field::Change action(Field::Button& button)
+  Change action(Field::Button& button)
   {
     (void)button;
     // TODO
-    return Field::Change::Next;
+    return Change::Next;
   }
-  Field::Change action(Field::Input& input)
+  Change action(Field::Input& input)
   {
     (void)input;
     // TODO
-    return Field::Change::Next;
+    return Change::Next;
   }
-  Field::Change action(Field::Radio& radio)
+  Change action(Field::Radio& radio)
   {
     (void)radio;
     // TODO
-    return Field::Change::Next;
+    return Change::Next;
   }
 
   std::tuple<Fields...> fields_;

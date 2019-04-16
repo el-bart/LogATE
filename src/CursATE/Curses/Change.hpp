@@ -1,6 +1,6 @@
 #pragma once
 
-namespace CursATE::Curses::Field
+namespace CursATE::Curses
 {
 
 enum class Change
