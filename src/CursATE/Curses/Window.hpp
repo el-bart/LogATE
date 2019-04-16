@@ -34,6 +34,7 @@ struct Window
       case Boxed::True: wborder(window_, ' ', ' ', ' ',' ',' ',' ',' ',' '); break;
       case Boxed::False: break;
     }
+    clear();
     wrefresh(window_);
     delwin(window_);
   }
