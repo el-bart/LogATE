@@ -11,12 +11,13 @@ FieldSize size(Radio const& r)
   return FieldSize{ r.label_.size(), valuesSize };
 }
 
-void draw(Window& win, const ScreenPosition sp, const FieldSize fs, Radio const& r)
+void draw(Window& win, const ScreenPosition sp, const FieldSize fs, Radio const& r, const bool selected)
 {
   (void)win;
   (void)sp;
   (void)fs;
   (void)r;
+  (void)selected;
   // TODO
 }
 

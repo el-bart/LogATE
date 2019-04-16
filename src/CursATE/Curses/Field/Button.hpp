@@ -13,6 +13,6 @@ struct Button
 };
 
 FieldSize size(Button const& b);
-void draw(Window& win, ScreenPosition sp, FieldSize fs, Button const& b);
+void draw(Window& win, ScreenPosition sp, FieldSize fs, Button const& b, bool selected);
 
 }

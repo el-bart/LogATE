@@ -30,7 +30,7 @@ struct Form final
     auto selected = 0;
     while(true)
     {
-      drawAll();
+      drawAll(selected);
       const auto action = processElement(selected);
       switch(action)
       {
@@ -40,11 +40,6 @@ struct Form final
         case Change::Exit: return prepareResult();
       }
     }
-  }
-
-  void refresh()
-  {
-    drawAll();
   }
 
 private:
@@ -70,15 +65,18 @@ private:
     return fs;
   }
 
-  void drawAll()
+  void drawAll(const int selected)
   {
     window_->clear();
     const auto fs = calculateSpacing();
     auto uasp = window_->userAreaStartPosition();
+    auto n = 0;
     auto draw = [&](auto const& e)
         {
-          Field::draw(*window_, uasp, fs, e);
+          const auto nowSelected = selected==n;
+          Field::draw(*window_, uasp, fs, e, nowSelected);
           ++uasp.row_.value_;
+          ++n;
         };
     detail::TupleForEach<0, size()>::visit(fields_, draw);
     window_->refresh();
@@ -104,6 +102,8 @@ private:
     {
       case KEY_UP: return Change::Previous;
       case KEY_DOWN: return Change::Next;
+      case ' ':
+      case 10:
       case KEY_ENTER: button.clicked_ = true; return Change::Exit;
       case 'q': return Change::Exit;
     }

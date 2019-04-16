@@ -14,6 +14,6 @@ struct Input
 };
 
 FieldSize size(Input const& i);
-void draw(Window& win, ScreenPosition sp, FieldSize fs, Input const& i);
+void draw(Window& win, ScreenPosition sp, FieldSize fs, Input const& i, bool selected);
 
 }

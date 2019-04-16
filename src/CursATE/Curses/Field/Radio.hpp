@@ -15,6 +15,6 @@ struct Radio
 };
 
 FieldSize size(Radio const& r);
-void draw(Window& win, ScreenPosition sp, FieldSize fs, Radio const& r);
+void draw(Window& win, ScreenPosition sp, FieldSize fs, Radio const& r, bool selected);
 
 }
