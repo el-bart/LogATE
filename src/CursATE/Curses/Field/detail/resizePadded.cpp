@@ -6,7 +6,11 @@ namespace CursATE::Curses::Field::detail
 std::string resizePadded(std::string const& in, const size_t maxSize, const size_t selectedElement)
 {
   if( in.size() <= maxSize )
-    return in;
+  {
+    auto tmp = in;
+    tmp.resize(maxSize, ' ');
+    return tmp;
+  }
   if( selectedElement >= in.size() )
     BUT_THROW(SelectionOutOfRange, "requested element " << selectedElement << " in a string of length " << in.size());
 

@@ -13,10 +13,10 @@ TEST_SUITE("CursATE::Curses::Field::detail:resizePadded")
 
 TEST_CASE("strings shorter than the limit")
 {
-  CHECK( resizePadded("",     4, 0) == "" );
-  CHECK( resizePadded("a",    4, 0) == "a" );
-  CHECK( resizePadded("ab",   4, 0) == "ab" );
-  CHECK( resizePadded("abc",  4, 0) == "abc" );
+  CHECK( resizePadded("",     4, 0) == "    " );
+  CHECK( resizePadded("a",    4, 0) == "a   " );
+  CHECK( resizePadded("ab",   4, 0) == "ab  " );
+  CHECK( resizePadded("abc",  4, 0) == "abc " );
   CHECK( resizePadded("abcd", 4, 0) == "abcd" );
 }
 

@@ -7,6 +7,7 @@ add_library(CursATEimpl
   Curses/Field/Button.cpp
   Curses/Field/Input.cpp
   Curses/Field/Radio.cpp
+  Curses/Field/detail/resizePadded.cpp
   Curses/ScrolableWindow.cpp
   Curses/detail/ScrolableWindowBackend.cpp
   detail/FilterWindows.cpp
@@ -33,6 +34,7 @@ install(TARGETS CursATE
 
 if(LOGATE_ENABLE_TESTS)
   add_executable(CursATE_uts
+    Curses/Field/detail/resizePadded.ut.cpp
     Curses/detail/ScrolableWindowBackend.ut.cpp
     detail/LogDataSource.ut.cpp
     main.ut.cpp
