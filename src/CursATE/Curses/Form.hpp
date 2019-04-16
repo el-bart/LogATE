@@ -3,6 +3,7 @@
 #include "CursATE/Curses/Field/Input.hpp"
 #include "CursATE/Curses/Field/Radio.hpp"
 #include "CursATE/Curses/Field/Button.hpp"
+#include "CursATE/Curses/Field/Change.hpp"
 #include "CursATE/Curses/detail/TupleVisitor.hpp"
 #include <But/NotNull.hpp>
 #include <tuple>
@@ -30,21 +31,14 @@ struct Form final
       const auto action = processElement(selected);
       switch(action)
       {
-        case Select::Next: selected = (selected+1) % size(); break;
-        case Select::Previous: selected = (selected == 0) ? size()-1u : selected-1; break;
-        case Select::Exit: return prepareResult();
+        case Field::Change::Next: selected = (selected+1) % size(); break;
+        case Field::Change::Previous: selected = (selected == 0) ? size()-1u : selected-1; break;
+        case Field::Change::Exit: return prepareResult();
       }
     }
   }
 
 private:
-  enum class Select
-  {
-    Next,
-    Previous,
-    Exit
-  };
-
   Result prepareResult()
   {
     Result out;
@@ -62,29 +56,29 @@ private:
     return radio.values_[radio.selection_];
   }
 
-  Select processElement(int n)
+  Field::Change processElement(int n)
   {
     auto processor = [&](auto& e) { return this->action(e); };
     return detail::TupleVisitor<0, size()>::visit(n, fields_, processor);
   }
 
-  Select action(Field::Button& button)
+  Field::Change action(Field::Button& button)
   {
     (void)button;
     // TODO
-    return Select::Next;
+    return Field::Change::Next;
   }
-  Select action(Field::Input& input)
+  Field::Change action(Field::Input& input)
   {
     (void)input;
     // TODO
-    return Select::Next;
+    return Field::Change::Next;
   }
-  Select action(Field::Radio& radio)
+  Field::Change action(Field::Radio& radio)
   {
     (void)radio;
     // TODO
-    return Select::Next;
+    return Field::Change::Next;
   }
 
   std::tuple<Fields...> fields_;
