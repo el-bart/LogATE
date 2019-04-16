@@ -20,7 +20,7 @@ struct Form final
 
   explicit Form(Fields&& ...fields):
     fields_{ std::forward<Fields>(fields)... },
-    window_{ But::makeUniqueNN<Window>(ScreenPosition{Row{1}, Column{1}}, ScreenSize::global(), Window::Boxed::True) }
+    window_{ But::makeUniqueNN<Window>(ScreenPosition{Row{0}, Column{0}}, ScreenSize::global(), Window::Boxed::True) }
   { }
 
   constexpr static auto size() { return sizeof...(Fields); }
@@ -40,6 +40,11 @@ struct Form final
         case Change::Exit: return prepareResult();
       }
     }
+  }
+
+  void refresh()
+  {
+    drawAll();
   }
 
 private:
@@ -95,21 +100,45 @@ private:
 
   Change action(Field::Button& button)
   {
-    (void)button;
-    // TODO
-    return Change::Next;
+    switch( getch() )
+    {
+      case KEY_UP: return Change::Previous;
+      case KEY_DOWN: return Change::Next;
+      case KEY_ENTER: button.clicked_ = true; return Change::Exit;
+      case 'q': return Change::Exit;
+    }
+    return Change::Update;
   }
   Change action(Field::Input& input)
   {
     (void)input;
     // TODO
-    return Change::Next;
+    switch( getch() )
+    {
+      case KEY_UP: return Change::Previous;
+      case KEY_DOWN: return Change::Next;
+      //case KEY_ENTER: button.clicked_ = true; return Change::Exit;
+      case 'q': return Change::Exit;
+    }
+    return Change::Update;
   }
   Change action(Field::Radio& radio)
   {
     (void)radio;
     // TODO
-    return Change::Next;
+    switch( getch() )
+    {
+      case KEY_UP: return Change::Previous;
+      case KEY_DOWN: return Change::Next;
+                     /*
+      case KEY_LEFT: return Change::Previous;
+      case KEY_RIGHT: return Change::Next;
+      case KEY_ENTER:
+      case ' ': button.clicked_ = true; return Change::Exit;
+      */
+      case 'q': return Change::Exit;
+    }
+    return Change::Update;
   }
 
   std::tuple<Fields...> fields_;
