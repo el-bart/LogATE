@@ -9,7 +9,6 @@
 #include "CursATE/Curses/Field/detail/resizePadded.hpp"
 #include "CursATE/Curses/detail/TupleVisitor.hpp"
 #include "CursATE/Curses/detail/TupleForEach.hpp"
-#include <But/NotNull.hpp>
 #include <tuple>
 
 namespace CursATE::Curses
@@ -24,7 +23,7 @@ struct Form final
 
   explicit Form(Fields&& ...fields):
     fields_{ std::forward<Fields>(fields)... },
-    window_{ But::makeUniqueNN<Window>(ScreenPosition{Row{0}, Column{0}}, ScreenSize::global(), Window::Boxed::True) }
+    window_{ ScreenPosition{Row{0}, Column{0}}, ScreenSize::global(), Window::Boxed::True }
   { }
 
   constexpr static auto size() { return sizeof...(Fields); }
@@ -66,7 +65,7 @@ private:
           fs.value_ = std::max(fs.value_, tmp.value_);
         };
     detail::TupleForEach<0, size()>::visit(fields_, updateSize);
-    const auto uas = window_->userAreaSize();
+    const auto uas = window_.userAreaSize();
     if( static_cast<unsigned>(uas.columns_.value_) < fs.label_ + 1u + fs.value_ )
       BUT_THROW(ScreenTooSmall, "available " << uas.columns_.value_ << " while required " << fs.label_ + 1 + fs.value_);
     fs.value_ = uas.columns_.value_ - 2u - fs.label_;
@@ -75,19 +74,19 @@ private:
 
   void drawAll(const int selected)
   {
-    window_->clear();
+    //window_.clear();
     const auto fs = calculateSpacing();
-    auto uasp = window_->userAreaStartPosition();
+    auto uasp = window_.userAreaStartPosition();
     auto n = 0;
     auto draw = [&](auto const& e)
         {
           const auto nowSelected = selected==n;
-          Field::draw(*window_, uasp, fs, e, nowSelected);
+          Field::draw(window_, uasp, fs, e, nowSelected);
           ++uasp.row_.value_;
           ++n;
         };
     detail::TupleForEach<0, size()>::visit(fields_, draw);
-    window_->refresh();
+    window_.refresh();
   }
 
   std::string getResult(Field::Button const& button) const { return button.clicked_ ? "true" : "false"; }
@@ -123,11 +122,11 @@ private:
   void positionCursorInInputField(Field::Input const& input, const unsigned row)
   {
     const auto fs = calculateSpacing();
-    const auto uasp = window_->userAreaStartPosition();
+    const auto uasp = window_.userAreaStartPosition();
     const auto vs = Field::detail::resizePaddedVisibleSize(input.value_, fs.value_, input.cursorPosition_);
     const auto valueStartPos = uasp.column_.value_ + fs.label_ + 1u + vs.selectionOffset_;
-    wmove(window_->get(), uasp.row_.value_ + row, valueStartPos);
-    window_->refresh();
+    wmove(window_.get(), uasp.row_.value_ + row, valueStartPos);
+    window_.refresh();
   }
 
   Change action(Field::Input& input, const unsigned row)
@@ -205,7 +204,7 @@ private:
   }
 
   std::tuple<Fields...> fields_;
-  But::NotNullUnique<Window> window_;   // TODO: direct value will suffice here?
+  Window window_;
 };
 
 
