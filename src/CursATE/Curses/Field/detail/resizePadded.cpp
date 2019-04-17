@@ -7,7 +7,7 @@ VisibleSize resizePaddedVisibleSize(std::string const& in, size_t maxSize, size_
 {
   if( in.size() <= maxSize )
     return {0, selectedElement, in.size()};
-  if( selectedElement >= in.size() )
+  if( selectedElement > in.size() )
     BUT_THROW(SelectionOutOfRange, "requested element " << selectedElement << " in a string of length " << in.size());
 
   const auto half = maxSize / 2;

@@ -136,14 +136,7 @@ private:
       case KEY_ENTER:
            return Change::Next;
       case KEY_RIGHT:
-           if( input.value_.empty() )
-           {
-             input.cursorPosition_ = 0;
-             break;
-           }
-           if( input.cursorPosition_ + 1 == input.value_.size() )
-             break;
-           ++input.cursorPosition_;
+           input.cursorPosition_ = std::min<size_t>( input.cursorPosition_+1u, input.value_.size() );
            break;
       case KEY_LEFT:
            if( input.value_.empty() )
@@ -156,12 +149,7 @@ private:
            --input.cursorPosition_;
            break;
       case KEY_END:
-           if( input.value_.empty() )
-           {
-             input.cursorPosition_ = 0;
-             break;
-           }
-           input.cursorPosition_ = input.value_.size() - 1u;
+           input.cursorPosition_ = input.value_.size();
            break;
       case KEY_HOME:
            input.cursorPosition_ = 0;
@@ -170,7 +158,7 @@ private:
     if( input.value_.empty() )
       BUT_ASSERT( input.cursorPosition_ == 0);
     else
-      BUT_ASSERT( input.cursorPosition_ < input.value_.size() );
+      BUT_ASSERT( input.cursorPosition_ <= input.value_.size() );
     // TODO: default adds character at a current position
     return Change::Update;
   }
