@@ -1,5 +1,6 @@
 #pragma once
 #include "CursATE/Curses/Change.hpp"
+#include "CursATE/Curses/Exception.hpp"
 #include "CursATE/Curses/FieldSize.hpp"
 #include "CursATE/Curses/Window.hpp"
 #include "CursATE/Curses/Field/Input.hpp"
@@ -13,6 +14,8 @@
 
 namespace CursATE::Curses
 {
+
+BUT_DEFINE_EXCEPTION(ScreenTooSmall, Exception, "screen too small");
 
 template<typename ...Fields>
 struct Form final
@@ -63,6 +66,10 @@ private:
           fs.value_ = std::max(fs.value_, tmp.value_);
         };
     detail::TupleForEach<0, size()>::visit(fields_, updateSize);
+    const auto uas = window_->userAreaSize();
+    if( static_cast<unsigned>(uas.columns_.value_) < fs.label_ + 1u + 1u )
+      BUT_THROW(ScreenTooSmall, "available " << uas.columns_.value_ << " while required " << fs.label_ + 1 + fs.value_);
+    fs.value_ = uas.columns_.value_ - 1u - fs.label_;
     return fs;
   }
 
@@ -127,7 +134,8 @@ private:
   {
     positionCursorInInputField(input, row);
     const CursorVisibilityGuard cvg{CursorVisibility::Normal};
-    switch( getch() )
+    const auto ch = getch();
+    switch(ch)
     {
       case KEY_UP:
            return Change::Previous;
@@ -166,11 +174,17 @@ private:
            input.value_.erase(input.cursorPosition_, 1);
            break;
     }
+    // sanity checks
     if( input.value_.empty() )
       BUT_ASSERT( input.cursorPosition_ == 0);
     else
       BUT_ASSERT( input.cursorPosition_ <= input.value_.size() );
-    // TODO: default adds character at a current position
+    // by default add character to the string
+    if( isprint(ch) )
+    {
+      input.value_.insert(input.cursorPosition_, 1, ch);
+      ++input.cursorPosition_;
+    }
     return Change::Update;
   }
 

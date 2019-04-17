@@ -6,7 +6,8 @@ namespace CursATE::Curses::Field
 
 FieldSize size(Input const& i)
 {
-  return FieldSize{ i.label_.size(), i.value_.size() };
+  const auto minimumReasonableInputFieldWidth = 3;
+  return FieldSize{ i.label_.size(), minimumReasonableInputFieldWidth };
 }
 
 void draw(Window& win, const ScreenPosition sp, const FieldSize fs, Input const& i, const bool selected)
