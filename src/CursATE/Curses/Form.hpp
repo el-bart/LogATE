@@ -154,6 +154,17 @@ private:
       case KEY_HOME:
            input.cursorPosition_ = 0;
            break;
+      case KEY_BACKSPACE:
+           if( input.cursorPosition_ == 0 )
+              break;
+           input.value_.erase(input.cursorPosition_-1, 1);
+           --input.cursorPosition_;
+           break;
+      case KEY_DC:  // delete key
+           if( input.value_.empty() )
+             break;
+           input.value_.erase(input.cursorPosition_, 1);
+           break;
     }
     if( input.value_.empty() )
       BUT_ASSERT( input.cursorPosition_ == 0);
