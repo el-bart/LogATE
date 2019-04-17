@@ -1,4 +1,5 @@
 #include "CursATE/Curses/Field/detail/resizePadded.hpp"
+#include <But/assert.hpp>
 
 namespace CursATE::Curses::Field::detail
 {
@@ -16,7 +17,8 @@ VisibleSize resizePaddedVisibleSize(std::string const& in, size_t maxSize, size_
     start = selectedElement - half;
   if( in.size() - start < maxSize )
     start = in.size() - maxSize;
-  const auto offset = in.size() - start;
+  const auto offset = selectedElement - start;
+  BUT_ASSERT( offset <= maxSize && "offset it outside of display window" );
   return {start, offset, maxSize};
 }
 

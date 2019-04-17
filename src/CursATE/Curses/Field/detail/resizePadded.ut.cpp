@@ -3,6 +3,7 @@
 #include "CursATE/Curses/TestPrints.ut.hpp"
 
 using CursATE::Curses::Field::detail::resizePadded;
+using CursATE::Curses::Field::detail::resizePaddedVisibleSize;
 using CursATE::Curses::Field::detail::SelectionOutOfRange;
 using std::string;
 
@@ -89,6 +90,45 @@ TEST_CASE("edge cases on a very short strings")
     CHECK( resizePadded("0123456789", 2,  8) == "78" );
     CHECK( resizePadded("0123456789", 2,  9) == "89" );
     CHECK( resizePadded("0123456789", 2, 10) == "89" );
+  }
+}
+
+TEST_CASE("check screen position offsets")
+{
+  SUBCASE("window size == 0")
+  {
+    CHECK( resizePaddedVisibleSize("0123456789", 0,  0).selectionOffset_ == 0 );
+    CHECK( resizePaddedVisibleSize("0123456789", 0,  5).selectionOffset_ == 0 );
+    CHECK( resizePaddedVisibleSize("0123456789", 0,  9).selectionOffset_ == 0 );
+    CHECK( resizePaddedVisibleSize("0123456789", 0, 10).selectionOffset_ == 0 );
+  }
+  SUBCASE("window size == 1")
+  {
+    CHECK( resizePaddedVisibleSize("0123456789", 1,  0).selectionOffset_ == 0 );
+    CHECK( resizePaddedVisibleSize("0123456789", 1,  1).selectionOffset_ == 0 );
+    CHECK( resizePaddedVisibleSize("0123456789", 1,  5).selectionOffset_ == 0 );
+    CHECK( resizePaddedVisibleSize("0123456789", 1,  8).selectionOffset_ == 0 );
+    CHECK( resizePaddedVisibleSize("0123456789", 1,  9).selectionOffset_ == 0 );
+    CHECK( resizePaddedVisibleSize("0123456789", 1, 10).selectionOffset_ == 1 );
+  }
+  SUBCASE("window size == 2")
+  {
+    CHECK( resizePaddedVisibleSize("0123456789", 2,  0).selectionOffset_ == 0 );
+    CHECK( resizePaddedVisibleSize("0123456789", 2,  1).selectionOffset_ == 1 );
+    CHECK( resizePaddedVisibleSize("0123456789", 2,  2).selectionOffset_ == 1 );
+    CHECK( resizePaddedVisibleSize("0123456789", 2,  5).selectionOffset_ == 1 );
+    CHECK( resizePaddedVisibleSize("0123456789", 2,  7).selectionOffset_ == 1 );
+    CHECK( resizePaddedVisibleSize("0123456789", 2,  8).selectionOffset_ == 1 );
+    CHECK( resizePaddedVisibleSize("0123456789", 2,  9).selectionOffset_ == 1 );
+    CHECK( resizePaddedVisibleSize("0123456789", 2, 10).selectionOffset_ == 2 );
+  }
+  SUBCASE("string below screen size")
+  {
+    CHECK( resizePaddedVisibleSize("01234", 5, 0).selectionOffset_ == 0 );
+    CHECK( resizePaddedVisibleSize("01234", 5, 1).selectionOffset_ == 1 );
+    CHECK( resizePaddedVisibleSize("01234", 5, 2).selectionOffset_ == 2 );
+    CHECK( resizePaddedVisibleSize("01234", 5, 3).selectionOffset_ == 3 );
+    CHECK( resizePaddedVisibleSize("01234", 5, 4).selectionOffset_ == 4 );
   }
 }
 
