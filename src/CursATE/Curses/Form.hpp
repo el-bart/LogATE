@@ -67,9 +67,9 @@ private:
         };
     detail::TupleForEach<0, size()>::visit(fields_, updateSize);
     const auto uas = window_->userAreaSize();
-    if( static_cast<unsigned>(uas.columns_.value_) < fs.label_ + 1u + 1u )
+    if( static_cast<unsigned>(uas.columns_.value_) < fs.label_ + 1u + fs.value_ )
       BUT_THROW(ScreenTooSmall, "available " << uas.columns_.value_ << " while required " << fs.label_ + 1 + fs.value_);
-    fs.value_ = uas.columns_.value_ - 1u - fs.label_;
+    fs.value_ = uas.columns_.value_ - 2u - fs.label_;
     return fs;
   }
 
