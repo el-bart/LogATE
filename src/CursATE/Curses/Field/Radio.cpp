@@ -9,6 +9,7 @@ FieldSize size(Radio const& r)
   auto valuesSize = 0u;
   for(auto& e: r.values_)
     valuesSize += 1 + 3 + e.size();
+  valuesSize += r.values_.size() - 1;   // spacing between elements
   return FieldSize{ r.label_.size(), valuesSize };
 }
 
