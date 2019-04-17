@@ -6,7 +6,7 @@ using namespace CursATE::Curses;
 
 auto processForm()
 {
-  auto form = makeForm( Field::Input{"txt"},
+  auto form = makeForm( Field::Input{"txt", "default"},
                         Field::Radio{"radio", {"foo/bar", "narf"}},
                         Field::Button{"ok"},
                         Field::Button{"cancel"} );
