@@ -5,6 +5,7 @@
 #include "CursATE/Curses/Field/Input.hpp"
 #include "CursATE/Curses/Field/Radio.hpp"
 #include "CursATE/Curses/Field/Button.hpp"
+#include "CursATE/Curses/Field/detail/resizePadded.hpp"
 #include "CursATE/Curses/detail/TupleVisitor.hpp"
 #include "CursATE/Curses/detail/TupleForEach.hpp"
 #include <But/NotNull.hpp>
@@ -92,12 +93,14 @@ private:
 
   Change processElement(int n)
   {
-    auto processor = [&](auto& e) { return this->action(e); };
+    auto row = 0u;
+    auto processor = [&](auto& e) { return this->action(e, row++); };
     return detail::TupleVisitor<0, size()>::visit(n, fields_, processor);
   }
 
-  Change action(Field::Button& button)
+  Change action(Field::Button& button, const unsigned row)
   {
+    (void)row;
     switch( getch() )
     {
       case KEY_UP: return Change::Previous;
@@ -110,26 +113,77 @@ private:
     return Change::Update;
   }
 
-  Change action(Field::Input& input)
+  void positionCursorInInputField(Field::Input const& input, const unsigned row)
   {
-    (void)input;
-    // TODO
+    const auto fs = calculateSpacing();
+    const auto uasp = window_->userAreaStartPosition();
+    const auto vs = Field::detail::resizePaddedVisibleSize(input.value_, fs.value_, input.cursorPosition_);
+    const auto valueStartPos = uasp.column_.value_ + fs.label_ + 1u + vs.selectionOffset_;
+    wmove(window_->get(), uasp.row_.value_ + row, valueStartPos);
+    window_->refresh();
+  }
+
+  Change action(Field::Input& input, const unsigned row)
+  {
+    positionCursorInInputField(input, row);
+    const CursorVisibilityGuard cvg{CursorVisibility::Normal};
     switch( getch() )
     {
-      case KEY_UP: return Change::Previous;
-      case KEY_DOWN: return Change::Next;
-      //case KEY_ENTER: button.clicked_ = true; return Change::Exit;
-      case 'q': return Change::Exit;
+      case KEY_UP:
+           return Change::Previous;
+      case KEY_DOWN:
+      case 10:
+      case KEY_ENTER:
+           return Change::Next;
+      case KEY_RIGHT:
+           if( input.value_.empty() )
+           {
+             input.cursorPosition_ = 0;
+             break;
+           }
+           if( input.cursorPosition_ + 1 == input.value_.size() )
+             break;
+           ++input.cursorPosition_;
+           break;
+      case KEY_LEFT:
+           if( input.value_.empty() )
+           {
+             input.cursorPosition_ = 0;
+             break;
+           }
+           if( input.cursorPosition_ == 0 )
+             break;
+           --input.cursorPosition_;
+           break;
+      case KEY_END:
+           if( input.value_.empty() )
+           {
+             input.cursorPosition_ = 0;
+             break;
+           }
+           input.cursorPosition_ = input.value_.size() - 1u;
+           break;
+      case KEY_HOME:
+           input.cursorPosition_ = 0;
+           break;
     }
+    if( input.value_.empty() )
+      BUT_ASSERT( input.cursorPosition_ == 0);
+    else
+      BUT_ASSERT( input.cursorPosition_ < input.value_.size() );
+    // TODO: default adds character at a current position
     return Change::Update;
   }
 
-  Change action(Field::Radio& radio)
+  Change action(Field::Radio& radio, const unsigned row)
   {
+    (void)row;
     switch( getch() )
     {
       case KEY_UP: return Change::Previous;
       case KEY_DOWN: return Change::Next;
+      case 10:
+      case KEY_ENTER: return Change::Next;
       case KEY_RIGHT: radio.selection_ = (radio.selection_ + 1) % radio.values_.size(); break;
       case KEY_LEFT:  radio.selection_ = (radio.selection_ == 0) ? radio.values_.size()-1u : radio.selection_-1; break;
       case 'q': return Change::Exit;
@@ -138,7 +192,7 @@ private:
   }
 
   std::tuple<Fields...> fields_;
-  But::NotNullUnique<Window> window_;
+  But::NotNullUnique<Window> window_;   // TODO: direct value will suffice here?
 };
 
 
