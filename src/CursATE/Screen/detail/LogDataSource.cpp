@@ -12,7 +12,7 @@ auto sn2id(const LogATE::SequenceNumber sn) { return LogDataSource::Id{ sn.value
 auto data(LogATE::Tree::NodeShPtr const& node, size_t before, LogDataSource::Id id, size_t after)
 {
   const auto& ll = node->logs().withLock();
-  auto pre = ll->to( id2sn(id), before );
+  auto pre = ll->to( id2sn(id), before+1 );
   auto post = ll->from( id2sn(id), after );
   return std::make_pair( std::move(pre), std::move(post) );
 }
