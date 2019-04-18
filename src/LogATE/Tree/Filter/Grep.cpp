@@ -19,7 +19,7 @@ auto regexType(const Grep::Case c)
 }
 
 Grep::Grep(Name name, Path path, std::string regex, const Compare cmp, const Case c, const Search search):
-  SimpleNode{ Type{"grep"}, std::move(name), TrimFields{path} },
+  SimpleNode{ Type{"Grep"}, std::move(name), TrimFields{path} },
   path_{ std::move(path) },
   cmp_{cmp},
   search_{search},
