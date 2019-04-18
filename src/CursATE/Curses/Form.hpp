@@ -9,21 +9,28 @@
 #include "CursATE/Curses/Field/detail/resizePadded.hpp"
 #include "CursATE/Curses/detail/TupleVisitor.hpp"
 #include "CursATE/Curses/detail/TupleForEach.hpp"
+#include <But/Optional.hpp>
 #include <tuple>
+#include <array>
+#include <map>
 
 namespace CursATE::Curses
 {
 
 BUT_DEFINE_EXCEPTION(ScreenTooSmall, Exception, "screen too small");
+BUT_DEFINE_EXCEPTION(ShortcutToUnknownField, Exception, "shortcut to unknown field");
+
+using KeyShortcuts = std::map<char, std::string>; // key -> label/name
 
 template<typename ...Fields>
 struct Form final
 {
   using Result = std::array<std::string, sizeof...(Fields)>;
 
-  explicit Form(Fields&& ...fields):
+  explicit Form(KeyShortcuts const& shortcuts, Fields&& ...fields):
     fields_{ std::forward<Fields>(fields)... },
-    window_{ ScreenPosition{Row{0}, Column{0}}, ScreenSize::global(), Window::Boxed::True }
+    window_{ ScreenPosition{Row{0}, Column{0}}, ScreenSize::global(), Window::Boxed::True },
+    shortcuts_{ convertToFieldsNumbersMap(shortcuts) }
   { }
 
   constexpr static auto size() { return sizeof...(Fields); }
@@ -46,6 +53,8 @@ struct Form final
   }
 
 private:
+  using KeyShortcutsCompiled = std::map<char, unsigned>; // key -> filed number
+
   Result prepareResult()
   {
     Result out;
@@ -107,16 +116,16 @@ private:
   Change action(Field::Button& button, const unsigned row)
   {
     (void)row;
-    switch( getch() )
+    const auto ch = getch();
+    switch(ch)
     {
       case KEY_UP: return Change::Previous;
       case KEY_DOWN: return Change::Next;
       case ' ':
       case 10:
       case KEY_ENTER: button.clicked_ = true; return Change::Exit;
-      case 'q': return Change::Exit;
     }
-    return Change::Update;
+    return tryProcessingAsShortcut(ch);
   }
 
   void positionCursorInInputField(Field::Input const& input, const unsigned row)
@@ -190,7 +199,8 @@ private:
   Change action(Field::Radio& radio, const unsigned row)
   {
     (void)row;
-    switch( getch() )
+    const auto ch = getch();
+    switch(ch)
     {
       case KEY_UP: return Change::Previous;
       case KEY_DOWN: return Change::Next;
@@ -198,20 +208,76 @@ private:
       case KEY_ENTER: return Change::Next;
       case KEY_RIGHT: radio.selection_ = (radio.selection_ + 1) % radio.values_.size(); break;
       case KEY_LEFT:  radio.selection_ = (radio.selection_ == 0) ? radio.values_.size()-1u : radio.selection_-1; break;
-      case 'q': return Change::Exit;
     }
+    return tryProcessingAsShortcut(ch);
+  }
+
+  KeyShortcutsCompiled convertToFieldsNumbersMap(KeyShortcuts const& in) const
+  {
+    KeyShortcutsCompiled out;
+    for(auto& e: in)
+    {
+
+      But::Optional<unsigned> n;
+      auto pos = 0u;
+      auto str2pos = [&](auto const& f)
+        {
+          if( f.label_ == e.second )
+            n = pos;
+          ++pos;
+        };
+      detail::TupleForEach<0, size()>::visit(fields_, str2pos);
+      if(not n)
+        BUT_THROW(ShortcutToUnknownField, "key '" << e.first << "' maps to unkonw field '" << e.second << "'");
+      out[e.first] = *n;
+    }
+    return out;
+  }
+
+  Change takeShortcut(int n)
+  {
+    auto processor = [&](auto& e) { return this->shortcutAction(e); };
+    return detail::TupleVisitor<0, size()>::visit(n, fields_, processor);
+  }
+
+  Change shortcutAction(Field::Button& button)
+  {
+    button.clicked_ = true;
+    return Change::Exit;
+  }
+
+  Change shortcutAction(Field::Input& input)
+  {
+    // TODO: changing focus is not supported at the moment
+    (void)input;
     return Change::Update;
+  }
+
+  Change shortcutAction(Field::Radio& radio)
+  {
+    // TODO: changing focus is not supported at the moment
+    (void)radio;
+    return Change::Update;
+  }
+
+  Change tryProcessingAsShortcut(int ch)
+  {
+    const auto it = shortcuts_.find(ch);
+    if( it == end(shortcuts_) )
+      return Change::Update;
+    return takeShortcut(it->second);
   }
 
   std::tuple<Fields...> fields_;
   Window window_;
+  const KeyShortcutsCompiled shortcuts_;
 };
 
 
 template<typename ...Fields>
-auto makeForm(Fields... fields)
+auto makeForm(KeyShortcuts const& shortcuts, Fields... fields)
 {
-  return Form<Fields...>{ std::move(fields)... };
+  return Form<Fields...>{ shortcuts, std::move(fields)... };
 }
 
 }
