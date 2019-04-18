@@ -20,6 +20,6 @@ struct Path final
   std::vector<std::string> value_;
 };
 
-BUT_MPL_FREE_OPERATORS_COMPARE(Path, .value_);
+BUT_MPL_FREE_OPERATORS_COMPARE(Path, .value_)
 
 }

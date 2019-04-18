@@ -15,6 +15,6 @@ struct SequenceNumber final
   uint64_t value_;
 };
 
-BUT_MPL_FREE_OPERATORS_COMPARE(SequenceNumber, .value_);
+BUT_MPL_FREE_OPERATORS_COMPARE(SequenceNumber, .value_)
 
 }
