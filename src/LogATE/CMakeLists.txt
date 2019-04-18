@@ -14,6 +14,7 @@ add_library(LogATE
   Tree/Filter/Explode.cpp
   Tree/Filter/Grep.cpp
   Tree/Filter/detail/matchesLog.cpp
+  Tree/FilterFactory.cpp
   SequenceNumber.cpp
 )
 target_include_directories(LogATE PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
@@ -42,6 +43,7 @@ if(LOGATE_ENABLE_TESTS)
     Tree/Filter/Explode.ut.cpp
     Tree/Filter/Grep.ut.cpp
     Tree/Filter/detail/matchesLog.ut.cpp
+    Tree/FilterFactory.ut.cpp
     main.ut.cpp
   )
   add_executable(LogATE_mts
