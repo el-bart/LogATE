@@ -218,18 +218,20 @@ private:
     for(auto& e: in)
     {
 
-      But::Optional<unsigned> n;
       auto pos = 0u;
+      auto isSet = false;
       auto str2pos = [&](auto const& f)
         {
           if( f.label_ == e.second )
-            n = pos;
+          {
+            out[e.first] = pos;
+            isSet = true;
+          }
           ++pos;
         };
       detail::TupleForEach<0, size()>::visit(fields_, str2pos);
-      if(not n)
+      if(not isSet)
         BUT_THROW(ShortcutToUnknownField, "key '" << e.first << "' maps to unkonw field '" << e.second << "'");
-      out[e.first] = *n;
     }
     return out;
   }

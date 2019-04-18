@@ -15,6 +15,7 @@ auto regexType(const Grep::Case c)
     case Grep::Case::Sensitive:   return def;
     case Grep::Case::Insensitive: return def | std::regex_constants::icase;
   }
+  throw std::logic_error{"unknown value of Grep::Case enum"};
 }
 }
 
@@ -36,6 +37,7 @@ auto checkMatch(Log const& log, Path const& path, std::regex const& re, const Gr
     case Grep::Compare::Key:   return detail::matchesKey(log, path, re);
     case Grep::Compare::Value: return detail::matchesValue(log, path, re);
   }
+  throw std::logic_error{"unknown value of Grep::Compare enum"};
 }
 }
 
@@ -47,6 +49,7 @@ bool Grep::matches(Log const& log) const
     case Search::Regular: return res;
     case Search::Inverse: return not res;
   }
+  throw std::logic_error{"unknown value of Grep::Search enum"};
 }
 
 }

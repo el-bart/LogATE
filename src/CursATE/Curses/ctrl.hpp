@@ -16,7 +16,13 @@ inline constexpr auto ctrl(const int k)
     case KEY_END:  return 530;
     case 'l':      return 12;
   }
+  // workaround for a GCC bug...
+#if GCC_VERSION < 90000
+  BUT_ASSERT(!"unknown key mapping requested");
+  return 0;
+#else
   throw std::logic_error{"unknown key mapping requested"};
+#endif
 }
 
 }
