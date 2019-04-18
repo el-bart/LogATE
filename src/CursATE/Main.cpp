@@ -2,7 +2,7 @@
 #include "LogATE/Tree/Filter/AcceptAll.hpp"
 
 #include "CursATE/Curses/CursorVisibility.hpp"
-#include "CursATE/detail/LogDataSource.hpp"
+#include "CursATE/Screen/detail/LogDataSource.hpp"
 #include <sstream>
 
 using namespace CursATE::Curses;          
@@ -24,7 +24,7 @@ Main::Main(const LogATE::Net::Port port):
   root_{ But::makeSharedNN<LogATE::Tree::Filter::AcceptAll>(LogATE::Tree::Node::Name{"root"}) },
   server_{port},
   dataPump_{ [&] { this->dataPumpLoop(); } },
-  win_{ But::makeSharedNN<detail::LogDataSource>(root_, log2str), ScreenPosition{Row{0}, Column{0}}, ScreenSize{stdscr}, Window::Boxed::True }
+  win_{ But::makeSharedNN<Screen::detail::LogDataSource>(root_, log2str), ScreenPosition{Row{0}, Column{0}}, ScreenSize{stdscr}, Window::Boxed::True }
 {
 }
 

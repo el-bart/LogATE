@@ -5,7 +5,7 @@
 #include <functional>
 #include <vector>
 
-namespace CursATE::detail
+namespace CursATE::Screen::detail
 {
 
 class FilterWindows

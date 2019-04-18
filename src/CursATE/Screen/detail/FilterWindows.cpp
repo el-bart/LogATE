@@ -1,7 +1,7 @@
-#include "CursATE/detail/FilterWindows.hpp"
-#include "CursATE/detail/LogDataSource.hpp"
+#include "CursATE/Screen/detail/FilterWindows.hpp"
+#include "CursATE/Screen/detail/LogDataSource.hpp"
 
-namespace CursATE::detail
+namespace CursATE::Screen::detail
 {
 
 FilterWindows::FilterWindows(std::function<std::string(LogATE::Log const&)> log2str):

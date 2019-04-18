@@ -10,8 +10,8 @@ add_library(CursATEimpl
   Curses/Field/detail/resizePadded.cpp
   Curses/ScrolableWindow.cpp
   Curses/detail/ScrolableWindowBackend.cpp
-  detail/FilterWindows.cpp
-  detail/LogDataSource.cpp
+  Screen/detail/FilterWindows.cpp
+  Screen/detail/LogDataSource.cpp
   Main.cpp
 )
 target_include_directories(CursATEimpl PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
@@ -36,7 +36,7 @@ if(LOGATE_ENABLE_TESTS)
   add_executable(CursATE_uts
     Curses/Field/detail/resizePadded.ut.cpp
     Curses/detail/ScrolableWindowBackend.ut.cpp
-    detail/LogDataSource.ut.cpp
+    Screen/detail/LogDataSource.ut.cpp
     main.ut.cpp
   )
   add_executable(CursATE_mts
