@@ -1,9 +1,8 @@
 #!/bin/bash -e
-./logs_gen | \
+./logs_gen 1.0 | \
   while read line
   do
     echo -n '.' >&2
     echo "$line"
-    sleep 1
   done | \
   nc localhost 4242

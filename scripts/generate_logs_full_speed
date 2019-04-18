@@ -1,2 +1,2 @@
 #!/bin/bash -e
-exec ./logs_gen | pv | nc localhost 4242
+exec ./logs_gen 0 | pv | nc localhost 4242
