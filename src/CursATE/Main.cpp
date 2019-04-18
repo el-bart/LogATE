@@ -44,6 +44,7 @@ void Main::run()
   set(CursorVisibility::Invisible);
   do
   {
+    win_.selectLast();
     win_.refresh();
   }
   while( getch() != 'q' );
