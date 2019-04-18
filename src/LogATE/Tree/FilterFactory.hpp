@@ -17,6 +17,7 @@ public:
   BUT_DEFINE_EXCEPTION(Error, But::Exception, "failed to build required filter");
   BUT_DEFINE_EXCEPTION(MissingOption, Error, "missing option");
   BUT_DEFINE_EXCEPTION(UnknownOption, Error, "unknown option");
+  BUT_DEFINE_EXCEPTION(InvalidValue, Error, "invalid option value");
 
   using Type = Factory::Builder;
 
