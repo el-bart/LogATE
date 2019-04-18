@@ -6,12 +6,11 @@ using namespace CursATE::Curses;
 
 auto processForm()
 {
-  const auto shortcuts = KeyShortcuts{
-      {'o', "ok"},
-      {'q', "cancel"},
-      {'c', "cancel"}
-    };
-  auto form = makeForm( shortcuts,
+  auto form = makeForm( KeyShortcuts{
+                          {'o', "ok"},
+                          {'q', "cancel"},
+                          {'c', "cancel"}
+                        },
                         Field::Input{"txt", "default window text XXX AAA"},
                         Field::Radio{"radio", {"foo/bar", "narf"}},
                         Field::Button{"ok"},
