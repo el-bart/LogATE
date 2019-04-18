@@ -37,16 +37,16 @@ struct Form final
 
   Result process()
   {
-    auto selected = 0;
+    selected_ = 0;
     while(true)
     {
-      drawAll(selected);
-      const auto action = processElement(selected);
+      drawAll(selected_);
+      const auto action = processElement(selected_);
       switch(action)
       {
         case Change::Update: break;
-        case Change::Next: selected = (selected+1) % size(); break;
-        case Change::Previous: selected = (selected == 0) ? size()-1u : selected-1; break;
+        case Change::Next: selected_ = (selected_+1) % size(); break;
+        case Change::Previous: selected_ = (selected_ == 0) ? size()-1u : selected_-1; break;
         case Change::Exit: return prepareResult();
       }
     }
@@ -236,27 +236,28 @@ private:
 
   Change takeShortcut(int n)
   {
-    auto processor = [&](auto& e) { return this->shortcutAction(e); };
+    auto processor = [&](auto& e) { return this->shortcutAction(e, n); };
     return detail::TupleVisitor<0, size()>::visit(n, fields_, processor);
   }
 
-  Change shortcutAction(Field::Button& button)
+  Change shortcutAction(Field::Button& button, unsigned n)
   {
+    (void)n;
     button.clicked_ = true;
     return Change::Exit;
   }
 
-  Change shortcutAction(Field::Input& input)
+  Change shortcutAction(Field::Input& input, unsigned n)
   {
-    // TODO: changing focus is not supported at the moment
     (void)input;
+    selected_ = n;
     return Change::Update;
   }
 
-  Change shortcutAction(Field::Radio& radio)
+  Change shortcutAction(Field::Radio& radio, unsigned n)
   {
-    // TODO: changing focus is not supported at the moment
     (void)radio;
+    selected_ = n;
     return Change::Update;
   }
 
@@ -271,6 +272,7 @@ private:
   std::tuple<Fields...> fields_;
   Window window_;
   const KeyShortcutsCompiled shortcuts_;
+  unsigned selected_{0};
 };
 
 

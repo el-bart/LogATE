@@ -7,6 +7,8 @@ using namespace CursATE::Curses;
 auto processForm()
 {
   auto form = makeForm( KeyShortcuts{
+                          {'i', "txt"},
+                          {'r', "radio"},
                           {'o', "ok"},
                           {'q', "cancel"},
                           {'c', "cancel"}
