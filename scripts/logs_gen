@@ -5,9 +5,11 @@ import time
 import json
 
 delay = float(sys.argv[1])
+n = 0
 
 while True:
-    log = { 'date': time.time(), 'uname': str(os.uname()) }
+    log = { 'LOG_NUMBER': n, 'date': time.time(), 'uname': str(os.uname()) }
+    n += 1
     sys.stdout.write( json.dumps(log) + "\n" )
     if delay > 0:
         time.sleep(delay)
