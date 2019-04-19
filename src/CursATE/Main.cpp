@@ -10,23 +10,11 @@ using namespace CursATE::Curses;
 namespace CursATE
 {
 
-namespace
-{
-std::string log2str(LogATE::Log const& in)
-{
-  std::stringstream ss;
-  ss << *in.log_;
-  return ss.str();
-}
-}
-
 Main::Main(const LogATE::Net::Port port):
-  root_{ But::makeSharedNN<LogATE::Tree::Filter::AcceptAll>(LogATE::Tree::Node::Name{"root"}) },
+  root_{ logList_.root() },
   server_{port},
-  dataPump_{ [&] { this->dataPumpLoop(); } },
-  win_{ But::makeSharedNN<Screen::detail::LogDataSource>(root_, log2str), ScreenPosition{Row{0}, Column{0}}, ScreenSize{stdscr}, Window::Boxed::True }
-{
-}
+  dataPump_{ [&] { this->dataPumpLoop(); } }
+{ }
 
 Main::~Main()
 {
@@ -37,19 +25,15 @@ void Main::stop()
 {
   quit_ = true;
   server_.interrupt();
+  logList_.stop();
+  clear();
+  refresh();
 }
 
 void Main::run()
 {
-  set(CursorVisibility::Invisible);
-  do
-  {
-    win_.selectLast();
-    win_.refresh();
-  }
-  while( getch() != 'q' );
+  logList_.run();
   stop();
-  // TODO
 }
 
 void Main::dataPumpLoop()
@@ -64,7 +48,7 @@ void Main::dataPumpLoop()
     }
     catch(...)
     {
-      // log down! MEDIC!
+      // LOG DOWN! MEDIC!
     }
 }
 

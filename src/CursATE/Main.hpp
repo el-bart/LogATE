@@ -3,7 +3,7 @@
 #include "LogATE/Net/TcpServer.hpp"
 #include "LogATE/Tree/Node.hpp"
 #include "CursATE/Curses/Init.hpp"
-#include "CursATE/Curses/ScrolableWindow.hpp"       
+#include "CursATE/Screen/LogList.hpp"
 #include <But/Threading/JoiningThread.hpp>
 #include <atomic>
 
@@ -29,11 +29,11 @@ private:
   void dataPumpLoop();
 
   const CursATE::Curses::Init init_;
+  Screen::LogList logList_;
   LogATE::Tree::NodeShPtr root_;
   LogATE::Net::TcpServer server_;
   std::atomic<bool> quit_{false};
   But::Threading::JoiningThread<std::thread> dataPump_;
-  Curses::ScrolableWindow win_;         
 };
 
 }

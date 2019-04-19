@@ -11,6 +11,7 @@ add_library(CursATEimpl
   Curses/ScrolableWindow.cpp
   Curses/detail/ScrolableWindowBackend.cpp
   Screen/LogDisplay/jsonLine.cpp
+  Screen/LogList.cpp
   Screen/detail/FilterWindows.cpp
   Screen/detail/LogDataSource.cpp
   Main.cpp

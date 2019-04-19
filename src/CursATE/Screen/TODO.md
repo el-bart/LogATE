@@ -3,3 +3,4 @@ FilterDelete
 FilterTree
 LogList
 LogEntry
+Error

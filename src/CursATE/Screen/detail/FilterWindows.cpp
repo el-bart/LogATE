@@ -16,6 +16,7 @@ But::NotNullShared<Curses::ScrolableWindow> FilterWindows::window(LogATE::Tree::
   if( it != end(entries_) )
     return it->win_;
   const auto win = newWindow(node);
+  win->selectLast();
   entries_.push_back( Element{ node.underlyingPointer(), win } );
   return win;
 }
