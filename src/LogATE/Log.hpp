@@ -11,6 +11,7 @@ struct Log
 {
   SequenceNumber sn_;
   But::NotNullShared<const nlohmann::json> log_;
+  // TODO: consider adding more structure to a log -> timestamp of receiving, source IP:port, etc...
 };
 
 Log json2log(std::string const& in);
