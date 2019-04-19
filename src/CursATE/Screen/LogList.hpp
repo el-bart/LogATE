@@ -24,6 +24,7 @@ public:
 private:
   But::Optional<int> getChar() const;
   void reactOnKey(int ch);
+  void processQuitProgram();
   void processFilterTree();
 
   std::atomic<bool> quit_{false};

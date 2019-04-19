@@ -2,12 +2,16 @@
 #include "CursATE/Screen/FilterTree.hpp"
 #include "CursATE/Screen/LogDisplay/jsonLine.hpp"
 #include "CursATE/Curses/CursorVisibility.hpp"
+#include "CursATE/Curses/Form.hpp"
 #include "CursATE/Curses/ctrl.hpp"
 
 using LogATE::Tree::FilterFactory;
 using CursATE::Curses::CursorVisibility;
 using CursATE::Curses::CursorVisibilityGuard;
 using CursATE::Curses::ctrl;
+using CursATE::Curses::makeForm;
+using CursATE::Curses::KeyShortcuts;
+using CursATE::Curses::Field::Button;
 
 namespace CursATE::Screen
 {
@@ -79,7 +83,7 @@ void LogList::reactOnKey(const int ch)
 {
   switch(ch)
   {
-    case 'q': quit_ = true; break;
+    case 'q': processQuitProgram(); break;
 
     case KEY_UP:    currentWindow_->selectUp(); break;
     case KEY_DOWN:  currentWindow_->selectDown(); break;
@@ -101,6 +105,22 @@ void LogList::reactOnKey(const int ch)
     // TODO: moving to a log with a given ID?
     // TODO: move selection to screen begin/center/end
   }
+}
+
+
+void LogList::processQuitProgram()
+{
+  auto form = makeForm( KeyShortcuts{
+                          {'q', "exit program"},
+                          {'e', "exit program"},
+                          {'c', "cancel"}
+                        },
+                        Button{"cancel"},
+                        Button{"exit program"} );
+  const auto ret = form.process();
+  if( ret[1] == "false" )
+    return;
+  quit_ = true;
 }
 
 
