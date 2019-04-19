@@ -7,8 +7,12 @@ import json
 delay = float(sys.argv[1])
 n = 0
 
+names = [ "john", "edvard", "jackob", "albert" ]
+
 while True:
-    log = { 'LOG_NUMBER': n, 'date': time.time(), 'uname': str(os.uname()) }
+    log = { 'LOG_NUMBER': n, 'date': time.time(), 'uname': str(os.uname()), 'male_name': names[n%len(names)] }
+    if n % (2*len(names)) == 0:
+        del log['male_name']
     n += 1
     sys.stdout.write( json.dumps(log) + "\n" )
     if delay > 0:
