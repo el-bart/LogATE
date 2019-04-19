@@ -10,7 +10,9 @@ struct ScrolableWindow
   ScrolableWindow(DataSourceShNN dataSource, const ScreenPosition sp, const ScreenSize ss, const Window::Boxed boxed):
     backend_{std::move(dataSource)},
     window_{sp, ss, boxed}
-  { }
+  {
+    backend_.resize( window_.userAreaSize() );
+  }
 
   void refresh();
 
