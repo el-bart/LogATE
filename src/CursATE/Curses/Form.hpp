@@ -29,7 +29,7 @@ struct Form final
 
   explicit Form(KeyShortcuts const& shortcuts, Fields&& ...fields):
     fields_{ std::forward<Fields>(fields)... },
-    window_{ ScreenPosition{Row{0}, Column{0}}, ScreenSize::global(), Window::Boxed::True },
+    window_{ ScreenPosition{Row{0}, Column{0}}, formWinSize(), Window::Boxed::True },
     shortcuts_{ convertToFieldsNumbersMap(shortcuts) }
   { }
 
@@ -54,6 +54,13 @@ struct Form final
 
 private:
   using KeyShortcutsCompiled = std::map<char, unsigned>; // key -> filed number
+
+  static ScreenSize formWinSize()
+  {
+    auto ss = ScreenSize::global();
+    ss.rows_.value_ = size() + 2;
+    return ss;
+  }
 
   Result prepareResult()
   {
