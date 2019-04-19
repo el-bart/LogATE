@@ -6,6 +6,7 @@ add_library(CursATEimpl
   Curses/Init.cpp
   Curses/Field/Button.cpp
   Curses/Field/Input.cpp
+  Curses/Field/Label.cpp
   Curses/Field/Radio.cpp
   Curses/Field/detail/resizePadded.cpp
   Curses/ScrolableWindow.cpp
