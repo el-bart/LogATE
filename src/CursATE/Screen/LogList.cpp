@@ -1,4 +1,5 @@
 #include "CursATE/Screen/LogList.hpp"
+#include "CursATE/Screen/FilterTree.hpp"
 #include "CursATE/Screen/LogDisplay/jsonLine.hpp"
 #include "CursATE/Curses/CursorVisibility.hpp"
 #include "CursATE/Curses/ctrl.hpp"
@@ -14,7 +15,8 @@ namespace CursATE::Screen
 LogList::LogList():
   filterWindows_{ LogDisplay::jsonLine },
   root_{ filterFactory_.build( FilterFactory::Type{"AcceptAll"}, FilterFactory::Name{"all logs"}, FilterFactory::Options{} ) },
-  currentWindow_{ filterWindows_.window(root_) }
+  currentNode_{root_},
+  currentWindow_{ filterWindows_.window(currentNode_) }
 { }
 
 
@@ -62,12 +64,22 @@ void LogList::reactOnKey(const int ch)
     case KEY_HOME: currentWindow_->scrollToLineBegin(); break;
     case KEY_END:  currentWindow_->scrollToLineEnd(); break;
 
+    case 't': processFilterTree(); break;
+
     // TODO: enter for previewing log entry
-    // TODO: 't' for opening log tree
     // TODO: searching by string?
     // TODO: moving to a log with a given ID?
     // TODO: move selection to screen begin/center/end
   }
+}
+
+
+void LogList::processFilterTree()
+{
+  FilterTree ft{root_};
+  currentNode_ = ft.selectNext(currentNode_);
+  currentWindow_ = filterWindows_.window(currentNode_);
+  filterWindows_.prune();
 }
 
 }

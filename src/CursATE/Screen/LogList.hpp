@@ -24,11 +24,13 @@ public:
 private:
   But::Optional<int> getChar() const;
   void reactOnKey(int ch);
+  void processFilterTree();
 
   std::atomic<bool> quit_{false};
   LogATE::Tree::FilterFactory filterFactory_;
   detail::FilterWindows filterWindows_;
-  LogATE::Tree::NodeShPtr root_;
+  const LogATE::Tree::NodeShPtr root_;
+  LogATE::Tree::NodeShPtr currentNode_;
   But::NotNullShared<Curses::ScrolableWindow> currentWindow_;
 };
 

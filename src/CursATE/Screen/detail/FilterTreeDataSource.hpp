@@ -17,6 +17,7 @@ public:
   std::map<Id, std::string> get(size_t before, Id id, size_t after) const override;
 
   Id node2id(LogATE::Tree::NodeShPtr const& selected) const;
+  LogATE::Tree::NodeShPtr id2node(Id id) const;
 
 private:
   struct Entry

@@ -52,6 +52,13 @@ FilterTreeDataSource::Id FilterTreeDataSource::node2id(LogATE::Tree::NodeShPtr c
 }
 
 
+LogATE::Tree::NodeShPtr FilterTreeDataSource::id2node(const Id id) const
+{
+  BUT_ASSERT( id.value_ < entries_.size() );
+  return entries_[id.value_].node_;
+}
+
+
 namespace
 {
 auto nodeName(LogATE::Tree::NodeShPtr const& node)
