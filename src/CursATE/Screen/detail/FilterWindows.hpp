@@ -8,7 +8,7 @@
 namespace CursATE::Screen::detail
 {
 
-class FilterWindows
+class FilterWindows final
 {
 public:
   explicit FilterWindows(std::function<std::string(LogATE::Log const&)> log2str);

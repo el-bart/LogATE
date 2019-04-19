@@ -18,9 +18,20 @@ auto data(LogATE::Tree::NodeShPtr const& node, size_t before, LogDataSource::Id 
 }
 }
 
+size_t LogDataSource::size() const
+{
+  const auto node = node_.lock();
+  if(not node)
+    return 0;
+  return node->logs().withLock()->size();
+}
+
 But::Optional<LogDataSource::Id> LogDataSource::first() const
 {
-  const auto& ll = node_->logs().withLock();
+  const auto node = node_.lock();
+  if(not node)
+    return {};
+  const auto& ll = node->logs().withLock();
   if( ll->empty() )
     return {};
   return Id{ ll->first().sn_.value_ };
@@ -28,7 +39,10 @@ But::Optional<LogDataSource::Id> LogDataSource::first() const
 
 But::Optional<LogDataSource::Id> LogDataSource::last() const
 {
-  const auto& ll = node_->logs().withLock();
+  const auto node = node_.lock();
+  if(not node)
+    return {};
+  const auto& ll = node->logs().withLock();
   if( ll->empty() )
     return {};
   return Id{ ll->last().sn_.value_ };
@@ -37,7 +51,10 @@ But::Optional<LogDataSource::Id> LogDataSource::last() const
 std::map<LogDataSource::Id, std::string> LogDataSource::get(size_t before, Id id, size_t after) const
 {
   BUT_ASSERT(log2str_);
-  auto [pre, post] = data(node_, before, id, after);
+  const auto node = node_.lock();
+  if(not node)
+    return {};
+  auto [pre, post] = data( LogATE::Tree::NodeShPtr{node}, before, id, after);
   std::map<Id, std::string> out;
   for(auto& set: { pre, post })
     for(auto& log: set)
