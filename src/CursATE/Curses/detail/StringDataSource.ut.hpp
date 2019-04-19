@@ -57,12 +57,13 @@ struct StringDataSource: public DataSource
     return out;
   }
 
-  void addNewest(std::string str)
+  auto addNewest(std::string str)
   {
     Id id{nextFreeId_};
     nextFreeId_ += nextStep_;
     ++nextStep_;
     data_[id] = std::move(str);
+    return id;
   }
 
   void removeOldest()
