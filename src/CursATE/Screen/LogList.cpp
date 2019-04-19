@@ -49,9 +49,6 @@ void LogList::reactOnKey(const int ch)
   {
     case 'q': quit_ = true; break;
 
-    //case 'a': lastKey = "a"; dataSource->addNewest( "data from iteration " + std::to_string(i) ); break;
-    //case 'd': lastKey = "d"; dataSource->removeOldest(); break;
-
     case KEY_UP:    currentWindow_->selectUp(); break;
     case KEY_DOWN:  currentWindow_->selectDown(); break;
     case KEY_LEFT:  currentWindow_->scrollLeft(); break;
@@ -65,8 +62,8 @@ void LogList::reactOnKey(const int ch)
     case KEY_HOME: currentWindow_->scrollToLineBegin(); break;
     case KEY_END:  currentWindow_->scrollToLineEnd(); break;
 
-                   // TODO: enter for edit log
-                   // TODO: 't' for opening log tree
+    // TODO: enter for previewing log entry
+    // TODO: 't' for opening log tree
   }
 }
 
