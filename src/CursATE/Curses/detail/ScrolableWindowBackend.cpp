@@ -95,6 +95,70 @@ void ScrolableWindowBackend::selectLast()
 }
 
 
+namespace
+{
+template<typename C>
+auto countBeforeAfter(C const& c, const DataSource::Id id)
+{
+  auto countBefore = 0u;
+  auto countAfter = 0u;
+  auto isBefore = true;
+  for(auto& e: c)
+  {
+    if( e.first == id )
+    {
+      isBefore = false;
+      continue;
+    }
+    if(isBefore)
+      ++countBefore;
+    else
+      ++countAfter;
+  }
+  return std::make_pair(countBefore, countAfter);
+}
+
+template<typename C>
+void eraseToEqualSize(C& c, const size_t surround, size_t countBefore, size_t countAfter)
+{
+  do
+  {
+    if( countBefore >= countAfter )
+    {
+      c.erase( c.begin() );
+      --countBefore;
+    }
+    else
+    {
+      c.erase( c.rbegin()->first );
+      --countAfter;
+    }
+  }
+  while( c.size() > surround + 1u );
+}
+}
+
+void ScrolableWindowBackend::select(const DataSource::Id id)
+{
+  if(currentSelection_ && *currentSelection_ == id)
+    return;
+
+  const auto surround = this->surround();
+  buffer_ = dataSource_->get(surround, id, surround);
+
+  if( buffer_.size() > surround + 1u )
+  {
+    auto [countBefore, countAfter] = countBeforeAfter(buffer_, id);
+    eraseToEqualSize(buffer_, surround, countBefore, countAfter);
+  }
+
+  if( buffer_.empty() )
+    currentSelection_.reset();
+  else
+    currentSelection_ = id;
+}
+
+
 ScrolableWindowBackend::DisplayData ScrolableWindowBackend::displayData() const
 {
   DisplayData out;

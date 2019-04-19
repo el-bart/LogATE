@@ -412,5 +412,99 @@ TEST_CASE_FIXTURE(Fixture, "scrolling columns")
   }
 }
 
+
+TEST_CASE_FIXTURE(Fixture, "explicit requesting given ID on empty set is nop")
+{
+  CHECK( displayData().lines_.empty() );
+  swb_.select(Id{42});
+  CHECK( displayData().lines_.empty() );
+}
+
+
+TEST_CASE_FIXTURE(Fixture, "explicit requesting given ID")
+{
+  for(auto i=0; i<10; ++i)
+    ds_->addNewest("foo" + std::to_string(i));
+  INFO("source data buffer: " << ds_->data_);
+  swb_.update();
+
+  SUBCASE("selecting elements from begin")
+  {
+    swb_.select(Id{42});
+    CHECK( displayData().lines_ == dsSubset(0,3) );
+    CHECK( displayData().currentSelection_.value_ == 42 );
+
+    swb_.select(Id{43});
+    CHECK( displayData().lines_ == dsSubset(0,3) );
+    CHECK( displayData().currentSelection_.value_ == 43 );
+  }
+
+  SUBCASE("selecting elements from end")
+  {
+    swb_.select(Id{87});
+    CHECK( displayData().lines_ == dsSubset(7,10) );
+    CHECK( displayData().currentSelection_.value_ == 87 );
+
+    swb_.select(Id{78});
+    CHECK( displayData().lines_ == dsSubset(7,10) );
+    CHECK( displayData().currentSelection_.value_ == 78 );
+  }
+
+  SUBCASE("selecting in the middle")
+  {
+    swb_.select(Id{52});
+    CHECK( displayData().lines_ == dsSubset(3,6) );
+    CHECK( displayData().currentSelection_.value_ == 52 );
+  }
+
+  SUBCASE("selecting when rows number is even")
+  {
+    auto tmp = ss_;
+    tmp.rows_.value_ = 4;
+    swb_.resize(tmp);
+
+    swb_.select(Id{42});
+    CHECK( displayData().lines_ == dsSubset(0,4) );
+    CHECK( displayData().currentSelection_.value_ == 42 );
+
+    swb_.select(Id{43});
+    CHECK( displayData().lines_ == dsSubset(0,4) );
+    CHECK( displayData().currentSelection_.value_ == 43 );
+
+    swb_.select(Id{45});
+    CHECK( displayData().lines_ == dsSubset(1,5) );
+    CHECK( displayData().currentSelection_.value_ == 45 );
+
+    swb_.select(Id{70});
+    CHECK( displayData().lines_ == dsSubset(6,10) );
+    CHECK( displayData().currentSelection_.value_ == 70 );
+
+    swb_.select(Id{78});
+    CHECK( displayData().lines_ == dsSubset(6,10) );
+    CHECK( displayData().currentSelection_.value_ == 78 );
+
+    swb_.select(Id{87});
+    CHECK( displayData().lines_ == dsSubset(6,10) );
+    CHECK( displayData().currentSelection_.value_ == 87 );
+  }
+}
+
+
+TEST_CASE_FIXTURE(Fixture, "selecting in a not full set")
+{
+  for(auto i=0; i<2; ++i)
+    ds_->addNewest("foo" + std::to_string(i));
+  INFO("source data buffer: " << ds_->data_);
+  swb_.update();
+
+  swb_.select(Id{42});
+  CHECK( displayData().lines_ == dsSubset(0,2) );
+  CHECK( displayData().currentSelection_.value_ == 42 );
+
+  swb_.select(Id{43});
+  CHECK( displayData().lines_ == dsSubset(0,2) );
+  CHECK( displayData().currentSelection_.value_ == 43 );
+}
+
 }
 }

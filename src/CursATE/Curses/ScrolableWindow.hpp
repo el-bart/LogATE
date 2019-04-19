@@ -26,6 +26,7 @@ struct ScrolableWindow
   void selectFirst() { backend_.selectFirst(); }
   void selectLast() { backend_.selectLast(); }
 
+  void select(const DataSource::Id id) { backend_.select(id); }
   DataSource::Id currentSelection() const { return backend_.currentSelection(); }
 
 private:
