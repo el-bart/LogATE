@@ -1,11 +1,4 @@
 #include "CursATE/Main.hpp"
-#include "LogATE/Tree/Filter/AcceptAll.hpp"
-
-#include "CursATE/Curses/CursorVisibility.hpp"
-#include "CursATE/Screen/detail/LogDataSource.hpp"
-#include <sstream>
-
-using namespace CursATE::Curses;          
 
 namespace CursATE
 {
