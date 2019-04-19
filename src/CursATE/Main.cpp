@@ -19,6 +19,9 @@ Main::Main(const LogATE::Net::Port port):
 Main::~Main()
 {
   stop();
+  clear();
+  mvwprintw(stdscr, 0,0, "waiting for server to shut down...");
+  refresh();
 }
 
 void Main::stop()
@@ -26,8 +29,6 @@ void Main::stop()
   quit_ = true;
   server_.interrupt();
   logList_.stop();
-  clear();
-  refresh();
 }
 
 void Main::run()
