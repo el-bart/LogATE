@@ -97,12 +97,12 @@ TEST_CASE_FIXTURE(Fixture, "converting all basic types for value comparison")
   SUBCASE("int")
   {
     const auto log = json2log(R"({ "val": 42 })");
-    CHECK( testMatch(Path{{".", "val"}}, "42", log) );
+    CHECK( testMatch(Path{{".", "val"}}, "^42$", log) );
   }
   SUBCASE("float")
   {
     const auto log = json2log(R"({ "val": 4.0 })");
-    CHECK( testMatch(Path{{".", "val"}}, "4.0", log) );
+    CHECK( testMatch(Path{{".", "val"}}, "^4.0*", log) );
   }
   SUBCASE("bool")
   {
