@@ -66,6 +66,7 @@ void LogList::reactOnKey(const int ch)
     // TODO: 't' for opening log tree
     // TODO: searching by string?
     // TODO: moving to a log with a given ID?
+    // TODO: move selection to screen begin/center/end
   }
 }
 
