@@ -13,7 +13,7 @@ auto data(LogATE::Tree::NodeShPtr const& node, size_t before, LogDataSource::Id 
 {
   const auto& ll = node->logs().withLock();
   auto pre = ll->to( id2sn(id), before+1 );
-  auto post = ll->from( id2sn(id), after );
+  auto post = ll->from( id2sn(id), after+1 );
   return std::make_pair( std::move(pre), std::move(post) );
 }
 }
