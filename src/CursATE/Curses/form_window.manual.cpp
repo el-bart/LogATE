@@ -13,7 +13,6 @@ auto processForm()
                           {'q', "cancel"},
                           {'c', "cancel"}
                         },
-                        Field::Label{"sample window"},
                         Field::Input{"txt", "default window text XXX AAA"},
                         Field::Radio{"radio", {"foo/bar", "narf"}},
                         Field::Button{"ok"},
