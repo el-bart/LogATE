@@ -51,7 +51,7 @@ void Explode::add(NodePtr node)
   BUT_THROW(ExplicitNodeAddNotSupported, "while trying to add node: " << node->name().value_);
 }
 
-void Explode::remove(NodeShPtr node)
+bool Explode::remove(NodeShPtr node)
 {
   BUT_THROW(ExplicitNodeRemoveNotSupported, "while trying to remove node: " << node->name().value_);
 }

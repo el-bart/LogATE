@@ -10,7 +10,7 @@ public:
   void insert(Log const& log) override final;
   Children children() const override final;
   void add(NodePtr node) override final;
-  void remove(NodeShPtr node) override final;
+  bool remove(NodeShPtr node) override final;
 
 protected:
   SimpleNode(Type type, Name name, TrimFields trimFields):
