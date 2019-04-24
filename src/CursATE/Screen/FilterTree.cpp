@@ -53,10 +53,10 @@ auto confirmDelete()
 }
 
 template<typename F>
-DataSource::Id navigate(ScrolableWindow& win,
-                        const DataSource::Id initialSelection,
-                        detail::FilterTreeDataSource const& ds,
-                        F&& nodeDeleter)
+std::pair<DataSource::Id, bool> navigate(ScrolableWindow& win,
+                                         const DataSource::Id initialSelection,
+                                         detail::FilterTreeDataSource const& ds,
+                                         F&& nodeDeleter)
 {
   win.select(initialSelection);
   while(true)
@@ -65,8 +65,8 @@ DataSource::Id navigate(ScrolableWindow& win,
     switch( getch() )
     {
       case 10:
-      case KEY_ENTER: return win.currentSelection();
-      case 'q': return initialSelection;
+      case KEY_ENTER: return std::make_pair( win.currentSelection(), true );
+      case 'q': return std::make_pair(initialSelection, true);
 
       case 'd':
       case KEY_DC:
@@ -76,7 +76,7 @@ DataSource::Id navigate(ScrolableWindow& win,
              const auto now = win.currentSelection();
              win.selectUp();
              nodeDeleter( ds.id2node(now) );
-             return win.currentSelection();
+             return std::make_pair( win.currentSelection(), false );
            }
 
       case KEY_UP:    win.selectUp(); break;
@@ -102,13 +102,19 @@ DataSource::Id navigate(ScrolableWindow& win,
 
 LogATE::Tree::NodeShPtr FilterTree::selectNext(LogATE::Tree::NodeShPtr const& current)
 {
-  const auto ds = But::makeSharedNN<detail::FilterTreeDataSource>(root_);
+  auto selectedNode = current;
   const auto sp = ScreenPosition{ Row{1}, Column{1} };
   const auto ss = smallerScreenSize();
-  ScrolableWindow win{ds, sp, ss, Window::Boxed::True};
-  const auto id = ds->node2id(current);
-  const auto newId = navigate( win, id, *ds, [&](auto const& node){ this->deleteNode(node); } );
-  return ds->id2node(newId);
+  while(true)
+  {
+    const auto ds = But::makeSharedNN<detail::FilterTreeDataSource>(root_);
+    ScrolableWindow win{ds, sp, ss, Window::Boxed::True};
+    const auto id = ds->node2id(selectedNode);
+    const auto newId = navigate( win, id, *ds, [&](auto const& node){ this->deleteNode(node); } );
+    selectedNode = ds->id2node(newId.first);
+    if(newId.second)
+      return selectedNode;
+  }
 }
 
 
