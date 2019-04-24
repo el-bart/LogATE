@@ -3,6 +3,7 @@
 #include "CursATE/Curses/Exception.hpp"
 #include "CursATE/Curses/FieldSize.hpp"
 #include "CursATE/Curses/Window.hpp"
+#include "CursATE/Curses/CursorVisibility.hpp"
 #include "CursATE/Curses/Field/Input.hpp"
 #include "CursATE/Curses/Field/Radio.hpp"
 #include "CursATE/Curses/Field/Button.hpp"
