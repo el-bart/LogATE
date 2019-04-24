@@ -111,8 +111,9 @@ void LogList::reactOnKey(const int ch)
 void LogList::processQuitProgram()
 {
   auto form = makeForm( KeyShortcuts{
-                          {'q', "exit program"},
                           {'e', "exit program"},
+                          {'o', "exit program"},
+                          {'q', "cancel"},
                           {'c', "cancel"}
                         },
                         Button{"cancel"},
