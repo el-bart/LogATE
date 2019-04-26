@@ -147,7 +147,7 @@ void LogList::processLogEntry()
   if( logs.empty() )
     return;
   BUT_ASSERT( logs.size() == 1u );
-  LogEntry le{currentNode_, std::move(logs[0])};
+  LogEntry le{filterFactory_, currentNode_, std::move(logs[0])};
   auto newNode = le.process();
   if(not newNode)
     return;

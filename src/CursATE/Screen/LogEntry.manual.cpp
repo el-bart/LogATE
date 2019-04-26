@@ -27,7 +27,8 @@ int main()
   const Init init;
   set(CursorVisibility::Invisible);
 
-  CursATE::Screen::LogEntry le{ But::makeSharedNN<LogATE::Tree::Filter::AcceptAll>(Node::Name{"fake root"}), makeLog() };
+  LogATE::Tree::FilterFactory ff;
+  CursATE::Screen::LogEntry le{ ff, But::makeSharedNN<LogATE::Tree::Filter::AcceptAll>(Node::Name{"fake root"}), makeLog() };
   const auto node = le.process();
   clear();
   refresh();
