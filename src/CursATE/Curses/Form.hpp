@@ -116,8 +116,7 @@ private:
 
   Change processElement(int n)
   {
-    auto row = 0u;
-    auto processor = [&](auto& e) { return this->action(e, row++); };
+    auto processor = [&](auto& e) { return this->action(e, n); };
     return detail::TupleVisitor<0, size()>::visit(n, fields_, processor);
   }
 
