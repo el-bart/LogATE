@@ -58,6 +58,7 @@ std::shared_ptr<LogATE::Tree::Node> LogEntry::navigate(Win& win, DS const& ds)
     {
       case 10:
       case KEY_ENTER:
+      case 'f':
            {
              auto ptr = createFilterBasedOnSelection( ds, *win.currentSelection() );
              if(ptr)
@@ -171,6 +172,30 @@ std::shared_ptr<LogATE::Tree::Node> createGrep(detail::LogEntryDataSource const&
   auto ptr = ff.build( FilterFactory::Type{"Grep"}, FilterFactory::Name{ret[0]}, std::move(opts) );
   return std::move(ptr).underlyingPointer();
 }
+
+
+std::shared_ptr<LogATE::Tree::Node> createExplode(detail::LogEntryDataSource const& ds, const Curses::DataSource::Id id, FilterFactory& ff)
+{
+  const auto value = ds.id2value(id);
+  auto form = Form{ KeyShortcuts{
+                                  {'n', "Name"},
+                                  {'p', "Path"},
+                                  {'o', "ok"},
+                                  {'q', "quit"}
+                                },
+                    Input{ "Name", "explode " + ds.id2path(id).str() },
+                    Input{ "Path", ds.id2path(id).str() },
+                    Button{"ok"},
+                    Button{"quit"}
+                  };
+  const auto ret = form.process();
+  if(ret[3] == "true")
+    return {};
+  BUT_ASSERT(ret[2] == "true" && "'OK' not clicked");
+  FilterFactory::Options opts{ std::make_pair("Path", ret[1]) };
+  auto ptr = ff.build( FilterFactory::Type{"Explode"}, FilterFactory::Name{ret[0]}, std::move(opts) );
+  return std::move(ptr).underlyingPointer();
+}
 }
 
 
@@ -183,9 +208,9 @@ std::shared_ptr<LogATE::Tree::Node> LogEntry::createFilterBasedOnSelection(DS co
   const auto names = supportedFilters();
   if( *filterName == names[0] )
     return createGrep(ds, id, *filterFactory_);
-  /*
   if( *filterName == names[1] )
     return createExplode(ds, id, *filterFactory_);
+  /*
   if( *filterName == names[2] )
     return createAcceptAll(ds, id, *filterFactory_);
   */
