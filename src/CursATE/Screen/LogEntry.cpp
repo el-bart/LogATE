@@ -81,27 +81,34 @@ std::shared_ptr<LogATE::Tree::Node> LogEntry::navigate(Win& win, DS const& ds)
 
 namespace
 {
+auto supportedFilters()
+{
+  return std::array<std::string, 3>{{"Grep", "Explode", "AcceptAll"}};
+}
+
 But::Optional<std::string> selectFilter()
 {
-  std::array<std::string, 4> names{{"Grep", "Explode", "AcceptAll", "cancel"}};
+  const auto names = supportedFilters();
   auto form = Form{ KeyShortcuts{
                                   {'g', names[0]},
                                   {'e', names[1]},
                                   {'a', names[2]},
-                                  {'c', names[3]},
-                                  {'q', names[3]}
+                                  {'c', "cancel"},
+                                  {'q', "cancel"}
                                 },
                     Button{names[0]},
                     Button{names[1]},
                     Button{names[2]},
-                    Button{names[3]}
+                    Button{"cancel"}
                   };
   const auto ret = form.process();
-  static_assert( ret.size() == names.size() );
-  for(auto i=0u; i<ret.size()-1u; ++i)
+  static_assert( ret.size() == names.size()+1u );
+  for(auto i=0u; i<names.size(); ++i)
     if(ret[i] == "true")
       return names[i];
-  return {};    // cancel
+  // cancle
+  BUT_ASSERT( *ret.rbegin() == "true" );
+  return {};
 }
 }
 
