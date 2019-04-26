@@ -6,7 +6,6 @@ using LogATE::Tree::Path;
 
 namespace
 {
-
 TEST_SUITE("Tree::Path")
 {
 
@@ -18,6 +17,7 @@ TEST_CASE("isRoot() works")
   CHECK( Path{{"oops", ".", "foo", "bar"}}.root() == false );
   CHECK( Path{{"foo", "bar"}}.root() == false );
 }
+
 
 TEST_CASE("parsing from string")
 {
@@ -36,6 +36,16 @@ TEST_CASE("parsing from string")
   CHECK_THROWS_AS( Path::parse("foo.bar.."), Path::EmptyNodeInPath );
 }
 
+
+TEST_CASE("converting to string")
+{
+  CHECK( Path{{}}.str() == "." );
+  CHECK( Path{{"."}}.str() == "." );
+  CHECK( Path{{"foo"}}.str() == "foo" );
+  CHECK( Path{{"foo", "bar"}}.str() == "foo.bar" );
+  CHECK( Path{{".", "foo", "bar"}}.str() == ".foo.bar" );
+  CHECK( Path{{"space is ok", "bar"}}.str() == "space is ok.bar" );
 }
 
+}
 }

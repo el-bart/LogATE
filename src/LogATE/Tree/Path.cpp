@@ -24,4 +24,20 @@ Path Path::parse(std::string const& str)
   return p;
 }
 
+
+std::string Path::str() const
+{
+  if( value_.empty() )
+    return ".";
+  std::stringstream ss;
+  auto separator = "";
+  for(auto& e: value_)
+  {
+    ss << separator << e;
+    if( e != "." )
+      separator = ".";
+  }
+  return ss.str();
+}
+
 }
