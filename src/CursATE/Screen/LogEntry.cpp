@@ -38,7 +38,7 @@ auto smallerScreenSize()
 }
 }
 
-std::shared_ptr<LogATE::Tree::Node> LogEntry::process()
+std::unique_ptr<LogATE::Tree::Node> LogEntry::process()
 {
   const auto sp = ScreenPosition{ Row{1}, Column{1} };
   const auto ss = smallerScreenSize();
@@ -49,7 +49,7 @@ std::shared_ptr<LogATE::Tree::Node> LogEntry::process()
 
 
 template<typename Win, typename DS>
-std::shared_ptr<LogATE::Tree::Node> LogEntry::navigate(Win& win, DS const& ds)
+std::unique_ptr<LogATE::Tree::Node> LogEntry::navigate(Win& win, DS const& ds)
 {
   while(true)
   {
@@ -136,7 +136,7 @@ auto makeCompareRadio(But::Optional<std::string> const& value)
 }
 
 
-std::shared_ptr<LogATE::Tree::Node> createGrep(detail::LogEntryDataSource const& ds, const Curses::DataSource::Id id, FilterFactory& ff)
+std::unique_ptr<LogATE::Tree::Node> createGrep(detail::LogEntryDataSource const& ds, const Curses::DataSource::Id id, FilterFactory& ff)
 {
   const auto value = ds.id2value(id);
   auto form = Form{ KeyShortcuts{
@@ -174,7 +174,7 @@ std::shared_ptr<LogATE::Tree::Node> createGrep(detail::LogEntryDataSource const&
 }
 
 
-std::shared_ptr<LogATE::Tree::Node> createExplode(detail::LogEntryDataSource const& ds, const Curses::DataSource::Id id, FilterFactory& ff)
+std::unique_ptr<LogATE::Tree::Node> createExplode(detail::LogEntryDataSource const& ds, const Curses::DataSource::Id id, FilterFactory& ff)
 {
   const auto value = ds.id2value(id);
   auto form = Form{ KeyShortcuts{
@@ -198,7 +198,7 @@ std::shared_ptr<LogATE::Tree::Node> createExplode(detail::LogEntryDataSource con
 }
 
 
-std::shared_ptr<LogATE::Tree::Node> createAcceptAll(FilterFactory& ff)
+std::unique_ptr<LogATE::Tree::Node> createAcceptAll(FilterFactory& ff)
 {
   auto form = Form{ KeyShortcuts{
                                   {'n', "Name"},
@@ -220,7 +220,7 @@ std::shared_ptr<LogATE::Tree::Node> createAcceptAll(FilterFactory& ff)
 
 
 template<typename DS>
-std::shared_ptr<LogATE::Tree::Node> LogEntry::createFilterBasedOnSelection(DS const& ds, const Curses::DataSource::Id id) const
+std::unique_ptr<LogATE::Tree::Node> LogEntry::createFilterBasedOnSelection(DS const& ds, const Curses::DataSource::Id id) const
 {
   const auto filterName = selectFilter();
   if(not filterName)

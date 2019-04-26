@@ -102,7 +102,8 @@ void LogList::reactOnKey(const int ch)
 
     case 't': processFilterTree(); break;
     case 10:
-    case KEY_ENTER: processLogEntry(); break;
+    case KEY_ENTER:
+    case 'f': processLogEntry(); break;
 
     // TODO: searching by string?
     // TODO: moving to a log with a given ID?
@@ -114,13 +115,13 @@ void LogList::reactOnKey(const int ch)
 void LogList::processQuitProgram()
 {
   auto form = makeForm( KeyShortcuts{
-                          {'e', "exit program"},
-                          {'o', "exit program"},
+                          {'e', "exit"},
+                          {'o', "exit"},
                           {'q', "cancel"},
                           {'c', "cancel"}
                         },
                         Button{"cancel"},
-                        Button{"exit program"} );
+                        Button{"exit"} );
   const auto ret = form.process();
   if( ret[1] == "false" )
     return;
@@ -151,7 +152,7 @@ void LogList::processLogEntry()
   auto newNode = le.process();
   if(not newNode)
     return;
-  currentNode_ = LogATE::Tree::NodeShPtr{ std::move(newNode) };
+  currentNode_ = currentNode_->add( LogATE::Tree::NodePtr{ std::move(newNode) } );
   currentWindow_ = filterWindows_.window(currentNode_);
   currentWindow_->select(*id);
 }
