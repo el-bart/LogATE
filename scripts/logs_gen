@@ -10,7 +10,20 @@ n = 0
 names = [ "john", "edvard", "jackob", "albert" ]
 
 while True:
-    log = { 'LOG_NUMBER': n, 'date': time.time(), 'uname': str(os.uname()), 'male_name': names[n%len(names)] }
+    log = { 'LOG_NUMBER': n,
+            'date': time.time(),
+            'uname': str(os.uname()),
+            'male_name': names[n%len(names)],
+            'misc': {
+              'answer': 42,
+              'periodic': n%10
+            },
+            'periodic': n%21,
+           'env': {
+             'user': os.environ['USER'],
+             'home': os.environ['HOME']
+           }
+          }
     if n % (2*len(names)) == 0:
         del log['male_name']
     n += 1
