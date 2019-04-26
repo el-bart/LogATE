@@ -17,7 +17,7 @@ public:
 
   void insert(Log const& log) override;
   Children children() const override;
-  void add(NodePtr node) override;
+  NodeShPtr add(NodePtr node) override;
   bool remove(NodeShPtr node) override;
 
   static auto nonMatchingChildName() { return Name{"<unmatched>"}; }

@@ -1,4 +1,5 @@
 #include "LogATE/Tree/Filter/detail/matchesLog.hpp"
+#include "LogATE/Utils/value2str.hpp"
 #include "But/Optional.hpp"
 #include <string>
 #include <vector>
@@ -6,6 +7,8 @@
 // TODO: arrays are ignored for now (i.e. nothing is searched inside them) - this should change
 // TODO: there are a lot of searches, recursion and comparisons. there is a need for a fundamental change in an
 //       underlying data structure, so that searches can be performed significantly faster with lesser (no?) allocations.
+
+using LogATE::Utils::value2str;
 
 namespace LogATE::Tree::Filter::detail
 {
@@ -30,19 +33,6 @@ nlohmann::json getNodeByPath(nlohmann::json n, PathIter pathBegin, PathIter path
 nlohmann::json getNodeByPath(Log const& log, PathIter pathBegin, PathIter pathEnd)
 {
   return getNodeByPath(*log.log_, pathBegin, pathEnd);
-}
-
-But::Optional<std::string> value2str(nlohmann::json const& node)
-{
-  if( node.is_string() )
-    return node.get<std::string>();
-  if( node.is_number_integer() )
-    return std::to_string( node.get<int64_t>() );
-  if( node.is_number_float() )
-    return std::to_string( node.get<double>() );
-  if( node.is_boolean() )
-    return std::string{ node.get<bool>() ? "true" : "false" };
-  return {};
 }
 
 template<typename F>

@@ -9,7 +9,7 @@ class SimpleNode: public Node
 public:
   void insert(Log const& log) override final;
   Children children() const override final;
-  void add(NodePtr node) override final;
+  NodeShPtr add(NodePtr node) override final;
   bool remove(NodeShPtr node) override final;
 
 protected:

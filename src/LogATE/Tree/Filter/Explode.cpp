@@ -46,7 +46,7 @@ Explode::Children Explode::children() const
   return out;
 }
 
-void Explode::add(NodePtr node)
+NodeShPtr Explode::add(NodePtr node)
 {
   BUT_THROW(ExplicitNodeAddNotSupported, "while trying to add node: " << node->name().value_);
 }

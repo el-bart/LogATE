@@ -15,6 +15,7 @@ add_library(LogATE
   Tree/Filter/Grep.cpp
   Tree/Filter/detail/matchesLog.cpp
   Tree/FilterFactory.cpp
+  Utils/value2str.cpp
   SequenceNumber.cpp
 )
 target_include_directories(LogATE PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

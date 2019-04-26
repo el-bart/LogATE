@@ -37,7 +37,7 @@ public:
   virtual void insert(Log const& log) = 0;
 
   virtual Children children() const = 0;
-  virtual void add(NodePtr node) = 0;
+  virtual NodeShPtr add(NodePtr node) = 0;
   virtual bool remove(NodeShPtr node) = 0;
 
   auto const& name() const { return name_; }

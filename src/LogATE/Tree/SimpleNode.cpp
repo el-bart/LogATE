@@ -17,7 +17,7 @@ SimpleNode::Children SimpleNode::children() const
   return children_;
 }
 
-void SimpleNode::add(NodePtr node)
+NodeShPtr SimpleNode::add(NodePtr node)
 {
   auto shared = NodeShPtr{std::move(node)};
   {
@@ -25,6 +25,7 @@ void SimpleNode::add(NodePtr node)
     children_.push_back(shared);
   }
   passAllLogsToChild(shared);
+  return shared;
 }
 
 bool SimpleNode::remove(NodeShPtr node)
