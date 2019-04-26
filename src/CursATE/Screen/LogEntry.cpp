@@ -56,7 +56,7 @@ std::shared_ptr<LogATE::Tree::Node> LogEntry::navigate(Win& win, DS const& ds)
     {
       case 10:
       case KEY_ENTER: return createFilterBasedOnSelection( ds, *win.currentSelection() ).underlyingPointer();
-      case 'q': return std::shared_ptr<LogATE::Tree::Node>{};
+      case 'q': return {};
 
       case KEY_UP:    win.selectUp(); break;
       case KEY_DOWN:  win.selectDown(); break;
