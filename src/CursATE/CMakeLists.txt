@@ -12,10 +12,12 @@ add_library(CursATEimpl
   Curses/detail/ScrolableWindowBackend.cpp
   Screen/LogDisplay/jsonLine.cpp
   Screen/FilterTree.cpp
+  Screen/LogEntry.cpp
   Screen/LogList.cpp
   Screen/detail/FilterWindows.cpp
   Screen/detail/FilterTreeDataSource.cpp
   Screen/detail/LogDataSource.cpp
+  Screen/detail/LogEntryDataSource.cpp
   Main.cpp
 )
 target_include_directories(CursATEimpl PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

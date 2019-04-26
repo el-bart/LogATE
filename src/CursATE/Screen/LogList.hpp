@@ -26,6 +26,7 @@ private:
   void reactOnKey(int ch);
   void processQuitProgram();
   void processFilterTree();
+  void processLogEntry();
 
   std::atomic<bool> quit_{false};
   LogATE::Tree::FilterFactory filterFactory_;

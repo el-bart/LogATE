@@ -1,9 +1,11 @@
+#include "CursATE/Screen/LogEntry.hpp"
 #include "CursATE/Screen/LogList.hpp"
 #include "CursATE/Screen/FilterTree.hpp"
 #include "CursATE/Screen/LogDisplay/jsonLine.hpp"
 #include "CursATE/Curses/CursorVisibility.hpp"
 #include "CursATE/Curses/Form.hpp"
 #include "CursATE/Curses/ctrl.hpp"
+#include <But/assert.hpp>
 
 using LogATE::Tree::FilterFactory;
 using CursATE::Curses::CursorVisibility;
@@ -99,8 +101,9 @@ void LogList::reactOnKey(const int ch)
     case KEY_END:  currentWindow_->scrollToLineEnd(); break;
 
     case 't': processFilterTree(); break;
+    case 10:
+    case KEY_ENTER: processLogEntry(); break;
 
-    // TODO: enter for previewing log entry
     // TODO: searching by string?
     // TODO: moving to a log with a given ID?
     // TODO: move selection to screen begin/center/end
@@ -131,6 +134,26 @@ void LogList::processFilterTree()
   currentNode_ = ft.selectNext(currentNode_);
   currentWindow_ = filterWindows_.window(currentNode_);
   filterWindows_.prune();
+}
+
+
+void LogList::processLogEntry()
+{
+  const auto id = currentWindow_->currentSelection();
+  if(not id)
+    return;
+  const auto sn = LogATE::SequenceNumber{id->value_};
+  auto logs = currentNode_->logs().withLock()->from(sn, 1);
+  if( logs.empty() )
+    return;
+  BUT_ASSERT( logs.size() == 1u );
+  LogEntry le{currentNode_, std::move(logs[0])};
+  auto newNode = le.process();
+  if(not newNode)
+    return;
+  currentNode_ = LogATE::Tree::NodeShPtr{ std::move(newNode) };
+  currentWindow_ = filterWindows_.window(currentNode_);
+  currentWindow_->select(*id);
 }
 
 }
