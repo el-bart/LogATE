@@ -32,7 +32,7 @@ struct ScrolableWindowBackend
   void selectPageDown();
   void selectFirst();
   void selectLast();
-  DataSource::Id currentSelection() const { return *currentSelection_; }
+  But::Optional<DataSource::Id> currentSelection() const { return currentSelection_; }
   void select(DataSource::Id id);
 
   struct DisplayData final

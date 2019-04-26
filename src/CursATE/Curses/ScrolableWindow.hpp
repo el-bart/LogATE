@@ -29,7 +29,7 @@ struct ScrolableWindow
   void selectLast() { backend_.selectLast(); }
 
   void select(const DataSource::Id id) { backend_.select(id); }
-  DataSource::Id currentSelection() const { return backend_.currentSelection(); }
+  But::Optional<DataSource::Id> currentSelection() const { return backend_.currentSelection(); }
 
 private:
   detail::ScrolableWindowBackend backend_;

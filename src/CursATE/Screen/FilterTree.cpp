@@ -65,7 +65,7 @@ std::pair<DataSource::Id, bool> navigate(ScrolableWindow& win,
     switch( getch() )
     {
       case 10:
-      case KEY_ENTER: return std::make_pair( win.currentSelection(), true );
+      case KEY_ENTER: return std::make_pair( *win.currentSelection(), true );
       case 'q': return std::make_pair(initialSelection, true);
 
       case 'd':
@@ -75,8 +75,8 @@ std::pair<DataSource::Id, bool> navigate(ScrolableWindow& win,
                break;
              const auto now = win.currentSelection();
              win.selectUp();
-             nodeDeleter( ds.id2node(now) );
-             return std::make_pair( win.currentSelection(), false );
+             nodeDeleter( ds.id2node(*now) );
+             return std::make_pair( *win.currentSelection(), false );
            }
 
       case KEY_UP:    win.selectUp(); break;
