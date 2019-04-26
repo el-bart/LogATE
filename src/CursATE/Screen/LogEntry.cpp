@@ -7,9 +7,12 @@
 #include "CursATE/Curses/ScrolableWindow.hpp"
 #include "CursATE/Curses/ctrl.hpp"
 
+using LogATE::Tree::FilterFactory;
 using CursATE::Curses::Form;
 using CursATE::Curses::KeyShortcuts;
 using CursATE::Curses::Field::Button;
+using CursATE::Curses::Field::Input;
+using CursATE::Curses::Field::Radio;
 using CursATE::Curses::Window;
 using CursATE::Curses::DataSource;
 using CursATE::Curses::ScrolableWindow;
@@ -48,14 +51,19 @@ std::shared_ptr<LogATE::Tree::Node> LogEntry::process()
 template<typename Win, typename DS>
 std::shared_ptr<LogATE::Tree::Node> LogEntry::navigate(Win& win, DS const& ds)
 {
-  //win.select( ds.first() );
   while(true)
   {
     win.refresh();
     switch( getch() )
     {
       case 10:
-      case KEY_ENTER: return createFilterBasedOnSelection( ds, *win.currentSelection() );
+      case KEY_ENTER:
+           {
+             auto ptr = createFilterBasedOnSelection( ds, *win.currentSelection() );
+             if(ptr)
+               return ptr;
+             break;
+           }
       case 'q': return {};
 
       case KEY_UP:    win.selectUp(); break;
@@ -72,7 +80,6 @@ std::shared_ptr<LogATE::Tree::Node> LogEntry::navigate(Win& win, DS const& ds)
       case KEY_END:  win.scrollToLineEnd(); break;
 
       // TODO: searching by string?
-      // TODO: moving to a log with a given ID?
       // TODO: move selection to screen begin/center/end
     }
   }
@@ -85,6 +92,7 @@ auto supportedFilters()
 {
   return std::array<std::string, 3>{{"Grep", "Explode", "AcceptAll"}};
 }
+
 
 But::Optional<std::string> selectFilter()
 {
@@ -110,6 +118,59 @@ But::Optional<std::string> selectFilter()
   BUT_ASSERT( *ret.rbegin() == "true" );
   return {};
 }
+
+
+auto makeRegexInput(But::Optional<std::string> const& value)
+{
+  if(value)
+    return Input{"regex", "^" + *value + "$"};  // TODO: add escaping of regex special values
+  return Input{"regex"};
+}
+
+
+auto makeCompareRadio(But::Optional<std::string> const& value)
+{
+  const auto defaultSelection = value ? 1u : 0u;
+  return Radio{"Compare", {"Key", "Value"}, defaultSelection};
+}
+
+
+std::shared_ptr<LogATE::Tree::Node> createGrep(detail::LogEntryDataSource const& ds, const Curses::DataSource::Id id, FilterFactory& ff)
+{
+  const auto value = ds.id2value(id);
+  auto form = Form{ KeyShortcuts{
+                                  {'n', "Name"},
+                                  {'p', "Path"},
+                                  {'r', "regex"},
+                                  {'v', "Compare"},
+                                  {'c', "Case"},
+                                  {'s', "Search"},
+                                  {'o', "ok"},
+                                  {'q', "quit"}
+                                },
+                    Input{ "Name", "grep " + ds.id2path(id).str() },
+                    Input{ "Path", ds.id2path(id).str() },
+                    makeRegexInput(value),
+                    makeCompareRadio(value),
+                    Radio{ "Case", {"Sensitive", "Insensitive"} },
+                    Radio{ "Search", {"Regular", "Inverse"} },
+                    Button{"ok"},
+                    Button{"quit"}
+                  };
+  const auto ret = form.process();
+  if(ret[7] == "true")
+    return {};
+  BUT_ASSERT(ret[6] == "true" && "'OK' not clicked");
+  FilterFactory::Options opts{
+                               std::make_pair("Path",    ret[1]),
+                               std::make_pair("regex",   ret[2]),
+                               std::make_pair("Compare", ret[3]),
+                               std::make_pair("Case",    ret[4]),
+                               std::make_pair("Search",  ret[5]),
+                             };
+  auto ptr = ff.build( FilterFactory::Type{"Grep"}, FilterFactory::Name{ret[0]}, std::move(opts) );
+  return std::move(ptr).underlyingPointer();
+}
 }
 
 
@@ -119,7 +180,16 @@ std::shared_ptr<LogATE::Tree::Node> LogEntry::createFilterBasedOnSelection(DS co
   const auto filterName = selectFilter();
   if(not filterName)
     return {};
-  throw 42;
+  const auto names = supportedFilters();
+  if( *filterName == names[0] )
+    return createGrep(ds, id, *filterFactory_);
+  /*
+  if( *filterName == names[1] )
+    return createExplode(ds, id, *filterFactory_);
+  if( *filterName == names[2] )
+    return createAcceptAll(ds, id, *filterFactory_);
+  */
+  throw std::logic_error{"unsupported filter type: " + *filterName};
   (void)ds;
   (void)id;
 }
