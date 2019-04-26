@@ -79,9 +79,40 @@ std::shared_ptr<LogATE::Tree::Node> LogEntry::navigate(Win& win, DS const& ds)
 }
 
 
+namespace
+{
+But::Optional<std::string> selectFilter()
+{
+  auto form = Form{ KeyShortcuts{
+                                  {'g', "Grep"},
+                                  {'e', "Explode"},
+                                  {'a', "AcceptAll"},
+                                  {'c', "cancel"},
+                                  {'q', "cancel"}
+                                },
+                    Button{"Grep"},
+                    Button{"Explode"},
+                    Button{"AcceptAll"},
+                    Button{"cancel"}
+                  };
+  const auto ret = form.process();
+  if(ret[0] == "true")
+    return std::string{"Grep"};
+  if(ret[1] == "true")
+    return std::string{"Explode"};
+  if(ret[2] == "true")
+    return std::string{"AcceptAll"};
+  if(ret[3] == "true")
+    return {};
+  throw std::logic_error{"for exited w/o selecting any button"};
+}
+}
+
+
 template<typename DS>
 LogATE::Tree::NodeShPtr LogEntry::createFilterBasedOnSelection(DS const& ds, const Curses::DataSource::Id id) const
 {
+  const auto filterName = selectFilter();
   throw 42;
   (void)ds;
   (void)id;
