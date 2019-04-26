@@ -24,7 +24,7 @@ private:
   template<typename Win, typename DS>
   std::shared_ptr<LogATE::Tree::Node> navigate(Win& win, DS const& ds);
   template<typename DS>
-  LogATE::Tree::NodeShPtr createFilterBasedOnSelection(DS const& ds, Curses::DataSource::Id id) const;
+  std::shared_ptr<LogATE::Tree::Node> createFilterBasedOnSelection(DS const& ds, Curses::DataSource::Id id) const;
 
   LogATE::Tree::NodeShPtr node_;
   const LogATE::Log log_;

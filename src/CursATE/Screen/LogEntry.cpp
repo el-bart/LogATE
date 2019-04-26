@@ -55,7 +55,7 @@ std::shared_ptr<LogATE::Tree::Node> LogEntry::navigate(Win& win, DS const& ds)
     switch( getch() )
     {
       case 10:
-      case KEY_ENTER: return createFilterBasedOnSelection( ds, *win.currentSelection() ).underlyingPointer();
+      case KEY_ENTER: return createFilterBasedOnSelection( ds, *win.currentSelection() );
       case 'q': return {};
 
       case KEY_UP:    win.selectUp(); break;
@@ -83,36 +83,35 @@ namespace
 {
 But::Optional<std::string> selectFilter()
 {
+  std::array<std::string, 4> names{{"Grep", "Explode", "AcceptAll", "cancel"}};
   auto form = Form{ KeyShortcuts{
-                                  {'g', "Grep"},
-                                  {'e', "Explode"},
-                                  {'a', "AcceptAll"},
-                                  {'c', "cancel"},
-                                  {'q', "cancel"}
+                                  {'g', names[0]},
+                                  {'e', names[1]},
+                                  {'a', names[2]},
+                                  {'c', names[3]},
+                                  {'q', names[3]}
                                 },
-                    Button{"Grep"},
-                    Button{"Explode"},
-                    Button{"AcceptAll"},
-                    Button{"cancel"}
+                    Button{names[0]},
+                    Button{names[1]},
+                    Button{names[2]},
+                    Button{names[3]}
                   };
   const auto ret = form.process();
-  if(ret[0] == "true")
-    return std::string{"Grep"};
-  if(ret[1] == "true")
-    return std::string{"Explode"};
-  if(ret[2] == "true")
-    return std::string{"AcceptAll"};
-  if(ret[3] == "true")
-    return {};
-  throw std::logic_error{"for exited w/o selecting any button"};
+  static_assert( ret.size() == names.size() );
+  for(auto i=0u; i<ret.size()-1u; ++i)
+    if(ret[i] == "true")
+      return names[i];
+  return {};    // cancel
 }
 }
 
 
 template<typename DS>
-LogATE::Tree::NodeShPtr LogEntry::createFilterBasedOnSelection(DS const& ds, const Curses::DataSource::Id id) const
+std::shared_ptr<LogATE::Tree::Node> LogEntry::createFilterBasedOnSelection(DS const& ds, const Curses::DataSource::Id id) const
 {
   const auto filterName = selectFilter();
+  if(not filterName)
+    return {};
   throw 42;
   (void)ds;
   (void)id;
