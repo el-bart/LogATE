@@ -196,6 +196,26 @@ std::shared_ptr<LogATE::Tree::Node> createExplode(detail::LogEntryDataSource con
   auto ptr = ff.build( FilterFactory::Type{"Explode"}, FilterFactory::Name{ret[0]}, std::move(opts) );
   return std::move(ptr).underlyingPointer();
 }
+
+
+std::shared_ptr<LogATE::Tree::Node> createAcceptAll(FilterFactory& ff)
+{
+  auto form = Form{ KeyShortcuts{
+                                  {'n', "Name"},
+                                  {'o', "ok"},
+                                  {'q', "quit"}
+                                },
+                    Input{ "Name", "accept all" },
+                    Button{"ok"},
+                    Button{"quit"}
+                  };
+  const auto ret = form.process();
+  if(ret[2] == "true")
+    return {};
+  BUT_ASSERT(ret[1] == "true" && "'OK' not clicked");
+  auto ptr = ff.build( FilterFactory::Type{"AcceptAll"}, FilterFactory::Name{ret[0]}, FilterFactory::Options{} );
+  return std::move(ptr).underlyingPointer();
+}
 }
 
 
@@ -210,13 +230,9 @@ std::shared_ptr<LogATE::Tree::Node> LogEntry::createFilterBasedOnSelection(DS co
     return createGrep(ds, id, *filterFactory_);
   if( *filterName == names[1] )
     return createExplode(ds, id, *filterFactory_);
-  /*
   if( *filterName == names[2] )
-    return createAcceptAll(ds, id, *filterFactory_);
-  */
+    return createAcceptAll(*filterFactory_);
   throw std::logic_error{"unsupported filter type: " + *filterName};
-  (void)ds;
-  (void)id;
 }
 
 }
