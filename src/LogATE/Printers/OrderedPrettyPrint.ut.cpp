@@ -17,7 +17,10 @@ TEST_CASE("directly converting to pretty print")
   {
     CHECK( "mystring=xxx" == opp_( json2log(R"({"mystring": "xxx"})") ) );
     CHECK( "myint=42" == opp_( json2log(R"({"myint":42})") ) );
+    CHECK( "mybigint=1234567890" == opp_( json2log(R"({"mybigint":1234567890})") ) );
     CHECK( "myfloat=4.5" == opp_( json2log(R"({"myfloat":4.5})") ) );
+    CHECK( "mysmallfloat=0.0005" == opp_( json2log(R"({"mysmallfloat":0.0005})") ) );
+    CHECK( "mybigfloat=123456789.5" == opp_( json2log(R"({"mybigfloat":123456789.5})") ) );
     CHECK( "mybool=true" == opp_( json2log(R"({"mybool":true})") ) );
   }
   SUBCASE("basic structures")

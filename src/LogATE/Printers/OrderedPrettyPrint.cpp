@@ -1,4 +1,5 @@
 #include "LogATE/Printers/OrderedPrettyPrint.hpp"
+#include <iomanip>
 
 namespace LogATE::Printers
 {
@@ -35,7 +36,7 @@ void OrderedPrettyPrint::printNode(std::stringstream& ss, std::string const& key
 
   if( value.is_string() )         { ss << value.get<std::string>(); return; }
   if( value.is_number_integer() ) { ss << value.get<int64_t>(); return; }
-  if( value.is_number_float() )   { ss << value.get<double>(); return; }
+  if( value.is_number_float() )   { ss << std::setprecision(10) << value.get<double>(); return; }
   if( value.is_boolean() )        { ss << ( value.get<bool>() ? "true" : "false" ); return; }
 
   ss << "{ ";
