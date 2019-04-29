@@ -63,7 +63,8 @@ namespace
 {
 auto nodeName(LogATE::Tree::NodeShPtr const& node)
 {
-  return node->type().value_ + "::" + node->name().value_;
+  const auto size = node->logs().withLock()->size();
+  return node->type().value_ + "::" + node->name().value_ + " (" + std::to_string(size) + ")";
 }
 
 template<typename C>
