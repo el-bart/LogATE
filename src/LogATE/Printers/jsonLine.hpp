@@ -2,7 +2,7 @@
 #include "LogATE/Log.hpp"
 #include <string>
 
-namespace CursATE::Screen::LogDisplay
+namespace LogATE::Printers
 {
 
 std::string jsonLine(LogATE::Log const& in);

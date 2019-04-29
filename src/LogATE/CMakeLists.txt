@@ -6,6 +6,8 @@ add_library(LogATE
   Net/TcpClient.cpp
   Net/TcpRawClient.cpp
   Net/TcpServer.cpp
+  Printers/OrderedPrettyPrint.cpp
+  Printers/jsonLine.cpp
   Tree/Node.cpp
   Tree/Logs.cpp
   Tree/Path.cpp
@@ -37,6 +39,8 @@ install(TARGETS LogATE
 
 if(LOGATE_ENABLE_TESTS)
   add_executable(LogATE_uts
+    Printers/OrderedPrettyPrint.ut.cpp
+    Printers/jsonLine.ut.cpp
     Tree/Logs.ut.cpp
     Tree/Node.ut.cpp
     Tree/Path.ut.cpp

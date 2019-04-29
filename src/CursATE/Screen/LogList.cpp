@@ -1,10 +1,10 @@
 #include "CursATE/Screen/LogEntry.hpp"
 #include "CursATE/Screen/LogList.hpp"
 #include "CursATE/Screen/FilterTree.hpp"
-#include "CursATE/Screen/LogDisplay/jsonLine.hpp"
 #include "CursATE/Curses/CursorVisibility.hpp"
 #include "CursATE/Curses/Form.hpp"
 #include "CursATE/Curses/ctrl.hpp"
+#include "LogATE/Printers/jsonLine.hpp"
 #include <But/assert.hpp>
 
 using LogATE::Tree::FilterFactory;
@@ -19,7 +19,7 @@ namespace CursATE::Screen
 {
 
 LogList::LogList():
-  filterWindows_{ LogDisplay::jsonLine },
+  filterWindows_{ LogATE::Printers::jsonLine },
   root_{ filterFactory_.build( FilterFactory::Type{"AcceptAll"}, FilterFactory::Name{"all logs"}, FilterFactory::Options{} ) },
   currentNode_{root_},
   currentWindow_{ filterWindows_.window(currentNode_) }

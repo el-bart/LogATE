@@ -1,6 +1,6 @@
-#include "CursATE/Screen/LogDisplay/OrderedPrettyPrint.hpp"
+#include "LogATE/Printers/OrderedPrettyPrint.hpp"
 
-namespace CursATE::Screen::LogDisplay
+namespace LogATE::Printers
 {
 
 namespace

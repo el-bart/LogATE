@@ -1,12 +1,12 @@
 #include <doctest/doctest.h>
-#include "CursATE/Screen/LogDisplay/OrderedPrettyPrint.hpp"
+#include "LogATE/Printers/OrderedPrettyPrint.hpp"
 
-using CursATE::Screen::LogDisplay::OrderedPrettyPrint;
+using LogATE::Printers::OrderedPrettyPrint;
 using LogATE::json2log;
 
 namespace
 {
-TEST_SUITE("CursATE::Screen::LogDisplay::OrderedPrettyPrint")
+TEST_SUITE("LogATE::Printers::OrderedPrettyPrint")
 {
 
 

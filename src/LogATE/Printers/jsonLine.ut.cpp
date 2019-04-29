@@ -1,11 +1,11 @@
 #include <doctest/doctest.h>
-#include "CursATE/Screen/LogDisplay/jsonLine.hpp"
+#include "LogATE/Printers/jsonLine.hpp"
 
-using CursATE::Screen::LogDisplay::jsonLine;
+using LogATE::Printers::jsonLine;
 
 namespace
 {
-TEST_SUITE("CursATE::Screen::LogDisplay::jsonLine")
+TEST_SUITE("LogATE::Printers::jsonLine")
 {
 
 TEST_CASE("converting to json line")

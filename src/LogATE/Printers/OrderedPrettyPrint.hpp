@@ -3,10 +3,9 @@
 #include <string>
 #include <vector>
 #include <unordered_set>
-#include <unordered_map>
 #include <sstream>
 
-namespace CursATE::Screen::LogDisplay
+namespace LogATE::Printers
 {
 
 class OrderedPrettyPrint final

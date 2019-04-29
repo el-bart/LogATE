@@ -10,8 +10,6 @@ add_library(CursATEimpl
   Curses/Field/detail/resizePadded.cpp
   Curses/ScrolableWindow.cpp
   Curses/detail/ScrolableWindowBackend.cpp
-  Screen/LogDisplay/OrderedPrettyPrint.cpp
-  Screen/LogDisplay/jsonLine.cpp
   Screen/FilterTree.cpp
   Screen/LogEntry.cpp
   Screen/LogList.cpp
@@ -43,8 +41,6 @@ if(LOGATE_ENABLE_TESTS)
   add_executable(CursATE_uts
     Curses/Field/detail/resizePadded.ut.cpp
     Curses/detail/ScrolableWindowBackend.ut.cpp
-    Screen/LogDisplay/OrderedPrettyPrint.ut.cpp
-    Screen/LogDisplay/jsonLine.ut.cpp
     Screen/detail/LogDataSource.ut.cpp
     main.ut.cpp
   )
