@@ -19,3 +19,5 @@
 ## misc
 
 * runtime image - autobuilding version, taht can be used just by downloading from docker hub.
+* multi-threaded logs processing
+* explode with nested nodes
