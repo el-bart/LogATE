@@ -8,8 +8,6 @@
 // TODO: there are a lot of searches, recursion and comparisons. there is a need for a fundamental change in an
 //       underlying data structure, so that searches can be performed significantly faster with lesser (no?) allocations.
 
-using LogATE::Utils::value2str;
-
 namespace LogATE::Tree::Filter::detail
 {
 
@@ -53,11 +51,11 @@ auto matchesAbsoluteKey(Log const& log, Path const& path, F const& cmp)
   return hasMatchingKey(n, cmp);
 }
 
-template<typename F>
-auto matchesAbsoluteValue(Log const& log, Path const& path, F const& cmp)
+template<typename F, typename ToStr>
+auto matchesAbsoluteValue(Log const& log, Path const& path, F const& cmp, ToStr const& toStr)
 {
   const auto n = getNodeByPath(log, path.begin()+1, path.end());
-  const auto str = value2str(n);
+  const auto str = toStr(n);
   if(not str)
     return false;
   return cmp(*str);
@@ -102,29 +100,29 @@ auto matchesRelativeKey(Log const& log, Path const& path, F const& cmp)
 }
 
 
-template<typename F>
-bool matchesRelativeValueRecursive(nlohmann::json const& log, Path const& path, F const& cmp)
+template<typename F, typename ToStr>
+bool matchesRelativeValueRecursive(nlohmann::json const& log, Path const& path, F const& cmp, ToStr const& toStr)
 {
   if( not log.is_object() && not log.is_array() )
     return false;
 
   {
     const auto n = getNodeByPath(log, path.begin(), path.end());
-    const auto str = value2str(n);
+    const auto str = toStr(n);
     if(str && cmp(*str))
       return true;
   }
 
   for(auto it=log.begin(); it!=log.end(); ++it)
-    if( matchesRelativeValueRecursive(*it, path, cmp) )
+    if( matchesRelativeValueRecursive(*it, path, cmp, toStr) )
       return true;
   return false;
 }
 
-template<typename F>
-auto matchesRelativeValue(Log const& log, Path const& path, F const& cmp)
+template<typename F, typename ToStr>
+auto matchesRelativeValue(Log const& log, Path const& path, F const& cmp, ToStr const& toStr)
 {
-  return matchesRelativeValueRecursive(*log.log_, path, cmp);
+  return matchesRelativeValueRecursive(*log.log_, path, cmp, toStr);
 }
 
 
@@ -138,14 +136,14 @@ bool matchesKeyImpl(Log const& log, Path const& path, F const& cmp)
   return matchesRelativeKey(log, path, cmp);
 }
 
-template<typename F>
-bool matchesValueImpl(Log const& log, Path const& path, F const& cmp)
+template<typename F, typename ToStr>
+bool matchesValueImpl(Log const& log, Path const& path, F const& cmp, ToStr const& toStr)
 {
   if( path.value_.empty() )
     return false;
   if( path.root() )
-    return matchesAbsoluteValue(log, path, cmp);
-  return matchesRelativeValue(log, path, cmp);
+    return matchesAbsoluteValue(log, path, cmp, toStr);
+  return matchesRelativeValue(log, path, cmp, toStr);
 }
 
 struct RegexCompare
@@ -165,7 +163,7 @@ bool matchesKey(Log const& log, Path const& path, std::regex const& re)
 
 bool matchesValue(Log const& log, Path const& path, std::regex const& re)
 {
-  return matchesValueImpl(log, path, RegexCompare{&re});
+  return matchesValueImpl(log, path, RegexCompare{&re}, LogATE::Utils::value2str);
 }
 
 
@@ -192,7 +190,27 @@ struct GatherAllValues
 std::vector<std::string> allValues(Log const& log, Path const& path)
 {
   std::vector<std::string> out;
-  matchesValueImpl(log, path, GatherAllValues{&out});
+  matchesValueImpl(log, path, GatherAllValues{&out}, LogATE::Utils::value2str);
+  return out;
+}
+
+namespace
+{
+But::Optional<std::string> dumpStruct(nlohmann::json const& node)
+{
+  if( node.is_null() )
+    return {};
+  auto tmp = LogATE::Utils::value2str(node);
+  if(tmp)
+    return tmp;
+  return node.dump();
+}
+}
+
+std::vector<std::string> allNodeValues(Log const& log, Path const& path)
+{
+  std::vector<std::string> out;
+  matchesValueImpl(log, path, GatherAllValues{&out}, dumpStruct);
   return out;
 }
 

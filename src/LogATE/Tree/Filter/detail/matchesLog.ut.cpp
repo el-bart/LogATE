@@ -7,6 +7,7 @@ using LogATE::Tree::Path;
 using LogATE::Tree::Filter::detail::matchesKey;
 using LogATE::Tree::Filter::detail::matchesValue;
 using LogATE::Tree::Filter::detail::allValues;
+using LogATE::Tree::Filter::detail::allNodeValues;
 using LogATE::Tree::Filter::detail::g_defaultRegexType;
 
 namespace
@@ -245,6 +246,39 @@ TEST_CASE_FIXTURE(Fixture, "relative paths leading to the same values are unifie
   auto out = allValues(repeatedLog, Path{{"bar"}});
   REQUIRE( out.size() == 1 );
   CHECK( out[0] == "xx" );
+}
+
+TEST_CASE_FIXTURE(Fixture, "getting values for nodes")
+{
+  SUBCASE("relative path to key:value")
+  {
+    auto out = allNodeValues(logMulti_, Path::parse("bar"));
+    std::sort( begin(out), end(out) );
+    REQUIRE( out.size() == 2 );
+    CHECK( out[0] == "xxx" );
+    CHECK( out[1] == "yyy" );
+  }
+  SUBCASE("relative path to nested structure")
+  {
+    auto out = allNodeValues(logMulti_, Path::parse("foo"));
+    std::sort( begin(out), end(out) );
+    REQUIRE( out.size() == 3 );
+    CHECK( out[0] == R"([{"one":1},{"two":2}])" );
+    CHECK( out[1] == R"({"bar":"xxx"})" );
+    CHECK( out[2] == R"({"bar":"yyy"})" );
+  }
+  SUBCASE("absolute path to key:value")
+  {
+    auto out = allNodeValues(log_, Path::parse(".foo.bar"));
+    REQUIRE( out.size() == 1 );
+    CHECK( out[0] == "a/c" );
+  }
+  SUBCASE("absolute path to nested structure")
+  {
+    auto out = allNodeValues(log_, Path::parse(".foo"));
+    REQUIRE( out.size() == 1 );
+    CHECK( out[0] == R"({"bar":"a/c"})" );
+  }
 }
 
 }
