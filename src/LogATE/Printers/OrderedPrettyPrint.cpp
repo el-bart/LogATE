@@ -29,6 +29,17 @@ std::string OrderedPrettyPrint::operator()(LogATE::Log const& in) const
 }
 
 
+namespace
+{
+auto normalFloat(double in)
+{
+  auto str = std::to_string(in);
+  while( not str.empty() && ( *str.rbegin() == '0' || *str.rbegin() == '.' ) )
+    str.erase( str.size()-1 );
+  return str;
+}
+}
+
 void OrderedPrettyPrint::printNode(std::stringstream& ss, std::string const& key, nlohmann::json const& value) const
 {
   if( not isSilent(key) )
@@ -36,7 +47,7 @@ void OrderedPrettyPrint::printNode(std::stringstream& ss, std::string const& key
 
   if( value.is_string() )         { ss << value.get<std::string>(); return; }
   if( value.is_number_integer() ) { ss << value.get<int64_t>(); return; }
-  if( value.is_number_float() )   { ss << std::setprecision(10) << value.get<double>(); return; }
+  if( value.is_number_float() )   { ss << normalFloat( value.get<double>() ); return; }
   if( value.is_boolean() )        { ss << ( value.get<bool>() ? "true" : "false" ); return; }
 
   ss << "{ ";
