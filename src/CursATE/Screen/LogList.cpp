@@ -4,9 +4,10 @@
 #include "CursATE/Curses/CursorVisibility.hpp"
 #include "CursATE/Curses/Form.hpp"
 #include "CursATE/Curses/ctrl.hpp"
-#include "LogATE/Printers/jsonLine.hpp"
+#include "LogATE/Printers/OrderedPrettyPrint.hpp"
 #include <But/assert.hpp>
 
+using LogATE::Printers::OrderedPrettyPrint;
 using LogATE::Tree::FilterFactory;
 using CursATE::Curses::CursorVisibility;
 using CursATE::Curses::CursorVisibilityGuard;
@@ -18,8 +19,18 @@ using CursATE::Curses::Field::Button;
 namespace CursATE::Screen
 {
 
+namespace
+{
+auto makePrinter()
+{
+  OrderedPrettyPrint::SilentTags silent{{"env"}};
+  OrderedPrettyPrint::PriorityTags prio{{"date", "LOG_NUMBER", "male_name", "misc"}};
+  return OrderedPrettyPrint{ std::move(silent), std::move(prio) };
+}
+}
+
 LogList::LogList():
-  filterWindows_{ LogATE::Printers::jsonLine },
+  filterWindows_{ makePrinter() },
   root_{ filterFactory_.build( FilterFactory::Type{"AcceptAll"}, FilterFactory::Name{"all logs"}, FilterFactory::Options{} ) },
   currentNode_{root_},
   currentWindow_{ filterWindows_.window(currentNode_) }
