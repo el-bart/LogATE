@@ -24,7 +24,7 @@ Explode::Explode(Name name, Path path):
 
 void Explode::insert(Log const& log)
 {
-  auto values = detail::allValues(log, path_);
+  auto values = detail::allNodeValues(log, path_);
   if( values.empty() )
   {
     const Lock lock{mutex_};
