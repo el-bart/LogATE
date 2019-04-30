@@ -22,7 +22,7 @@ private:
 
   void insertToChildren(Log const& log);
   void insertToChild(NodeShPtr const& child, Log const& log);
-  void passAllLogsToChild(NodeShPtr const& child);
+  void passAllLogsToChild(NodeShPtr child);
 
   using Lock = std::lock_guard<std::mutex>;
   mutable std::mutex mutex_;

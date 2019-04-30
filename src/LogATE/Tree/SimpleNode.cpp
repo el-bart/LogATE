@@ -70,10 +70,12 @@ auto copyAll(Logs const& logs)
 }
 }
 
-void SimpleNode::passAllLogsToChild(NodeShPtr const& child)
+void SimpleNode::passAllLogsToChild(NodeShPtr child)
 {
-  for(auto const& log: copyAll(logs_))
-    insertToChild(child, log);
+  workers_->enqueue( [logs=copyAll(logs_), child, this] {
+      for(auto const& log: logs)
+        this->insertToChild(child, log);
+    } );
 }
 
 }

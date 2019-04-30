@@ -51,8 +51,10 @@ TEST_CASE_FIXTURE(Fixture, "cascading log through children works")
 {
   REQUIRE( f2_.children().size() == 0 );
   f2_.add( But::makeUniqueNN<ModFilter<3>>(workers_) );
+  workers_->waitForAll();
   REQUIRE( f2_.children().size() == 1 );
   f2_.add( But::makeUniqueNN<ModFilter<4>>(workers_) );
+  workers_->waitForAll();
   REQUIRE( f2_.children().size() == 2 );
 
   for(auto i=0; i<15; ++i)
@@ -70,6 +72,7 @@ TEST_CASE_FIXTURE(Fixture, "adding child in a middle of a run adds all the logs 
 
   REQUIRE( f2_.children().size() == 0 );
   f2_.add( But::makeUniqueNN<ModFilter<4>>(workers_) );
+  workers_->waitForAll();
   REQUIRE( f2_.children().size() == 1 );
   CHECK( allSns(*f2_.children()[0]) == makeSns({0,4,8,12}) );
 }
@@ -92,8 +95,10 @@ TEST_CASE_FIXTURE(Fixture, "exception in passing through to one child does not a
 {
   REQUIRE( f2_.children().size() == 0 );
   f2_.add( But::makeUniqueNN<AlwaysThrow>(workers_) );
+  workers_->waitForAll();
   REQUIRE( f2_.children().size() == 1 );
   f2_.add( But::makeUniqueNN<ModFilter<4>>(workers_) );
+  workers_->waitForAll();
   REQUIRE( f2_.children().size() == 2 );
 
   for(auto i=0; i<15; ++i)
@@ -108,6 +113,7 @@ TEST_CASE_FIXTURE(Fixture, "cascading log through children works")
 {
   f2_.add( But::makeUniqueNN<ModFilter<3>>(workers_) );
   f2_.add( But::makeUniqueNN<ModFilter<4>>(workers_) );
+  workers_->waitForAll();
   REQUIRE( f2_.children().size() == 2 );
 
   SUBCASE("removal of existing child works")
