@@ -17,6 +17,7 @@ add_library(LogATE
   Tree/Filter/Grep.cpp
   Tree/Filter/detail/matchesLog.cpp
   Tree/FilterFactory.cpp
+  Utils/WorkerThreads.cpp
   Utils/value2str.cpp
   SequenceNumber.cpp
 )
