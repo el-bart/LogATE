@@ -24,6 +24,7 @@ Explode::Explode(Utils::WorkerThreadsShPtr workers, Name name, Path path):
 
 void Explode::insert(Log const& log)
 {
+  logs().withLock()->insert(log);
   auto values = detail::allNodeValues(log, path_);
   if( values.empty() )
   {
