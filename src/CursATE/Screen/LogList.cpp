@@ -29,7 +29,8 @@ auto makePrinter()
 }
 }
 
-LogList::LogList():
+LogList::LogList(LogATE::Utils::WorkerThreadsShPtr workers):
+  filterFactory_{ std::move(workers) },
   filterWindows_{ makePrinter() },
   root_{ filterFactory_.build( FilterFactory::Type{"AcceptAll"}, FilterFactory::Name{"all logs"}, FilterFactory::Options{} ) },
   currentNode_{root_},

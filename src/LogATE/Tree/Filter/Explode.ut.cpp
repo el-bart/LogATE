@@ -42,7 +42,8 @@ struct Fixture
   template<typename ...Args>
   auto sns(Args... args) { return std::vector<SequenceNumber>{args.sn_...}; }
 
-  Explode explode_{ Explode::Name{"foo"}, Path{{".", "foo"}} };
+  LogATE::Utils::WorkerThreadsShPtr workers_{ But::makeSharedNN<LogATE::Utils::WorkerThreads>() };
+  Explode explode_{ workers_, Explode::Name{"foo"}, Path{{".", "foo"}} };
   const Log log1_{ makeLog(1, R"( { "foo": "xxx", "bar": 42 } )") };
   const Log log2_{ makeLog(2, R"( { "foo": "yyy", "bar": 44 } )") };
   const Log log3_{ makeLog(3, R"( { "foo": "xxx", "bar": 46 } )") };
@@ -95,7 +96,7 @@ TEST_CASE_FIXTURE(Fixture, "logs w/o required fieled go to default location")
 
 TEST_CASE_FIXTURE(Fixture, "field can be specified with a relative path")
 {
-  Explode explode{ Explode::Name{"foo"}, Path{{"foo"}} };
+  Explode explode{ workers_, Explode::Name{"foo"}, Path{{"foo"}} };
   explode.insert(log1_);
   explode.insert(log2_);
   explode.insert(log3_);
@@ -109,7 +110,7 @@ TEST_CASE_FIXTURE(Fixture, "field can be specified with a relative path")
 TEST_CASE_FIXTURE(Fixture, "ambigous relative path adds logs to multiple cathegories")
 {
   const auto log = makeLog(1, R"( { "foo": "xxx", "bar": { "foo": "yyy" } } )");
-  Explode explode{ Explode::Name{"foo"}, Path{{"foo"}} };
+  Explode explode{ workers_, Explode::Name{"foo"}, Path{{"foo"}} };
   explode.insert(log);
   const auto out = extractLogs(explode);
   REQUIRE( out.size() == 3 );
@@ -121,8 +122,8 @@ TEST_CASE_FIXTURE(Fixture, "ambigous relative path adds logs to multiple cathego
 TEST_CASE_FIXTURE(Fixture, "explicit addition/removal of a child fails")
 {
   using LogATE::Tree::Filter::AcceptAll;
-  CHECK_THROWS_AS( explode_.add( But::makeUniqueNN<AcceptAll>(name("xxx")) ), Explode::ExplicitNodeAddNotSupported );
-  CHECK_THROWS_AS( explode_.remove( But::makeUniqueNN<AcceptAll>(name("xxx")) ), Explode::ExplicitNodeRemoveNotSupported );
+  CHECK_THROWS_AS( explode_.add( But::makeUniqueNN<AcceptAll>(workers_, name("xxx")) ), Explode::ExplicitNodeAddNotSupported );
+  CHECK_THROWS_AS( explode_.remove( But::makeUniqueNN<AcceptAll>(workers_, name("xxx")) ), Explode::ExplicitNodeRemoveNotSupported );
 }
 
 }

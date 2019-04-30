@@ -12,7 +12,7 @@ public:
   using Name = Node::Name;
   using Options = std::map<std::string, std::string>;
 private:
-  using Factory = But::Pattern::AbstractFactory<Node, Node::Name, Options>;
+  using Factory = But::Pattern::AbstractFactory<Node, Utils::WorkerThreadsShPtr, Node::Name, Options>;
 public:
   BUT_DEFINE_EXCEPTION(Error, But::Exception, "failed to build required filter");
   BUT_DEFINE_EXCEPTION(MissingOption, Error, "missing option");
@@ -21,10 +21,11 @@ public:
 
   using Type = Factory::Builder;
 
-  FilterFactory();
+  explicit FilterFactory(Utils::WorkerThreadsShPtr workers);
   NodePtr build(Type type, Name name, Options options);
 
 private:
+  Utils::WorkerThreadsShPtr workers_;
   Factory factory_;
 };
 

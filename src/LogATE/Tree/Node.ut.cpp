@@ -13,21 +13,23 @@ using LogATE::Tree::Node;
 using LogATE::Tree::NodeShPtr;
 using LogATE::Tree::makeLog;
 using LogATE::Tree::Filter::AcceptAll;
+using LogATE::Utils::WorkerThreads;
+using LogATE::Utils::WorkerThreadsShPtr;
 
 namespace
 {
 
-auto sampleNode()
+auto sampleNode(WorkerThreadsShPtr workers)
 {
-  return But::makeUniqueNN<AcceptAll>(Node::Name{"whatever"});
+  return But::makeUniqueNN<AcceptAll>( std::move(workers), Node::Name{"whatever"} );
 }
 
-auto makeTree()
+auto makeTree(WorkerThreadsShPtr workers)
 {
-  auto root = sampleNode();
+  auto root = sampleNode(workers);
   for(auto i=0; i<2; ++i)
-    root->add( sampleNode() );
-  root->children()[0]->add( sampleNode() );
+    root->add( sampleNode(workers) );
+  root->children()[0]->add( sampleNode(workers) );
   return NodeShPtr{ std::move(root) };
 }
 
@@ -62,7 +64,8 @@ TEST_SUITE("Tree::Node")
 
 TEST_CASE("prunning logs works recursively")
 {
-  auto root = makeTree();
+  const auto workers = But::makeSharedNN<WorkerThreads>();
+  auto root = makeTree(workers);
   REQUIRE( treeMinMaxId(root).size() == 0 );
 
   for(auto id=0; id<10; ++id)

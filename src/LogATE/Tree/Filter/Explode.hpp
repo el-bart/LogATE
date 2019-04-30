@@ -13,7 +13,7 @@ public:
   BUT_DEFINE_EXCEPTION(ExplicitNodeAddNotSupported, Node::Error, "explicit node addition not available for 'explode' node");
   BUT_DEFINE_EXCEPTION(ExplicitNodeRemoveNotSupported, Node::Error, "explicit node removal not available for 'explode' node");
 
-  Explode(Name name, Path path);
+  Explode(Utils::WorkerThreadsShPtr workers, Name name, Path path);
 
   void insert(Log const& log) override;
   Children children() const override;

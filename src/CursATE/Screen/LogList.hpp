@@ -10,7 +10,7 @@ namespace CursATE::Screen
 class LogList final
 {
 public:
-  LogList();
+  explicit LogList(LogATE::Utils::WorkerThreadsShPtr workers);
 
   LogList(LogList const&) = delete;
   LogList& operator=(LogList const&) = delete;

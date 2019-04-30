@@ -13,8 +13,8 @@ public:
   bool remove(NodeShPtr node) override final;
 
 protected:
-  SimpleNode(Type type, Name name, TrimFields trimFields):
-    Node{ std::move(type), std::move(name), std::move(trimFields) }
+  SimpleNode(Utils::WorkerThreadsShPtr workers, Type type, Name name, TrimFields trimFields):
+    Node{ std::move(workers), std::move(type), std::move(name), std::move(trimFields) }
   { }
 
 private:

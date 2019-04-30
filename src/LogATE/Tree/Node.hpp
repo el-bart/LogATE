@@ -3,6 +3,7 @@
 #include "LogATE/Log.hpp"
 #include "LogATE/Tree/Logs.hpp"
 #include "LogATE/Tree/Path.hpp"
+#include "LogATE/Utils/WorkerThreads.hpp"
 #include <But/Exception.hpp>
 #include <But/Mpl/FreeOperators.hpp>
 #include <string>
@@ -50,13 +51,15 @@ public:
   void pruneUpTo(const SequenceNumber sn);
 
 protected:
-  Node(Type type, Name name, TrimFields trimFields):
+  Node(Utils::WorkerThreadsShPtr workers, Type type, Name name, TrimFields trimFields):
+      workers_{ std::move(workers) },
       type_{ std::move(type) },
       name_{ std::move(name) },
       trimFields_{ std::move(trimFields) }
   { }
 
   Logs logs_;
+  Utils::WorkerThreadsShPtr workers_;
 
 private:
   const Type type_;

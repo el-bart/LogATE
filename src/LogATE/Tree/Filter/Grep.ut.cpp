@@ -15,7 +15,7 @@ struct Fixture
 {
   auto testMatch(Path const& path, std::string const& re, Log const& log) const
   {
-    Grep g{Grep::Name{"foo"}, path, re, compare_, case_, search_};
+    Grep g{workers_, Grep::Name{"foo"}, path, re, compare_, case_, search_};
     REQUIRE( g.logs().withLock()->empty() );
     g.insert(log);
     return g.logs().withLock()->size();
@@ -83,6 +83,7 @@ struct Fixture
   Grep::Compare compare_;
   Grep::Case case_;
   Grep::Search search_;
+  LogATE::Utils::WorkerThreadsShPtr workers_{ But::makeSharedNN<LogATE::Utils::WorkerThreads>() };
 };
 
 

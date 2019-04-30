@@ -18,8 +18,8 @@ TEST_SUITE("Tree::SimpleNode")
 template<unsigned N>
 struct ModFilter: SimpleNode
 {
-  ModFilter():
-    SimpleNode(Node::Type{"test%2"}, Node::Name{"testing%2"}, {})
+  explicit ModFilter(LogATE::Utils::WorkerThreadsShPtr workers):
+    SimpleNode{ std::move(workers), Node::Type{"test%2"}, Node::Name{"testing%2"}, {} }
   { }
 
 private:
@@ -35,7 +35,8 @@ struct Fixture
   auto allSns(Node const& n) const { return LogATE::Tree::allSns( n.logs() ); }
   auto allSns() const { return allSns(f2_); }
 
-  ModFilter<2> f2_;
+  LogATE::Utils::WorkerThreadsShPtr workers_{ But::makeSharedNN<LogATE::Utils::WorkerThreads>() };
+  ModFilter<2> f2_{workers_};
 };
 
 
@@ -49,9 +50,9 @@ TEST_CASE_FIXTURE(Fixture, "filtering rule is applied")
 TEST_CASE_FIXTURE(Fixture, "cascading log through children works")
 {
   REQUIRE( f2_.children().size() == 0 );
-  f2_.add( But::makeUniqueNN<ModFilter<3>>() );
+  f2_.add( But::makeUniqueNN<ModFilter<3>>(workers_) );
   REQUIRE( f2_.children().size() == 1 );
-  f2_.add( But::makeUniqueNN<ModFilter<4>>() );
+  f2_.add( But::makeUniqueNN<ModFilter<4>>(workers_) );
   REQUIRE( f2_.children().size() == 2 );
 
   for(auto i=0; i<15; ++i)
@@ -68,7 +69,7 @@ TEST_CASE_FIXTURE(Fixture, "adding child in a middle of a run adds all the logs 
     f2_.insert( makeLog(i) );
 
   REQUIRE( f2_.children().size() == 0 );
-  f2_.add( But::makeUniqueNN<ModFilter<4>>() );
+  f2_.add( But::makeUniqueNN<ModFilter<4>>(workers_) );
   REQUIRE( f2_.children().size() == 1 );
   CHECK( allSns(*f2_.children()[0]) == makeSns({0,4,8,12}) );
 }
@@ -76,8 +77,8 @@ TEST_CASE_FIXTURE(Fixture, "adding child in a middle of a run adds all the logs 
 
 struct AlwaysThrow: SimpleNode
 {
-  AlwaysThrow():
-    SimpleNode(Node::Type{"thrower"}, Node::Name{"mr."}, {})
+  explicit AlwaysThrow(LogATE::Utils::WorkerThreadsShPtr workers):
+    SimpleNode{ std::move(workers), Node::Type{"thrower"}, Node::Name{"mr."}, {} }
   { }
 
 private:
@@ -90,9 +91,9 @@ private:
 TEST_CASE_FIXTURE(Fixture, "exception in passing through to one child does not affect others")
 {
   REQUIRE( f2_.children().size() == 0 );
-  f2_.add( But::makeUniqueNN<AlwaysThrow>() );
+  f2_.add( But::makeUniqueNN<AlwaysThrow>(workers_) );
   REQUIRE( f2_.children().size() == 1 );
-  f2_.add( But::makeUniqueNN<ModFilter<4>>() );
+  f2_.add( But::makeUniqueNN<ModFilter<4>>(workers_) );
   REQUIRE( f2_.children().size() == 2 );
 
   for(auto i=0; i<15; ++i)
@@ -105,8 +106,8 @@ TEST_CASE_FIXTURE(Fixture, "exception in passing through to one child does not a
 
 TEST_CASE_FIXTURE(Fixture, "cascading log through children works")
 {
-  f2_.add( But::makeUniqueNN<ModFilter<3>>() );
-  f2_.add( But::makeUniqueNN<ModFilter<4>>() );
+  f2_.add( But::makeUniqueNN<ModFilter<3>>(workers_) );
+  f2_.add( But::makeUniqueNN<ModFilter<4>>(workers_) );
   REQUIRE( f2_.children().size() == 2 );
 
   SUBCASE("removal of existing child works")

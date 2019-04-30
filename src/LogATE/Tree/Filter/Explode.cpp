@@ -9,16 +9,16 @@ namespace
 {
 using Lock = std::lock_guard<std::mutex>;
 
-auto acceptAllOutput(std::string name)
+auto acceptAllOutput(Utils::WorkerThreadsShPtr workers, std::string name)
 {
-  return But::makeSharedNN<AcceptAll>( Node::Name{std::move(name)} );
+  return But::makeSharedNN<AcceptAll>( workers, Node::Name{std::move(name)} );
 }
 }
 
-Explode::Explode(Name name, Path path):
-  Node{ Type{"Explode"}, std::move(name), {path}},
+Explode::Explode(Utils::WorkerThreadsShPtr workers, Name name, Path path):
+  Node{ std::move(workers), Type{"Explode"}, std::move(name), {path}},
   path_{std::move(path)},
-  nonMatchingChild_{ acceptAllOutput( nonMatchingChildName().value_ ) },
+  nonMatchingChild_{ acceptAllOutput( workers_, nonMatchingChildName().value_ ) },
   matchAny_{"", detail::g_defaultRegexType}
 { }
 
@@ -61,7 +61,7 @@ NodeShPtr Explode::nodeFor(Name const& name)
   const Lock lock{mutex_};
   auto it = children_.find(name);
   if( it == end(children_) )
-    it = children_.insert( std::make_pair(name, acceptAllOutput(name.value_)) ).first;
+    it = children_.insert( std::make_pair(name, acceptAllOutput(workers_, name.value_)) ).first;
   return it->second;
 }
 

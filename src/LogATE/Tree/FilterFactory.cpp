@@ -24,21 +24,21 @@ auto extractPath(std::string const& type, FilterFactory::Options& options, std::
   return Path::parse(str);
 }
 
-std::unique_ptr<Node> buildAcceptAll(FilterFactory::Name name, FilterFactory::Options options)
+std::unique_ptr<Node> buildAcceptAll(Utils::WorkerThreadsShPtr workers, FilterFactory::Name name, FilterFactory::Options options)
 {
   if( not options.empty() )
     BUT_THROW(FilterFactory::UnknownOption, "filter " << name.value_ << " does not expext any options; "
                                             << "unknown option: " << options.begin()->first);
-  return std::make_unique<Filter::AcceptAll>( std::move(name) );
+  return std::make_unique<Filter::AcceptAll>( std::move(workers), std::move(name) );
 }
 
-std::unique_ptr<Node> buildExplode(FilterFactory::Name name, FilterFactory::Options options)
+std::unique_ptr<Node> buildExplode(Utils::WorkerThreadsShPtr workers, FilterFactory::Name name, FilterFactory::Options options)
 {
   const auto type = std::string{"Explode"};
   auto path = extractPath(type, options, "Path");
   if( not options.empty() )
     BUT_THROW(FilterFactory::UnknownOption, "filter " << name.value_ << " unknown option: " << options.begin()->first);
-  return std::make_unique<Filter::Explode>( std::move(name), std::move(path) );
+  return std::make_unique<Filter::Explode>( std::move(workers), std::move(name), std::move(path) );
 }
 
 auto extractCompare(std::string const& type, FilterFactory::Options& options, std::string const& name)
@@ -71,7 +71,7 @@ auto extractSearch(std::string const& type, FilterFactory::Options& options, std
   BUT_THROW(FilterFactory::InvalidValue, "'" << name << "' value invalid: " << str);
 }
 
-std::unique_ptr<Node> buildGrep(FilterFactory::Name name, FilterFactory::Options options)
+std::unique_ptr<Node> buildGrep(Utils::WorkerThreadsShPtr workers, FilterFactory::Name name, FilterFactory::Options options)
 {
   const auto type = std::string{"Grep"};
   auto path = extractPath(type, options, "Path");
@@ -81,12 +81,13 @@ std::unique_ptr<Node> buildGrep(FilterFactory::Name name, FilterFactory::Options
   const auto search = extractSearch(type, options, "Search");
   if( not options.empty() )
     BUT_THROW(FilterFactory::UnknownOption, "filter " << name.value_ << " unknown option: " << options.begin()->first);
-  return std::make_unique<Filter::Grep>( std::move(name), std::move(path), std::move(regex), compare, searchCase, search );
+  return std::make_unique<Filter::Grep>( std::move(workers), std::move(name), std::move(path), std::move(regex), compare, searchCase, search );
 }
 }
 
 
-FilterFactory::FilterFactory()
+FilterFactory::FilterFactory(Utils::WorkerThreadsShPtr workers):
+  workers_{ std::move(workers) }
 {
   factory_.add( Type{"AcceptAll"}, buildAcceptAll );
   factory_.add( Type{"Explode"}, buildExplode );
@@ -95,7 +96,8 @@ FilterFactory::FilterFactory()
 
 NodePtr FilterFactory::build(Type type, Name name, Options options)
 {
-  auto ptr = factory_.build( std::move(type), std::move(name), std::move(options) );
+  auto workersCopy = workers_;
+  auto ptr = factory_.build( std::move(type), std::move(workersCopy), std::move(name), std::move(options) );
   return NodePtr{ std::move(ptr) };
 }
 

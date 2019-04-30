@@ -8,6 +8,7 @@ void Node::pruneUpTo(const SequenceNumber sn)
   logs().withLock()->pruneUpTo(sn);
   for(auto child: children())
     child->pruneUpTo(sn);
+    //workers_->enqueue( [=] { child->pruneUpTo(sn); } );
 }
 
 }

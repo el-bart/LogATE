@@ -14,7 +14,7 @@ TEST_SUITE("Tree::FilterFactory")
 struct Fixture
 {
   const Node::Name name_{"foo-bar"};
-  FilterFactory ff_;
+  FilterFactory ff_{ But::makeSharedNN<LogATE::Utils::WorkerThreads>() };
 };
 
 

@@ -29,7 +29,8 @@ private:
   void dataPumpLoop();
 
   const CursATE::Curses::Init init_;
-  Screen::LogList logList_;
+  const LogATE::Utils::WorkerThreadsShPtr workers_{ But::makeSharedNN<LogATE::Utils::WorkerThreads>() };
+  Screen::LogList logList_{workers_};
   LogATE::Tree::NodeShPtr root_;
   LogATE::Net::TcpServer server_;
   std::atomic<bool> quit_{false};

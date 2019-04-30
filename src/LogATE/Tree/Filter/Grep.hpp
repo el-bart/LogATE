@@ -24,7 +24,13 @@ public:
     Inverse
   };
 
-  Grep(Name name, Path path, std::string regex, Compare cmp, Case c = Case::Sensitive, Search search = Search::Regular);
+  Grep(Utils::WorkerThreadsShPtr workers,
+       Name name,
+       Path path,
+       std::string regex,
+       Compare cmp,
+       Case c = Case::Sensitive,
+       Search search = Search::Regular);
 
 private:
   bool matches(Log const& log) const override;
