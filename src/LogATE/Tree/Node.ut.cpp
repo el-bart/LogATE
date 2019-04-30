@@ -78,6 +78,7 @@ TEST_CASE("prunning logs works recursively")
   }
 
   root->pruneUpTo( SequenceNumber{2} );
+  workers->waitForAll();
   {
     const auto allMinMax = treeMinMaxId(root);
     REQUIRE( allMinMax.size() == 1 );
@@ -86,6 +87,7 @@ TEST_CASE("prunning logs works recursively")
   }
 
   root->pruneUpTo( SequenceNumber{8} );
+  workers->waitForAll();
   {
     const auto allMinMax = treeMinMaxId(root);
     REQUIRE( allMinMax.size() == 1 );
@@ -94,6 +96,7 @@ TEST_CASE("prunning logs works recursively")
   }
 
   root->pruneUpTo( SequenceNumber{69} );
+  workers->waitForAll();
   {
     const auto allMinMax = treeMinMaxId(root);
     REQUIRE( allMinMax.size() == 0 );
