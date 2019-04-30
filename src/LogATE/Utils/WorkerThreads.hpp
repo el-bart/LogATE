@@ -33,7 +33,7 @@ private:
     pool_{ But::Threading::ThreadsCount{threads} }
   { }
 
-  std::atomic<size_t> nonProcessed_{0}; // TODO: workaround until WorkerPool::enqueued() can be queried for size
+  std::atomic<uint64_t> nonProcessed_{0};   // TODO: workaround until WorkerPool::enqueued() can be queried for size
   But::Threading::ThreadPool<But::Threading::Policy::Std> pool_;
 };
 

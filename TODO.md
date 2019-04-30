@@ -6,7 +6,6 @@
 * loading filter tree
 * sorting?
 * filter accepting all nodes, but dropping a given set of fields when displaying
-* multi-threaded logs processing
 * binary split node (matching and non-matching nodes as children)
 * Explode root node should have all logs in it!
 * adding a child to Explode maybe should mean adding to all subnodes? how to do this? factory?
