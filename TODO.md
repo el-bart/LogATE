@@ -12,6 +12,8 @@
 * adding a child to Explode maybe should mean adding to all subnodes? how to do this? factory?
 * search inside a given node set
 * maybe it would be better to keep all logs internally as a compact-formed text line and just decode on a fly?
+* filter that trimms all logs before a given SequenceNumber
+* filter that trimms all logs after a given SequenceNumber
 
 
 ## UI
