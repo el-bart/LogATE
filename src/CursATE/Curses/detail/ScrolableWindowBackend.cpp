@@ -95,6 +95,15 @@ void ScrolableWindowBackend::selectLast()
 }
 
 
+void ScrolableWindowBackend::selectNearest(const DataSource::Id id)
+{
+  const auto nearest = dataSource_->nearestTo(id);
+  if(not nearest)
+    return;
+  select(*nearest);
+}
+
+
 namespace
 {
 template<typename C>

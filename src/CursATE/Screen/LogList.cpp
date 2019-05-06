@@ -112,6 +112,9 @@ void LogList::reactOnKey(const int ch)
     case KEY_HOME: currentWindow_->scrollToLineBegin(); break;
     case KEY_END:  currentWindow_->scrollToLineEnd(); break;
 
+    case 'j': centerAllChildrenAroundCurrentLog(); break;
+    case 'J': centerAllNodesAroundCurrentLog(); break;
+
     case 't': processFilterTree(); break;
     case 10:
     case KEY_ENTER:
@@ -167,6 +170,39 @@ void LogList::processLogEntry()
   currentNode_ = currentNode_->add( LogATE::Tree::NodePtr{ std::move(newNode) } );
   currentWindow_ = filterWindows_.window(currentNode_);
   currentWindow_->select(*id);
+}
+
+
+void LogList::centerAllChildrenAroundCurrentLog()
+{
+  centerAroundLogSelection(currentNode_);
+}
+
+
+void LogList::centerAllNodesAroundCurrentLog()
+{
+  centerAroundLogSelection(root_);
+}
+
+
+void LogList::centerAroundLogSelection(LogATE::Tree::NodeShPtr node)
+{
+  const auto id = currentWindow_->currentSelection();
+  if(not id)
+    return;
+  const auto sn = LogATE::SequenceNumber{id->value_};
+  centerAroundLog(node, sn);
+}
+
+
+void LogList::centerAroundLog(LogATE::Tree::NodeShPtr node, const LogATE::SequenceNumber sn)
+{
+  {
+    auto win = filterWindows_.window(node);
+    win->selectNearest( Curses::DataSource::Id{sn.value_} );
+  }
+  for(auto c: node->children())
+    centerAroundLog(c, sn);
 }
 
 }

@@ -29,6 +29,7 @@ struct ScrolableWindow
   void selectLast() { backend_.selectLast(); }
 
   void select(const DataSource::Id id) { backend_.select(id); }
+  void selectNearest(const DataSource::Id id) { backend_.selectNearest(id); }
   But::Optional<DataSource::Id> currentSelection() const { return backend_.currentSelection(); }
 
 private:

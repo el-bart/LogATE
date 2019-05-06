@@ -27,6 +27,10 @@ private:
   void processQuitProgram();
   void processFilterTree();
   void processLogEntry();
+  void centerAllChildrenAroundCurrentLog();
+  void centerAllNodesAroundCurrentLog();
+  void centerAroundLogSelection(LogATE::Tree::NodeShPtr node);
+  void centerAroundLog(LogATE::Tree::NodeShPtr node, LogATE::SequenceNumber sn);
 
   std::atomic<bool> quit_{false};
   LogATE::Tree::FilterFactory filterFactory_;

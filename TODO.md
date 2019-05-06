@@ -24,7 +24,6 @@
 * runtime edition of priority tags
 * export logs from a given filter to a file
 * display stats: number of lines, location in file (floating point % + line number)
-* move all (child) filters to a given log line (or close to it, when given log is not in all of them)
 * display number of errors from networking stack
 
 

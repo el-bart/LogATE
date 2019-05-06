@@ -34,6 +34,7 @@ struct ScrolableWindowBackend
   void selectLast();
   But::Optional<DataSource::Id> currentSelection() const { return currentSelection_; }
   void select(DataSource::Id id);
+  void selectNearest(DataSource::Id id);
 
   struct DisplayData final
   {
