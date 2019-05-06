@@ -12,6 +12,7 @@
 * maybe it would be better to keep all logs internally as a compact-formed text line and just decode on a fly?
 * filter that trimms all logs before a given SequenceNumber
 * filter that trimms all logs after a given SequenceNumber
+* Filter::Grep should filter-out grep-field optionally only
 
 
 ## UI
