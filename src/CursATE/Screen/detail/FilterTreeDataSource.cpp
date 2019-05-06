@@ -14,6 +14,16 @@ size_t FilterTreeDataSource::size() const
 }
 
 
+But::Optional<FilterTreeDataSource::Id> FilterTreeDataSource::nearestTo(Id id) const
+{
+  if( entries_.empty() )
+    return  {};
+  if( entries_.size() >= id.value_ )
+    return Id{ entries_.size()-1u };
+  return id;
+}
+
+
 But::Optional<FilterTreeDataSource::Id> FilterTreeDataSource::first() const
 {
   BUT_ASSERT( not entries_.empty() );

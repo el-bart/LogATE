@@ -71,5 +71,44 @@ TEST_CASE_FIXTURE(Fixture, "non-empty logs")
   }
 }
 
+
+auto expectId(const But::Optional<DataSource::Id> id)
+{
+  REQUIRE(id);
+  return id->value_;
+}
+
+TEST_CASE_FIXTURE(Fixture, "finding nearest log")
+{
+  using Id = DataSource::Id;
+  CHECK( not lds_.nearestTo( Id{42} ) );
+
+  node_->insert( makeLog(1, R"({ "foo": 41 })") );
+  CHECK( expectId( lds_.nearestTo( Id{0} ) ) == 1 );
+  CHECK( expectId( lds_.nearestTo( Id{1} ) ) == 1 );
+  CHECK( expectId( lds_.nearestTo( Id{42} ) ) == 1 );
+
+  node_->insert( makeLog(2, R"({ "foo": 42 })") );
+  node_->insert( makeLog(4, R"({ "foo": 44 })") );
+  node_->insert( makeLog(6, R"({ "foo": 46 })") );
+  node_->insert( makeLog(18, R"({ "foo": 48 })") );
+
+  SUBCASE("exact matches")
+  {
+    CHECK( expectId( lds_.nearestTo( Id{1} ) ) == 1 );
+    CHECK( expectId( lds_.nearestTo( Id{2} ) ) == 2 );
+  }
+  SUBCASE("non-exact matches")
+  {
+    CHECK( expectId( lds_.nearestTo( Id{0} ) ) == 1 );
+    CHECK( expectId( lds_.nearestTo( Id{3} ) ) == 4 );
+    CHECK( expectId( lds_.nearestTo( Id{5} ) ) == 6 );
+    CHECK( expectId( lds_.nearestTo( Id{7} ) ) == 6 );
+    CHECK( expectId( lds_.nearestTo( Id{10} ) ) == 6 );
+    CHECK( expectId( lds_.nearestTo( Id{16} ) ) == 18 );
+    CHECK( expectId( lds_.nearestTo( Id{666} ) ) == 18 );
+  }
+}
+
 }
 }

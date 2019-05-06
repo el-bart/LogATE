@@ -26,6 +26,36 @@ size_t LogDataSource::size() const
   return node->logs().withLock()->size();
 }
 
+namespace
+{
+struct OrderBySequenceNumber final
+{
+  using Log = LogATE::Log;
+  using SN = LogATE::SequenceNumber;
+  auto operator()(Log const& lhs, Log const& rhs) const { return lhs.sn_ < rhs.sn_; }
+  auto operator()(Log const& lhs, SN const&  rhs) const { return lhs.sn_ < rhs; }
+  auto operator()(SN const&  lhs, Log const& rhs) const { return lhs     < rhs.sn_; }
+  auto operator()(SN const&  lhs, SN const&  rhs) const { return lhs     < rhs; }
+};
+}
+
+But::Optional<LogDataSource::Id> LogDataSource::nearestTo(const Id id) const
+{
+  auto node = node_.lock();
+  if(not node)
+    return {};
+  auto ll = node->logs().withLock();
+  if( ll->empty() )
+    return {};
+
+  const auto it = std::lower_bound( ll->begin(), ll->end(), id2sn(id), OrderBySequenceNumber{} );
+  if( it == ll->end() )
+    return sn2id( ll->last().sn_ );
+  if( it == ll->begin() )
+    return sn2id(it->sn_);
+  return closest(id, sn2id( (it-1)->sn_ ), sn2id(it->sn_));
+}
+
 But::Optional<LogDataSource::Id> LogDataSource::first() const
 {
   const auto node = node_.lock();

@@ -9,6 +9,20 @@ struct StringDataSource: public DataSource
 {
   size_t size() const override { return data_.size(); }
 
+  But::Optional<Id> nearestTo(const Id id) const override
+  {
+    if( data_.empty() )
+      return {};
+    const auto it = data_.lower_bound(id);
+    if( it == end(data_) )
+      return data_.rbegin()->first;
+    if( it == begin(data_) )
+      return it->first;
+    auto prev = it;
+    --prev;
+    return closest(id, prev->first, it->first);
+  }
+
   But::Optional<Id> first() const override
   {
     if( data_.empty() )

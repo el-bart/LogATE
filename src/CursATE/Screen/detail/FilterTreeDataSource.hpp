@@ -12,6 +12,7 @@ public:
   explicit FilterTreeDataSource(LogATE::Tree::NodeShPtr root);
 
   size_t size() const override;
+  But::Optional<Id> nearestTo(Id id) const override;
   But::Optional<Id> first() const override;
   But::Optional<Id> last() const override;
   std::map<Id, std::string> get(size_t before, Id id, size_t after) const override;
