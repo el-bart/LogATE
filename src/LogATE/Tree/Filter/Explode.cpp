@@ -36,13 +36,26 @@ void Explode::insert(Log const& log)
     nodeFor( Name{value} )->insert(log);
 }
 
+
+namespace
+{
+template<typename C>
+auto sorted(C const& in, std::mutex& mutex)
+{
+  std::map<Node::Name, NodeShPtr> out;
+  const Lock lock{mutex};
+  for(auto& e: in)
+    out.insert(e);
+  return out;
+}
+}
+
 Explode::Children Explode::children() const
 {
   Children out;
   out.reserve( children_.size() + 1 );
   out.push_back(nonMatchingChild_);
-  const Lock lock{mutex_};
-  for(auto child: children_)
+  for(auto& child: sorted(children_, mutex_))
     out.push_back(child.second);
   return out;
 }
