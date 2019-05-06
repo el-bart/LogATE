@@ -132,5 +132,22 @@ TEST_CASE_FIXTURE(Fixture, "server can be stopped even when client is still conn
   rc.emplace(host_, port_);
 }
 
+TEST_CASE_FIXTURE(Fixture, "null jsons are dropped")
+{
+  TcpServer s{port_};
+  TcpClient r{host_, port_};
+
+  CHECK( s.errors() == 0 );
+  const nlohmann::json null;
+  REQUIRE( null.is_null() );
+  r.write(null);
+  r.write(log1_);
+
+  const auto log = s.readNextLog();
+  CHECK( s.errors() == 0 );
+  REQUIRE(log);
+  CHECK( *log->log_ == log1_ );
+}
+
 }
 }

@@ -77,7 +77,8 @@ void TcpServer::processClient(Poco::Net::StreamSocket clientSocket)
     {
       clientStream >> tmp;  // TODO: how to interrupt this when server shutdown has been requested,
                             //       yet remote end is still connected but not transmitting atm?
-      queue_.withLock()->push( makeLog( std::move(tmp) ) );
+      if( not tmp.is_null() )
+        queue_.withLock()->push( makeLog( std::move(tmp) ) );
     }
     catch(...)
     {
