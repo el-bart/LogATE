@@ -120,6 +120,7 @@ TEST_CASE_FIXTURE(Fixture, "converting all basic types for value comparison")
 TEST_CASE_FIXTURE(Fixture, "value comparison of absolute path with regexs")
 {
   matchFunction = matchesValue;
+  CHECK( testMatch( Path{{".", "foo", "bar"}},         "a"    ) == true  );
   CHECK( testMatch( Path{{".", "foo", "bar"}},         "a.*c" ) == true  );
   CHECK( testMatch( Path{{".", "FOO", "BAR"}},         "a.*c" ) == false );
   CHECK( testMatch( Path{{".", "foo"}},                "b.*r" ) == false );
