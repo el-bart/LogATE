@@ -1,0 +1,3 @@
+#!/bin/bash
+set -e
+sed 's#^[^{]*{#{#' | jq -c .metadata
