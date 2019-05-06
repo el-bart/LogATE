@@ -1,3 +1,3 @@
 #!/bin/bash
 set -e
-sed 's#^[^{]*{#{#' | jq -c .metadata
+sed 's#^[^{]*{#{#' | jq -c .metadata | grep -v '^null$'
