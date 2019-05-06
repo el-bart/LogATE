@@ -161,5 +161,57 @@ TEST_CASE_FIXTURE(Fixture, "constructing Grep filter")
   }
 }
 
+
+TEST_CASE_FIXTURE(Fixture, "constructing From filter")
+{
+  const auto type = FilterFactory::Type{"From"};
+
+  SUBCASE("valid")
+  {
+    CHECK( ff_.build( type, name_, Opts{{"Edge", "42"}} )->type().value_ == type.name_ );
+  }
+
+  SUBCASE("missing argument")
+  {
+    CHECK_THROWS_AS( ff_.build( type, name_, Opts{} ), FilterFactory::MissingOption );
+  }
+
+  SUBCASE("unknown argument")
+  {
+    CHECK_THROWS_AS( ff_.build( type, name_, Opts{{"Edge", "42"}, {"foo", "bar"}} ), FilterFactory::UnknownOption );
+  }
+
+  SUBCASE("invalid argument")
+  {
+    CHECK_THROWS( ff_.build( type, name_, Opts{{"Edge", "43-not-a-number"}} ) );
+  }
+}
+
+
+TEST_CASE_FIXTURE(Fixture, "constructing To filter")
+{
+  const auto type = FilterFactory::Type{"To"};
+
+  SUBCASE("valid")
+  {
+    CHECK( ff_.build( type, name_, Opts{{"Edge", "42"}} )->type().value_ == type.name_ );
+  }
+
+  SUBCASE("missing argument")
+  {
+    CHECK_THROWS_AS( ff_.build( type, name_, Opts{} ), FilterFactory::MissingOption );
+  }
+
+  SUBCASE("unknown argument")
+  {
+    CHECK_THROWS_AS( ff_.build( type, name_, Opts{{"Edge", "42"}, {"foo", "bar"}} ), FilterFactory::UnknownOption );
+  }
+
+  SUBCASE("invalid argument")
+  {
+    CHECK_THROWS( ff_.build( type, name_, Opts{{"Edge", "43-not-a-number"}} ) );
+  }
+}
+
 }
 }

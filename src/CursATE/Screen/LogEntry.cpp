@@ -91,7 +91,7 @@ namespace
 {
 auto supportedFilters()
 {
-  return std::array<std::string, 3>{{"Grep", "Explode", "AcceptAll"}};
+  return std::array<std::string, 5>{{"Grep", "Explode", "From", "To", "AcceptAll"}};
 }
 
 
@@ -101,13 +101,17 @@ But::Optional<std::string> selectFilter()
   auto form = Form{ KeyShortcuts{
                                   {'g', names[0]},
                                   {'e', names[1]},
-                                  {'a', names[2]},
+                                  {'f', names[2]},
+                                  {'t', names[3]},
+                                  {'a', names[4]},
                                   {'c', "cancel"},
                                   {'q', "cancel"}
                                 },
                     Button{names[0]},
                     Button{names[1]},
                     Button{names[2]},
+                    Button{names[3]},
+                    Button{names[4]},
                     Button{"cancel"}
                   };
   const auto ret = form.process();
@@ -198,6 +202,54 @@ std::unique_ptr<LogATE::Tree::Node> createExplode(detail::LogEntryDataSource con
 }
 
 
+std::unique_ptr<LogATE::Tree::Node> createFrom(FilterFactory& ff, const Curses::DataSource::Id id)
+{
+  auto form = Form{ KeyShortcuts{
+                                  {'n', "Name"},
+                                  {'e', "Edge"},
+                                  {'s', "Edge"},
+                                  {'o', "ok"},
+                                  {'q', "quit"}
+                                },
+                    Input{ "Name", "from " + std::to_string(id.value_) },
+                    Input{ "Edge", std::to_string(id.value_) },
+                    Button{"ok"},
+                    Button{"quit"}
+                  };
+  const auto ret = form.process();
+  if(ret[3] == "true")
+    return {};
+  BUT_ASSERT(ret[2] == "true" && "'OK' not clicked");
+  FilterFactory::Options opts{ std::make_pair("Edge", ret[1]) };
+  auto ptr = ff.build( FilterFactory::Type{"From"}, FilterFactory::Name{ret[0]}, std::move(opts) );
+  return std::move(ptr).underlyingPointer();
+}
+
+
+std::unique_ptr<LogATE::Tree::Node> createTo(FilterFactory& ff, const Curses::DataSource::Id id)
+{
+  auto form = Form{ KeyShortcuts{
+                                  {'n', "Name"},
+                                  {'e', "Edge"},
+                                  {'s', "Edge"},
+                                  {'o', "ok"},
+                                  {'q', "quit"}
+                                },
+                    Input{ "Name", "to " + std::to_string(id.value_) },
+                    Input{ "Edge", std::to_string(id.value_) },
+                    Button{"ok"},
+                    Button{"quit"}
+                  };
+  const auto ret = form.process();
+  if(ret[3] == "true")
+    return {};
+  BUT_ASSERT(ret[2] == "true" && "'OK' not clicked");
+  FilterFactory::Options opts{ std::make_pair("Edge", ret[1]) };
+  auto ptr = ff.build( FilterFactory::Type{"To"}, FilterFactory::Name{ret[0]}, std::move(opts) );
+  return std::move(ptr).underlyingPointer();
+}
+
+
 std::unique_ptr<LogATE::Tree::Node> createAcceptAll(FilterFactory& ff)
 {
   auto form = Form{ KeyShortcuts{
@@ -231,6 +283,10 @@ std::unique_ptr<LogATE::Tree::Node> LogEntry::createFilterBasedOnSelection(DS co
   if( *filterName == names[1] )
     return createExplode(ds, id, *filterFactory_);
   if( *filterName == names[2] )
+    return createFrom(*filterFactory_, Curses::DataSource::Id{log_.sn_.value_});
+  if( *filterName == names[3] )
+    return createTo(*filterFactory_, Curses::DataSource::Id{log_.sn_.value_});
+  if( *filterName == names[4] )
     return createAcceptAll(*filterFactory_);
   throw std::logic_error{"unsupported filter type: " + *filterName};
 }

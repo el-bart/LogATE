@@ -1,7 +1,10 @@
 #include "LogATE/Tree/FilterFactory.hpp"
+#include "LogATE/Tree/Filter/To.hpp"
+#include "LogATE/Tree/Filter/From.hpp"
 #include "LogATE/Tree/Filter/Grep.hpp"
 #include "LogATE/Tree/Filter/Explode.hpp"
 #include "LogATE/Tree/Filter/AcceptAll.hpp"
+#include <boost/lexical_cast.hpp>
 
 namespace LogATE::Tree
 {
@@ -30,6 +33,39 @@ std::unique_ptr<Node> buildAcceptAll(Utils::WorkerThreadsShPtr workers, FilterFa
     BUT_THROW(FilterFactory::UnknownOption, "filter " << name.value_ << " does not expext any options; "
                                             << "unknown option: " << options.begin()->first);
   return std::make_unique<Filter::AcceptAll>( std::move(workers), std::move(name) );
+}
+
+auto extractSequenceNumber(std::string const& type, FilterFactory::Options& options, std::string const& name)
+{
+  const auto str = extractOption(type, options, name);
+  try
+  {
+    return SequenceNumber{ boost::lexical_cast<uint64_t>(str) };
+  }
+  catch(std::exception const& ex)
+  {
+    BUT_THROW(FilterFactory::InvalidValue, "'" << name << "' value invalid: " << str);
+  }
+}
+
+std::unique_ptr<Node> buildFrom(Utils::WorkerThreadsShPtr workers, FilterFactory::Name name, FilterFactory::Options options)
+{
+  const auto type = std::string{"From"};
+  const auto edge = extractSequenceNumber(type, options, "Edge");
+  if( not options.empty() )
+    BUT_THROW(FilterFactory::UnknownOption, "filter " << name.value_ << " does not expext any options; "
+                                            << "unknown option: " << options.begin()->first);
+  return std::make_unique<Filter::From>( std::move(workers), std::move(name), edge );
+}
+
+std::unique_ptr<Node> buildTo(Utils::WorkerThreadsShPtr workers, FilterFactory::Name name, FilterFactory::Options options)
+{
+  const auto type = std::string{"To"};
+  const auto edge = extractSequenceNumber(type, options, "Edge");
+  if( not options.empty() )
+    BUT_THROW(FilterFactory::UnknownOption, "filter " << name.value_ << " does not expext any options; "
+                                            << "unknown option: " << options.begin()->first);
+  return std::make_unique<Filter::To>( std::move(workers), std::move(name), edge );
 }
 
 std::unique_ptr<Node> buildExplode(Utils::WorkerThreadsShPtr workers, FilterFactory::Name name, FilterFactory::Options options)
@@ -91,6 +127,8 @@ FilterFactory::FilterFactory(Utils::WorkerThreadsShPtr workers):
 {
   factory_.add( Type{"AcceptAll"}, buildAcceptAll );
   factory_.add( Type{"Explode"}, buildExplode );
+  factory_.add( Type{"From"}, buildFrom );
+  factory_.add( Type{"To"}, buildTo );
   factory_.add( Type{"Grep"}, buildGrep );
 }
 
