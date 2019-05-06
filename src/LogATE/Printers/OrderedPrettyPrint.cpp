@@ -24,6 +24,7 @@ OrderedPrettyPrint::OrderedPrettyPrint(PriorityTags const& priorityTags, SilentT
 std::string OrderedPrettyPrint::operator()(LogATE::Log const& in) const
 {
   std::stringstream ss;
+  ss << in.sn_.value_ << " ";
   constructString(ss, *in.log_);
   return ss.str();
 }
