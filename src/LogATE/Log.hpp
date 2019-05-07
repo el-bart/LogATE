@@ -9,9 +9,10 @@ namespace LogATE
 
 struct Log final
 {
-  explicit Log(char const* str): Log{ std::string{str} } { }
+  explicit Log(char const* in): Log{ std::string{in} } { }
   explicit Log(std::string const& in);
   explicit Log(nlohmann::json const& in);
+  Log(SequenceNumber sn, char const* in): Log{ sn, std::string{in} } { }
   Log(SequenceNumber sn, std::string const& in);
   Log(SequenceNumber sn, nlohmann::json const& in);
 
