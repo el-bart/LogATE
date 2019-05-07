@@ -16,16 +16,17 @@ namespace
 
 using PathIter = std::vector<std::string>::const_iterator;
 
-nlohmann::json getNodeByPath(nlohmann::json n, PathIter pathBegin, PathIter pathEnd)
+nlohmann::json getNodeByPath(nlohmann::json const& n, PathIter pathBegin, PathIter pathEnd)
 {
+  auto ptr = &n;
   for(auto it=pathBegin; it!=pathEnd; ++it)
   {
-    const auto p = n.find(*it);
-    if( p == n.end() )
+    const auto p = ptr->find(*it);
+    if( p == ptr->end() )
       return {};
-    n = *p;
+    ptr = &*p;
   }
-  return n;
+  return *ptr;
 }
 
 nlohmann::json getNodeByPath(AnnotatedLog const& log, PathIter pathBegin, PathIter pathEnd)
