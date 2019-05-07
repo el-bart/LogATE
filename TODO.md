@@ -9,7 +9,6 @@
 * binary split node (matching and non-matching nodes as children)
 * adding a child to Explode maybe should mean adding to all subnodes? how to do this? factory?
 * search inside a given node set
-* maybe it would be better to keep all logs internally as a compact-formed text line and just decode on a fly?
 * Filter::Grep should filter-out grep-field optionally only
 
 
@@ -23,8 +22,11 @@
 * export logs from a given filter to a file
 * display stats: number of lines, location in file (floating point % + line number)
 * display number of errors from networking stack
+* handle errors from filter creators gracefully (with option to fix the issue)
+* handle failed node addition gracefully
 
 
 ## misc
 
 * runtime image - autobuilding version, taht can be used just by downloading from docker hub.
+* run profiler to see where the bottlenecks are
