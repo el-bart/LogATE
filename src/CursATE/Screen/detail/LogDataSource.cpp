@@ -32,10 +32,10 @@ struct OrderBySequenceNumber final
 {
   using Log = LogATE::Log;
   using SN = LogATE::SequenceNumber;
-  auto operator()(Log const& lhs, Log const& rhs) const { return lhs.sn_ < rhs.sn_; }
-  auto operator()(Log const& lhs, SN const&  rhs) const { return lhs.sn_ < rhs; }
-  auto operator()(SN const&  lhs, Log const& rhs) const { return lhs     < rhs.sn_; }
-  auto operator()(SN const&  lhs, SN const&  rhs) const { return lhs     < rhs; }
+  auto operator()(Log const& lhs, Log const& rhs) const { return lhs.sequenceNumber() < rhs.sequenceNumber(); }
+  auto operator()(Log const& lhs, SN const&  rhs) const { return lhs.sequenceNumber() < rhs; }
+  auto operator()(SN const&  lhs, Log const& rhs) const { return lhs                  < rhs.sequenceNumber(); }
+  auto operator()(SN const&  lhs, SN const&  rhs) const { return lhs                  < rhs; }
 };
 }
 
@@ -50,10 +50,10 @@ But::Optional<LogDataSource::Id> LogDataSource::nearestTo(const Id id) const
 
   const auto it = std::lower_bound( ll->begin(), ll->end(), id2sn(id), OrderBySequenceNumber{} );
   if( it == ll->end() )
-    return sn2id( ll->last().sn_ );
+    return sn2id( ll->last().sequenceNumber() );
   if( it == ll->begin() )
-    return sn2id(it->sn_);
-  return closest(id, sn2id( (it-1)->sn_ ), sn2id(it->sn_));
+    return sn2id(it->sequenceNumber());
+  return closest(id, sn2id( (it-1)->sequenceNumber() ), sn2id(it->sequenceNumber()));
 }
 
 But::Optional<LogDataSource::Id> LogDataSource::first() const
@@ -64,7 +64,7 @@ But::Optional<LogDataSource::Id> LogDataSource::first() const
   const auto& ll = node->logs().withLock();
   if( ll->empty() )
     return {};
-  return Id{ ll->first().sn_.value_ };
+  return Id{ ll->first().sequenceNumber().value_ };
 }
 
 But::Optional<LogDataSource::Id> LogDataSource::last() const
@@ -75,7 +75,7 @@ But::Optional<LogDataSource::Id> LogDataSource::last() const
   const auto& ll = node->logs().withLock();
   if( ll->empty() )
     return {};
-  return Id{ ll->last().sn_.value_ };
+  return Id{ ll->last().sequenceNumber().value_ };
 }
 
 std::map<LogDataSource::Id, std::string> LogDataSource::get(size_t before, Id id, size_t after) const
@@ -88,7 +88,7 @@ std::map<LogDataSource::Id, std::string> LogDataSource::get(size_t before, Id id
   std::map<Id, std::string> out;
   for(auto& set: { pre, post })
     for(auto& log: set)
-      out[ sn2id(log.sn_) ] = log2str_(log);
+      out[ sn2id(log.sequenceNumber()) ] = log2str_(log);
   return out;
 }
 

@@ -33,7 +33,7 @@ public:
        Search search = Search::Regular);
 
 private:
-  bool matches(Log const& log) const override;
+  bool matches(AnnotatedLog const& log) const override;
 
   const Path path_;
   const Compare cmp_;

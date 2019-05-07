@@ -7,10 +7,10 @@ namespace
 {
 struct OrderBySequenceNumber
 {
-  auto operator()(Log const&            lhs, Log const&            rhs) const { return lhs.sn_ < rhs.sn_; }
-  auto operator()(Log const&            lhs, SequenceNumber const& rhs) const { return lhs.sn_ < rhs; }
-  auto operator()(SequenceNumber const& lhs, Log const&            rhs) const { return lhs     < rhs.sn_; }
-  auto operator()(SequenceNumber const& lhs, SequenceNumber const& rhs) const { return lhs     < rhs; }
+  auto operator()(Log const&            lhs, Log const&            rhs) const { return lhs.sequenceNumber() < rhs.sequenceNumber(); }
+  auto operator()(Log const&            lhs, SequenceNumber const& rhs) const { return lhs.sequenceNumber() < rhs; }
+  auto operator()(SequenceNumber const& lhs, Log const&            rhs) const { return lhs                  < rhs.sequenceNumber(); }
+  auto operator()(SequenceNumber const& lhs, SequenceNumber const& rhs) const { return lhs                  < rhs; }
 };
 }
 
@@ -23,7 +23,7 @@ void Logs::insert(Log log)
     logs_.push_back(std::move(log));
     return;
   }
-  if( logs_.back().sn_ < log.sn_ )
+  if( logs_.back().sequenceNumber() < log.sequenceNumber() )
   {
     logs_.push_back(std::move(log));
     return;

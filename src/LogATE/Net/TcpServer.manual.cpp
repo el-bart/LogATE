@@ -28,6 +28,6 @@ int main()
     const auto log = server->readNextLog();
     if(not log)
       break;
-    std::cout << log->sn_.value_ << ": " << *log->log_ << std::endl;
+    std::cout << log->sequenceNumber().value_ << ": " << log->json() << std::endl;
   }
 }

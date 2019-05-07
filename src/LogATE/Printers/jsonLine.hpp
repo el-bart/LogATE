@@ -5,6 +5,6 @@
 namespace LogATE::Printers
 {
 
-std::string jsonLine(LogATE::Log const& in);
+std::string jsonLine(LogATE::Log const& in) { return in.str(); }
 
 }

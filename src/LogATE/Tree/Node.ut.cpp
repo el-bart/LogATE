@@ -6,7 +6,6 @@
 #include <utility>
 #include <set>
 
-using LogATE::json2log;
 using LogATE::Log;
 using LogATE::SequenceNumber;
 using LogATE::Tree::Node;
@@ -40,7 +39,7 @@ But::Optional<SnPair> nodeMinMaxId(NodeShPtr ptr)
   const auto ll = ptr->logs().withLock();
   if( ll->empty() )
     return {};
-  return std::make_pair( ll->first().sn_, ll->last().sn_ );
+  return std::make_pair( ll->first().sequenceNumber(), ll->last().sequenceNumber() );
 }
 
 void treeMinMaxId(NodeShPtr root, std::set<SnPair>& out)
@@ -69,7 +68,7 @@ TEST_CASE("prunning logs works recursively")
   REQUIRE( treeMinMaxId(root).size() == 0 );
 
   for(auto id=0; id<10; ++id)
-    root->insert( makeLog(id) );
+    root->insert( LogATE::AnnotatedLog{ makeLog(id) } );
   {
     const auto allMinMax = treeMinMaxId(root);
     REQUIRE( allMinMax.size() == 1 );

@@ -88,7 +88,7 @@ void appendTree(nlohmann::json const& log, C& out, Path const& path, std::string
 std::vector<LogEntryDataSource::Entry> LogEntryDataSource::constructEntries(LogATE::Log const& log) const
 {
   std::vector<Entry> out;
-  appendTree(*log.log_, out, Path{{"."}}, "");
+  appendTree(log.json(), out, Path{{"."}}, "");
   return out;
 }
 

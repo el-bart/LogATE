@@ -2,7 +2,7 @@
 #include "LogATE/Tree/Filter/Grep.hpp"
 
 using LogATE::Log;
-using LogATE::json2log;
+using LogATE::AnnotatedLog;
 using LogATE::Tree::Path;
 using LogATE::Tree::Filter::Grep;
 
@@ -17,7 +17,7 @@ struct Fixture
   {
     Grep g{workers_, Grep::Name{"foo"}, path, re, compare_, case_, search_};
     REQUIRE( g.logs().withLock()->empty() );
-    g.insert(log);
+    g.insert( AnnotatedLog{log} );
     return g.logs().withLock()->size();
   }
 
@@ -30,7 +30,7 @@ struct Fixture
     return testMatch(path, re, logMulti_);
   }
 
-  const Log log_{ json2log(R"({
+  const Log log_{ R"({
                                 "PING": {
                                   "PONG": {
                                     "narf": {
@@ -45,8 +45,8 @@ struct Fixture
                                   { "one": 1 },
                                   { "two": 2 }
                                 ]
-                              })") };
-  const Log logMulti_{ json2log(R"({
+                              })" };
+  const Log logMulti_{ R"({
                                 "one": {
                                   "PING": {
                                     "PONG": {
@@ -79,7 +79,7 @@ struct Fixture
                                     { "two": 2 }
                                   ]
                                 }
-                              })") };
+                              })" };
   Grep::Compare compare_;
   Grep::Case case_;
   Grep::Search search_;

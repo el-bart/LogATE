@@ -7,7 +7,7 @@ namespace LogATE::Tree
 class SimpleNode: public Node
 {
 public:
-  void insert(Log const& log) override final;
+  void insert(AnnotatedLog const& log) override final;
   Children children() const override final;
   NodeShPtr add(NodePtr node) override final;
   bool remove(NodeShPtr node) override final;
@@ -18,10 +18,10 @@ protected:
   { }
 
 private:
-  virtual bool matches(Log const& log) const = 0;
+  virtual bool matches(AnnotatedLog const& log) const = 0;
 
-  void insertToChildren(Log const& log);
-  void insertToChild(NodeShPtr const& child, Log const& log);
+  void insertToChildren(AnnotatedLog const& log);
+  void insertToChild(NodeShPtr const& child, AnnotatedLog const& log);
   void passAllLogsToChild(NodeShPtr child);
 
   using Lock = std::lock_guard<std::mutex>;

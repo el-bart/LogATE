@@ -7,7 +7,6 @@ add_library(LogATE
   Net/TcpRawClient.cpp
   Net/TcpServer.cpp
   Printers/OrderedPrettyPrint.cpp
-  Printers/jsonLine.cpp
   Tree/Node.cpp
   Tree/Logs.cpp
   Tree/Path.cpp
@@ -50,6 +49,7 @@ if(LOGATE_ENABLE_TESTS)
     Tree/Filter/Grep.ut.cpp
     Tree/Filter/detail/matchesLog.ut.cpp
     Tree/FilterFactory.ut.cpp
+    Log.ut.cpp
     main.ut.cpp
   )
   add_executable(LogATE_mts

@@ -5,7 +5,7 @@
 
 using LogATE::Tree::Node;
 using LogATE::Tree::SimpleNode;
-using LogATE::Tree::makeLog;
+using LogATE::Tree::makeAnnotatedLog;
 using LogATE::Tree::makeSns;
 using LogATE::Tree::logs2sns;
 using SN = LogATE::SequenceNumber;
@@ -23,9 +23,9 @@ struct ModFilter: SimpleNode
   { }
 
 private:
-  bool matches(LogATE::Log const& log) const override
+  bool matches(LogATE::AnnotatedLog const& log) const override
   {
-    return ( log.sn_.value_ % N ) == 0;
+    return ( log.log_.sequenceNumber().value_ % N ) == 0;
   }
 };
 
@@ -43,7 +43,7 @@ struct Fixture
 TEST_CASE_FIXTURE(Fixture, "filtering rule is applied")
 {
   for(auto i: {1,2,3,4,5})
-    f2_.insert( makeLog(i) );
+    f2_.insert( makeAnnotatedLog(i) );
   CHECK( allSns() == makeSns({2,4}) );
 }
 
@@ -58,7 +58,7 @@ TEST_CASE_FIXTURE(Fixture, "cascading log through children works")
   REQUIRE( f2_.children().size() == 2 );
 
   for(auto i=0; i<15; ++i)
-    f2_.insert( makeLog(i) );
+    f2_.insert( makeAnnotatedLog(i) );
 
   CHECK( allSns() == makeSns({0,2,4,6,8,10,12,14}) );
   CHECK( allSns(*f2_.children()[0]) == makeSns({0,6,12}) );
@@ -68,7 +68,7 @@ TEST_CASE_FIXTURE(Fixture, "cascading log through children works")
 TEST_CASE_FIXTURE(Fixture, "adding child in a middle of a run adds all the logs to its filter base")
 {
   for(auto i=0; i<15; ++i)
-    f2_.insert( makeLog(i) );
+    f2_.insert( makeAnnotatedLog(i) );
 
   REQUIRE( f2_.children().size() == 0 );
   f2_.add( But::makeUniqueNN<ModFilter<4>>(workers_) );
@@ -85,7 +85,7 @@ struct AlwaysThrow: SimpleNode
   { }
 
 private:
-  bool matches(LogATE::Log const&) const override
+  bool matches(LogATE::AnnotatedLog const&) const override
   {
     throw std::runtime_error{"expected"};
   }
@@ -102,7 +102,7 @@ TEST_CASE_FIXTURE(Fixture, "exception in passing through to one child does not a
   REQUIRE( f2_.children().size() == 2 );
 
   for(auto i=0; i<15; ++i)
-    f2_.insert( makeLog(i) );
+    f2_.insert( makeAnnotatedLog(i) );
 
   CHECK( allSns() == makeSns({0,2,4,6,8,10,12,14}) );
   CHECK( allSns(*f2_.children()[0]) == makeSns({}) );

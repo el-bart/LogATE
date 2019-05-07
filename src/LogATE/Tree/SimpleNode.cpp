@@ -3,11 +3,11 @@
 namespace LogATE::Tree
 {
 
-void SimpleNode::insert(Log const& log)
+void SimpleNode::insert(AnnotatedLog const& log)
 {
   if( not matches(log) )
     return;
-  logs().withLock()->insert(log);
+  logs().withLock()->insert(log.log_);
   insertToChildren(log);
 }
 
@@ -40,14 +40,14 @@ bool SimpleNode::remove(NodeShPtr node)
   return false;
 }
 
-void SimpleNode::insertToChildren(Log const& log)
+void SimpleNode::insertToChildren(AnnotatedLog const& log)
 {
   for(auto c: children_)
     insertToChild(c, log);
 }
 
 
-void SimpleNode::insertToChild(NodeShPtr const& child, Log const& log)
+void SimpleNode::insertToChild(NodeShPtr const& child, AnnotatedLog const& log)
 {
   try
   {
@@ -74,7 +74,7 @@ void SimpleNode::passAllLogsToChild(NodeShPtr child)
 {
   workers_->enqueue( [logs=copyAll(logs_), child, this] {
       for(auto const& log: logs)
-        this->insertToChild(child, log);
+        this->insertToChild(child, AnnotatedLog{log});
     } );
 }
 

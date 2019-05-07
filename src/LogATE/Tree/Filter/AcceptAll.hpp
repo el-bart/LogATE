@@ -11,7 +11,7 @@ public:
   AcceptAll(Utils::WorkerThreadsShPtr workers, Name name);
 
 private:
-  bool matches(Log const& log) const override;
+  bool matches(AnnotatedLog const& log) const override;
 };
 
 }

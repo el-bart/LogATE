@@ -6,11 +6,14 @@ namespace LogATE
 namespace Tree
 {
 
-inline auto makeLog(unsigned num)
+inline auto makeLog(const unsigned num)
 {
-  auto log = LogATE::json2log(R"({ "foo": "bar" })");
-  log.sn_.value_ = num;
-  return log;
+  return Log{ LogATE::SequenceNumber{num}, R"({ "foo": "bar" })" };
+}
+
+inline auto makeAnnotatedLog(const unsigned num)
+{
+  return LogATE::AnnotatedLog{ makeLog(num) };
 }
 
 inline auto allSns(Logs const& logs)
@@ -19,7 +22,7 @@ inline auto allSns(Logs const& logs)
   auto locked = logs.withLock();
   out.reserve( locked->size() );
   for(auto it=locked->begin(); it!=locked->end(); ++it)
-    out.push_back( it->sn_ );
+    out.push_back( it->sequenceNumber() );
   return out;
 }
 
@@ -37,7 +40,7 @@ inline auto logs2sns(std::vector<LogATE::Log> const& in)
   std::vector<SequenceNumber> out;
   out.reserve(in.size());
   for(auto log: in)
-    out.push_back(log.sn_);
+    out.push_back( log.sequenceNumber() );
   return out;
 }
 
