@@ -23,4 +23,10 @@ Log::Log(const SequenceNumber sn, nlohmann::json const& in):
   str_{ But::makeSharedNN<const std::string>( in.dump() ) }
 { }
 
+
+AnnotatedLog::AnnotatedLog(Log const& log):
+  log_{log},
+  json_( log_.json() )
+{ }
+
 }

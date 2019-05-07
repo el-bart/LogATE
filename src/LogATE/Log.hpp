@@ -35,10 +35,7 @@ private:
 
 struct AnnotatedLog final
 {
-  explicit AnnotatedLog(Log const& log):
-    log_{log},
-    json_{ log_.json() }
-  { }
+  explicit AnnotatedLog(Log const& log);
 
   const Log log_;
   const nlohmann::json json_;
