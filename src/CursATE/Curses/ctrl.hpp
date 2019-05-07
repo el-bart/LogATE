@@ -18,7 +18,7 @@ inline constexpr auto ctrl(const int k)
   }
   // workaround for a GCC bug...
 #if GCC_VERSION < 90000
-  BUT_ASSERT(!"unknown key mapping requested");
+  //BUT_ASSERT(!"unknown key mapping requested");
   return 0;
 #else
   throw std::logic_error{"unknown key mapping requested"};
