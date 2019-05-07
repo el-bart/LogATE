@@ -28,7 +28,6 @@ void Explode::insert(AnnotatedLog const& log)
   auto values = detail::allNodeValues(log, path_);
   if( values.empty() )
   {
-    const Lock lock{mutex_};
     nonMatchingChild_->insert(log);
     return;
   }
