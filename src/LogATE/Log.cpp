@@ -18,9 +18,19 @@ Log::Log(const SequenceNumber sn, std::string const& in):
 { }
 
 
+namespace
+{
+auto minimalString(nlohmann::json const& in)
+{
+  auto str = in.dump();
+  str.shrink_to_fit();
+  return str;
+}
+}
+
 Log::Log(const SequenceNumber sn, nlohmann::json const& in):
   sn_{sn},
-  str_{ But::makeSharedNN<const std::string>( in.dump() ) }
+  str_{ But::makeSharedNN<const std::string>( minimalString(in) ) }
 { }
 
 
