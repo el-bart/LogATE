@@ -9,6 +9,7 @@ namespace LogATE
 
 struct Log final
 {
+  explicit Log(char const* str): Log{ std::string{str} } { }
   explicit Log(std::string const& in);
   explicit Log(nlohmann::json const& in);
   Log(SequenceNumber sn, std::string const& in);
@@ -20,8 +21,8 @@ struct Log final
   Log(Log&&) = default;
   Log& operator=(Log&&) = default;
 
-  auto& str() const { return *str_; }
-  auto seuquenceNumber() const { return sn_; }
+  auto const& str() const { return *str_; }
+  auto sequenceNumber() const { return sn_; }
   auto json() const { return nlohmann::json::parse(*str_); }
 
 private:
