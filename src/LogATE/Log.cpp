@@ -3,14 +3,24 @@
 namespace LogATE
 {
 
-Log json2log(std::string const& in)
-{
-  return makeLog( nlohmann::json::parse(in) );
-}
+Log::Log(std::string const& in):
+  Log{ SequenceNumber::next(), nlohmann::json::parse(in) }
+{ }
 
-Log makeLog(nlohmann::json json)
-{
-  return Log{ SequenceNumber::next(), But::makeSharedNN<const nlohmann::json>( std::move(json) ) };
-}
+
+Log::Log(nlohmann::json const& in):
+  Log{ SequenceNumber::next(), in }
+{ }
+
+
+Log(SequenceNumber sn, std::string const& in):
+  Log{ sn, nlohmann::json::parse(in) }
+{ }
+
+
+Log(SequenceNumber sn, nlohmann::json const& in):
+  sn_{sn},
+  str_{ But::makeSharedNN<const std::string>( in.dump() ) }
+{ }
 
 }

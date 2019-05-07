@@ -7,14 +7,39 @@
 namespace LogATE
 {
 
-struct Log
+struct Log final
 {
+  explicit Log(std::string const& in);
+  explicit Log(nlohmann::json const& in);
+  Log(SequenceNumber sn, std::string const& in);
+  Log(SequenceNumber sn, nlohmann::json const& in);
+
+  Log(Log const&) = default;
+  Log& operator=(Log const&) = default;
+
+  Log(Log&&) = default;
+  Log& operator=(Log&&) = default;
+
+  auto& str() const { return *str_; }
+  auto seuquenceNumber() const { return sn_; }
+  auto json() const { return nlohmann::json::parse(*str_); }
+
+private:
   SequenceNumber sn_;
-  But::NotNullShared<const nlohmann::json> log_;
+  But::NotNullShared<const std::string> str_;
   // TODO: consider adding more structure to a log -> timestamp of receiving, source IP:port, etc...
 };
 
-Log json2log(std::string const& in);
-Log makeLog(nlohmann::json json);
+
+struct AnnotatedLog final
+{
+  explicit AnnotatedLog(Log const& log):
+    log_{log},
+    json_{ log_.json() }
+  { }
+
+  const Log log_;
+  const nlohmann::json json_;
+};
 
 }
