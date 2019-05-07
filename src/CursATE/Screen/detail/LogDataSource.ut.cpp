@@ -13,17 +13,15 @@ TEST_SUITE("CursATE::Screen::detail::LogDataSource")
 
 std::string log2str(LogATE::Log const& log)
 {
-  const auto n = (*log.log_)["foo"].get<int>();
+  const auto n = log.json()["foo"].get<int>();
   return std::to_string(n);
 }
 
 struct Fixture
 {
-  auto makeLog(const int sn, std::string const& str) const
+  auto makeAnnotatedLog(const unsigned sn, std::string const& str) const
   {
-    auto log = LogATE::json2log(str);
-    log.sn_.value_ = sn;
-    return log;
+    return LogATE::AnnotatedLog{ LogATE::Log{ LogATE::SequenceNumber{sn}, str } };
   }
 
   LogATE::Utils::WorkerThreadsShPtr workers_{ But::makeSharedNN<LogATE::Utils::WorkerThreads>() };
@@ -43,11 +41,11 @@ TEST_CASE_FIXTURE(Fixture, "empty logs do not return any data")
 
 TEST_CASE_FIXTURE(Fixture, "non-empty logs")
 {
-  node_->insert( makeLog(1, R"({ "foo": 41 })") );
-  node_->insert( makeLog(2, R"({ "foo": 42 })") );
-  node_->insert( makeLog(4, R"({ "foo": 44 })") );
-  node_->insert( makeLog(6, R"({ "foo": 46 })") );
-  node_->insert( makeLog(8, R"({ "foo": 48 })") );
+  node_->insert( makeAnnotatedLog(1, R"({ "foo": 41 })") );
+  node_->insert( makeAnnotatedLog(2, R"({ "foo": 42 })") );
+  node_->insert( makeAnnotatedLog(4, R"({ "foo": 44 })") );
+  node_->insert( makeAnnotatedLog(6, R"({ "foo": 46 })") );
+  node_->insert( makeAnnotatedLog(8, R"({ "foo": 48 })") );
 
   CHECK( lds_.size() == 5 );
   {
@@ -83,15 +81,15 @@ TEST_CASE_FIXTURE(Fixture, "finding nearest log")
   using Id = DataSource::Id;
   CHECK( not lds_.nearestTo( Id{42} ) );
 
-  node_->insert( makeLog(1, R"({ "foo": 41 })") );
+  node_->insert( makeAnnotatedLog(1, R"({ "foo": 41 })") );
   CHECK( expectId( lds_.nearestTo( Id{0} ) ) == 1 );
   CHECK( expectId( lds_.nearestTo( Id{1} ) ) == 1 );
   CHECK( expectId( lds_.nearestTo( Id{42} ) ) == 1 );
 
-  node_->insert( makeLog(2, R"({ "foo": 42 })") );
-  node_->insert( makeLog(4, R"({ "foo": 44 })") );
-  node_->insert( makeLog(6, R"({ "foo": 46 })") );
-  node_->insert( makeLog(18, R"({ "foo": 48 })") );
+  node_->insert( makeAnnotatedLog(2, R"({ "foo": 42 })") );
+  node_->insert( makeAnnotatedLog(4, R"({ "foo": 44 })") );
+  node_->insert( makeAnnotatedLog(6, R"({ "foo": 46 })") );
+  node_->insert( makeAnnotatedLog(18, R"({ "foo": 48 })") );
 
   SUBCASE("exact matches")
   {

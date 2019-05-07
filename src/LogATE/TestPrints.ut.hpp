@@ -15,7 +15,7 @@ inline std::ostream& operator<<(std::ostream& os, const SequenceNumber sn)
 
 inline std::ostream& operator<<(std::ostream& os, Log const& log)
 {
-  return os << "< " << log.sn_ << " ; " << *log.log_ << " >";
+  return os << "< " << log.sequenceNumber() << " ; " << log.json() << " >";
 }
 
 

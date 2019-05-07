@@ -38,7 +38,7 @@ void Main::dataPumpLoop()
       auto opt = server_.readNextLog();
       if(not opt)
         continue;
-      root_->insert( std::move(*opt) );
+      root_->insert( LogATE::AnnotatedLog{ std::move(*opt) } );
     }
     catch(...)
     {

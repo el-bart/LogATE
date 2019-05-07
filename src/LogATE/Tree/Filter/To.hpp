@@ -13,9 +13,9 @@ public:
   { }
 
 private:
-  bool matches(Log const& log) const override
+  bool matches(AnnotatedLog const& log) const override
   {
-    return log.sn_ <= edge_;
+    return log.log_.sequenceNumber() <= edge_;
   }
 
   const SequenceNumber edge_;

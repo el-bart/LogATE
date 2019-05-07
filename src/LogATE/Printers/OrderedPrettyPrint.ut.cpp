@@ -2,7 +2,6 @@
 #include "LogATE/Printers/OrderedPrettyPrint.hpp"
 
 using LogATE::Printers::OrderedPrettyPrint;
-using LogATE::json2log;
 
 namespace
 {
@@ -11,9 +10,7 @@ TEST_SUITE("LogATE::Printers::OrderedPrettyPrint")
 
 auto mklog(const unsigned sn, std::string const& json)
 {
-  auto log = json2log(json);
-  log.sn_.value_ = sn;
-  return log;
+  return LogATE::Log{ LogATE::SequenceNumber{sn}, json };
 }
 
 TEST_CASE("directly converting to pretty print")

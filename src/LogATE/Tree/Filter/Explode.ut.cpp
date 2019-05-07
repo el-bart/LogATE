@@ -7,8 +7,8 @@
 #include <map>
 
 using LogATE::Log;
+using LogATE::AnnotatedLog;
 using LogATE::SequenceNumber;
-using LogATE::json2log;
 using LogATE::Tree::allSns;
 using LogATE::Tree::Node;
 using LogATE::Tree::Path;
@@ -33,21 +33,19 @@ struct Fixture
 
   Log makeLog(const unsigned sn, std::string const& json) const
   {
-    auto log = json2log(json);
-    log.sn_ = SequenceNumber{sn};
-    return log;
+    return LogATE::Log{ SequenceNumber{sn}, json };
   }
 
   auto name(std::string const& name) const { return Explode::Name{name}; }
   template<typename ...Args>
-  auto sns(Args... args) { return std::vector<SequenceNumber>{args.sn_...}; }
+  auto sns(Args... args) { return std::vector<SequenceNumber>{args.log_.sequenceNumber()...}; }
 
   LogATE::Utils::WorkerThreadsShPtr workers_{ But::makeSharedNN<LogATE::Utils::WorkerThreads>() };
   Explode explode_{ workers_, Explode::Name{"foo"}, Path{{".", "foo"}} };
-  const Log log1_{ makeLog(1, R"( { "foo": "xxx", "bar": 42 } )") };
-  const Log log2_{ makeLog(2, R"( { "foo": "yyy", "bar": 44 } )") };
-  const Log log3_{ makeLog(3, R"( { "foo": "xxx", "bar": 46 } )") };
-  const Log log4_{ makeLog(4, R"( { "xxx": "xxx", "bar": 48 } )") };
+  const AnnotatedLog log1_{ makeLog(1, R"( { "foo": "xxx", "bar": 42 } )") };
+  const AnnotatedLog log2_{ makeLog(2, R"( { "foo": "yyy", "bar": 44 } )") };
+  const AnnotatedLog log3_{ makeLog(3, R"( { "foo": "xxx", "bar": 46 } )") };
+  const AnnotatedLog log4_{ makeLog(4, R"( { "xxx": "xxx", "bar": 48 } )") };
 };
 
 
@@ -109,7 +107,7 @@ TEST_CASE_FIXTURE(Fixture, "field can be specified with a relative path")
 
 TEST_CASE_FIXTURE(Fixture, "ambigous relative path adds logs to multiple cathegories")
 {
-  const auto log = makeLog(1, R"( { "foo": "xxx", "bar": { "foo": "yyy" } } )");
+  const auto log = LogATE::AnnotatedLog{ makeLog(1, R"( { "foo": "xxx", "bar": { "foo": "yyy" } } )") };
   Explode explode{ workers_, Explode::Name{"foo"}, Path{{"foo"}} };
   explode.insert(log);
   const auto out = extractLogs(explode);

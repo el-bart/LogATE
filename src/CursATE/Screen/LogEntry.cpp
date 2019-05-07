@@ -283,9 +283,9 @@ std::unique_ptr<LogATE::Tree::Node> LogEntry::createFilterBasedOnSelection(DS co
   if( *filterName == names[1] )
     return createExplode(ds, id, *filterFactory_);
   if( *filterName == names[2] )
-    return createFrom(*filterFactory_, Curses::DataSource::Id{log_.sn_.value_});
+    return createFrom(*filterFactory_, Curses::DataSource::Id{log_.sequenceNumber().value_});
   if( *filterName == names[3] )
-    return createTo(*filterFactory_, Curses::DataSource::Id{log_.sn_.value_});
+    return createTo(*filterFactory_, Curses::DataSource::Id{log_.sequenceNumber().value_});
   if( *filterName == names[4] )
     return createAcceptAll(*filterFactory_);
   throw std::logic_error{"unsupported filter type: " + *filterName};

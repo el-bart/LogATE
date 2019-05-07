@@ -7,7 +7,6 @@ add_library(LogATE
   Net/TcpRawClient.cpp
   Net/TcpServer.cpp
   Printers/OrderedPrettyPrint.cpp
-  Printers/jsonLine.cpp
   Tree/Node.cpp
   Tree/Logs.cpp
   Tree/Path.cpp

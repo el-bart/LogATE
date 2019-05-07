@@ -2,7 +2,7 @@
 #include "LogATE/Tree/Filter/detail/matchesLog.hpp"
 
 using LogATE::Log;
-using LogATE::json2log;
+using LogATE::AnnotatedLog;
 using LogATE::Tree::Path;
 using LogATE::Tree::Filter::detail::matchesKey;
 using LogATE::Tree::Filter::detail::matchesValue;
@@ -21,7 +21,7 @@ struct Fixture
   {
     const std::regex reg{re, g_defaultRegexType};
     REQUIRE(matchFunction);
-    return (*matchFunction)(log, path, reg);
+    return (*matchFunction)( AnnotatedLog{log}, path, reg );
   }
 
   auto testMatch(Path const& path, std::string const& re) const
@@ -33,7 +33,7 @@ struct Fixture
     return testMatch(path, re, logMulti_);
   }
 
-  const Log log_{ json2log(R"({
+  const Log log_{ R"({
                                 "PING": {
                                   "PONG": {
                                     "narf": {
@@ -48,8 +48,8 @@ struct Fixture
                                   { "one": 1 },
                                   { "two": 2 }
                                 ]
-                              })") };
-  const Log logMulti_{ json2log(R"({
+                              })" };
+  const Log logMulti_{ R"({
                                 "one": {
                                   "PING": {
                                     "PONG": {
@@ -82,8 +82,8 @@ struct Fixture
                                     { "two": 2 }
                                   ]
                                 }
-                              })") };
-  bool (*matchFunction)(Log const&, Path const&, std::regex const&) = nullptr;
+                              })" };
+  bool (*matchFunction)(AnnotatedLog const&, Path const&, std::regex const&) = nullptr;
 };
 
 
@@ -92,27 +92,27 @@ TEST_CASE_FIXTURE(Fixture, "converting all basic types for value comparison")
   matchFunction = matchesValue;
   SUBCASE("string")
   {
-    const auto log = json2log(R"({ "val": "axxx" })");
+    const auto log = Log{R"({ "val": "axxx" })"};
     CHECK( testMatch(Path{{".", "val"}}, "ax*", log) );
   }
   SUBCASE("int")
   {
-    const auto log = json2log(R"({ "val": 42 })");
+    const auto log = Log{R"({ "val": 42 })"};
     CHECK( testMatch(Path{{".", "val"}}, "^42$", log) );
   }
   SUBCASE("float")
   {
-    const auto log = json2log(R"({ "val": 4.0 })");
+    const auto log = Log{R"({ "val": 4.0 })"};
     CHECK( testMatch(Path{{".", "val"}}, "^4.0*", log) );
   }
   SUBCASE("bool")
   {
-    const auto log = json2log(R"({ "val": true })");
+    const auto log = Log{R"({ "val": true })"};
     CHECK( testMatch(Path{{".", "val"}}, "true", log) );
   }
   SUBCASE("regex matches in the middle as well")
   {
-    const auto log = json2log(R"({ "val": "foo-xxx-bar" })");
+    const auto log = Log{R"({ "val": "foo-xxx-bar" })"};
     CHECK( testMatch(Path{{".", "val"}}, "xxx", log) );
   }
 }
@@ -200,13 +200,13 @@ TEST_CASE_FIXTURE(Fixture, "getting all key values for an aboslute path")
 {
   SUBCASE("existing key")
   {
-    const auto out = allValues(log_, Path{{".", "foo", "bar"}});
+    const auto out = allValues(AnnotatedLog{log_}, Path{{".", "foo", "bar"}});
     REQUIRE( out.size() == 1 );
     CHECK( out[0] == "a/c" );
   }
   SUBCASE("non-existing key")
   {
-    const auto out = allValues(log_, Path{{".", "xxx", "yyy"}});
+    const auto out = allValues(AnnotatedLog{log_}, Path{{".", "xxx", "yyy"}});
     CHECK( out.size() == 0 );
   }
 }
@@ -215,7 +215,7 @@ TEST_CASE_FIXTURE(Fixture, "getting all key values for a relative path")
 {
   SUBCASE("existing key")
   {
-    auto out = allValues(logMulti_, Path{{"foo", "bar"}});
+    auto out = allValues(AnnotatedLog{logMulti_}, Path{{"foo", "bar"}});
     REQUIRE( out.size() == 2 );
     std::sort( begin(out), end(out) );
     CHECK( out[0] == "xxx" );
@@ -223,28 +223,28 @@ TEST_CASE_FIXTURE(Fixture, "getting all key values for a relative path")
   }
   SUBCASE("non-existing key")
   {
-    const auto out = allValues(log_, Path{{"xxx", "yyy"}});
+    const auto out = allValues(AnnotatedLog{log_}, Path{{"xxx", "yyy"}});
     CHECK( out.size() == 0 );
   }
 }
 
 TEST_CASE_FIXTURE(Fixture, "keys can only be taken out of key:value pair (not object/array)")
 {
-  auto out = allValues(logMulti_, Path{{"foo"}});
+  auto out = allValues(AnnotatedLog{logMulti_}, Path{{"foo"}});
   REQUIRE( out.size() == 0 );
 }
 
 TEST_CASE_FIXTURE(Fixture, "relative paths leading to the same values are unified")
 {
-  const Log repeatedLog{ json2log(R"({
+  const Log repeatedLog{ R"({
                                 "one": {
                                   "bar": "xx"
                                 },
                                 "two": {
                                   "bar": "xx"
                                 }
-                              })") };
-  auto out = allValues(repeatedLog, Path{{"bar"}});
+                              })" };
+  auto out = allValues(AnnotatedLog{repeatedLog}, Path{{"bar"}});
   REQUIRE( out.size() == 1 );
   CHECK( out[0] == "xx" );
 }
@@ -253,7 +253,7 @@ TEST_CASE_FIXTURE(Fixture, "getting values for nodes")
 {
   SUBCASE("relative path to key:value")
   {
-    auto out = allNodeValues(logMulti_, Path::parse("bar"));
+    auto out = allNodeValues(AnnotatedLog{logMulti_}, Path::parse("bar"));
     std::sort( begin(out), end(out) );
     REQUIRE( out.size() == 2 );
     CHECK( out[0] == "xxx" );
@@ -261,7 +261,7 @@ TEST_CASE_FIXTURE(Fixture, "getting values for nodes")
   }
   SUBCASE("relative path to nested structure")
   {
-    auto out = allNodeValues(logMulti_, Path::parse("foo"));
+    auto out = allNodeValues(AnnotatedLog{logMulti_}, Path::parse("foo"));
     std::sort( begin(out), end(out) );
     REQUIRE( out.size() == 3 );
     CHECK( out[0] == R"([{"one":1},{"two":2}])" );
@@ -270,13 +270,13 @@ TEST_CASE_FIXTURE(Fixture, "getting values for nodes")
   }
   SUBCASE("absolute path to key:value")
   {
-    auto out = allNodeValues(log_, Path::parse(".foo.bar"));
+    auto out = allNodeValues(AnnotatedLog{log_}, Path::parse(".foo.bar"));
     REQUIRE( out.size() == 1 );
     CHECK( out[0] == "a/c" );
   }
   SUBCASE("absolute path to nested structure")
   {
-    auto out = allNodeValues(log_, Path::parse(".foo"));
+    auto out = allNodeValues(AnnotatedLog{log_}, Path::parse(".foo"));
     REQUIRE( out.size() == 1 );
     CHECK( out[0] == R"({"bar":"a/c"})" );
   }

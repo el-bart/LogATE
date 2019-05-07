@@ -9,7 +9,7 @@ AcceptAll::AcceptAll(Utils::WorkerThreadsShPtr workers, Name name):
 {
 }
 
-bool AcceptAll::matches(Log const&) const
+bool AcceptAll::matches(AnnotatedLog const&) const
 {
   return true;
 }

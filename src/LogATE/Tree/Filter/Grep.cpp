@@ -36,7 +36,7 @@ Grep::Grep(Utils::WorkerThreadsShPtr workers,
 
 namespace
 {
-auto checkMatch(Log const& log, Path const& path, std::regex const& re, const Grep::Compare cmp)
+auto checkMatch(AnnotatedLog const& log, Path const& path, std::regex const& re, const Grep::Compare cmp)
 {
   switch(cmp)
   {
@@ -47,7 +47,7 @@ auto checkMatch(Log const& log, Path const& path, std::regex const& re, const Gr
 }
 }
 
-bool Grep::matches(Log const& log) const
+bool Grep::matches(AnnotatedLog const& log) const
 {
   const auto res = checkMatch(log, path_, re_, cmp_);
   switch(search_)

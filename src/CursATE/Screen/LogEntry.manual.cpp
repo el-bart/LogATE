@@ -17,7 +17,7 @@ auto makeLog()
   json["basic types"]["int"] = 42;
   json["basic types"]["float"] = 4.2;
   json["basic types"]["bool"] = true;
-  return LogATE::Log{ LogATE::SequenceNumber{42}, But::makeSharedNN<nlohmann::json>( std::move(json) ) };
+  return LogATE::Log{ LogATE::SequenceNumber{42}, std::move(json) };
 }
 }
 

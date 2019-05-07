@@ -28,9 +28,9 @@ nlohmann::json getNodeByPath(nlohmann::json n, PathIter pathBegin, PathIter path
   return n;
 }
 
-nlohmann::json getNodeByPath(Log const& log, PathIter pathBegin, PathIter pathEnd)
+nlohmann::json getNodeByPath(AnnotatedLog const& log, PathIter pathBegin, PathIter pathEnd)
 {
-  return getNodeByPath(*log.log_, pathBegin, pathEnd);
+  return getNodeByPath(log.json_, pathBegin, pathEnd);
 }
 
 template<typename F>
@@ -45,14 +45,14 @@ bool hasMatchingKey(nlohmann::json const& node, F const& cmp)
 }
 
 template<typename F>
-auto matchesAbsoluteKey(Log const& log, Path const& path, F const& cmp)
+auto matchesAbsoluteKey(AnnotatedLog const& log, Path const& path, F const& cmp)
 {
   const auto n = getNodeByPath(log, path.begin()+1, path.end());
   return hasMatchingKey(n, cmp);
 }
 
 template<typename F, typename ToStr>
-auto matchesAbsoluteValue(Log const& log, Path const& path, F const& cmp, ToStr const& toStr)
+auto matchesAbsoluteValue(AnnotatedLog const& log, Path const& path, F const& cmp, ToStr const& toStr)
 {
   const auto n = getNodeByPath(log, path.begin()+1, path.end());
   const auto str = toStr(n);
@@ -94,9 +94,9 @@ bool matchesRelativeKeyRecursive(nlohmann::json const& log, Path const& path, F 
 }
 
 template<typename F>
-auto matchesRelativeKey(Log const& log, Path const& path, F const& cmp)
+auto matchesRelativeKey(AnnotatedLog const& log, Path const& path, F const& cmp)
 {
-  return matchesRelativeKeyRecursive(*log.log_, path, cmp);
+  return matchesRelativeKeyRecursive(log.json_, path, cmp);
 }
 
 
@@ -120,14 +120,14 @@ bool matchesRelativeValueRecursive(nlohmann::json const& log, Path const& path, 
 }
 
 template<typename F, typename ToStr>
-auto matchesRelativeValue(Log const& log, Path const& path, F const& cmp, ToStr const& toStr)
+auto matchesRelativeValue(AnnotatedLog const& log, Path const& path, F const& cmp, ToStr const& toStr)
 {
-  return matchesRelativeValueRecursive(*log.log_, path, cmp, toStr);
+  return matchesRelativeValueRecursive(log.json_, path, cmp, toStr);
 }
 
 
 template<typename F>
-bool matchesKeyImpl(Log const& log, Path const& path, F const& cmp)
+bool matchesKeyImpl(AnnotatedLog const& log, Path const& path, F const& cmp)
 {
   if( path.value_.empty() )
     return false;
@@ -137,7 +137,7 @@ bool matchesKeyImpl(Log const& log, Path const& path, F const& cmp)
 }
 
 template<typename F, typename ToStr>
-bool matchesValueImpl(Log const& log, Path const& path, F const& cmp, ToStr const& toStr)
+bool matchesValueImpl(AnnotatedLog const& log, Path const& path, F const& cmp, ToStr const& toStr)
 {
   if( path.value_.empty() )
     return false;
@@ -155,13 +155,13 @@ struct RegexCompare
 }
 
 
-bool matchesKey(Log const& log, Path const& path, std::regex const& re)
+bool matchesKey(AnnotatedLog const& log, Path const& path, std::regex const& re)
 {
   return matchesKeyImpl(log, path, RegexCompare{&re});
 }
 
 
-bool matchesValue(Log const& log, Path const& path, std::regex const& re)
+bool matchesValue(AnnotatedLog const& log, Path const& path, std::regex const& re)
 {
   return matchesValueImpl(log, path, RegexCompare{&re}, LogATE::Utils::value2str);
 }
@@ -187,7 +187,7 @@ struct GatherAllValues
 };
 }
 
-std::vector<std::string> allValues(Log const& log, Path const& path)
+std::vector<std::string> allValues(AnnotatedLog const& log, Path const& path)
 {
   std::vector<std::string> out;
   matchesValueImpl(log, path, GatherAllValues{&out}, LogATE::Utils::value2str);
@@ -207,7 +207,7 @@ But::Optional<std::string> dumpStruct(nlohmann::json const& node)
 }
 }
 
-std::vector<std::string> allNodeValues(Log const& log, Path const& path)
+std::vector<std::string> allNodeValues(AnnotatedLog const& log, Path const& path)
 {
   std::vector<std::string> out;
   matchesValueImpl(log, path, GatherAllValues{&out}, dumpStruct);

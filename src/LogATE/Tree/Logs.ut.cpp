@@ -34,8 +34,8 @@ TEST_CASE_FIXTURE(Fixture, "adding one element makes range usage")
   logs_.withLock()->insert(tmp);
   CHECK( not logs_.withLock()->empty() );
   CHECK( logs_.withLock()->size() == 1u );
-  CHECK( logs_.withLock()->last().sn_ == tmp.sn_ );
-  CHECK( logs_.withLock()->first().sn_ == tmp.sn_ );
+  CHECK( logs_.withLock()->last().sequenceNumber() == tmp.sequenceNumber() );
+  CHECK( logs_.withLock()->first().sequenceNumber() == tmp.sequenceNumber() );
 }
 
 TEST_CASE_FIXTURE(Fixture, "elements added in order are ordered correctly")
@@ -46,7 +46,7 @@ TEST_CASE_FIXTURE(Fixture, "elements added in order are ordered correctly")
     logs_.withLock()->insert(tmp);
     CHECK( not logs_.withLock()->empty() );
     CHECK( logs_.withLock()->size() == i+1 );
-    CHECK( logs_.withLock()->last().sn_ == tmp.sn_ );
+    CHECK( logs_.withLock()->last().sequenceNumber() == tmp.sequenceNumber() );
   }
 }
 
@@ -58,8 +58,8 @@ TEST_CASE_FIXTURE(Fixture, "elements added in different order are auto-ordered c
   logs_.withLock()->insert(tmp1);
   CHECK( not logs_.withLock()->empty() );
   CHECK( logs_.withLock()->size() == 2u );
-  CHECK( logs_.withLock()->last().sn_ == tmp2.sn_ );
-  CHECK( logs_.withLock()->first().sn_ == tmp1.sn_ );
+  CHECK( logs_.withLock()->last().sequenceNumber() == tmp2.sequenceNumber() );
+  CHECK( logs_.withLock()->first().sequenceNumber() == tmp1.sequenceNumber() );
 }
 
 TEST_CASE_FIXTURE(Fixture, "prunning elements until given value")

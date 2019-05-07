@@ -22,9 +22,9 @@ Explode::Explode(Utils::WorkerThreadsShPtr workers, Name name, Path path):
   matchAny_{"", detail::g_defaultRegexType}
 { }
 
-void Explode::insert(Log const& log)
+void Explode::insert(AnnotatedLog const& log)
 {
-  logs().withLock()->insert(log);
+  logs().withLock()->insert(log.log_);
   auto values = detail::allNodeValues(log, path_);
   if( values.empty() )
   {
