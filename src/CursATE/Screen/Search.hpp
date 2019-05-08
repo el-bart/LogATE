@@ -21,6 +21,7 @@ public:
 
 private:
   bool updateSearchPattern();
+  But::Optional<LogATE::SequenceNumber> triggerSearch(LogATE::Tree::NodeShPtr node, LogATE::SequenceNumber currentSelection);
 
   LogATE::Utils::WorkerThreadsShPtr workers_;
   std::string keyQuery_;

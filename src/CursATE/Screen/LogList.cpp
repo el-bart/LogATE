@@ -209,8 +209,9 @@ void LogList::processSearch()
   if(not selected)
     return;
   const auto ret = search_.process( currentNode_, LogATE::SequenceNumber{selected->value_} );
-  (void)ret;
-  // TODO
+  if(not ret)
+    return;
+  currentWindow_->select( Curses::DataSource::Id{ret->value_} );
 }
 
 }
