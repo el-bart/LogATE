@@ -107,10 +107,10 @@ void LogList::reactOnKey(const int ch)
     case KEY_PPAGE: currentWindow_->selectPageUp(); break;
     case KEY_NPAGE: currentWindow_->selectPageDown(); break;
 
-    case ctrl(KEY_HOME): currentWindow_->selectFirst(); break;
-    case ctrl(KEY_END):  currentWindow_->selectLast(); break;
-    case KEY_HOME: currentWindow_->scrollToLineBegin(); break;
-    case KEY_END:  currentWindow_->scrollToLineEnd(); break;
+    case KEY_HOME: currentWindow_->selectFirst(); break;
+    case KEY_END:  currentWindow_->selectLast(); break;
+    case ctrl(KEY_HOME): currentWindow_->scrollToLineBegin(); break;
+    case ctrl(KEY_END):  currentWindow_->scrollToLineEnd(); break;
 
     case 'j': centerAllChildrenAroundCurrentLog(); break;
     case 'J': centerAllNodesAroundCurrentLog(); break;

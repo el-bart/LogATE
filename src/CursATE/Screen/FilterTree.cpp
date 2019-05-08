@@ -87,10 +87,10 @@ std::pair<DataSource::Id, bool> navigate(ScrolableWindow& win,
       case KEY_PPAGE: win.selectPageUp(); break;
       case KEY_NPAGE: win.selectPageDown(); break;
 
-      case ctrl(KEY_HOME): win.selectFirst(); break;
-      case ctrl(KEY_END):  win.selectLast(); break;
-      case KEY_HOME: win.scrollToLineBegin(); break;
-      case KEY_END:  win.scrollToLineEnd(); break;
+      case KEY_HOME: win.selectFirst(); break;
+      case KEY_END:  win.selectLast(); break;
+      case ctrl(KEY_HOME): win.scrollToLineBegin(); break;
+      case ctrl(KEY_END):  win.scrollToLineEnd(); break;
 
       // TODO: searching by string?
       // TODO: moving to a log with a given ID?

@@ -75,10 +75,10 @@ std::unique_ptr<LogATE::Tree::Node> LogEntry::navigate(Win& win, DS const& ds)
       case KEY_PPAGE: win.selectPageUp(); break;
       case KEY_NPAGE: win.selectPageDown(); break;
 
-      case ctrl(KEY_HOME): win.selectFirst(); break;
-      case ctrl(KEY_END):  win.selectLast(); break;
-      case KEY_HOME: win.scrollToLineBegin(); break;
-      case KEY_END:  win.scrollToLineEnd(); break;
+      case KEY_HOME: win.selectFirst(); break;
+      case KEY_END:  win.selectLast(); break;
+      case ctrl(KEY_HOME): win.scrollToLineBegin(); break;
+      case ctrl(KEY_END):  win.scrollToLineEnd(); break;
 
       // TODO: searching by string?
       // TODO: move selection to screen begin/center/end

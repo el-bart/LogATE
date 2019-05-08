@@ -24,6 +24,7 @@
 * display number of errors from networking stack
 * handle errors from filter creators gracefully (with option to fix the issue)
 * handle failed node addition gracefully
+* trimmed fields should not be visible
 
 
 ## misc
