@@ -1,6 +1,7 @@
 #include "CursATE/Screen/LogEntry.hpp"
 #include "CursATE/Screen/LogList.hpp"
 #include "CursATE/Screen/FilterTree.hpp"
+#include "CursATE/Screen/displayError.hpp"
 #include "CursATE/Curses/CursorVisibility.hpp"
 #include "CursATE/Curses/Form.hpp"
 #include "CursATE/Curses/getChar.hpp"
@@ -207,10 +208,16 @@ void LogList::processSearch()
 {
   const auto selected = currentWindow_->currentSelection();
   if(not selected)
+  {
+    displayError({"window is empty"});
     return;
+  }
   const auto ret = search_.process( currentNode_, LogATE::SequenceNumber{selected->value_} );
   if(not ret)
+  {
+    displayError({"no matching element found"});
     return;
+  }
   currentWindow_->select( Curses::DataSource::Id{ret->value_} );
 }
 
@@ -234,11 +241,17 @@ void LogList::processSearchAgain()
 {
   const auto selected = currentWindow_->currentSelection();
   if(not selected)
+  {
+    displayError({"window is empty"});
     return;
+  }
   const auto next = nextSn( currentNode_, LogATE::SequenceNumber{selected->value_} );
   const auto ret = search_.processAgain( currentNode_, LogATE::SequenceNumber{next.value_} );
   if(not ret)
+  {
+    displayError({"no matching element found"});
     return;
+  }
   currentWindow_->select( Curses::DataSource::Id{ret->value_} );
 }
 
