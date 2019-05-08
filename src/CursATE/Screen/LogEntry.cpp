@@ -1,4 +1,5 @@
 #include "CursATE/Screen/LogEntry.hpp"
+#include "CursATE/Screen/displayError.hpp"
 #include "CursATE/Screen/detail/LogEntryDataSource.hpp"
 #include "CursATE/Curses/Form.hpp"
 #include "CursATE/Curses/Field/Button.hpp"
@@ -21,6 +22,7 @@ using CursATE::Curses::ScreenPosition;
 using CursATE::Curses::ctrl;
 using CursATE::Curses::Row;
 using CursATE::Curses::Column;
+using CursATE::Screen::displayError;
 
 namespace CursATE::Screen
 {
@@ -178,7 +180,10 @@ std::unique_ptr<LogATE::Tree::Node> createGrep(detail::LogEntryDataSource const&
 }
 
 
-std::unique_ptr<LogATE::Tree::Node> createExplode(detail::LogEntryDataSource const& ds, const Curses::DataSource::Id id, FilterFactory& ff)
+std::unique_ptr<LogATE::Tree::Node> createExplode(detail::LogEntryDataSource const& ds,
+                                                  const Curses::DataSource::Id id,
+                                                  FilterFactory& ff,
+                                                  std::array<std::string,2>& defaults)
 {
   const auto value = ds.id2value(id);
   auto form = Form{ KeyShortcuts{
@@ -187,18 +192,38 @@ std::unique_ptr<LogATE::Tree::Node> createExplode(detail::LogEntryDataSource con
                                   {'o', "ok"},
                                   {'q', "quit"}
                                 },
-                    Input{ "Name", "explode " + ds.id2path(id).str() },
-                    Input{ "Path", ds.id2path(id).str() },
+                    Input{ "Name", defaults[0] },
+                    Input{ "Path", defaults[1] },
                     Button{"ok"},
                     Button{"quit"}
                   };
   const auto ret = form.process();
+  for(auto i=0u; i<defaults.size(); ++i)
+    defaults[i] = ret[i];
   if(ret[3] == "true")
     return {};
   BUT_ASSERT(ret[2] == "true" && "'OK' not clicked");
   FilterFactory::Options opts{ std::make_pair("Path", ret[1]) };
   auto ptr = ff.build( FilterFactory::Type{"Explode"}, FilterFactory::Name{ret[0]}, std::move(opts) );
   return std::move(ptr).underlyingPointer();
+}
+
+
+std::unique_ptr<LogATE::Tree::Node> createExplode(detail::LogEntryDataSource const& ds, const Curses::DataSource::Id id, FilterFactory& ff)
+{
+  std::array<std::string,2> defaults{
+      "explode " + ds.id2path(id).str(),
+       ds.id2path(id).str()
+    };
+  while(true)
+    try
+    {
+      return createExplode(ds, id, ff, defaults);
+    }
+    catch(std::exception const& ex)
+    {
+      displayError(ex);
+    }
 }
 
 
