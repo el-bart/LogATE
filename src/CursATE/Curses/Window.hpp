@@ -1,8 +1,9 @@
 #pragma once
-#include <ncurses.h>
 #include "CursATE/Curses/ScreenPosition.hpp"
 #include "CursATE/Curses/ScreenSize.hpp"
 #include "CursATE/Curses/Exception.hpp"
+#include "CursATE/Curses/Color.hpp"
+#include <ncurses.h>
 
 namespace CursATE::Curses
 {
@@ -77,6 +78,13 @@ struct Window
     if( boxed() )
       return ScreenSize{ Rows{std::max(ss.rows_.value_-2, 0)}, Columns{std::max(ss.columns_.value_-2, 0)} };
     return ss;
+  }
+
+  void colors(const Color background, const Color font)
+  {
+    const auto cp = 1;
+    init_pair( cp, static_cast<int>(font), static_cast<int>(background) );
+    wbkgd(window_, COLOR_PAIR(cp));
   }
 
 private:
