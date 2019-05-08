@@ -74,8 +74,8 @@ std::pair<DataSource::Id, bool> navigate(ScrolableWindow& win,
              if( not confirmDelete() )
                break;
              const auto now = win.currentSelection();
-             win.selectUp();
-             nodeDeleter( ds.id2node(*now) );
+             if( nodeDeleter( ds.id2node(*now) ) )
+               win.selectUp();
              return std::make_pair( *win.currentSelection(), false );
            }
 
@@ -110,7 +110,7 @@ LogATE::Tree::NodeShPtr FilterTree::selectNext(LogATE::Tree::NodeShPtr const& cu
     const auto ds = But::makeSharedNN<detail::FilterTreeDataSource>(root_);
     ScrolableWindow win{ds, sp, ss, Window::Boxed::True};
     const auto id = ds->node2id(selectedNode);
-    const auto newId = navigate( win, id, *ds, [&](auto const& node){ this->deleteNode(node); } );
+    const auto newId = navigate( win, id, *ds, [&](auto const& node){ return this->deleteNode(node); } );
     selectedNode = ds->id2node(newId.first);
     if(newId.second)
       return selectedNode;
@@ -138,11 +138,11 @@ bool removeRecursive(LogATE::Tree::NodeShPtr node, LogATE::Tree::NodeShPtr const
 }
 }
 
-void FilterTree::deleteNode(LogATE::Tree::NodeShPtr const& selected)
+bool FilterTree::deleteNode(LogATE::Tree::NodeShPtr const& selected)
 {
   if( selected.get() == root_.get() )
-    return;
-  removeRecursive(root_, selected);
+    return false;
+  return removeRecursive(root_, selected);
 }
 
 }

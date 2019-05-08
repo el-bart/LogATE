@@ -18,7 +18,7 @@ public:
   LogATE::Tree::NodeShPtr selectNext(LogATE::Tree::NodeShPtr const& current);
 
 private:
-  void deleteNode(LogATE::Tree::NodeShPtr const& selected);
+  bool deleteNode(LogATE::Tree::NodeShPtr const& selected);
 
   LogATE::Tree::NodeShPtr root_;
 };
