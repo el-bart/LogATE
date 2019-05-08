@@ -13,7 +13,9 @@ bool matchesKey(AnnotatedLog const& log, Tree::Path const& path, std::regex cons
 bool matchesValue(AnnotatedLog const& log, Tree::Path const& path, std::regex const& re);
 
 // TODO: add std::regex overloads of the below functions
+bool matchesAnyKey(Log const& log, std::string const& str);
 bool matchesAnyKey(AnnotatedLog const& log, std::string const& str);
+bool matchesAnyValue(Log const& log, std::string const& str);
 bool matchesAnyValue(AnnotatedLog const& log, std::string const& str);
 
 /// works on key:value pairs only

@@ -225,9 +225,25 @@ struct StringSearch
 }
 
 
+bool matchesAnyKey(Log const& log, std::string const& str)
+{
+  if( log.str().find(str) == std::string::npos )
+    return false;
+  return matchesAnyKey( AnnotatedLog{log}, str );
+}
+
+
 bool matchesAnyKey(AnnotatedLog const& log, std::string const& str)
 {
   return matchesAnyKeyRecursive(log.json_, StringSearch{&str});
+}
+
+
+bool matchesAnyValue(Log const& log, std::string const& str)
+{
+  if( log.str().find(str) == std::string::npos )
+    return false;
+  return matchesAnyValue( AnnotatedLog{log}, str );
 }
 
 

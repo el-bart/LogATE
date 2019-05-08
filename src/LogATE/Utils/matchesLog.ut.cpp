@@ -294,24 +294,34 @@ TEST_CASE_FIXTURE(Fixture, "getting values for nodes")
 }
 
 
+namespace
+{
+template<typename LogType>
+void testMatchingKeyByString(Fixture const& fixture)
+{
+  CHECK( matchesAnyKey( LogType{fixture.log_}, "" ) == true );
+  CHECK( matchesAnyKey( LogType{fixture.log_}, "x" ) == false );
+  CHECK( matchesAnyKey( LogType{fixture.log_}, "1" ) == false );
+  CHECK( matchesAnyKey( LogType{fixture.log_}, "a" ) == true );
+  CHECK( matchesAnyKey( LogType{fixture.log_}, "f" ) == true );
+  CHECK( matchesAnyKey( LogType{fixture.log_}, "fo" ) == true );
+  CHECK( matchesAnyKey( LogType{fixture.log_}, "foo" ) == true );
+  CHECK( matchesAnyKey( LogType{fixture.log_}, "foO" ) == false );
+  CHECK( matchesAnyKey( LogType{fixture.log_}, "oo" ) == true );
+  CHECK( matchesAnyKey( LogType{fixture.log_}, "array" ) == true );
+  CHECK( matchesAnyKey( LogType{fixture.log_}, "a_c" ) == false );
+  CHECK( matchesAnyKey( LogType{fixture.logMulti_}, "1" ) == false );
+  CHECK( matchesAnyKey( LogType{fixture.logMulti_}, "aaa" ) == false);
+  CHECK( matchesAnyKey( LogType{fixture.logMulti_}, "an" ) == true );
+}
+}
+
 TEST_CASE_FIXTURE(Fixture, "matches any key")
 {
   SUBCASE("match string")
   {
-    CHECK( matchesAnyKey( AnnotatedLog{log_}, "" ) == true );
-    CHECK( matchesAnyKey( AnnotatedLog{log_}, "x" ) == false );
-    CHECK( matchesAnyKey( AnnotatedLog{log_}, "1" ) == false );
-    CHECK( matchesAnyKey( AnnotatedLog{log_}, "a" ) == true );
-    CHECK( matchesAnyKey( AnnotatedLog{log_}, "f" ) == true );
-    CHECK( matchesAnyKey( AnnotatedLog{log_}, "fo" ) == true );
-    CHECK( matchesAnyKey( AnnotatedLog{log_}, "foo" ) == true );
-    CHECK( matchesAnyKey( AnnotatedLog{log_}, "foO" ) == false );
-    CHECK( matchesAnyKey( AnnotatedLog{log_}, "oo" ) == true );
-    CHECK( matchesAnyKey( AnnotatedLog{log_}, "array" ) == true );
-    CHECK( matchesAnyKey( AnnotatedLog{log_}, "a_c" ) == false );
-    CHECK( matchesAnyKey( AnnotatedLog{logMulti_}, "1" ) == false );
-    CHECK( matchesAnyKey( AnnotatedLog{logMulti_}, "aaa" ) == false);
-    CHECK( matchesAnyKey( AnnotatedLog{logMulti_}, "an" ) == true );
+    testMatchingKeyByString<Log>(*this);
+    testMatchingKeyByString<AnnotatedLog>(*this);
   }
   SUBCASE("match regex")
   {
@@ -320,21 +330,31 @@ TEST_CASE_FIXTURE(Fixture, "matches any key")
 }
 
 
+namespace
+{
+template<typename LogType>
+void testMatchingValueByString(Fixture const& fixture)
+{
+  CHECK( matchesAnyValue( LogType{fixture.log_}, "" ) == true );
+  CHECK( matchesAnyValue( LogType{fixture.log_}, "x" ) == false );
+  CHECK( matchesAnyValue( LogType{fixture.log_}, "1" ) == true );
+  CHECK( matchesAnyValue( LogType{fixture.log_}, "a" ) == true );
+  CHECK( matchesAnyValue( LogType{fixture.log_}, "a_" ) == true );
+  CHECK( matchesAnyValue( LogType{fixture.log_}, "a_c" ) == true );
+  CHECK( matchesAnyValue( LogType{fixture.log_}, "a_C" ) == false );
+  CHECK( matchesAnyValue( LogType{fixture.log_}, "array" ) == false );
+  CHECK( matchesAnyValue( LogType{fixture.logMulti_}, "4" ) == true );
+  CHECK( matchesAnyValue( LogType{fixture.logMulti_}, "2" ) == true );
+  CHECK( matchesAnyValue( LogType{fixture.logMulti_}, "3" ) == false );
+}
+}
+
 TEST_CASE_FIXTURE(Fixture, "matches any value")
 {
   SUBCASE("match string")
   {
-    CHECK( matchesAnyValue( AnnotatedLog{log_}, "" ) == true );
-    CHECK( matchesAnyValue( AnnotatedLog{log_}, "x" ) == false );
-    CHECK( matchesAnyValue( AnnotatedLog{log_}, "1" ) == true );
-    CHECK( matchesAnyValue( AnnotatedLog{log_}, "a" ) == true );
-    CHECK( matchesAnyValue( AnnotatedLog{log_}, "a_" ) == true );
-    CHECK( matchesAnyValue( AnnotatedLog{log_}, "a_c" ) == true );
-    CHECK( matchesAnyValue( AnnotatedLog{log_}, "a_C" ) == false );
-    CHECK( matchesAnyValue( AnnotatedLog{log_}, "array" ) == false );
-    CHECK( matchesAnyValue( AnnotatedLog{logMulti_}, "4" ) == true );
-    CHECK( matchesAnyValue( AnnotatedLog{logMulti_}, "2" ) == true );
-    CHECK( matchesAnyValue( AnnotatedLog{logMulti_}, "3" ) == false );
+    testMatchingValueByString<Log>(*this);
+    testMatchingValueByString<AnnotatedLog>(*this);
   }
   SUBCASE("match regex")
   {
