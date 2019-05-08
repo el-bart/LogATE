@@ -88,11 +88,26 @@ struct SearchQuery
   ProgressBar::MonitorShPtr monitor_;
 };
 
+
 auto extractLogs(LogATE::Tree::NodeShPtr node, const LogATE::SequenceNumber currentSelection)
 {
   const auto ll = node->logs().withLock();
   const auto it = ll->find(currentSelection);
   return std::vector<Log>{it, ll->end()};
+}
+
+
+bool hasResultEarly(ProgressBar::Monitor const& monitor)
+{
+  using Clock = std::chrono::steady_clock;
+  const auto timeout = std::chrono::milliseconds{300};
+  const auto deadline = Clock::now() + timeout;
+  while( Clock::now() < deadline )
+    if(monitor.done_)
+      return true;
+    else
+      std::this_thread::yield();
+  return false;
 }
 }
 
@@ -103,6 +118,8 @@ But::Optional<LogATE::SequenceNumber> Search::triggerSearch(LogATE::Tree::NodeSh
   const auto monitor = But::makeSharedNN<ProgressBar::Monitor>( logs.size() );
   auto query = SearchQuery{keyQuery_, valueQuery_, std::move(logs), monitor};
   auto ret = workers_->enqueue( [q=std::move(query)] { return q(); } );
+  if( hasResultEarly(*monitor) )
+    return ret.get();
   ProgressBar pb{monitor};
   if( not pb.process() )
     return {};
