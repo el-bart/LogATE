@@ -80,7 +80,9 @@ void TcpServer::processClient(Poco::Net::StreamSocket clientSocket)
       if( tmp.is_null() )
         continue;
       Queue::lock_type lock{queue_};
-      queue_.waitForSizeBelow(1024, lock);
+      while( not queue_.waitForSizeBelow(1024, lock, std::chrono::seconds{1}) )
+        if(quit_)
+          return;
       queue_.push( Log{tmp} );
     }
     catch(...)
