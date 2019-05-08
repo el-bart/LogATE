@@ -9,7 +9,7 @@ add_library(CursATEimpl
   Curses/Field/Radio.cpp
   Curses/Field/detail/resizePadded.cpp
   Curses/ScrolableWindow.cpp
-  Curses/getChar.hpp
+  Curses/getChar.cpp
   Curses/detail/ScrolableWindowBackend.cpp
   Screen/FilterTree.cpp
   Screen/LogEntry.cpp

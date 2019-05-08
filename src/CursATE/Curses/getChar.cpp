@@ -1,6 +1,6 @@
 #include "CursATE/Curses/getChar.hpp"
 #include <But/assert.hpp>
-#include <ncurses>
+#include <ncurses.h>
 
 namespace CursATE::Curses
 {
