@@ -23,7 +23,6 @@ public:
   auto root() const { return root_; }
 
 private:
-  But::Optional<int> getChar() const;
   void reactOnKey(int ch);
   void processQuitProgram();
   void processFilterTree();

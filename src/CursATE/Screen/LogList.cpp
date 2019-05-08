@@ -3,6 +3,7 @@
 #include "CursATE/Screen/FilterTree.hpp"
 #include "CursATE/Curses/CursorVisibility.hpp"
 #include "CursATE/Curses/Form.hpp"
+#include "CursATE/Curses/getChar.hpp"
 #include "CursATE/Curses/ctrl.hpp"
 #include "LogATE/Printers/OrderedPrettyPrint.hpp"
 #include <But/assert.hpp>
@@ -75,22 +76,11 @@ void LogList::run()
   do
   {
     currentWindow_->refresh();
-    const auto ch = getChar();
+    const auto ch = Curses::getChar( std::chrono::milliseconds{300} );
     if(ch)
       reactOnKey(*ch);
   }
   while(not quit_);
-}
-
-
-But::Optional<int> LogList::getChar() const
-{
-  timeout(300);
-  const auto ch = getch();
-  timeout(-1);
-  if(ch == ERR)
-    return {};
-  return ch;
 }
 
 
