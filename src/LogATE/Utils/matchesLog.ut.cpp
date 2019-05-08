@@ -8,6 +8,7 @@ using LogATE::Utils::matchesKey;
 using LogATE::Utils::matchesValue;
 using LogATE::Utils::matchesAnyKey;
 using LogATE::Utils::matchesAnyValue;
+using LogATE::Utils::matchesAnyKeyValue;
 using LogATE::Utils::allValues;
 using LogATE::Utils::allNodeValues;
 using LogATE::Utils::g_defaultRegexType;
@@ -355,6 +356,42 @@ TEST_CASE_FIXTURE(Fixture, "matches any value")
   {
     testMatchingValueByString<Log>(*this);
     testMatchingValueByString<AnnotatedLog>(*this);
+  }
+  SUBCASE("match regex")
+  {
+    // TODO...
+  }
+}
+
+
+namespace
+{
+template<typename LogType>
+void testMatchingKeyValueByString(Fixture const& fixture)
+{
+  CHECK( matchesAnyKeyValue( LogType{fixture.log_}, "", "" ) == true );
+  CHECK( matchesAnyKeyValue( LogType{fixture.log_}, "fran", "x" ) == false );
+  CHECK( matchesAnyKeyValue( LogType{fixture.log_}, "fra", "a_" ) == true );
+  CHECK( matchesAnyKeyValue( LogType{fixture.log_}, "one", "1" ) == true );
+  CHECK( matchesAnyKeyValue( LogType{fixture.log_}, "two", "1" ) == false );
+  CHECK( matchesAnyKeyValue( LogType{fixture.log_}, "one", "2" ) == false );
+  CHECK( matchesAnyKeyValue( LogType{fixture.log_}, "a", "a" ) == true );
+  CHECK( matchesAnyKeyValue( LogType{fixture.log_}, "narf", "a_" ) == false );
+  CHECK( matchesAnyKeyValue( LogType{fixture.log_}, "", "a_c" ) == true );
+  CHECK( matchesAnyKeyValue( LogType{fixture.log_}, "", "a_C" ) == false );
+  CHECK( matchesAnyKeyValue( LogType{fixture.log_}, "", "array" ) == false );
+  CHECK( matchesAnyKeyValue( LogType{fixture.logMulti_}, "rf", "4" ) == true );
+  CHECK( matchesAnyKeyValue( LogType{fixture.logMulti_}, "na", "2" ) == true );
+  CHECK( matchesAnyKeyValue( LogType{fixture.logMulti_}, "narf", "3" ) == false );
+}
+}
+
+TEST_CASE_FIXTURE(Fixture, "matches any key=value pairs")
+{
+  SUBCASE("match string")
+  {
+    testMatchingKeyValueByString<Log>(*this);
+    testMatchingKeyValueByString<AnnotatedLog>(*this);
   }
   SUBCASE("match regex")
   {

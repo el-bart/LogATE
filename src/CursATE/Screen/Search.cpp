@@ -7,6 +7,7 @@ using LogATE::Log;
 using LogATE::SequenceNumber;
 using LogATE::Utils::matchesAnyKey;
 using LogATE::Utils::matchesAnyValue;
+using LogATE::Utils::matchesAnyKeyValue;
 
 
 namespace CursATE::Screen
@@ -65,13 +66,20 @@ struct SearchQuery
   {
     BUT_ASSERT( not key_.empty() || not value_.empty() );
     BUT_ASSERT( logs_.size() == monitor_->totalSize_ );
+    const auto mode = (key_.empty()?0x00:0x10) | (value_.empty()?0x00:0x1);
     for(auto& log: logs_)
     {
       if(monitor_->abort_)
         return {};
-      const auto mk = (not key_.empty())   ? matchesAnyKey(log, key_)     : true;
-      const auto mv = (not value_.empty()) ? matchesAnyValue(log, value_) : true;
-      if( mk && mv )
+
+      auto found = false;
+      switch(mode)
+      {
+        case 0x10: found = matchesAnyKey(log, key_); break;
+        case 0x01: found = matchesAnyValue(log, value_); break;
+        case 0x11: found = matchesAnyKeyValue(log, key_, value_); break;
+      }
+      if(found)
       {
         monitor_->done_ = true;
         return log.sequenceNumber();

@@ -217,6 +217,33 @@ bool matchesAnyValueRecursive(nlohmann::json const& log, F const& cmp, ToStr con
   return false;
 }
 
+template<typename FK, typename FV, typename ToStr>
+bool matchesAnyKeyValueRecursive(nlohmann::json const& log, FK const& cmpKey, FV const& cmpValue, ToStr const& toStr)
+{
+  if( log.is_null() )
+    return false;
+
+  if( log.is_array() )
+    for(auto it=log.begin(); it!=log.end(); ++it)
+      if( matchesAnyKeyValueRecursive(*it, cmpKey, cmpValue, toStr) )
+        return true;
+
+  if( log.is_object() )
+    for(auto it=log.begin(); it!=log.end(); ++it)
+    {
+      if( cmpKey( it.key() ) )
+      {
+        const auto v = toStr( it.value() );
+        if( v && cmpValue(*v) )
+          return true;
+      }
+      if( matchesAnyKeyValueRecursive(*it, cmpKey, cmpValue, toStr) )
+        return true;
+    }
+
+  return false;
+}
+
 struct StringSearch
 {
   bool operator()(std::string const& str) const { return str.find(*query_) != std::string::npos; }
@@ -250,6 +277,22 @@ bool matchesAnyValue(Log const& log, std::string const& str)
 bool matchesAnyValue(AnnotatedLog const& log, std::string const& str)
 {
   return matchesAnyValueRecursive(log.json_, StringSearch{&str}, LogATE::Utils::value2str);
+}
+
+
+bool matchesAnyKeyValue(Log const& log, std::string const& key, std::string const& value)
+{
+  if( log.str().find(key) == std::string::npos )
+    return false;
+  if( log.str().find(value) == std::string::npos )
+    return false;
+  return matchesAnyKeyValue( AnnotatedLog{log}, key, value );
+}
+
+
+bool matchesAnyKeyValue(AnnotatedLog const& log, std::string const& key, std::string const& value)
+{
+  return matchesAnyKeyValueRecursive(log.json_, StringSearch{&key}, StringSearch{&value}, LogATE::Utils::value2str);
 }
 
 
