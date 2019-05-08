@@ -62,6 +62,32 @@ TEST_CASE("converting with priorities")
     CHECK( "13 root={ bar=xxx narf=yyy }" == opp_( mklog(13, R"({"root": {"narf": "yyy", "bar":"xxx"} })") ) );
     CHECK( "13 root={ foo=xxx bar=zzz narf=yyy }" == opp_( mklog(13, R"({"root": {"narf": "yyy", "bar":"zzz", "foo":"xxx"} })") ) );
   }
+  SUBCASE("long input JSON")
+  {
+    CHECK( "13 foo=#9 " == opp_( mklog(13, R"({
+                                                 "00": "11",
+                                                 "11": "22",
+                                                 "22": "33",
+                                                 "33": "44",
+                                                 "44": "55",
+                                                 "55": "66",
+                                                 "66": "77",
+                                                 "77": "88",
+                                                 "88": "99",
+                                                 "99": "00",
+                                                 "narf": "xxx",
+                                                 "abc": "#0",
+                                                 "def": "#1",
+                                                 "ghi": "#2",
+                                                 "jkl": "#3",
+                                                 "mno": "#4",
+                                                 "pqr": "#5",
+                                                 "stw": "#6",
+                                                 "vxyz": "#7",
+                                                 "01234": "#8",
+                                                 "foo": "#9"
+                                               })") ).substr(0,10) );
+  }
 }
 
 
