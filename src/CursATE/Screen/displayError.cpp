@@ -1,5 +1,6 @@
 #include "CursATE/Screen/displayError.hpp"
 #include "CursATE/Curses/Window.hpp"
+#include <boost/type_index.hpp>
 #include <ncurses.h>
 
 using CursATE::Curses::Window;
@@ -50,6 +51,35 @@ void displayError(std::vector<std::string> const& lines)
 
   win.refresh();
   getch();
+}
+
+
+namespace
+{
+auto splitMultiline(const size_t columns, std::string const& in)
+{
+  std::vector<std::string> out;
+  const auto leftovers = ( in.size() % columns ) ? 1u : 0u;
+  const auto wholeLines = in.size() / columns;
+  out.reserve(wholeLines + leftovers);
+
+  for(auto i=0u; i<wholeLines; ++i)
+    out.emplace_back( in.begin()+i*columns, in.begin()+(i+1)*columns );
+
+  out.emplace_back( in.begin()+wholeLines*columns, in.end() );
+
+  return out;
+}
+}
+
+
+void displayError(std::exception const& ex)
+{
+  const auto columns = ScreenSize::global().columns_.value_ - 2u*g_delta;
+  auto lines = splitMultiline( columns,  ex.what() );
+  lines.insert( lines.begin(), "" );
+  lines.insert( lines.begin(), boost::typeindex::type_id_runtime(ex).pretty_name() );
+  return displayError( std::move(lines) );
 }
 
 }
