@@ -18,6 +18,7 @@ public:
   Search& operator=(Search&&) = delete;
 
   But::Optional<LogATE::SequenceNumber> process(LogATE::Tree::NodeShPtr node, LogATE::SequenceNumber currentSelection);
+  But::Optional<LogATE::SequenceNumber> processAgain(LogATE::Tree::NodeShPtr node, LogATE::SequenceNumber currentSelection);
 
 private:
   bool updateSearchPattern();

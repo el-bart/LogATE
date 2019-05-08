@@ -20,6 +20,14 @@ But::Optional<LogATE::SequenceNumber> Search::process(LogATE::Tree::NodeShPtr no
 }
 
 
+But::Optional<LogATE::SequenceNumber> Search::processAgain(LogATE::Tree::NodeShPtr node, const LogATE::SequenceNumber currentSelection)
+{
+  if( keyQuery_.empty() && valueQuery_.empty() )
+    return {};
+  return triggerSearch(node, currentSelection);
+}
+
+
 bool Search::updateSearchPattern()
 {
   auto form = Curses::makeForm(

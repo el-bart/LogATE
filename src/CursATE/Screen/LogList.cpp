@@ -112,7 +112,7 @@ void LogList::reactOnKey(const int ch)
     case 'f': processLogEntry(); break;
 
     case '/': processSearch(); break;
-    // TODO: repeat last search
+    case 'n': processSearchAgain(); break;
     // TODO: search backward
 
     // TODO: searching by string?
@@ -209,6 +209,34 @@ void LogList::processSearch()
   if(not selected)
     return;
   const auto ret = search_.process( currentNode_, LogATE::SequenceNumber{selected->value_} );
+  if(not ret)
+    return;
+  currentWindow_->select( Curses::DataSource::Id{ret->value_} );
+}
+
+
+namespace
+{
+auto nextSn(LogATE::Tree::NodeShPtr node, const LogATE::SequenceNumber now)
+{
+  const auto ll = node->logs().withLock();
+  const auto it = ll->find(now);
+  if( it == ll->end() )
+    return now;
+  const auto next = it + 1;
+  if( next == ll->end() )
+    return now;
+  return next->sequenceNumber();
+}
+}
+
+void LogList::processSearchAgain()
+{
+  const auto selected = currentWindow_->currentSelection();
+  if(not selected)
+    return;
+  const auto next = nextSn( currentNode_, LogATE::SequenceNumber{selected->value_} );
+  const auto ret = search_.processAgain( currentNode_, LogATE::SequenceNumber{next.value_} );
   if(not ret)
     return;
   currentWindow_->select( Curses::DataSource::Id{ret->value_} );

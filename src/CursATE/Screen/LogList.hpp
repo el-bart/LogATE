@@ -32,6 +32,7 @@ private:
   void centerAroundLogSelection(LogATE::Tree::NodeShPtr node);
   void centerAroundLog(LogATE::Tree::NodeShPtr node, LogATE::SequenceNumber sn);
   void processSearch();
+  void processSearchAgain();
 
   std::atomic<bool> quit_{false};
   Search search_;
