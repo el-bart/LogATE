@@ -1,5 +1,5 @@
 #include "LogATE/Tree/Filter/Grep.hpp"
-#include "LogATE/Tree/Filter/detail/matchesLog.hpp"
+#include "LogATE/Utils/matchesLog.hpp"
 #include "But/Optional.hpp"
 
 namespace LogATE::Tree::Filter
@@ -9,7 +9,7 @@ namespace
 {
 auto regexType(const Grep::Case c)
 {
-  const auto def = detail::g_defaultRegexType;
+  const auto def = Utils::g_defaultRegexType;
   switch(c)
   {
     case Grep::Case::Sensitive:   return def;
@@ -40,8 +40,8 @@ auto checkMatch(AnnotatedLog const& log, Path const& path, std::regex const& re,
 {
   switch(cmp)
   {
-    case Grep::Compare::Key:   return detail::matchesKey(log, path, re);
-    case Grep::Compare::Value: return detail::matchesValue(log, path, re);
+    case Grep::Compare::Key:   return Utils::matchesKey(log, path, re);
+    case Grep::Compare::Value: return Utils::matchesValue(log, path, re);
   }
   throw std::logic_error{"unknown value of Grep::Compare enum"};
 }

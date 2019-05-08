@@ -14,9 +14,9 @@ add_library(LogATE
   Tree/Filter/AcceptAll.cpp
   Tree/Filter/Explode.cpp
   Tree/Filter/Grep.cpp
-  Tree/Filter/detail/matchesLog.cpp
   Tree/FilterFactory.cpp
   Utils/WorkerThreads.cpp
+  Utils/matchesLog.cpp
   Utils/value2str.cpp
   SequenceNumber.cpp
 )
@@ -47,8 +47,8 @@ if(LOGATE_ENABLE_TESTS)
     Tree/SimpleNode.ut.cpp
     Tree/Filter/Explode.ut.cpp
     Tree/Filter/Grep.ut.cpp
-    Tree/Filter/detail/matchesLog.ut.cpp
     Tree/FilterFactory.ut.cpp
+    Utils/matchesLog.ut.cpp
     Log.ut.cpp
     main.ut.cpp
   )

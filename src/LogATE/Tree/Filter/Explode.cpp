@@ -1,6 +1,6 @@
 #include "LogATE/Tree/Filter/Explode.hpp"
 #include "LogATE/Tree/Filter/AcceptAll.hpp"
-#include "LogATE/Tree/Filter/detail/matchesLog.hpp"
+#include "LogATE/Utils/matchesLog.hpp"
 
 namespace LogATE::Tree::Filter
 {
@@ -19,13 +19,13 @@ Explode::Explode(Utils::WorkerThreadsShPtr workers, Name name, Path path):
   Node{ std::move(workers), Type{"Explode"}, std::move(name), {path}},
   path_{std::move(path)},
   nonMatchingChild_{ acceptAllOutput( workers_, nonMatchingChildName().value_ ) },
-  matchAny_{"", detail::g_defaultRegexType}
+  matchAny_{"", Utils::g_defaultRegexType}
 { }
 
 void Explode::insert(AnnotatedLog const& log)
 {
   logs().withLock()->insert(log.log_);
-  auto values = detail::allNodeValues(log, path_);
+  auto values = Utils::allNodeValues(log, path_);
   if( values.empty() )
   {
     nonMatchingChild_->insert(log);

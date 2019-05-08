@@ -1,20 +1,20 @@
 #include <doctest/doctest.h>
-#include "LogATE/Tree/Filter/detail/matchesLog.hpp"
+#include "LogATE/Utils/matchesLog.hpp"
 
 using LogATE::Log;
 using LogATE::AnnotatedLog;
 using LogATE::Tree::Path;
-using LogATE::Tree::Filter::detail::matchesKey;
-using LogATE::Tree::Filter::detail::matchesValue;
-using LogATE::Tree::Filter::detail::matchesAnyKey;
-using LogATE::Tree::Filter::detail::matchesAnyValue;
-using LogATE::Tree::Filter::detail::allValues;
-using LogATE::Tree::Filter::detail::allNodeValues;
-using LogATE::Tree::Filter::detail::g_defaultRegexType;
+using LogATE::Utils::matchesKey;
+using LogATE::Utils::matchesValue;
+using LogATE::Utils::matchesAnyKey;
+using LogATE::Utils::matchesAnyValue;
+using LogATE::Utils::allValues;
+using LogATE::Utils::allNodeValues;
+using LogATE::Utils::g_defaultRegexType;
 
 namespace
 {
-TEST_SUITE("Tree::Filter::detail::jsonSearch")
+TEST_SUITE("Tree::Utils::matchesLog")
 {
 
 struct Fixture
