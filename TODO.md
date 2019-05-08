@@ -8,7 +8,7 @@
 * filter accepting all nodes, but dropping a given set of fields when displaying
 * binary split node (matching and non-matching nodes as children)
 * adding a child to Explode maybe should mean adding to all subnodes? how to do this? factory?
-* search inside a given node set
+* search inside a given node set via regex
 * Filter::Grep should filter-out grep-field optionally only
 
 

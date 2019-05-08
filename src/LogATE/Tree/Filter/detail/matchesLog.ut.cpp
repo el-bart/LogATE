@@ -6,6 +6,8 @@ using LogATE::AnnotatedLog;
 using LogATE::Tree::Path;
 using LogATE::Tree::Filter::detail::matchesKey;
 using LogATE::Tree::Filter::detail::matchesValue;
+using LogATE::Tree::Filter::detail::matchesAnyKey;
+using LogATE::Tree::Filter::detail::matchesAnyValue;
 using LogATE::Tree::Filter::detail::allValues;
 using LogATE::Tree::Filter::detail::allNodeValues;
 using LogATE::Tree::Filter::detail::g_defaultRegexType;
@@ -117,6 +119,7 @@ TEST_CASE_FIXTURE(Fixture, "converting all basic types for value comparison")
   }
 }
 
+
 TEST_CASE_FIXTURE(Fixture, "value comparison of absolute path with regexs")
 {
   matchFunction = matchesValue;
@@ -128,6 +131,7 @@ TEST_CASE_FIXTURE(Fixture, "value comparison of absolute path with regexs")
   CHECK( testMatch( Path{{"."}},                       "a.*c" ) == false );
 }
 
+
 TEST_CASE_FIXTURE(Fixture, "value comparison of absolute path")
 {
   matchFunction = matchesValue;
@@ -138,6 +142,7 @@ TEST_CASE_FIXTURE(Fixture, "value comparison of absolute path")
   CHECK( testMatch( Path{{".", "no", "such", "node"}}, "a=c" ) == false );
   CHECK( testMatch( Path{{"."}},                       "a=c" ) == false );
 }
+
 
 TEST_CASE_FIXTURE(Fixture, "value comparison of relative path")
 {
@@ -175,6 +180,7 @@ TEST_CASE_FIXTURE(Fixture, "key comparison of absolute path")
   CHECK( testMatch( Path{{"."}},                         "bar"    ) == false );
 }
 
+
 TEST_CASE_FIXTURE(Fixture, "key comparison of relative path")
 {
   matchFunction = matchesKey;
@@ -196,6 +202,7 @@ TEST_CASE_FIXTURE(Fixture, "key comparison of relative path")
   CHECK( testMatchMulti( Path{{"foo"}},           "ZZZ"    ) == false );
 }
 
+
 TEST_CASE_FIXTURE(Fixture, "getting all key values for an aboslute path")
 {
   SUBCASE("existing key")
@@ -210,6 +217,7 @@ TEST_CASE_FIXTURE(Fixture, "getting all key values for an aboslute path")
     CHECK( out.size() == 0 );
   }
 }
+
 
 TEST_CASE_FIXTURE(Fixture, "getting all key values for a relative path")
 {
@@ -228,11 +236,13 @@ TEST_CASE_FIXTURE(Fixture, "getting all key values for a relative path")
   }
 }
 
+
 TEST_CASE_FIXTURE(Fixture, "keys can only be taken out of key:value pair (not object/array)")
 {
   auto out = allValues(AnnotatedLog{logMulti_}, Path{{"foo"}});
   REQUIRE( out.size() == 0 );
 }
+
 
 TEST_CASE_FIXTURE(Fixture, "relative paths leading to the same values are unified")
 {
@@ -248,6 +258,7 @@ TEST_CASE_FIXTURE(Fixture, "relative paths leading to the same values are unifie
   REQUIRE( out.size() == 1 );
   CHECK( out[0] == "xx" );
 }
+
 
 TEST_CASE_FIXTURE(Fixture, "getting values for nodes")
 {
@@ -279,6 +290,55 @@ TEST_CASE_FIXTURE(Fixture, "getting values for nodes")
     auto out = allNodeValues(AnnotatedLog{log_}, Path::parse(".foo"));
     REQUIRE( out.size() == 1 );
     CHECK( out[0] == R"({"bar":"a/c"})" );
+  }
+}
+
+
+TEST_CASE_FIXTURE(Fixture, "matches any key")
+{
+  SUBCASE("match string")
+  {
+    CHECK( matchesAnyKey( AnnotatedLog{log_}, "" ) == true );
+    CHECK( matchesAnyKey( AnnotatedLog{log_}, "x" ) == false );
+    CHECK( matchesAnyKey( AnnotatedLog{log_}, "1" ) == false );
+    CHECK( matchesAnyKey( AnnotatedLog{log_}, "a" ) == true );
+    CHECK( matchesAnyKey( AnnotatedLog{log_}, "f" ) == true );
+    CHECK( matchesAnyKey( AnnotatedLog{log_}, "fo" ) == true );
+    CHECK( matchesAnyKey( AnnotatedLog{log_}, "foo" ) == true );
+    CHECK( matchesAnyKey( AnnotatedLog{log_}, "foO" ) == false );
+    CHECK( matchesAnyKey( AnnotatedLog{log_}, "oo" ) == true );
+    CHECK( matchesAnyKey( AnnotatedLog{log_}, "array" ) == true );
+    CHECK( matchesAnyKey( AnnotatedLog{log_}, "a_c" ) == false );
+    CHECK( matchesAnyKey( AnnotatedLog{logMulti_}, "1" ) == false );
+    CHECK( matchesAnyKey( AnnotatedLog{logMulti_}, "aaa" ) == false);
+    CHECK( matchesAnyKey( AnnotatedLog{logMulti_}, "an" ) == true );
+  }
+  SUBCASE("match regex")
+  {
+    // TODO...
+  }
+}
+
+
+TEST_CASE_FIXTURE(Fixture, "matches any value")
+{
+  SUBCASE("match string")
+  {
+    CHECK( matchesAnyValue( AnnotatedLog{log_}, "" ) == true );
+    CHECK( matchesAnyValue( AnnotatedLog{log_}, "x" ) == false );
+    CHECK( matchesAnyValue( AnnotatedLog{log_}, "1" ) == true );
+    CHECK( matchesAnyValue( AnnotatedLog{log_}, "a" ) == true );
+    CHECK( matchesAnyValue( AnnotatedLog{log_}, "a_" ) == true );
+    CHECK( matchesAnyValue( AnnotatedLog{log_}, "a_c" ) == true );
+    CHECK( matchesAnyValue( AnnotatedLog{log_}, "a_C" ) == false );
+    CHECK( matchesAnyValue( AnnotatedLog{log_}, "array" ) == false );
+    CHECK( matchesAnyValue( AnnotatedLog{logMulti_}, "4" ) == true );
+    CHECK( matchesAnyValue( AnnotatedLog{logMulti_}, "2" ) == true );
+    CHECK( matchesAnyValue( AnnotatedLog{logMulti_}, "3" ) == false );
+  }
+  SUBCASE("match regex")
+  {
+    // TODO...
   }
 }
 
