@@ -13,6 +13,7 @@ add_library(CursATEimpl
   Screen/FilterTree.cpp
   Screen/LogEntry.cpp
   Screen/LogList.cpp
+  Screen/Search.cpp
   Screen/detail/FilterWindows.cpp
   Screen/detail/FilterTreeDataSource.cpp
   Screen/detail/LogDataSource.cpp

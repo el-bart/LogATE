@@ -1,5 +1,6 @@
 #pragma once
 #include "CursATE/Screen/detail/FilterWindows.hpp"
+#include "CursATE/Screen/Search.hpp"
 #include "LogATE/Tree/FilterFactory.hpp"
 #include <But/Optional.hpp>
 #include <atomic>
@@ -31,8 +32,10 @@ private:
   void centerAllNodesAroundCurrentLog();
   void centerAroundLogSelection(LogATE::Tree::NodeShPtr node);
   void centerAroundLog(LogATE::Tree::NodeShPtr node, LogATE::SequenceNumber sn);
+  void processSearch();
 
   std::atomic<bool> quit_{false};
+  Search search_;
   LogATE::Tree::FilterFactory filterFactory_;
   detail::FilterWindows filterWindows_;
   const LogATE::Tree::NodeShPtr root_;

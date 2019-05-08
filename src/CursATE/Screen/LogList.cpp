@@ -30,6 +30,7 @@ auto makePrinter()
 }
 
 LogList::LogList(LogATE::Utils::WorkerThreadsShPtr workers):
+  search_{workers},
   filterFactory_{ std::move(workers) },
   filterWindows_{ makePrinter() },
   root_{ filterFactory_.build( FilterFactory::Type{"AcceptAll"}, FilterFactory::Name{"all logs"}, FilterFactory::Options{} ) },
@@ -120,6 +121,10 @@ void LogList::reactOnKey(const int ch)
     case KEY_ENTER:
     case 'f': processLogEntry(); break;
 
+    case '/': processSearch(); break;
+    // TODO: repeat last search
+    // TODO: search backward
+
     // TODO: searching by string?
     // TODO: moving to a log with a given ID?
     // TODO: move selection to screen begin/center/end
@@ -205,6 +210,17 @@ void LogList::centerAroundLog(LogATE::Tree::NodeShPtr node, const LogATE::Sequen
   }
   for(auto c: node->children())
     centerAroundLog(c, sn);
+}
+
+
+void LogList::processSearch()
+{
+  const auto selected = currentWindow_->currentSelection();
+  if(not selected)
+    return;
+  const auto ret = search_.process( currentNode_, LogATE::SequenceNumber{selected->value_} );
+  (void)ret;
+  // TODO
 }
 
 }
