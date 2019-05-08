@@ -72,15 +72,15 @@ void appendTree(nlohmann::json const& log, C& out, Path const& path, std::string
   using E = typename C::value_type;
   for( auto& e: log.items() )
   {
-    auto newPath = path;
-    newPath.value_.push_back( e.key() );
+    auto newPathData = path.data();
+    newPathData.push_back( e.key() );
     auto value = value2str( e.value() );
     auto text = prefix + e.key();
     if(value)
       text += ": " + *value;
-    out.push_back( E{ newPath, std::move(text), value } );
+    out.push_back( E{ Path{newPathData}, std::move(text), value } );
     if(not value)
-      appendTree(e.value(), out, newPath, newPrefix);
+      appendTree(e.value(), out, Path{newPathData}, newPrefix);
   }
 }
 }

@@ -41,7 +41,7 @@ namespace Tree
 
 inline std::ostream& operator<<(std::ostream& os, Tree::Path const& path)
 {
-  return LogATE::printVector(os, path.value_);
+  return LogATE::printVector(os, path.data());
 }
 
 }

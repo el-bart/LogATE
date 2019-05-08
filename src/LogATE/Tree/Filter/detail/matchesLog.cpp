@@ -130,7 +130,7 @@ auto matchesRelativeValue(AnnotatedLog const& log, Path const& path, F const& cm
 template<typename F>
 bool matchesKeyImpl(AnnotatedLog const& log, Path const& path, F const& cmp)
 {
-  if( path.value_.empty() )
+  if( path.empty() )
     return false;
   if( path.root() )
     return matchesAbsoluteKey(log, path, cmp);
@@ -140,7 +140,7 @@ bool matchesKeyImpl(AnnotatedLog const& log, Path const& path, F const& cmp)
 template<typename F, typename ToStr>
 bool matchesValueImpl(AnnotatedLog const& log, Path const& path, F const& cmp, ToStr const& toStr)
 {
-  if( path.value_.empty() )
+  if( path.empty() )
     return false;
   if( path.root() )
     return matchesAbsoluteValue(log, path, cmp, toStr);
