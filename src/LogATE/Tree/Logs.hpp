@@ -60,6 +60,9 @@ public:
     return logs_.end();
   }
 
+  std::vector<Log>::iterator find(SequenceNumber sn);
+  std::vector<Log>::const_iterator find(SequenceNumber sn) const;
+
   void insert(Log log);
 
   size_t pruneUpTo(SequenceNumber firstToKeep);

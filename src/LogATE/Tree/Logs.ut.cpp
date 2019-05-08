@@ -11,7 +11,6 @@ using SN = LogATE::SequenceNumber;
 
 namespace
 {
-
 TEST_SUITE("Tree::Logs")
 {
 
@@ -22,11 +21,13 @@ struct Fixture
   Logs logs_;
 };
 
+
 TEST_CASE_FIXTURE(Fixture, "empty set upon creation")
 {
   CHECK( logs_.withLock()->size() == 0u );
   CHECK( logs_.withLock()->empty() );
 }
+
 
 TEST_CASE_FIXTURE(Fixture, "adding one element makes range usage")
 {
@@ -37,6 +38,7 @@ TEST_CASE_FIXTURE(Fixture, "adding one element makes range usage")
   CHECK( logs_.withLock()->last().sequenceNumber() == tmp.sequenceNumber() );
   CHECK( logs_.withLock()->first().sequenceNumber() == tmp.sequenceNumber() );
 }
+
 
 TEST_CASE_FIXTURE(Fixture, "elements added in order are ordered correctly")
 {
@@ -50,6 +52,7 @@ TEST_CASE_FIXTURE(Fixture, "elements added in order are ordered correctly")
   }
 }
 
+
 TEST_CASE_FIXTURE(Fixture, "elements added in different order are auto-ordered correctly")
 {
   const auto tmp1 = makeLog(41);
@@ -62,6 +65,7 @@ TEST_CASE_FIXTURE(Fixture, "elements added in different order are auto-ordered c
   CHECK( logs_.withLock()->first().sequenceNumber() == tmp1.sequenceNumber() );
 }
 
+
 TEST_CASE_FIXTURE(Fixture, "prunning elements until given value")
 {
   for(auto sn: {2,3,5,7,8,9})
@@ -69,6 +73,7 @@ TEST_CASE_FIXTURE(Fixture, "prunning elements until given value")
   CHECK( logs_.withLock()->pruneUpTo(SN{8}) == 4 );
   CHECK( allSns() == makeSns({8,9}) );
 }
+
 
 TEST_CASE_FIXTURE(Fixture, "prunning elements until non existing low value will not touch collection")
 {
@@ -78,6 +83,7 @@ TEST_CASE_FIXTURE(Fixture, "prunning elements until non existing low value will 
   CHECK( allSns() == makeSns({2,3,5,7,8,9}) );
 }
 
+
 TEST_CASE_FIXTURE(Fixture, "prunning elements until non existing high value will clean collection")
 {
   for(auto sn: {2,3,5,7,8,9})
@@ -85,6 +91,7 @@ TEST_CASE_FIXTURE(Fixture, "prunning elements until non existing high value will
   CHECK( logs_.withLock()->pruneUpTo(SN{42}) == 6 );
   CHECK( logs_.withLock()->empty() );
 }
+
 
 TEST_CASE_FIXTURE(Fixture, "getting given range")
 {
@@ -95,6 +102,7 @@ TEST_CASE_FIXTURE(Fixture, "getting given range")
   CHECK( logs2sns( logs_.withLock()->range(SN{3}, SN{42}) ) == makeSns({3,5,7,8,9}) );
   CHECK( logs2sns( logs_.withLock()->range(SN{3}, SN{6})  ) == makeSns({3,5}) );
 }
+
 
 TEST_CASE_FIXTURE(Fixture, "getting count starting with a given position")
 {
@@ -111,6 +119,7 @@ TEST_CASE_FIXTURE(Fixture, "getting count starting with a given position")
   CHECK( logs2sns( logs_.withLock()->from(SN{13}, 5)  ) == makeSns({}) );
   CHECK( logs2sns( logs_.withLock()->from(SN{0}, 99)  ) == makeSns({2,3,5,7,8,9}) );
 }
+
 
 TEST_CASE_FIXTURE(Fixture, "getting count ending with a given position")
 {
@@ -129,6 +138,53 @@ TEST_CASE_FIXTURE(Fixture, "getting count ending with a given position")
   CHECK( logs2sns( logs_.withLock()->to(SN{5}, 2)  ) == makeSns({3,5}) );
 }
 
+
+TEST_CASE_FIXTURE(Fixture, "finding element in set")
+{
+  for(auto sn: {2,3,5,9})
+    logs_.withLock()->insert( makeLog(sn) );
+  auto ll = logs_.withLock();
+  SUBCASE("first")
+  {
+    const auto it = ll->find( SN{2} );
+    REQUIRE( it != ll->end() );
+    CHECK( it->sequenceNumber() == SN{2} );
+  }
+  SUBCASE("middle")
+  {
+    const auto it = ll->find( SN{5} );
+    REQUIRE( it != ll->end() );
+    CHECK( it->sequenceNumber() == SN{5} );
+  }
+  SUBCASE("last")
+  {
+    const auto it = ll->find( SN{9} );
+    REQUIRE( it != ll->end() );
+    CHECK( it->sequenceNumber() == SN{9} );
+  }
+  SUBCASE("non-existing - middle")
+  {
+    const auto it = ll->find( SN{4} );
+    REQUIRE( it == ll->end() );
+  }
+  SUBCASE("non-existing - before first")
+  {
+    const auto it = ll->find( SN{1} );
+    REQUIRE( it == ll->end() );
+  }
+  SUBCASE("non-existing - after last")
+  {
+    const auto it = ll->find( SN{10} );
+    REQUIRE( it == ll->end() );
+  }
+  SUBCASE("const")
+  {
+    const auto llc = std::move(ll);
+    const auto it = llc->find( SN{2} );
+    REQUIRE( it != llc->end() );
+    CHECK( it->sequenceNumber() == SN{2} );
+  }
 }
 
+}
 }

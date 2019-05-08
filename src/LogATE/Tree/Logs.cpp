@@ -12,7 +12,34 @@ struct OrderBySequenceNumber
   auto operator()(SequenceNumber const& lhs, Log const&            rhs) const { return lhs                  < rhs.sequenceNumber(); }
   auto operator()(SequenceNumber const& lhs, SequenceNumber const& rhs) const { return lhs                  < rhs; }
 };
+
+template<typename C>
+auto findInCollection(C& c, const SequenceNumber sn)
+{
+  BUT_ASSERT( std::is_sorted( c.begin(), c.end(), OrderBySequenceNumber{} ) );
+  const auto it = std::lower_bound( c.begin(), c.end(), sn, OrderBySequenceNumber{} );
+  if( it == c.end() )
+    return c.end();
+  if( it->sequenceNumber() != sn )
+    return c.end();
+  return it;
 }
+}
+
+
+std::vector<Log>::iterator Logs::find(const SequenceNumber sn)
+{
+  BUT_ASSERT( locked() );
+  return findInCollection(logs_, sn);
+}
+
+
+std::vector<Log>::const_iterator Logs::find(const SequenceNumber sn) const
+{
+  BUT_ASSERT( locked() );
+  return findInCollection(logs_, sn);
+}
+
 
 void Logs::insert(Log log)
 {
@@ -33,6 +60,7 @@ void Logs::insert(Log log)
   BUT_ASSERT( std::is_sorted( begin(), end(), OrderBySequenceNumber{} ) );
 }
 
+
 size_t Logs::pruneUpTo(const SequenceNumber firstToKeep)
 {
   BUT_ASSERT( locked() );
@@ -42,6 +70,7 @@ size_t Logs::pruneUpTo(const SequenceNumber firstToKeep)
   logs_.erase( begin(), it );
   return count;
 }
+
 
 std::vector<Log> Logs::range(const SequenceNumber beginIt, const SequenceNumber endIt) const
 {
@@ -54,6 +83,7 @@ std::vector<Log> Logs::range(const SequenceNumber beginIt, const SequenceNumber 
   return std::vector<Log>{low, high};
 }
 
+
 std::vector<Log> Logs::from(const SequenceNumber first, const size_t count) const
 {
   BUT_ASSERT( locked() );
@@ -63,6 +93,7 @@ std::vector<Log> Logs::from(const SequenceNumber first, const size_t count) cons
   const auto elements = std::min<size_t>(maxCount, count);
   return std::vector<Log>{low, low+elements};
 }
+
 
 std::vector<Log> Logs::to(const SequenceNumber last, const size_t count) const
 {
