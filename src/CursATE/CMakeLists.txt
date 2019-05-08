@@ -20,6 +20,7 @@ add_library(CursATEimpl
   Screen/detail/FilterTreeDataSource.cpp
   Screen/detail/LogDataSource.cpp
   Screen/detail/LogEntryDataSource.cpp
+  Screen/detail/formatAsPercentage.cpp
   Main.cpp
 )
 target_include_directories(CursATEimpl PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
@@ -45,6 +46,7 @@ if(LOGATE_ENABLE_TESTS)
     Curses/Field/detail/resizePadded.ut.cpp
     Curses/detail/ScrolableWindowBackend.ut.cpp
     Screen/detail/LogDataSource.ut.cpp
+    Screen/detail/formatAsPercentage.ut.cpp
     main.ut.cpp
   )
   add_executable(CursATE_mts

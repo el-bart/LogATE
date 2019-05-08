@@ -1,4 +1,5 @@
 #include "CursATE/Screen/ProgressBar.hpp"
+#include "CursATE/Screen/detail/formatAsPercentage.hpp"
 #include "CursATE/Curses/Window.hpp"
 #include "CursATE/Curses/getChar.hpp"
 
@@ -35,22 +36,11 @@ auto screenSize(const unsigned delta)
 }
 
 
-auto formatAsPercentage(const double value)
-{
-  auto str = std::to_string(value);
-  auto pos = str.find('.');
-  if( pos+3 >= str.size() )
-    return str;
-  auto it = str.begin() + pos + 3;
-  str.erase(it, str.end());
-  return str;
-}
-
 void printProgress(Window& win, const ScreenPosition uasp, ProgressBar::Monitor const& monitor)
 {
   const auto done = monitor.processed_.load();
-  const auto percent = static_cast<double>(done) / monitor.totalSize_ * 100.0;
-  mvwprintw(win.get(), uasp.row_.value_+0, uasp.column_.value_, "progress: %s%%", formatAsPercentage(percent).c_str());
+  const auto progress = static_cast<double>(done) / monitor.totalSize_;
+  mvwprintw(win.get(), uasp.row_.value_+0, uasp.column_.value_, "progress: %s", detail::formatAsPercentage(progress).c_str());
   mvwprintw(win.get(), uasp.row_.value_+1, uasp.column_.value_, "done: %lu / %lu", done, monitor.totalSize_);
   mvwprintw(win.get(), uasp.row_.value_+2, uasp.column_.value_, "press 'q' to abort search");
 }
