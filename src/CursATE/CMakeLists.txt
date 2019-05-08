@@ -16,6 +16,7 @@ add_library(CursATEimpl
   Screen/LogList.cpp
   Screen/ProgressBar.cpp
   Screen/Search.cpp
+  Screen/displayError.cpp
   Screen/detail/FilterWindows.cpp
   Screen/detail/FilterTreeDataSource.cpp
   Screen/detail/LogDataSource.cpp
@@ -77,6 +78,7 @@ if(LOGATE_ENABLE_TESTS)
     Curses/new_window.manual.cpp
     Curses/screen_size_monitor.manual.cpp
     Screen/LogEntry.manual.cpp
+    Screen/displayError.manual.cpp
   )
 
   foreach(src ${SOURCES_MANUAL})
