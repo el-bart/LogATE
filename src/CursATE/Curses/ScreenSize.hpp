@@ -30,4 +30,10 @@ struct ScreenSize
   Columns columns_;
 };
 
+
+inline auto operator==(const ScreenSize lhs, const ScreenSize rhs)
+{
+  return lhs.rows_ == rhs.rows_ && lhs.columns_ == rhs.columns_;
+}
+
 }

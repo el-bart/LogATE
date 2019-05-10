@@ -28,4 +28,10 @@ struct ScreenPosition
   Column column_;
 };
 
+
+inline auto operator==(const ScreenPosition lhs, const ScreenPosition rhs)
+{
+  return lhs.row_ == rhs.row_ && lhs.column_ == rhs.column_;
+}
+
 }
