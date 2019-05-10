@@ -27,7 +27,10 @@ void ScrolableWindow::refresh()
   BUT_ASSERT( displayData.lines_.size() <= static_cast<size_t>(uas.rows_.value_) );
   const auto dds = displayDataSummary<DisplayDataSummary>(displayData);
   if( userAreaSize_ == uas && dds_ == dds )
+  {
+    window_.refresh();
     return;
+  }
 
   window_.clear();
 
