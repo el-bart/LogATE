@@ -122,6 +122,8 @@ namespace
 {
 bool removeRecursive(LogATE::Tree::NodeShPtr node, LogATE::Tree::NodeShPtr const& selected)
 {
+  // TODO: consider replacing this with finding a parent and then calling remove() on it, so that actuall error\
+  //       (if present) can be propagated upwards
   try
   {
     for(auto& c: node->children())
