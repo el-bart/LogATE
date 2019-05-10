@@ -4,8 +4,8 @@
 namespace LogATE::Tree::Filter
 {
 
-AcceptAll::AcceptAll(Utils::WorkerThreadsShPtr workers, Name name):
-  SimpleNode{ std::move(workers), Type{"AcceptAll"}, std::move(name), {} }
+AcceptAll::AcceptAll(Utils::WorkerThreadsShPtr workers, Name name, TrimFields tf):
+  SimpleNode{ std::move(workers), Type{"AcceptAll"}, std::move(name), std::move(tf) }
 {
 }
 
