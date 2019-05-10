@@ -182,8 +182,7 @@ std::unique_ptr<LogATE::Tree::Node> createGrep(detail::LogEntryDataSource const&
 
 std::unique_ptr<LogATE::Tree::Node> createExplode(detail::LogEntryDataSource const& ds,
                                                   const Curses::DataSource::Id id,
-                                                  FilterFactory& ff,
-                                                  std::array<std::string,2>& defaults)
+                                                  FilterFactory& ff)
 {
   const auto value = ds.id2value(id);
   auto form = Form{ KeyShortcuts{
@@ -192,38 +191,28 @@ std::unique_ptr<LogATE::Tree::Node> createExplode(detail::LogEntryDataSource con
                                   {'o', "ok"},
                                   {'q', "quit"}
                                 },
-                    Input{ "Name", defaults[0] },
-                    Input{ "Path", defaults[1] },
+                    Input{ "Name", "explode " + ds.id2path(id).str() },
+                    Input{ "Path", ds.id2path(id).str() },
                     Button{"ok"},
                     Button{"quit"}
                   };
-  const auto ret = form.process();
-  for(auto i=0u; i<defaults.size(); ++i)
-    defaults[i] = ret[i];
-  if(ret[3] == "true")
-    return {};
-  BUT_ASSERT(ret[2] == "true" && "'OK' not clicked");
-  FilterFactory::Options opts{ std::make_pair("Path", ret[1]) };
-  auto ptr = ff.build( FilterFactory::Type{"Explode"}, FilterFactory::Name{ret[0]}, std::move(opts) );
-  return std::move(ptr).underlyingPointer();
-}
-
-
-std::unique_ptr<LogATE::Tree::Node> createExplode(detail::LogEntryDataSource const& ds, const Curses::DataSource::Id id, FilterFactory& ff)
-{
-  std::array<std::string,2> defaults{
-      "explode " + ds.id2path(id).str(),
-       ds.id2path(id).str()
-    };
   while(true)
+  {
     try
     {
-      return createExplode(ds, id, ff, defaults);
+      const auto ret = form.process();
+      if(ret[3] == "true")
+        return {};
+      BUT_ASSERT(ret[2] == "true" && "'OK' not clicked");
+      FilterFactory::Options opts{ std::make_pair("Path", ret[1]) };
+      auto ptr = ff.build( FilterFactory::Type{"Explode"}, FilterFactory::Name{ret[0]}, std::move(opts) );
+      return std::move(ptr).underlyingPointer();
     }
     catch(std::exception const& ex)
     {
       displayError(ex);
     }
+  }
 }
 
 
