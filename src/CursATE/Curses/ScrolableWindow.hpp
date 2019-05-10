@@ -9,7 +9,8 @@ struct ScrolableWindow
 {
   ScrolableWindow(DataSourceShNN dataSource, const ScreenPosition sp, const ScreenSize ss, const Window::Boxed boxed):
     backend_{std::move(dataSource)},
-    window_{sp, ss, boxed}
+    window_{sp, ss, boxed},
+    userAreaSize_{ window_.userAreaSize() }
   {
     backend_.resize( window_.userAreaSize() );
   }
@@ -33,8 +34,26 @@ struct ScrolableWindow
   But::Optional<DataSource::Id> currentSelection() const { return backend_.currentSelection(); }
 
 private:
+  struct DisplayDataSummary
+  {
+    auto operator==(DisplayDataSummary const& other) const
+    {
+      return first_   == other.first_ &&
+             last_    == other.last_ &&
+             size_    == other.size_ &&
+             current_ == other.current_;
+    }
+
+    DataSource::Id first_{0};
+    DataSource::Id last_{0};
+    size_t size_{0};
+    DataSource::Id current_{0};
+  };
+
   detail::ScrolableWindowBackend backend_;
   Window window_;
+  DisplayDataSummary dds_;
+  ScreenSize userAreaSize_;
 };
 
 }
