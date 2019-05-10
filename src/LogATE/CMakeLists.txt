@@ -15,6 +15,7 @@ add_library(LogATE
   Tree/Filter/Explode.cpp
   Tree/Filter/Grep.cpp
   Tree/FilterFactory.cpp
+  Tree/findParent.cpp
   Utils/WorkerThreads.cpp
   Utils/matchesLog.cpp
   Utils/value2str.cpp
