@@ -1,9 +1,11 @@
 #include "CursATE/Screen/FilterTree.hpp"
+#include "CursATE/Screen/displayError.hpp"
 #include "CursATE/Screen/detail/FilterTreeDataSource.hpp"
 #include "CursATE/Curses/Form.hpp"
 #include "CursATE/Curses/Field/Button.hpp"
 #include "CursATE/Curses/ScrolableWindow.hpp"
 #include "CursATE/Curses/ctrl.hpp"
+#include "LogATE/Tree/findParent.hpp"
 
 using CursATE::Curses::Form;
 using CursATE::Curses::KeyShortcuts;
@@ -118,33 +120,22 @@ LogATE::Tree::NodeShPtr FilterTree::selectNext(LogATE::Tree::NodeShPtr const& cu
 }
 
 
-namespace
-{
-bool removeRecursive(LogATE::Tree::NodeShPtr node, LogATE::Tree::NodeShPtr const& selected)
-{
-  // TODO: consider replacing this with finding a parent and then calling remove() on it, so that actuall error\
-  //       (if present) can be propagated upwards
-  try
-  {
-    for(auto& c: node->children())
-      if( removeRecursive(c, selected) )
-        return true;
-    if( node->remove(selected) )
-      return true;
-  }
-  catch(...)
-  {
-    // removal failed - possibly a node that does not support it - happens...
-  }
-  return false;
-}
-}
-
 bool FilterTree::deleteNode(LogATE::Tree::NodeShPtr const& selected)
 {
-  if( selected.get() == root_.get() )
-    return false;
-  return removeRecursive(root_, selected);
+  try
+  {
+    if( selected.get() == root_.get() )
+      return false;
+    auto parent = findParent(root_, selected);
+    if(not parent)
+      return false;
+    return parent->remove(selected);
+  }
+  catch(std::exception const& ex)
+  {
+    displayError(ex);
+  }
+  return false;
 }
 
 }
