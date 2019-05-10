@@ -164,19 +164,29 @@ std::unique_ptr<LogATE::Tree::Node> createGrep(detail::LogEntryDataSource const&
                     Button{"ok"},
                     Button{"quit"}
                   };
-  const auto ret = form.process();
-  if(ret[7] == "true")
-    return {};
-  BUT_ASSERT(ret[6] == "true" && "'OK' not clicked");
-  FilterFactory::Options opts{
-                               std::make_pair("Path",    ret[1]),
-                               std::make_pair("regex",   ret[2]),
-                               std::make_pair("Compare", ret[3]),
-                               std::make_pair("Case",    ret[4]),
-                               std::make_pair("Search",  ret[5]),
-                             };
-  auto ptr = ff.build( FilterFactory::Type{"Grep"}, FilterFactory::Name{ret[0]}, std::move(opts) );
-  return std::move(ptr).underlyingPointer();
+  while(true)
+  {
+    try
+    {
+      const auto ret = form.process();
+      if(ret[7] == "true")
+        return {};
+      BUT_ASSERT(ret[6] == "true" && "'OK' not clicked");
+      FilterFactory::Options opts{
+          std::make_pair("Path",    ret[1]),
+          std::make_pair("regex",   ret[2]),
+          std::make_pair("Compare", ret[3]),
+          std::make_pair("Case",    ret[4]),
+          std::make_pair("Search",  ret[5]),
+      };
+      auto ptr = ff.build( FilterFactory::Type{"Grep"}, FilterFactory::Name{ret[0]}, std::move(opts) );
+      return std::move(ptr).underlyingPointer();
+    }
+    catch(std::exception const& ex)
+    {
+      displayError(ex);
+    }
+  }
 }
 
 
@@ -230,13 +240,23 @@ std::unique_ptr<LogATE::Tree::Node> createFrom(FilterFactory& ff, const Curses::
                     Button{"ok"},
                     Button{"quit"}
                   };
-  const auto ret = form.process();
-  if(ret[3] == "true")
-    return {};
-  BUT_ASSERT(ret[2] == "true" && "'OK' not clicked");
-  FilterFactory::Options opts{ std::make_pair("Edge", ret[1]) };
-  auto ptr = ff.build( FilterFactory::Type{"From"}, FilterFactory::Name{ret[0]}, std::move(opts) );
-  return std::move(ptr).underlyingPointer();
+  while(true)
+  {
+    try
+    {
+      const auto ret = form.process();
+      if(ret[3] == "true")
+        return {};
+      BUT_ASSERT(ret[2] == "true" && "'OK' not clicked");
+      FilterFactory::Options opts{ std::make_pair("Edge", ret[1]) };
+      auto ptr = ff.build( FilterFactory::Type{"From"}, FilterFactory::Name{ret[0]}, std::move(opts) );
+      return std::move(ptr).underlyingPointer();
+    }
+    catch(std::exception const& ex)
+    {
+      displayError(ex);
+    }
+  }
 }
 
 
@@ -254,13 +274,23 @@ std::unique_ptr<LogATE::Tree::Node> createTo(FilterFactory& ff, const Curses::Da
                     Button{"ok"},
                     Button{"quit"}
                   };
-  const auto ret = form.process();
-  if(ret[3] == "true")
-    return {};
-  BUT_ASSERT(ret[2] == "true" && "'OK' not clicked");
-  FilterFactory::Options opts{ std::make_pair("Edge", ret[1]) };
-  auto ptr = ff.build( FilterFactory::Type{"To"}, FilterFactory::Name{ret[0]}, std::move(opts) );
-  return std::move(ptr).underlyingPointer();
+  while(true)
+  {
+    try
+    {
+      const auto ret = form.process();
+      if(ret[3] == "true")
+        return {};
+      BUT_ASSERT(ret[2] == "true" && "'OK' not clicked");
+      FilterFactory::Options opts{ std::make_pair("Edge", ret[1]) };
+      auto ptr = ff.build( FilterFactory::Type{"To"}, FilterFactory::Name{ret[0]}, std::move(opts) );
+      return std::move(ptr).underlyingPointer();
+    }
+    catch(std::exception const& ex)
+    {
+      displayError(ex);
+    }
+  }
 }
 
 
@@ -275,12 +305,22 @@ std::unique_ptr<LogATE::Tree::Node> createAcceptAll(FilterFactory& ff)
                     Button{"ok"},
                     Button{"quit"}
                   };
-  const auto ret = form.process();
-  if(ret[2] == "true")
-    return {};
-  BUT_ASSERT(ret[1] == "true" && "'OK' not clicked");
-  auto ptr = ff.build( FilterFactory::Type{"AcceptAll"}, FilterFactory::Name{ret[0]}, FilterFactory::Options{} );
-  return std::move(ptr).underlyingPointer();
+  while(true)
+  {
+    try
+    {
+      const auto ret = form.process();
+      if(ret[2] == "true")
+        return {};
+      BUT_ASSERT(ret[1] == "true" && "'OK' not clicked");
+      auto ptr = ff.build( FilterFactory::Type{"AcceptAll"}, FilterFactory::Name{ret[0]}, FilterFactory::Options{} );
+      return std::move(ptr).underlyingPointer();
+    }
+    catch(std::exception const& ex)
+    {
+      displayError(ex);
+    }
+  }
 }
 }
 

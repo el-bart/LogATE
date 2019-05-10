@@ -22,7 +22,6 @@
 * export logs from a given filter to a file
 * display stats: number of lines, location in file (floating point % + line number)
 * display number of errors from networking stack
-* handle errors from filter creators gracefully (with option to fix the issue)
 * handle failed node addition gracefully
 * trimmed fields should not be visible
 * make deleting root node possible, if there is just one child - then it will pivot root element with its child (useful for dropping non-interesting logs)
