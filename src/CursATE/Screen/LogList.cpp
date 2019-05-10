@@ -165,9 +165,16 @@ void LogList::processLogEntry()
   auto newNode = le.process();
   if(not newNode)
     return;
-  currentNode_ = currentNode_->add( LogATE::Tree::NodePtr{ std::move(newNode) } );
-  currentWindow_ = filterWindows_.window(currentNode_);
-  currentWindow_->select(*id);
+  try
+  {
+    currentNode_ = currentNode_->add( LogATE::Tree::NodePtr{ std::move(newNode) } );
+    currentWindow_ = filterWindows_.window(currentNode_);
+    currentWindow_->select(*id);
+  }
+  catch(std::exception const& ex)
+  {
+    displayError(ex);
+  }
 }
 
 
