@@ -33,4 +33,19 @@ std::string padLeftWithSpaces(std::string str, const size_t maxLen)
   return str;
 }
 
+
+std::string nOFm(const size_t n, const size_t m)
+{
+  auto M = std::to_string(m);
+  auto N = padLeftWithSpaces( std::to_string(n), M.size() );
+  return std::move(N) + "/" + std::move(M);
+}
+
+
+std::string nOFmWithPercent(const size_t n, const size_t m)
+{
+  const auto p = (m!=0) ?  static_cast<double>(n) / static_cast<double>(m) : 1.0;
+  return nOFm(n,m) + " (" + formatAsPercentage(p) + ")";
+}
+
 }

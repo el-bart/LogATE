@@ -3,6 +3,8 @@
 
 using CursATE::Screen::detail::formatAsPercentage;
 using CursATE::Screen::detail::padLeftWithSpaces;
+using CursATE::Screen::detail::nOFm;
+using CursATE::Screen::detail::nOFmWithPercent;
 using namespace std::literals::string_literals;
 
 namespace
@@ -66,6 +68,34 @@ TEST_CASE("left-padding")
   CHECK( padLeftWithSpaces("xxx", 3) == "xxx" );
   CHECK( padLeftWithSpaces("xxx", 4) == " xxx" );
   CHECK( padLeftWithSpaces("xxx", 5) == "  xxx" );
+}
+
+
+TEST_CASE("N of M formatting")
+{
+  CHECK( nOFm(0,0) == "0/0" );
+  CHECK( nOFm(1,0) == "1/0" );
+  CHECK( nOFm(99,0) == "99/0" );
+  CHECK( nOFm(0,1) == "0/1" );
+  CHECK( nOFm(0,10) == " 0/10" );
+  CHECK( nOFm(2,10) == " 2/10" );
+  CHECK( nOFm(0,123) == "  0/123" );
+  CHECK( nOFm(123,123) == "123/123" );
+  CHECK( nOFm(1234,123) == "1234/123" );
+}
+
+
+TEST_CASE("N of M with % formatting")
+{
+  CHECK( nOFmWithPercent(0,0) == "0/0 (100.00%)" );
+  CHECK( nOFmWithPercent(1,0) == "1/0 (100.00%)" );
+  CHECK( nOFmWithPercent(99,0) == "99/0 (100.00%)" );
+  CHECK( nOFmWithPercent(0,1) == "0/1 (  0.00%)" );
+  CHECK( nOFmWithPercent(0,10) == " 0/10 (  0.00%)" );
+  CHECK( nOFmWithPercent(2,10) == " 2/10 ( 20.00%)" );
+  CHECK( nOFmWithPercent(0,123) == "  0/123 (  0.00%)" );
+  CHECK( nOFmWithPercent(123,123) == "123/123 (100.00%)" );
+  CHECK( nOFmWithPercent(2460,123) == "2460/123 (2000.00%)" );
 }
 
 }

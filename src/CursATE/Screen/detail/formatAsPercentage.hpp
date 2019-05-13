@@ -8,4 +8,6 @@ BUT_DEFINE_EXCEPTION(NegativeValuesNotSupported, But::Exception, "negative value
 
 std::string formatAsPercentage(const double value);
 std::string padLeftWithSpaces(std::string str, size_t maxLen);
+std::string nOFm(size_t n, size_t m);
+std::string nOFmWithPercent(size_t n, size_t m);
 }
