@@ -1,6 +1,7 @@
 #include "CursATE/Screen/FilterTree.hpp"
 #include "CursATE/Screen/displayError.hpp"
 #include "CursATE/Screen/detail/FilterTreeDataSource.hpp"
+#include "CursATE/Screen/detail/formatAsPercentage.hpp"
 #include "CursATE/Curses/Form.hpp"
 #include "CursATE/Curses/Field/Button.hpp"
 #include "CursATE/Curses/ScrolableWindow.hpp"
@@ -110,7 +111,8 @@ LogATE::Tree::NodeShPtr FilterTree::selectNext(LogATE::Tree::NodeShPtr const& cu
   while(true)
   {
     const auto ds = But::makeSharedNN<detail::FilterTreeDataSource>(root_);
-    ScrolableWindow win{ds, sp, ss, Window::Boxed::True};
+    auto status = [ds](const size_t pos) { return detail::nOFmWithPercent(pos, ds->size()); };
+    ScrolableWindow win{ds, sp, ss, Window::Boxed::True, std::move(status)};
     const auto id = ds->node2id(selectedNode);
     const auto newId = navigate( win, id, *ds, [&](auto const& node){ return this->deleteNode(node); } );
     selectedNode = ds->id2node(newId.first);
