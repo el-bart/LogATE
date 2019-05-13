@@ -1,6 +1,7 @@
 #include "CursATE/Screen/LogEntry.hpp"
 #include "CursATE/Screen/displayError.hpp"
 #include "CursATE/Screen/detail/LogEntryDataSource.hpp"
+#include "CursATE/Screen/detail/formatAsPercentage.hpp"
 #include "CursATE/Curses/Form.hpp"
 #include "CursATE/Curses/Field/Button.hpp"
 #include "CursATE/Curses/Field/Input.hpp"
@@ -45,7 +46,8 @@ std::unique_ptr<LogATE::Tree::Node> LogEntry::process()
   const auto sp = ScreenPosition{ Row{1}, Column{1} };
   const auto ss = smallerScreenSize();
   const auto ds = But::makeSharedNN<detail::LogEntryDataSource>(log_);
-  ScrolableWindow win{ds, sp, ss, Window::Boxed::True};
+  auto status = [ds](const size_t pos) { return detail::nOFmWithPercent(pos, ds->size()); };
+  ScrolableWindow win{ ds, sp, ss, Window::Boxed::True, std::move(status) };
   return navigate(win, *ds);
 }
 
