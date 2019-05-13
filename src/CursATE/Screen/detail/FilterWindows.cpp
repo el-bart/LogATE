@@ -1,5 +1,6 @@
 #include "CursATE/Screen/detail/FilterWindows.hpp"
 #include "CursATE/Screen/detail/LogDataSource.hpp"
+#include "CursATE/Screen/detail/formatAsPercentage.hpp"
 
 namespace CursATE::Screen::detail
 {
@@ -32,11 +33,12 @@ void FilterWindows::prune()
 
 But::NotNullShared<Curses::ScrolableWindow> FilterWindows::newWindow(LogATE::Tree::NodeShPtr node) const
 {
-  auto ds = But::makeSharedNN<LogDataSource>( std::move(node), log2str_ );
+  const auto ds = But::makeSharedNN<LogDataSource>( std::move(node), log2str_ );
   const auto sp = Curses::ScreenPosition{Curses::Row{0}, Curses::Column{0}};
   const auto ss = Curses::ScreenSize::global();
   const auto boxed = Curses::Window::Boxed::True;
-  return But::makeSharedNN<Curses::ScrolableWindow>(ds, sp, ss, boxed);
+  auto status = [ds](const size_t pos) { return detail::nOFmWithPercent(pos, ds->size()); };
+  return But::makeSharedNN<Curses::ScrolableWindow>(ds, sp, ss, boxed, std::move(status));
 }
 
 }
