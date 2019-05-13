@@ -2,6 +2,7 @@
 #include "CursATE/Screen/detail/formatAsPercentage.hpp"
 
 using CursATE::Screen::detail::formatAsPercentage;
+using CursATE::Screen::detail::padLeftWithSpaces;
 using namespace std::literals::string_literals;
 
 namespace
@@ -52,6 +53,19 @@ TEST_CASE("out of 0-100% values")
   CHECK_THROWS_AS( formatAsPercentage(-0.5), CursATE::Screen::detail::NegativeValuesNotSupported );
   CHECK( formatAsPercentage(1.5)  ==  "150.00%"s );
   CHECK( formatAsPercentage(20.0) == "2000.00%"s );
+}
+
+
+TEST_CASE("left-padding")
+{
+  CHECK( padLeftWithSpaces("", 0) == "" );
+  CHECK( padLeftWithSpaces("", 1) == " " );
+  CHECK( padLeftWithSpaces("xxx", 0) == "xxx" );
+  CHECK( padLeftWithSpaces("xxx", 1) == "xxx" );
+  CHECK( padLeftWithSpaces("xxx", 2) == "xxx" );
+  CHECK( padLeftWithSpaces("xxx", 3) == "xxx" );
+  CHECK( padLeftWithSpaces("xxx", 4) == " xxx" );
+  CHECK( padLeftWithSpaces("xxx", 5) == "  xxx" );
 }
 
 }
