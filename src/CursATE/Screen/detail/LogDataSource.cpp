@@ -40,7 +40,9 @@ size_t LogDataSource::index(const Id id) const
 
   const auto it = std::lower_bound( ll->begin(), ll->end(), id2sn(id), OrderBySequenceNumber{} );
   if( it == ll->end() )
-    return ll->size()-1;
+    return 0;
+  if( it->sequenceNumber() != id2sn(id) )
+    return 0;
   return std::distance( ll->begin(), it );
 }
 
