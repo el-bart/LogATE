@@ -57,12 +57,12 @@ void ColorGuard::clear()
 }
 
 
-short ColorGuard::colorPairId() const
+short ColorGuard::colorPairId(const Color font, const Color background)
 {
   static auto nextFreeId = 1;
   static std::unordered_map<ColorPair, int, ColorPairHasher> cp2id;
 
-  const auto cp = ColorPair{font_, background_};
+  const auto cp = ColorPair{font, background};
 
   {
     const auto it = cp2id.find(cp);
@@ -71,7 +71,7 @@ short ColorGuard::colorPairId() const
   }
 
   const auto id = nextFreeId++;
-  init_pair( id, static_cast<int>(font_), static_cast<int>(background_) );
+  init_pair( id, static_cast<int>(font), static_cast<int>(background) );
   cp2id[cp] = id;
   return id;
 }
