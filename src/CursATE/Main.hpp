@@ -30,9 +30,9 @@ private:
 
   const CursATE::Curses::Init init_;
   const LogATE::Utils::WorkerThreadsShPtr workers_{ But::makeSharedNN<LogATE::Utils::WorkerThreads>() };
-  Screen::LogList logList_{workers_};
-  LogATE::Tree::NodeShPtr root_;
   LogATE::Net::TcpServer server_;
+  Screen::LogList logList_;
+  LogATE::Tree::NodeShPtr root_;
   std::atomic<bool> quit_{false};
   But::Threading::JoiningThread<std::thread> dataPump_;
 };

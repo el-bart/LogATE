@@ -11,7 +11,8 @@ namespace CursATE::Screen::detail
 class FilterWindows final
 {
 public:
-  explicit FilterWindows(std::function<std::string(LogATE::Log const&)> log2str);
+  FilterWindows(std::function<std::string(LogATE::Log const&)> log2str,
+                std::function<size_t()> inputErrors);
 
   But::NotNullShared<Curses::ScrolableWindow> window(LogATE::Tree::NodeShPtr const& node);
   void prune();
@@ -27,6 +28,7 @@ private:
   std::vector<Element> entries_;
 
   const std::function<std::string(LogATE::Log const&)> log2str_;
+  const std::function<size_t()> inputErrors_;
 };
 
 }

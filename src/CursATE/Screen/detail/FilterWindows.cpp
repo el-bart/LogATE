@@ -5,8 +5,10 @@
 namespace CursATE::Screen::detail
 {
 
-FilterWindows::FilterWindows(std::function<std::string(LogATE::Log const&)> log2str):
-  log2str_{ std::move(log2str) }
+FilterWindows::FilterWindows(std::function<std::string(LogATE::Log const&)> log2str,
+                             std::function<size_t()> inputErrors):
+  log2str_{ std::move(log2str) },
+  inputErrors_{ std::move(inputErrors) }
 { }
 
 
@@ -37,7 +39,8 @@ But::NotNullShared<Curses::ScrolableWindow> FilterWindows::newWindow(LogATE::Tre
   const auto sp = Curses::ScreenPosition{Curses::Row{0}, Curses::Column{0}};
   const auto ss = Curses::ScreenSize::global();
   const auto boxed = Curses::Window::Boxed::True;
-  auto status = [ds](const size_t pos) { return detail::nOFmWithPercent(pos, ds->size()); };
+  auto status = [ds, errCnt = inputErrors_](const size_t pos) { return detail::nOFmWithPercent(pos, ds->size()) +
+                                                              " E:" + std::to_string( errCnt() ); };
   return But::makeSharedNN<Curses::ScrolableWindow>(ds, sp, ss, boxed, std::move(status));
 }
 

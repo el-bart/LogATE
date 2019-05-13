@@ -20,8 +20,6 @@
 * runtime edition of silent tags
 * runtime edition of priority tags
 * export logs from a given filter to a file
-* display stats: number of lines, location in file (floating point % + line number)
-* display number of errors from networking stack
 * trimmed fields should not be visible
 * make deleting root node possible, if there is just one child - then it will pivot root element with its child (useful for dropping non-interesting logs)
 

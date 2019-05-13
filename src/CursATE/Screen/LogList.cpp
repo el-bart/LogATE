@@ -31,10 +31,10 @@ auto makePrinter()
 }
 }
 
-LogList::LogList(LogATE::Utils::WorkerThreadsShPtr workers):
+LogList::LogList(LogATE::Utils::WorkerThreadsShPtr workers, std::function<size_t()> inputErrors):
   search_{workers},
   filterFactory_{ std::move(workers) },
-  filterWindows_{ makePrinter() },
+  filterWindows_{ makePrinter(), std::move(inputErrors) },
   root_{ filterFactory_.build( FilterFactory::Type{"AcceptAll"}, FilterFactory::Name{"all logs"}, FilterFactory::Options{} ) },
   currentNode_{root_},
   currentWindow_{ filterWindows_.window(currentNode_) }

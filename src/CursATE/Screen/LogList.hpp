@@ -11,7 +11,7 @@ namespace CursATE::Screen
 class LogList final
 {
 public:
-  explicit LogList(LogATE::Utils::WorkerThreadsShPtr workers);
+  LogList(LogATE::Utils::WorkerThreadsShPtr workers, std::function<size_t()> inputErrors);
 
   LogList(LogList const&) = delete;
   LogList& operator=(LogList const&) = delete;
