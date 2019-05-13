@@ -21,10 +21,8 @@ struct ColorGuard final
   auto fontColor() const { return font_; }
   auto backgroundColor() const { return background_; }
 
-  static short colorPairId(Color font, Color background);
-
 private:
-  short colorPairId() const { return colorPairId(font_, background_); }
+  short colorPairId() const;
 
   Window& win_;
   const Color font_;
