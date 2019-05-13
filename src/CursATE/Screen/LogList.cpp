@@ -25,8 +25,9 @@ namespace
 {
 auto makePrinter()
 {
-  OrderedPrettyPrint::SilentTags silent{{"env"}};
-  OrderedPrettyPrint::PriorityTags prio{{"date", "LOG_NUMBER", "male_name", "misc"}};
+  // TODO: temporary hardcode
+  OrderedPrettyPrint::SilentTags silent{{"But::PreciseDT", "Priority", "ComponentId", "UniqueId"}};
+  OrderedPrettyPrint::PriorityTags prio{{"But::PreciseDT", "Priority", "ComponentId", "UniqueId", "But::ThreadNo"}};
   return OrderedPrettyPrint{ std::move(silent), std::move(prio) };
 }
 }
@@ -39,6 +40,7 @@ LogList::LogList(LogATE::Utils::WorkerThreadsShPtr workers, std::function<size_t
   currentNode_{root_},
   currentWindow_{ filterWindows_.window(currentNode_) }
 {
+  /*
   // TODO: temporary filte tree - just for fun....
   auto a = filterFactory_.build( FilterFactory::Type{"AcceptAll"},
                                  FilterFactory::Name{"copy of parent"},
@@ -68,6 +70,7 @@ LogList::LogList(LogATE::Utils::WorkerThreadsShPtr workers, std::function<size_t
   root_->add( std::move(b) );
   root_->add( std::move(c) );
   root_->add( std::move(d) );
+  */
 }
 
 
