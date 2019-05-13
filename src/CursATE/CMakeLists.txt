@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.0)
 project(CursATE)
 
 add_library(CursATEimpl
+  Curses/ColorGuard.cpp
   Curses/CursorVisibility.cpp
   Curses/Init.cpp
   Curses/Field/Button.cpp

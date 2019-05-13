@@ -16,4 +16,9 @@ enum class Color
   White  = COLOR_WHITE
 };
 
+inline auto operator<(const Color lhs, const Color rhs)
+{
+  return static_cast<int>(lhs) < static_cast<int>(rhs);
+}
+
 }
