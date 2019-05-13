@@ -71,7 +71,12 @@ void ScrolableWindow::displayStatus()
   const auto row = uas.rows_.value_ + 1;
   const auto colStart = window_.boxed() ? 1 : 0;
   const auto col = std::max( colStart, uas.columns_.value_ - static_cast<int>(stat.size()) + 1 );
+
+  const auto cp = 2;
+  init_pair( cp, static_cast<int>(Color::Cyan), static_cast<int>(Color::Black) );
+  wattron( window_.get(), COLOR_PAIR(cp) );
   mvwprintw( window_.get(), row, col, "%s", stat.c_str());
+  wattroff( window_.get(), COLOR_PAIR(cp) );
 }
 
 
