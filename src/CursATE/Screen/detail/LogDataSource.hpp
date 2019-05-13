@@ -14,6 +14,7 @@ public:
     log2str_{ std::move(log2str) }
   { }
 
+  size_t index(Id id) const override;
   size_t size() const override;
   But::Optional<Id> nearestTo(Id id) const override;
   But::Optional<Id> first() const override;

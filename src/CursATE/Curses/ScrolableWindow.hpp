@@ -1,16 +1,25 @@
 #pragma once
 #include "CursATE/Curses/Window.hpp"
 #include "CursATE/Curses/detail/ScrolableWindowBackend.hpp"
+#include "CursATE/Curses/Exception.hpp"
+#include <functional>
+#include <string>
 
 namespace CursATE::Curses
 {
 
 struct ScrolableWindow
 {
-  ScrolableWindow(DataSourceShNN dataSource, const ScreenPosition sp, const ScreenSize ss, const Window::Boxed boxed):
-    backend_{std::move(dataSource)},
+  ScrolableWindow(DataSourceShNN dataSource,
+                  const ScreenPosition sp,
+                  const ScreenSize ss,
+                  const Window::Boxed boxed,
+                  std::function<std::string(size_t)> status = {}):
+    dataSource_{std::move(dataSource)},
+    backend_{dataSource_},
     window_{sp, ss, boxed},
-    userAreaSize_{ window_.userAreaSize() }
+    userAreaSize_{ window_.userAreaSize() },
+    status_{ std::move(status) }
   {
     backend_.resize( window_.userAreaSize() );
   }
@@ -34,6 +43,9 @@ struct ScrolableWindow
   But::Optional<DataSource::Id> currentSelection() const { return backend_.currentSelection(); }
 
 private:
+  void displayStatus();
+  ScreenSize userAreaSize() const;
+
   struct DisplayDataSummary
   {
     auto operator==(DisplayDataSummary const& other) const
@@ -50,10 +62,12 @@ private:
     DataSource::Id current_{0};
   };
 
+  DataSourceShNN dataSource_;
   detail::ScrolableWindowBackend backend_;
   Window window_;
   DisplayDataSummary dds_;
   ScreenSize userAreaSize_;
+  std::function<std::string(size_t)> status_;
 };
 
 }

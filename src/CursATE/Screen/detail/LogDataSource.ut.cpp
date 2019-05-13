@@ -108,5 +108,31 @@ TEST_CASE_FIXTURE(Fixture, "finding nearest log")
   }
 }
 
+
+TEST_CASE_FIXTURE(Fixture, "finding index of an element")
+{
+  using Id = DataSource::Id;
+
+  CHECK( lds_.index( Id{1} ) == 0 );
+  CHECK( lds_.index( Id{2} ) == 0 );
+
+  node_->insert( makeAnnotatedLog(1, R"({ "foo": 41 })") );
+  CHECK( lds_.index( Id{1} ) == 0 );
+  CHECK( lds_.index( Id{2} ) == 0 );
+
+  node_->insert( makeAnnotatedLog(2, R"({ "foo": 42 })") );
+  node_->insert( makeAnnotatedLog(4, R"({ "foo": 44 })") );
+  node_->insert( makeAnnotatedLog(6, R"({ "foo": 46 })") );
+  node_->insert( makeAnnotatedLog(8, R"({ "foo": 48 })") );
+  CHECK( lds_.index( Id{2} ) == 1 );
+  CHECK( lds_.index( Id{3} ) == 0 );
+  CHECK( lds_.index( Id{4} ) == 2 );
+  CHECK( lds_.index( Id{5} ) == 0 );
+  CHECK( lds_.index( Id{6} ) == 3 );
+  CHECK( lds_.index( Id{7} ) == 0 );
+  CHECK( lds_.index( Id{8} ) == 4 );
+  CHECK( lds_.index( Id{9} ) == 0 );
+}
+
 }
 }

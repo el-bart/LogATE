@@ -8,6 +8,12 @@ FilterTreeDataSource::FilterTreeDataSource(LogATE::Tree::NodeShPtr root):
 { }
 
 
+size_t FilterTreeDataSource::index(const Id id) const
+{
+  return id.value_;
+}
+
+
 size_t FilterTreeDataSource::size() const
 {
   return entries_.size();

@@ -7,6 +7,12 @@ using LogATE::Utils::value2str;
 namespace CursATE::Screen::detail
 {
 
+size_t LogEntryDataSource::index(const Id id) const
+{
+  return id.value_;
+}
+
+
 size_t LogEntryDataSource::size() const
 {
   return entries_.size();

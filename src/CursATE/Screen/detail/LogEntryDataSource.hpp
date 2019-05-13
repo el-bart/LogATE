@@ -14,6 +14,7 @@ class LogEntryDataSource final: public Curses::DataSource
 public:
   explicit LogEntryDataSource(LogATE::Log const& log): entries_{ constructEntries(log) } { }
 
+  size_t index(Id id) const override;
   size_t size() const override;
   But::Optional<Id> nearestTo(Id id) const override;
   But::Optional<Id> first() const override;

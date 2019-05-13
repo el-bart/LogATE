@@ -3,8 +3,26 @@
 #include "CursATE/Curses/CursorVisibility.hpp"
 #include "CursATE/Curses/detail/StringDataSource.ut.hpp"
 #include "CursATE/Curses/ctrl.hpp"
+#include <sstream>
 
 using namespace CursATE::Curses;
+
+
+struct Location
+{
+  DataSourceShNN ds_;
+  size_t n_{0};
+
+  std::string operator()(size_t pos)
+  {
+    std::stringstream ss;
+    ss << pos << "/" << ds_->size() << " (iteration: " << n_ << ")";
+    for(auto i=0u; i<n_; ++i)
+      ss << "0123456789"[i%10];
+    ++n_;
+    return ss.str();
+  }
+};
 
 
 int main()
@@ -12,7 +30,11 @@ int main()
   const Init init;
   set(CursorVisibility::Invisible);
   auto dataSource = But::makeSharedNN<detail::StringDataSource>();
-  ScrolableWindow win{ dataSource, ScreenPosition{Row{2}, Column{10}}, ScreenSize{Rows{12}, Columns{60}}, Window::Boxed::True };
+  ScrolableWindow win{ dataSource,
+                       ScreenPosition{Row{2}, Column{10}},
+                       ScreenSize{Rows{12}, Columns{60}},
+                       Window::Boxed::True,
+                       Location{dataSource} };
 
   if(true) // preinit
     for(auto i=0; i<5; ++i)

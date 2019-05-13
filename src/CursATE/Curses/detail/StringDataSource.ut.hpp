@@ -7,6 +7,12 @@ namespace CursATE::Curses::detail
 
 struct StringDataSource: public DataSource
 {
+  size_t index(const Id id) const override
+  {
+    const auto it = data_.find(id);
+    return std::distance( data_.begin(), it );
+  };
+
   size_t size() const override { return data_.size(); }
 
   But::Optional<Id> nearestTo(const Id id) const override

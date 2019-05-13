@@ -16,18 +16,7 @@ auto data(LogATE::Tree::NodeShPtr const& node, size_t before, LogDataSource::Id 
   auto post = ll->from( id2sn(id), after+1 );
   return std::make_pair( std::move(pre), std::move(post) );
 }
-}
 
-size_t LogDataSource::size() const
-{
-  const auto node = node_.lock();
-  if(not node)
-    return 0;
-  return node->logs().withLock()->size();
-}
-
-namespace
-{
 struct OrderBySequenceNumber final
 {
   using Log = LogATE::Log;
@@ -38,6 +27,31 @@ struct OrderBySequenceNumber final
   auto operator()(SN const&  lhs, SN const&  rhs) const { return lhs                  < rhs; }
 };
 }
+
+
+size_t LogDataSource::index(const Id id) const
+{
+  auto node = node_.lock();
+  if(not node)
+    return {};
+  auto ll = node->logs().withLock();
+  if( ll->empty() )
+    return 0;
+
+  const auto it = std::lower_bound( ll->begin(), ll->end(), id2sn(id), OrderBySequenceNumber{} );
+  if( it == ll->end() )
+    return ll->size()-1;
+  return std::distance( ll->begin(), it );
+}
+
+size_t LogDataSource::size() const
+{
+  const auto node = node_.lock();
+  if(not node)
+    return 0;
+  return node->logs().withLock()->size();
+}
+
 
 But::Optional<LogDataSource::Id> LogDataSource::nearestTo(const Id id) const
 {

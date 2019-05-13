@@ -15,6 +15,7 @@ struct DataSource
   virtual ~DataSource() = default;
 
   virtual size_t size() const = 0;
+  virtual size_t index(Id id) const = 0;
   virtual But::Optional<Id> nearestTo(Id id) const = 0;
   virtual But::Optional<Id> first() const = 0;
   virtual But::Optional<Id> last() const = 0;
