@@ -27,7 +27,7 @@ void ScrolableWindow::refresh()
   const auto displayData = backend_.displayData();
   BUT_ASSERT( displayData.lines_.size() <= static_cast<size_t>(uas.rows_.value_) );
   const auto dds = displayDataSummary<DisplayDataSummary>(displayData);
-  if( userAreaSize_ == uas && dds_ == dds )
+  if( userAreaSize_ == uas && dds_ == dds && not contentChanged_ )
   {
     displayStatus();
     window_.refresh();
@@ -57,6 +57,7 @@ void ScrolableWindow::refresh()
 
   userAreaSize_ = uas;
   dds_ = dds;
+  contentChanged_ = false;
 }
 
 

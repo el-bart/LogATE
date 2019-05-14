@@ -26,20 +26,20 @@ struct ScrolableWindow
 
   void refresh();
 
-  void scrollLeft() { backend_.scrollLeft(); }
-  void scrollRight() { backend_.scrollRight(); }
-  void scrollToLineBegin() { backend_.scrollToLineBegin(); }
-  void scrollToLineEnd() { backend_.scrollToLineEnd(); }
+  void scrollLeft() { backend_.scrollLeft(); contentChanged_ = true; }
+  void scrollRight() { backend_.scrollRight(); contentChanged_ = true; }
+  void scrollToLineBegin() { backend_.scrollToLineBegin(); contentChanged_ = true; }
+  void scrollToLineEnd() { backend_.scrollToLineEnd(); contentChanged_ = true; }
 
-  void selectUp() { backend_.selectUp(); }
-  void selectDown() { backend_.selectDown(); }
-  void selectPageUp() { backend_.selectPageUp(); }
-  void selectPageDown() { backend_.selectPageDown(); }
-  void selectFirst() { backend_.selectFirst(); }
-  void selectLast() { backend_.selectLast(); }
+  void selectUp() { backend_.selectUp(); contentChanged_ = true; }
+  void selectDown() { backend_.selectDown(); contentChanged_ = true; }
+  void selectPageUp() { backend_.selectPageUp(); contentChanged_ = true; }
+  void selectPageDown() { backend_.selectPageDown(); contentChanged_ = true; }
+  void selectFirst() { backend_.selectFirst(); contentChanged_ = true; }
+  void selectLast() { backend_.selectLast(); contentChanged_ = true; }
 
-  void select(const DataSource::Id id) { backend_.select(id); }
-  void selectNearest(const DataSource::Id id) { backend_.selectNearest(id); }
+  void select(const DataSource::Id id) { backend_.select(id); contentChanged_ = true; }
+  void selectNearest(const DataSource::Id id) { backend_.selectNearest(id); contentChanged_ = true; }
   But::Optional<DataSource::Id> currentSelection() const { return backend_.currentSelection(); }
 
 private:
@@ -62,6 +62,7 @@ private:
     DataSource::Id current_{0};
   };
 
+  bool contentChanged_{false};
   DataSourceShNN dataSource_;
   detail::ScrolableWindowBackend backend_;
   Window window_;
