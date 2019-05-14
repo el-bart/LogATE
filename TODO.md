@@ -16,7 +16,6 @@
 
 * key shortcuts for tabs switching fast
 * colored highlighting of searched elements
-* auto-hiding columns used for value-based "explode" filtering
 * runtime edition of silent tags
 * runtime edition of priority tags
 * export logs from a given filter to a file
