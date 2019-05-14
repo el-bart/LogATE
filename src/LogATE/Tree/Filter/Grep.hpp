@@ -23,6 +23,11 @@ public:
     Regular,
     Inverse
   };
+  enum class Trim
+  {
+    False,
+    True
+  };
 
   Grep(Utils::WorkerThreadsShPtr workers,
        Name name,
@@ -30,7 +35,8 @@ public:
        std::string regex,
        Compare cmp,
        Case c = Case::Sensitive,
-       Search search = Search::Regular);
+       Search search = Search::Regular,
+       Trim trim = Trim::False);
 
 private:
   bool matches(AnnotatedLog const& log) const override;

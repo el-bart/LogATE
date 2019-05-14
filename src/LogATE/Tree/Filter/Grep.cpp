@@ -17,6 +17,16 @@ auto regexType(const Grep::Case c)
   }
   throw std::logic_error{"unknown value of Grep::Case enum"};
 }
+
+Grep::TrimFields optTrim(const Grep::Trim trim, Path const& path)
+{
+  switch(trim)
+  {
+    case Grep::Trim::False: return {};
+    case Grep::Trim::True: return {path};
+  }
+  throw std::logic_error{"unknown value of Grep::Trim enum"};
+}
 }
 
 Grep::Grep(Utils::WorkerThreadsShPtr workers,
@@ -25,8 +35,9 @@ Grep::Grep(Utils::WorkerThreadsShPtr workers,
            std::string regex,
            const Compare cmp,
            const Case c,
-           const Search search):
-  SimpleNode{ std::move(workers), Type{"Grep"}, std::move(name), TrimFields{path} },
+           const Search search,
+           const Trim trim):
+  SimpleNode{ std::move(workers), Type{"Grep"}, std::move(name), optTrim(trim, path) },
   path_{ std::move(path) },
   cmp_{cmp},
   search_{search},
