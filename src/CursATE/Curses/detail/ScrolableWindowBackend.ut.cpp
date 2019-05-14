@@ -506,5 +506,96 @@ TEST_CASE_FIXTURE(Fixture, "selecting in a not full set")
   CHECK( displayData().currentSelection_.value_ == 43 );
 }
 
+
+TEST_CASE_FIXTURE(Fixture, "selecting first/middle/last visible elemenst")
+{
+  SUBCASE("no action on empty set")
+  {
+    swb_.update();
+    CHECK( not swb_.currentSelection() );
+    CHECK( displayData().lines_.empty() );
+
+    swb_.selectFirstVisible();
+    CHECK( not swb_.currentSelection() );
+    CHECK( displayData().lines_.empty() );
+
+    swb_.selectMiddleVisible();
+    CHECK( not swb_.currentSelection() );
+    CHECK( displayData().lines_.empty() );
+
+    swb_.selectLastVisible();
+    CHECK( not swb_.currentSelection() );
+    CHECK( displayData().lines_.empty() );
+  }
+  SUBCASE("non-full screen")
+  {
+    for(auto i=0; i<3; ++i)
+      ds_->addNewest("foo" + std::to_string(i));
+    INFO("source data buffer: " << ds_->data_);
+    auto tmp = ss_;
+    tmp.rows_.value_ = 4;
+    swb_.resize(tmp);
+    swb_.update();
+    REQUIRE( swb_.currentSelection() );
+    CHECK( displayData().lines_ == dsSubset(0,3) );
+
+    swb_.selectMiddleVisible();
+    CHECK( swb_.currentSelection() );
+    CHECK( displayData().lines_ == dsSubset(0,3) );
+    CHECK( displayData().currentSelection_.value_ == 43 );
+
+    swb_.selectLastVisible();
+    CHECK( displayData().lines_ == dsSubset(0,3) );
+    CHECK( displayData().currentSelection_.value_ == 45 );
+
+    swb_.selectFirstVisible();
+    CHECK( displayData().lines_ == dsSubset(0,3) );
+    CHECK( displayData().currentSelection_.value_ == 42 );
+
+  }
+  SUBCASE("full-screen at once")
+  {
+    for(auto i=0; i<3; ++i)
+      ds_->addNewest("foo" + std::to_string(i));
+    INFO("source data buffer: " << ds_->data_);
+    swb_.update();
+    REQUIRE( swb_.currentSelection() );
+    CHECK( displayData().lines_ == dsSubset(0,3) );
+
+    swb_.selectMiddleVisible();
+    CHECK( displayData().lines_ == dsSubset(0,3) );
+    CHECK( displayData().currentSelection_.value_ == 43 );
+
+    swb_.selectLastVisible();
+    CHECK( displayData().lines_ == dsSubset(0,3) );
+    CHECK( displayData().currentSelection_.value_ == 45 );
+
+    swb_.selectFirstVisible();
+    CHECK( displayData().lines_ == dsSubset(0,3) );
+    CHECK( displayData().currentSelection_.value_ == 42 );
+  }
+  SUBCASE("more than a single screen")
+  {
+    for(auto i=0; i<10; ++i)
+      ds_->addNewest("foo" + std::to_string(i));
+    INFO("source data buffer: " << ds_->data_);
+    swb_.update();
+    REQUIRE( swb_.currentSelection() );
+    CHECK( displayData().lines_ == dsSubset(0,3) );
+
+    swb_.selectMiddleVisible();
+    CHECK( displayData().lines_ == dsSubset(0,3) );
+    CHECK( displayData().currentSelection_.value_ == 43 );
+
+    swb_.selectLastVisible();
+    CHECK( displayData().lines_ == dsSubset(0,3) );
+    CHECK( displayData().currentSelection_.value_ == 45 );
+
+    swb_.selectFirstVisible();
+    CHECK( displayData().lines_ == dsSubset(0,3) );
+    CHECK( displayData().currentSelection_.value_ == 42 );
+  }
+}
+
 }
 }

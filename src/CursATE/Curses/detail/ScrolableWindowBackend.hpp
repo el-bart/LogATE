@@ -26,6 +26,10 @@ struct ScrolableWindowBackend
   void scrollToLineBegin();
   void scrollToLineEnd();
 
+  void selectFirstVisible();
+  void selectMiddleVisible();
+  void selectLastVisible();
+
   void selectUp();
   void selectDown();
   void selectPageUp();

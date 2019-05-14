@@ -56,6 +56,33 @@ void ScrolableWindowBackend::scrollToLineEnd()
 }
 
 
+void ScrolableWindowBackend::selectFirstVisible()
+{
+  if( buffer_.empty() )
+    return;
+  currentSelection_ = buffer_.begin()->first;
+}
+
+
+void ScrolableWindowBackend::selectMiddleVisible()
+{
+  if( buffer_.empty() )
+    return;
+  auto it = begin(buffer_);
+  std::advance( it, buffer_.size()/2 );
+  BUT_ASSERT( it != end(buffer_) );
+  currentSelection_ = it->first;
+}
+
+
+void ScrolableWindowBackend::selectLastVisible()
+{
+  if( buffer_.empty() )
+    return;
+  currentSelection_ = buffer_.rbegin()->first;
+}
+
+
 void ScrolableWindowBackend::selectUp()
 {
   offsetBy(-1);
