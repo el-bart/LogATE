@@ -16,6 +16,7 @@ add_library(LogATE
   Tree/Filter/Grep.cpp
   Tree/FilterFactory.cpp
   Tree/findParent.cpp
+  Utils/PrintableStringConverter.cpp
   Utils/WorkerThreads.cpp
   Utils/matchesLog.cpp
   Utils/value2str.cpp
@@ -49,6 +50,7 @@ if(LOGATE_ENABLE_TESTS)
     Tree/Filter/Explode.ut.cpp
     Tree/Filter/Grep.ut.cpp
     Tree/FilterFactory.ut.cpp
+    Utils/PrintableStringConverter.ut.cpp
     Utils/matchesLog.ut.cpp
     Log.ut.cpp
     main.ut.cpp
