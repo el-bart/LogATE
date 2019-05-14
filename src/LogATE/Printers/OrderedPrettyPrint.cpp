@@ -44,9 +44,9 @@ auto normalFloat(double in)
 void OrderedPrettyPrint::printNode(std::stringstream& ss, std::string const& key, nlohmann::json const& value) const
 {
   if( not isSilent(key) )
-    ss << key << "=";
+    ss << printable_(key) << "=";
 
-  if( value.is_string() )         { ss << value.get<std::string>(); return; }
+  if( value.is_string() )         { ss << printable_( value.get<std::string>() ); return; }
   if( value.is_number_integer() ) { ss << value.get<int64_t>(); return; }
   if( value.is_number_float() )   { ss << normalFloat( value.get<double>() ); return; }
   if( value.is_boolean() )        { ss << ( value.get<bool>() ? "true" : "false" ); return; }

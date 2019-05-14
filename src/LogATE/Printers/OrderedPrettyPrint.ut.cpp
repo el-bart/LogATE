@@ -116,5 +116,15 @@ TEST_CASE("silent tags with priorities")
   CHECK( "13 xxx narf=yyy zzz" == opp_( mklog(13, R"({"narf": "yyy", "bar":"zzz", "foo":"xxx"})") ) );
 }
 
+
+TEST_CASE("non-printable characters are converted")
+{
+  const OrderedPrettyPrint opp_;
+  nlohmann::json json;
+  json["xx\1\t"] = "x\r\x3xx";
+  const auto log = LogATE::Log{ LogATE::SequenceNumber{13}, json };
+  CHECK( "13 xx\\x01\\t=x\\r\\x03xx" == opp_(log) );
+}
+
 }
 }

@@ -1,5 +1,6 @@
 #pragma once
 #include "LogATE/Log.hpp"
+#include "LogATE/Utils/PrintableStringConverter.hpp"
 #include <string>
 #include <vector>
 #include <unordered_set>
@@ -33,6 +34,7 @@ private:
   void constructString(std::stringstream& ss, nlohmann::json const& in) const;
   bool isSilent(std::string const& tag) const;
 
+  const Utils::PrintableStringConverter printable_{};
   const std::unordered_set<std::string> silentTags_{};
   const PriorityTags priorityTags_{};
 };
