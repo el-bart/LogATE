@@ -153,8 +153,8 @@ void LogList::processFilterTree()
   FilterTree ft{root_};
   currentNode_ = ft.selectNext(currentNode_);
   currentWindow_ = filterWindows_.window(currentNode_);
-  filterWindows_.prune();
   currentWindow_->forceNextRefresh();
+  filterWindows_.prune();
 }
 
 
@@ -168,6 +168,7 @@ void LogList::processLogEntry()
   if( logs.empty() )
     return;
   BUT_ASSERT( logs.size() == 1u );
+  currentWindow_->forceNextRefresh();
   LogEntry le{filterFactory_, currentNode_, std::move(logs[0])};
   auto newNode = le.process();
   if(not newNode)
@@ -177,6 +178,7 @@ void LogList::processLogEntry()
     currentNode_ = currentNode_->add( LogATE::Tree::NodePtr{ std::move(newNode) } );
     currentWindow_ = filterWindows_.window(currentNode_);
     currentWindow_->select(*id);
+    currentWindow_->forceNextRefresh();
   }
   catch(std::exception const& ex)
   {
@@ -233,6 +235,7 @@ void LogList::processSearch()
     return;
   }
   currentWindow_->select( Curses::DataSource::Id{ret->value_} );
+  currentWindow_->forceNextRefresh();
 }
 
 
@@ -267,6 +270,7 @@ void LogList::processSearchAgain()
     return;
   }
   currentWindow_->select( Curses::DataSource::Id{ret->value_} );
+  currentWindow_->forceNextRefresh();
 }
 
 }
