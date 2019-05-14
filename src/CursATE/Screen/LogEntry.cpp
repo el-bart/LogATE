@@ -157,6 +157,7 @@ std::unique_ptr<LogATE::Tree::Node> createGrep(detail::LogEntryDataSource const&
                                   {'v', "Compare"},
                                   {'c', "Case"},
                                   {'s', "Search"},
+                                  {'t', "Trim"},
                                   {'o', "ok"},
                                   {'q', "quit"}
                                 },
@@ -166,6 +167,7 @@ std::unique_ptr<LogATE::Tree::Node> createGrep(detail::LogEntryDataSource const&
                     makeCompareRadio(value),
                     Radio{ "Case", {"Sensitive", "Insensitive"} },
                     Radio{ "Search", {"Regular", "Inverse"} },
+                    Radio{ "Trim", {"False", "True"} },
                     Button{"ok"},
                     Button{"quit"}
                   };
@@ -174,15 +176,16 @@ std::unique_ptr<LogATE::Tree::Node> createGrep(detail::LogEntryDataSource const&
     try
     {
       const auto ret = form.process();
-      if(ret[7] == "true")
+      if(ret[8] == "true")
         return {};
-      BUT_ASSERT(ret[6] == "true" && "'OK' not clicked");
+      BUT_ASSERT(ret[7] == "true" && "'OK' not clicked");
       FilterFactory::Options opts{
           std::make_pair("Path",    ret[1]),
           std::make_pair("regex",   ret[2]),
           std::make_pair("Compare", ret[3]),
           std::make_pair("Case",    ret[4]),
           std::make_pair("Search",  ret[5]),
+          std::make_pair("Trim",    ret[6])
       };
       auto ptr = ff.build( FilterFactory::Type{"Grep"}, FilterFactory::Name{ret[0]}, std::move(opts) );
       return std::move(ptr).underlyingPointer();
