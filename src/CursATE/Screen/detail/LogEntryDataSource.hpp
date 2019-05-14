@@ -1,5 +1,6 @@
 #pragma once
 #include "LogATE/Log.hpp"
+#include "LogATE/Utils/PrintableStringConverter.hpp"
 #include "LogATE/Tree/Path.hpp"
 #include "CursATE/Curses/DataSource.hpp"
 #include <vector>
@@ -34,6 +35,7 @@ private:
 
   std::vector<Entry> constructEntries(LogATE::Log const& log) const;
 
+  const LogATE::Utils::PrintableStringConverter printable_{};
   const std::vector<Entry> entries_;
 };
 

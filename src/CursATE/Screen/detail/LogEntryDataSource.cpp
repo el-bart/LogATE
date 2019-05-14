@@ -3,6 +3,7 @@
 
 using LogATE::Tree::Path;
 using LogATE::Utils::value2str;
+using LogATE::Utils::PrintableStringConverter;
 
 namespace CursATE::Screen::detail
 {
@@ -71,22 +72,29 @@ But::Optional<std::string> LogEntryDataSource::id2value(const Id id) const
 
 namespace
 {
+But::Optional<std::string> optPrintable(PrintableStringConverter const& printable, But::Optional<std::string> const& in)
+{
+  if(not in)
+    return {};
+  return printable(*in);
+}
+
 template<typename C>
-void appendTree(nlohmann::json const& log, C& out, Path const& path, std::string const& prefix)
+void appendTree(nlohmann::json const& log, C& out, Path const& path, PrintableStringConverter const& printable, std::string const& prefix)
 {
   const auto newPrefix = prefix + "  ";
   using E = typename C::value_type;
   for( auto& e: log.items() )
   {
     auto newPathData = path.data();
-    newPathData.push_back( e.key() );
+    newPathData.push_back( printable( e.key() ) );
     auto value = value2str( e.value() );
-    auto text = prefix + e.key();
+    auto text = prefix + printable( e.key() );
     if(value)
-      text += ": " + *value;
-    out.push_back( E{ Path{newPathData}, std::move(text), value } );
+      text += ": " + printable( *value );
+    out.push_back( E{ Path{newPathData}, std::move(text), optPrintable(printable, value) } );
     if(not value)
-      appendTree(e.value(), out, Path{newPathData}, newPrefix);
+      appendTree(e.value(), out, Path{newPathData}, printable, newPrefix);
   }
 }
 }
@@ -94,7 +102,7 @@ void appendTree(nlohmann::json const& log, C& out, Path const& path, std::string
 std::vector<LogEntryDataSource::Entry> LogEntryDataSource::constructEntries(LogATE::Log const& log) const
 {
   std::vector<Entry> out;
-  appendTree(log.json(), out, Path{{"."}}, "");
+  appendTree(log.json(), out, Path{{"."}}, printable_, "");
   return out;
 }
 
