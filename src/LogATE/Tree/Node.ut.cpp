@@ -10,6 +10,7 @@ using LogATE::Log;
 using LogATE::SequenceNumber;
 using LogATE::Tree::Node;
 using LogATE::Tree::NodeShPtr;
+using LogATE::Tree::Path;
 using LogATE::Tree::makeLog;
 using LogATE::Tree::Filter::AcceptAll;
 using LogATE::Utils::WorkerThreads;
@@ -100,6 +101,22 @@ TEST_CASE("prunning logs works recursively")
     const auto allMinMax = treeMinMaxId(root);
     REQUIRE( allMinMax.size() == 0 );
   }
+}
+
+
+TEST_CASE("trimming fields can be expanded")
+{
+  auto node = sampleNode( But::makeSharedNN<WorkerThreads>() );
+  REQUIRE( node->trimFields().empty() );
+
+  node->trimAdditionalFields( Node::TrimFields{} );
+  CHECK( node->trimFields().empty() );
+
+  node->trimAdditionalFields( Node::TrimFields{Path::parse(".")} );
+  CHECK( node->trimFields().size() == 1 );
+
+  node->trimAdditionalFields( Node::TrimFields{Path::parse(".foo"), Path::parse(".bar")} );
+  CHECK( node->trimFields().size() == 3 );
 }
 
 }

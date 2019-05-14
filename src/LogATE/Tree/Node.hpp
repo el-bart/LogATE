@@ -43,7 +43,9 @@ public:
 
   auto const& name() const { return name_; }
   auto const& type() const { return type_; }
-  auto const& trimFields() const { return trimFields_; }
+
+  TrimFields trimFields() const;
+  void trimAdditionalFields(TrimFields const& other);
 
   Logs& logs()             { return logs_; }
   Logs const& logs() const { return logs_; }
@@ -64,7 +66,9 @@ protected:
 private:
   const Type type_;
   const Name name_;
-  const TrimFields trimFields_;
+
+  mutable std::mutex trimFieldsMutex_;
+  TrimFields trimFields_;
 };
 
 
