@@ -107,6 +107,16 @@ auto extractSearch(std::string const& type, FilterFactory::Options& options, std
   BUT_THROW(FilterFactory::InvalidValue, "'" << name << "' value invalid: " << str);
 }
 
+auto extractTrim(std::string const& type, FilterFactory::Options& options, std::string const& name)
+{
+  const auto str = extractOption(type, options, name);
+  if( str == "False" )
+    return Filter::Grep::Trim::False;
+  if( str == "True" )
+    return Filter::Grep::Trim::True;
+  BUT_THROW(FilterFactory::InvalidValue, "'" << name << "' value invalid: " << str);
+}
+
 std::unique_ptr<Node> buildGrep(Utils::WorkerThreadsShPtr workers, FilterFactory::Name name, FilterFactory::Options options)
 {
   const auto type = std::string{"Grep"};
@@ -114,10 +124,18 @@ std::unique_ptr<Node> buildGrep(Utils::WorkerThreadsShPtr workers, FilterFactory
   auto regex = extractOption(type, options, "regex");
   const auto compare = extractCompare(type, options, "Compare");
   const auto searchCase = extractCase(type, options, "Case");
+  const auto trim = extractTrim(type, options, "Trim");
   const auto search = extractSearch(type, options, "Search");
   if( not options.empty() )
     BUT_THROW(FilterFactory::UnknownOption, "filter " << name.value_ << " unknown option: " << options.begin()->first);
-  return std::make_unique<Filter::Grep>( std::move(workers), std::move(name), std::move(path), std::move(regex), compare, searchCase, search );
+  return std::make_unique<Filter::Grep>( std::move(workers),
+                                         std::move(name),
+                                         std::move(path),
+                                         std::move(regex),
+                                         compare,
+                                         searchCase,
+                                         search,
+                                         trim );
 }
 }
 

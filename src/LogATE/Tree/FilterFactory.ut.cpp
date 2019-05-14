@@ -71,6 +71,7 @@ TEST_CASE_FIXTURE(Fixture, "constructing Grep filter")
                                          {"regex", "a.*"},
                                          {"Compare", "Key"},
                                          {"Case", "Sensitive"},
+                                         {"Trim", "False"},
                                          {"Search", "Regular"}
                                        } )->type().value_ == type.name_ );
     CHECK( ff_.build( type, name_, Opts{
@@ -78,6 +79,7 @@ TEST_CASE_FIXTURE(Fixture, "constructing Grep filter")
                                          {"regex", "a.*"},
                                          {"Compare", "Value"},
                                          {"Case", "Sensitive"},
+                                         {"Trim", "False"},
                                          {"Search", "Regular"}
                                        } )->type().value_ == type.name_ );
     CHECK( ff_.build( type, name_, Opts{
@@ -85,6 +87,7 @@ TEST_CASE_FIXTURE(Fixture, "constructing Grep filter")
                                          {"regex", "a.*"},
                                          {"Compare", "Key"},
                                          {"Case", "Insensitive"},
+                                         {"Trim", "False"},
                                          {"Search", "Regular"}
                                        } )->type().value_ == type.name_ );
     CHECK( ff_.build( type, name_, Opts{
@@ -92,7 +95,16 @@ TEST_CASE_FIXTURE(Fixture, "constructing Grep filter")
                                          {"regex", "a.*"},
                                          {"Compare", "Key"},
                                          {"Case", "Sensitive"},
+                                         {"Trim", "False"},
                                          {"Search", "Inverse"}
+                                       } )->type().value_ == type.name_ );
+    CHECK( ff_.build( type, name_, Opts{
+                                         {"Path", ".foo.bar"},
+                                         {"regex", "a.*"},
+                                         {"Compare", "Key"},
+                                         {"Case", "Sensitive"},
+                                         {"Trim", "True"},
+                                         {"Search", "Regular"}
                                        } )->type().value_ == type.name_ );
   }
 
@@ -102,31 +114,43 @@ TEST_CASE_FIXTURE(Fixture, "constructing Grep filter")
                                                    {"regex", "a.*"},
                                                    {"Compare", "Key"},
                                                    {"Case", "Sensitive"},
+                                                   {"Trim", "True"},
                                                    {"Search", "Regular"}
                                                  } ), FilterFactory::MissingOption );
     CHECK_THROWS_AS( ff_.build( type, name_, Opts{
                                                    {"Path", ".foo.bar"},
                                                    {"Compare", "Key"},
                                                    {"Case", "Sensitive"},
+                                                   {"Trim", "True"},
                                                    {"Search", "Regular"}
                                                  } ), FilterFactory::MissingOption );
     CHECK_THROWS_AS( ff_.build( type, name_, Opts{
                                                    {"Path", ".foo.bar"},
                                                    {"regex", "a.*"},
                                                    {"Case", "Sensitive"},
+                                                   {"Trim", "True"},
                                                    {"Search", "Regular"}
                                                  } ), FilterFactory::MissingOption );
     CHECK_THROWS_AS( ff_.build( type, name_, Opts{
                                                    {"Path", ".foo.bar"},
                                                    {"regex", "a.*"},
                                                    {"Compare", "Key"},
+                                                   {"Trim", "True"},
                                                    {"Search", "Regular"}
                                                  } ), FilterFactory::MissingOption );
     CHECK_THROWS_AS( ff_.build( type, name_, Opts{
                                                    {"Path", ".foo.bar"},
                                                    {"regex", "a.*"},
                                                    {"Compare", "Key"},
+                                                   {"Trim", "True"},
                                                    {"Case", "Sensitive"}
+                                                 } ), FilterFactory::MissingOption );
+    CHECK_THROWS_AS( ff_.build( type, name_, Opts{
+                                                   {"Path", ".foo.bar"},
+                                                   {"regex", "a.*"},
+                                                   {"Compare", "Key"},
+                                                   {"Case", "Sensitive"},
+                                                   {"Search", "Regular"}
                                                  } ), FilterFactory::MissingOption );
   }
 
@@ -137,6 +161,7 @@ TEST_CASE_FIXTURE(Fixture, "constructing Grep filter")
                                                    {"regex", "a.*"},
                                                    {"Compare", "Key"},
                                                    {"Case", "Sensitive"},
+                                                   {"Trim", "True"},
                                                    {"Search", "Regular"},
                                                    {"foo", "bar"}
                                                  } ), FilterFactory::UnknownOption );
@@ -149,6 +174,7 @@ TEST_CASE_FIXTURE(Fixture, "constructing Grep filter")
                                                 {"regex", "** invalid regex **"},
                                                 {"Compare", "Key"},
                                                 {"Case", "Sensitive"},
+                                                {"Trim", "True"},
                                                 {"Search", "Regular"}
                                               } ) );
     CHECK_THROWS( ff_.build( type, name_, Opts{
@@ -156,8 +182,17 @@ TEST_CASE_FIXTURE(Fixture, "constructing Grep filter")
                                                 {"regex", ".*"},
                                                 {"Compare", "Key"},
                                                 {"Case", "Sensitive"},
+                                                {"Trim", "True"},
                                                 {"Search", "Regular"}
                                                } ) );
+    CHECK_THROWS( ff_.build( type, name_, Opts{
+                                                {"Path", ".foo.bar"},
+                                                {"regex", "a.*"},
+                                                {"Compare", "Key"},
+                                                {"Case", "Sensitive"},
+                                                {"Trim", "invalid trim value"},
+                                                {"Search", "Regular"}
+                                              } ) );
   }
 }
 
