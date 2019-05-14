@@ -84,8 +84,11 @@ std::unique_ptr<LogATE::Tree::Node> LogEntry::navigate(Win& win, DS const& ds)
       case ctrl(KEY_HOME): win.scrollToLineBegin(); break;
       case ctrl(KEY_END):  win.scrollToLineEnd(); break;
 
+      case 'H': win.selectFirstVisible(); break;
+      case 'M': win.selectMiddleVisible(); break;
+      case 'L': win.selectLastVisible(); break;
+
       // TODO: searching by string?
-      // TODO: move selection to screen begin/center/end
     }
   }
 }

@@ -107,6 +107,10 @@ void LogList::reactOnKey(const int ch)
     case ctrl(KEY_HOME): currentWindow_->scrollToLineBegin(); break;
     case ctrl(KEY_END):  currentWindow_->scrollToLineEnd(); break;
 
+    case 'H': currentWindow_->selectFirstVisible(); break;
+    case 'M': currentWindow_->selectMiddleVisible(); break;
+    case 'L': currentWindow_->selectLastVisible(); break;
+
     case 'j': centerAllChildrenAroundCurrentLog(); break;
     case 'J': centerAllNodesAroundCurrentLog(); break;
 
@@ -119,9 +123,8 @@ void LogList::reactOnKey(const int ch)
     case 'n': processSearchAgain(); break;
     // TODO: search backward
 
-    // TODO: searching by string?
+    // TODO: searching by regex?
     // TODO: moving to a log with a given ID?
-    // TODO: move selection to screen begin/center/end
   }
 }
 

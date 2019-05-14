@@ -32,6 +32,10 @@ struct ScrolableWindow
   void scrollToLineBegin() { backend_.scrollToLineBegin(); contentChanged_ = true; }
   void scrollToLineEnd() { backend_.scrollToLineEnd(); contentChanged_ = true; }
 
+  void selectFirstVisible() { backend_.selectFirstVisible(); contentChanged_ = true; }
+  void selectMiddleVisible() { backend_.selectMiddleVisible(); contentChanged_ = true; }
+  void selectLastVisible() { backend_.selectLastVisible(); contentChanged_ = true; }
+
   void selectUp() { backend_.selectUp(); contentChanged_ = true; }
   void selectDown() { backend_.selectDown(); contentChanged_ = true; }
   void selectPageUp() { backend_.selectPageUp(); contentChanged_ = true; }

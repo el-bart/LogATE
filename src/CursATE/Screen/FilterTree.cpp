@@ -95,9 +95,12 @@ std::pair<DataSource::Id, bool> navigate(ScrolableWindow& win,
       case ctrl(KEY_HOME): win.scrollToLineBegin(); break;
       case ctrl(KEY_END):  win.scrollToLineEnd(); break;
 
+      case 'H': win.selectFirstVisible(); break;
+      case 'M': win.selectMiddleVisible(); break;
+      case 'L': win.selectLastVisible(); break;
+
       // TODO: searching by string?
       // TODO: moving to a log with a given ID?
-      // TODO: move selection to screen begin/center/end
     }
   }
 }
