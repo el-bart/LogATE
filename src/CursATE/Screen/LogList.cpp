@@ -151,6 +151,7 @@ void LogList::processFilterTree()
   currentNode_ = ft.selectNext(currentNode_);
   currentWindow_ = filterWindows_.window(currentNode_);
   filterWindows_.prune();
+  currentWindow_->forceNextRefresh();
 }
 
 

@@ -25,6 +25,7 @@ struct ScrolableWindow
   }
 
   void refresh();
+  void forceNextRefresh() { contentChanged_ = true; }
 
   void scrollLeft() { backend_.scrollLeft(); contentChanged_ = true; }
   void scrollRight() { backend_.scrollRight(); contentChanged_ = true; }
