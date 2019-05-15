@@ -27,8 +27,12 @@ void Node::pruneUpTo(const SequenceNumber sn)
 
 void Node::trimAdditionalFields(TrimFields const& other)
 {
-  const std::lock_guard<std::mutex> lock{trimFieldsMutex_};
-  trimFields_.insert( end(trimFields_), begin(other), end(other) );
+  {
+    const std::lock_guard<std::mutex> lock{trimFieldsMutex_};
+    trimFields_.insert( end(trimFields_), begin(other), end(other) );
+  }
+  for(auto& c: children())
+    c->trimAdditionalFields(other);
 }
 
 }

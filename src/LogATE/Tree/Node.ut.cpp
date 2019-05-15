@@ -112,15 +112,25 @@ auto sampleTrimNode(WorkerThreadsShPtr workers, Node::TrimFields tf)
 TEST_CASE("trimm nodes are inherited from parent node")
 {
   const auto workers = But::makeSharedNN<WorkerThreads>();
-  auto root = sampleTrimNode( workers, Node::TrimFields{ Path::parse("foo"), Path::parse("bar") } );
-  CHECK( root->trimFields().size() == 2 );
 
-  auto node = sampleTrimNode( workers, Node::TrimFields{ Path::parse("xxx") } );
-  CHECK( node->trimFields().size() == 1 );
-  auto nodePtr = node.get();
+  auto a = sampleTrimNode( workers, Node::TrimFields{ Path::parse("xxx") } );
+  CHECK( a->trimFields().size() == 1 );
 
-  root->add( std::move(node) );
-  CHECK( nodePtr->trimFields().size() == 3 );
+  auto b = sampleTrimNode( workers, Node::TrimFields{ Path::parse("foo"), Path::parse("bar") } );
+  CHECK( b->trimFields().size() == 2 );
+
+  auto c = sampleTrimNode( workers, Node::TrimFields{ Path::parse("one"), Path::parse("more"), Path::parse("path") } );
+  CHECK( c->trimFields().size() == 3 );
+
+  const auto cs = b->add( std::move(c) );
+  CHECK( cs->trimFields().size() == 3+2 );
+  CHECK( b->trimFields().size() == 2 );
+  CHECK( a->trimFields().size() == 1 );
+
+  const auto bs = a->add( std::move(b) );
+  CHECK( cs->trimFields().size() == 3+2+1 );
+  CHECK( bs->trimFields().size() == 2+1 );
+  CHECK( a->trimFields().size() == 1 );
 }
 
 }
