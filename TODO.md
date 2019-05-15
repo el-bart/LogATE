@@ -5,9 +5,8 @@
 * saving filter tree
 * loading filter tree
 * sorting?
-* filter accepting all nodes, but dropping a given set of fields when displaying
 * binary split node (matching and non-matching nodes as children)
-* adding a child to Explode maybe should mean adding to all subnodes? how to do this? factory?
+* maybe adding a child to Explode maybe should mean adding to all subnodes? how to do this? factory?
 * search inside a given node set via regex (string is already implemented)
 
 
@@ -23,5 +22,4 @@
 
 ## misc
 
-* runtime image - autobuilding version, taht can be used just by downloading from docker hub.
 * run profiler to see where the bottlenecks are
