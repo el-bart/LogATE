@@ -29,6 +29,7 @@ auto extractPath(std::string const& type, FilterFactory::Options& options, std::
 
 auto extractTrimField(std::string const& type, FilterFactory::Options& options, std::string const& name)
 {
+  (void)type;
   Node::TrimFields tf;
   auto it = options.find(name);
   if( it == end(options) )

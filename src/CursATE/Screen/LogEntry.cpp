@@ -306,10 +306,12 @@ std::unique_ptr<LogATE::Tree::Node> createAcceptAll(FilterFactory& ff)
 {
   auto form = Form{ KeyShortcuts{
                                   {'n', "Name"},
+                                  {'t', "Trim"},
                                   {'o', "ok"},
                                   {'q', "quit"}
                                 },
                     Input{ "Name", "accept all" },
+                    Input{ "Trim", "" },
                     Button{"ok"},
                     Button{"quit"}
                   };
@@ -318,10 +320,13 @@ std::unique_ptr<LogATE::Tree::Node> createAcceptAll(FilterFactory& ff)
     try
     {
       const auto ret = form.process();
-      if(ret[2] == "true")
+      if(ret[3] == "true")
         return {};
-      BUT_ASSERT(ret[1] == "true" && "'OK' not clicked");
-      auto ptr = ff.build( FilterFactory::Type{"AcceptAll"}, FilterFactory::Name{ret[0]}, FilterFactory::Options{} );
+      BUT_ASSERT(ret[2] == "true" && "'OK' not clicked");
+      FilterFactory::Options opts{};
+      if( not ret[1].empty() )
+        opts["Trim"] = ret[1];
+      auto ptr = ff.build( FilterFactory::Type{"AcceptAll"}, FilterFactory::Name{ret[0]}, std::move(opts) );
       return std::move(ptr).underlyingPointer();
     }
     catch(std::exception const& ex)
