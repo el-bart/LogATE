@@ -137,5 +137,15 @@ TEST_CASE_FIXTURE(Fixture, "trimming multiple paths")
   CHECK( trimFields(logMulti_, tf).json().dump(2) == out.dump(2) );
 }
 
+
+TEST_CASE_FIXTURE(Fixture, "trimming multiple paths")
+{
+  const auto tf = Node::TrimFields{ Path::parse(".foo.bar"), Path::parse("PONG") };
+  auto out = log_.json();
+  out["foo"].erase("bar");
+  out["PING"].erase("PONG");
+  CHECK( trimFields(log_, tf).json().dump(2) == out.dump(2) );
+}
+
 }
 }
