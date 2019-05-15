@@ -1,5 +1,4 @@
 #include "LogATE/Log.hpp"
-#include <iostream>
 
 namespace LogATE
 {
@@ -35,21 +34,9 @@ Log::Log(const SequenceNumber sn, nlohmann::json const& in):
 { }
 
 
-std::ostream& operator<<(std::ostream& os, Log const& log)
-{
-  return os << log.str();
-}
-
-
 AnnotatedLog::AnnotatedLog(Log const& log):
   log_{log},
   json_( log_.json() )
 { }
-
-
-std::ostream& operator<<(std::ostream& os, AnnotatedLog const& log)
-{
-  return os << log.log_;
-}
 
 }

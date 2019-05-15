@@ -3,7 +3,6 @@
 #include <nlohmann/json.hpp>
 #include <But/NotNull.hpp>
 #include <string>
-#include <iosfwd>
 
 namespace LogATE
 {
@@ -33,18 +32,6 @@ private:
   // TODO: consider adding more structure to a log -> timestamp of receiving, source IP:port, etc...
 };
 
-std::ostream& operator<<(std::ostream& os, Log const& log);
-
-inline auto operator==(Log const& lhs, Log const& rhs)
-{
-  const auto ret = lhs.sequenceNumber() == rhs.sequenceNumber();
-  if(ret)
-    BUT_ASSERT( lhs.str() == rhs.str() );
-  return ret;
-}
-
-inline auto operator!=(Log const& lhs, Log const& rhs) { return not (lhs == rhs); }
-
 
 struct AnnotatedLog final
 {
@@ -53,17 +40,5 @@ struct AnnotatedLog final
   const Log log_;
   const nlohmann::json json_;
 };
-
-std::ostream& operator<<(std::ostream& os, AnnotatedLog const& log);
-
-inline auto operator==(AnnotatedLog const& lhs, AnnotatedLog const& rhs)
-{
-  const auto ret = lhs.log_ == rhs.log_;
-  if(ret)
-    BUT_ASSERT( lhs.json_ == rhs.json_ );
-  return ret;
-}
-
-inline auto operator!=(AnnotatedLog const& lhs, AnnotatedLog const& rhs) { return not (lhs == rhs); }
 
 }
