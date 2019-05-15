@@ -75,6 +75,14 @@ TEST_CASE_FIXTURE(Fixture, "no action taken on empty list")
 }
 
 
+TEST_CASE_FIXTURE(Fixture, "trimming empty path does nothing")
+{
+  const auto tf = Node::TrimFields{ Path{} };
+  CHECK( trimFields(log_, tf).sequenceNumber() == log_.sequenceNumber() );
+  CHECK( trimFields(log_, tf).json() == log_.json() );
+}
+
+
 TEST_CASE_FIXTURE(Fixture, "trimming non-existent path does nothing")
 {
   const auto tf = Node::TrimFields{ Path::parse(".no.such.path"), Path::parse("does.not.exist") };
