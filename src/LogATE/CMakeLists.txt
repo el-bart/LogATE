@@ -19,6 +19,7 @@ add_library(LogATE
   Utils/PrintableStringConverter.cpp
   Utils/WorkerThreads.cpp
   Utils/matchesLog.cpp
+  Utils/trimFields.cpp
   Utils/value2str.cpp
   SequenceNumber.cpp
 )
@@ -52,6 +53,7 @@ if(LOGATE_ENABLE_TESTS)
     Tree/FilterFactory.ut.cpp
     Utils/PrintableStringConverter.ut.cpp
     Utils/matchesLog.ut.cpp
+    Utils/trimFields.ut.cpp
     Log.ut.cpp
     main.ut.cpp
   )
