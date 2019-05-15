@@ -39,39 +39,7 @@ LogList::LogList(LogATE::Utils::WorkerThreadsShPtr workers, std::function<size_t
   root_{ filterFactory_.build( FilterFactory::Type{"AcceptAll"}, FilterFactory::Name{"all logs"}, FilterFactory::Options{} ) },
   currentNode_{root_},
   currentWindow_{ filterWindows_.window(currentNode_) }
-{
-  /*
-  // TODO: temporary filte tree - just for fun....
-  auto a = filterFactory_.build( FilterFactory::Type{"AcceptAll"},
-                                 FilterFactory::Name{"copy of parent"},
-                                 FilterFactory::Options{} );
-  auto b = filterFactory_.build( FilterFactory::Type{"Grep"},
-                                 FilterFactory::Name{"select even logs"},
-                                 FilterFactory::Options{
-                                                         {"Path", ".LOG_NUMBER"},
-                                                         {"regex", "[02468]$"},
-                                                         {"Compare", "Value"},
-                                                         {"Case", "Sensitive"},
-                                                         {"Search", "Regular"}
-                                                       } );
-  auto c = filterFactory_.build( FilterFactory::Type{"Grep"},
-                                 FilterFactory::Name{"select odd timestamp"},
-                                 FilterFactory::Options{
-                                                         {"Path", ".date"},
-                                                         {"regex", "[13579]\\."},
-                                                         {"Compare", "Value"},
-                                                         {"Case", "Sensitive"},
-                                                         {"Search", "Regular"}
-                                                       } );
-  auto d = filterFactory_.build( FilterFactory::Type{"Explode"},
-                                 FilterFactory::Name{"split by name"},
-                                 FilterFactory::Options{ {"Path", ".male_name"} } );
-  b->add( std::move(a) );
-  root_->add( std::move(b) );
-  root_->add( std::move(c) );
-  root_->add( std::move(d) );
-  */
-}
+{ }
 
 
 void LogList::run()
