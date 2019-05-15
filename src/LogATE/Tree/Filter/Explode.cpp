@@ -22,6 +22,7 @@ Explode::Explode(Utils::WorkerThreadsShPtr workers, Name name, Path path):
   matchAny_{"", Utils::g_defaultRegexType}
 { }
 
+
 void Explode::insert(AnnotatedLog const& log)
 {
   logs().withLock()->insert(log.log_);
@@ -59,15 +60,18 @@ Explode::Children Explode::children() const
   return out;
 }
 
-NodeShPtr Explode::add(NodePtr node)
-{
-  BUT_THROW(ExplicitNodeAddNotSupported, "while trying to add node: " << node->name().value_);
-}
 
 bool Explode::remove(NodeShPtr node)
 {
   BUT_THROW(ExplicitNodeRemoveNotSupported, "while trying to remove node: " << node->name().value_);
 }
+
+
+NodeShPtr Explode::addImpl(NodePtr node)
+{
+  BUT_THROW(ExplicitNodeAddNotSupported, "while trying to add node: " << node->name().value_);
+}
+
 
 NodeShPtr Explode::nodeFor(Name const& name)
 {

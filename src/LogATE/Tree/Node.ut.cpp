@@ -104,19 +104,23 @@ TEST_CASE("prunning logs works recursively")
 }
 
 
-TEST_CASE("trimming fields can be expanded")
+auto sampleTrimNode(WorkerThreadsShPtr workers, Node::TrimFields tf)
 {
-  auto node = sampleNode( But::makeSharedNN<WorkerThreads>() );
-  REQUIRE( node->trimFields().empty() );
+  return But::makeUniqueNN<AcceptAll>( std::move(workers), Node::Name{"whatever"}, std::move(tf) );
+}
 
-  node->trimAdditionalFields( Node::TrimFields{} );
-  CHECK( node->trimFields().empty() );
+TEST_CASE("trimm nodes are inherited from parent node")
+{
+  const auto workers = But::makeSharedNN<WorkerThreads>();
+  auto root = sampleTrimNode( workers, Node::TrimFields{ Path::parse("foo"), Path::parse("bar") } );
+  CHECK( root->trimFields().size() == 2 );
 
-  node->trimAdditionalFields( Node::TrimFields{Path::parse(".")} );
+  auto node = sampleTrimNode( workers, Node::TrimFields{ Path::parse("xxx") } );
   CHECK( node->trimFields().size() == 1 );
+  auto nodePtr = node.get();
 
-  node->trimAdditionalFields( Node::TrimFields{Path::parse(".foo"), Path::parse(".bar")} );
-  CHECK( node->trimFields().size() == 3 );
+  root->add( std::move(node) );
+  CHECK( nodePtr->trimFields().size() == 3 );
 }
 
 }

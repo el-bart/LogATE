@@ -17,7 +17,6 @@ public:
 
   void insert(AnnotatedLog const& log) override;
   Children children() const override;
-  NodeShPtr add(NodePtr node) override;
   bool remove(NodeShPtr node) override;
 
   static auto nonMatchingChildName() { return Name{"<unmatched>"}; }
@@ -29,6 +28,7 @@ private:
     std::hash<std::string> hash_;
   };
 
+  NodeShPtr addImpl(NodePtr node) override;
   NodeShPtr nodeFor(Name const& name);
 
   const Path path_;

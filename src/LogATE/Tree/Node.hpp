@@ -38,14 +38,13 @@ public:
   virtual void insert(AnnotatedLog const& log) = 0;
 
   virtual Children children() const = 0;
-  virtual NodeShPtr add(NodePtr node) = 0;
+  NodeShPtr add(NodePtr node);
   virtual bool remove(NodeShPtr node) = 0;
 
   auto const& name() const { return name_; }
   auto const& type() const { return type_; }
 
   TrimFields trimFields() const;
-  void trimAdditionalFields(TrimFields const& other);
 
   Logs& logs()             { return logs_; }
   Logs const& logs() const { return logs_; }
@@ -60,10 +59,14 @@ protected:
       trimFields_{ std::move(trimFields) }
   { }
 
+  void trimAdditionalFields(TrimFields const& other);
+
   Logs logs_;
   Utils::WorkerThreadsShPtr workers_;
 
 private:
+  virtual NodeShPtr addImpl(NodePtr node) = 0;
+
   const Type type_;
   const Name name_;
 
