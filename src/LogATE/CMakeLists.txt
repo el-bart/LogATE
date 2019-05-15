@@ -14,6 +14,7 @@ add_library(LogATE
   Tree/Filter/AcceptAll.cpp
   Tree/Filter/Explode.cpp
   Tree/Filter/Grep.cpp
+  Tree/Filter/BinarySplit.cpp
   Tree/FilterFactory.cpp
   Tree/findParent.cpp
   Utils/PrintableStringConverter.cpp
@@ -50,6 +51,7 @@ if(LOGATE_ENABLE_TESTS)
     Tree/SimpleNode.ut.cpp
     Tree/Filter/Explode.ut.cpp
     Tree/Filter/Grep.ut.cpp
+    Tree/Filter/BinarySplit.ut.cpp
     Tree/FilterFactory.ut.cpp
     Utils/PrintableStringConverter.ut.cpp
     Utils/matchesLog.ut.cpp
