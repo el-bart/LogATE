@@ -11,11 +11,11 @@ TEST_SUITE("Tree::Path")
 
 TEST_CASE("isRoot() works")
 {
-  CHECK( Path{{}}.root() == false );
-  CHECK( Path{{"."}}.root() == true );
-  CHECK( Path{{".", "foo", "bar"}}.root() == true );
-  CHECK( Path{{"oops", ".", "foo", "bar"}}.root() == false );
-  CHECK( Path{{"foo", "bar"}}.root() == false );
+  CHECK( Path{{}}.absolute() == false );
+  CHECK( Path{{"."}}.absolute() == true );
+  CHECK( Path{{".", "foo", "bar"}}.absolute() == true );
+  CHECK( Path{{"oops", ".", "foo", "bar"}}.absolute() == false );
+  CHECK( Path{{"foo", "bar"}}.absolute() == false );
 }
 
 
@@ -55,7 +55,7 @@ TEST_CASE("creating empty path")
 {
   const auto empty = Path{};
   CHECK( empty.empty() == true );
-  CHECK( empty.root() == false );
+  CHECK( empty.absolute() == false );
   CHECK( empty.begin() == empty.end() );
   CHECK( empty.str() == "" );
 }

@@ -25,7 +25,7 @@ struct Path final
   std::string str() const;
 
   auto empty() const { return value_.empty(); }
-  auto root() const { return not empty() && value_[0] == "."; }
+  auto absolute() const { return not empty() && value_[0] == "."; }
   auto begin() const { return value_.begin(); }
   auto end() const { return value_.end(); }
   auto const& data() const { return value_; }

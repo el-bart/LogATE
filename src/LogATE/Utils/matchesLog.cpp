@@ -135,7 +135,7 @@ bool matchesKeyImpl(AnnotatedLog const& log, Path const& path, F const& cmp)
 {
   if( path.empty() )
     return false;
-  if( path.root() )
+  if( path.absolute() )
     return matchesAbsoluteKey(log, path, cmp);
   return matchesRelativeKey(log, path, cmp);
 }
@@ -145,7 +145,7 @@ bool matchesValueImpl(AnnotatedLog const& log, Path const& path, F const& cmp, T
 {
   if( path.empty() )
     return false;
-  if( path.root() )
+  if( path.absolute() )
     return matchesAbsoluteValue(log, path, cmp, toStr);
   return matchesRelativeValue(log, path, cmp, toStr);
 }
