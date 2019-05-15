@@ -5,7 +5,6 @@
 * saving filter tree
 * loading filter tree
 * sorting?
-* binary split node (matching and non-matching nodes as children)
 * maybe adding a child to Explode maybe should mean adding to all subnodes? how to do this? factory?
 * search inside a given node set via regex (string is already implemented)
 
@@ -20,6 +19,7 @@
 * make deleting root node possible, if there is just one child - then it will pivot root element with its child (useful for dropping non-interesting logs)
 * add help screen with key shortcuts
 * embed version tag (if present) and commit hash into a binary, so that it can be displayed on request
+* add binary split node UI frontend
 
 
 ## misc
