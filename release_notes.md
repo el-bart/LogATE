@@ -26,6 +26,6 @@ first release of PoC.
 * move all filters to a given log line (or close to it, when given log is not in all of them).
 * move all child filters to a given log line (or close to it, when given log is not in all of them).
 * multi-threaded logs processing.
-* ncurses basesed viewer.
+* ncurses based viewer.
 * show number of logs per subtree.
 * window with verbose display of a selected log.
