@@ -13,7 +13,6 @@ using LogATE::Tree::allSns;
 using LogATE::Tree::Node;
 using LogATE::Tree::Path;
 using LogATE::Tree::Filter::Explode;
-using LogATE::Tree::Filter::AcceptAll;
 
 namespace
 {
@@ -149,26 +148,6 @@ TEST_CASE_FIXTURE(Fixture, "trimmed fields setting and propagation")
     REQUIRE( children.size() == 2 );
     for(auto& c: children)
       CHECK( c->trimFields() == explode_.trimFields() );
-  }
-  SUBCASE("children derive trimmed nodes when adding to a new parent")
-  {
-    const auto tf = Node::TrimFields{ Path::parse("xxx") };
-    AcceptAll root{ workers_, Node::Name{"root"}, tf };
-    const auto explode = root.add( But::makeUniqueNN<Explode>( workers_, Explode::Name{"foo"}, defaultPath_ ) );
-
-    {
-      const auto out = explode->trimFields();
-      REQUIRE( out.size() == 2 );
-      CHECK( out[0] == defaultPath_ );
-      CHECK( out[1] == tf.front() );
-    }
-
-    {
-      const auto children = explode->children();
-      REQUIRE( children.size() == 1 );
-      for(auto& c: children)
-        CHECK( c->trimFields() == explode->trimFields() );
-    }
   }
 }
 
