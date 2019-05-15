@@ -42,8 +42,11 @@ struct Fixture
 
 TEST_CASE_FIXTURE(Fixture, "filtering rule is applied")
 {
-  for(auto i: {1,2,3,4,5})
-    f2_.insert( makeAnnotatedLog(i) );
+  CHECK( f2_.insert( makeAnnotatedLog(1) ) == false );
+  CHECK( f2_.insert( makeAnnotatedLog(2) ) == true );
+  CHECK( f2_.insert( makeAnnotatedLog(3) ) == false );
+  CHECK( f2_.insert( makeAnnotatedLog(4) ) == true );
+  CHECK( f2_.insert( makeAnnotatedLog(5) ) == false );
   CHECK( allSns() == makeSns({2,4}) );
 }
 

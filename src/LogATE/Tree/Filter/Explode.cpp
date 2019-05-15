@@ -23,17 +23,18 @@ Explode::Explode(Utils::WorkerThreadsShPtr workers, Name name, Path path):
 { }
 
 
-void Explode::insert(AnnotatedLog const& log)
+bool Explode::insert(AnnotatedLog const& log)
 {
   logs().withLock()->insert(log.log_);
   auto values = Utils::allNodeValues(log, path_);
   if( values.empty() )
   {
     nonMatchingChild_->insert(log);
-    return;
+    return true;
   }
   for(auto value: values)
     nodeFor( Name{value} )->insert(log);
+  return true;
 }
 
 

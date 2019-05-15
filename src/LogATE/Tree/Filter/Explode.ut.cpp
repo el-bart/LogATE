@@ -151,5 +151,16 @@ TEST_CASE_FIXTURE(Fixture, "trimmed fields setting and propagation")
   }
 }
 
+
+TEST_CASE_FIXTURE(Fixture, "insert() always adds a node")
+{
+  for(auto& log: {log1_, log2_, log3_, log4_})
+    CHECK( explode_.insert(log) == true );
+  auto sum = 0u;
+  for(auto& n: extractLogs())
+    sum += n.second.size();
+  CHECK( sum == 4 );
+}
+
 }
 }

@@ -3,12 +3,13 @@
 namespace LogATE::Tree
 {
 
-void SimpleNode::insert(AnnotatedLog const& log)
+bool SimpleNode::insert(AnnotatedLog const& log)
 {
   if( not matches(log) )
-    return;
+    return false;
   logs().withLock()->insert(log.log_);
   insertToChildren(log);
+  return true;
 }
 
 

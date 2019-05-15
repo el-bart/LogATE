@@ -7,7 +7,7 @@ namespace LogATE::Tree
 class SimpleNode: public Node
 {
 public:
-  void insert(AnnotatedLog const& log) override final;
+  bool insert(AnnotatedLog const& log) override final;
   Children children() const override final;
   bool remove(NodeShPtr node) override final;
 

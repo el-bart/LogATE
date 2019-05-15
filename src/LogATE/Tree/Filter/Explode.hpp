@@ -15,7 +15,7 @@ public:
 
   Explode(Utils::WorkerThreadsShPtr workers, Name name, Path path);
 
-  void insert(AnnotatedLog const& log) override;
+  bool insert(AnnotatedLog const& log) override;
   Children children() const override;
   bool remove(NodeShPtr node) override;
 

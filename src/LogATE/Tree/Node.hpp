@@ -35,7 +35,7 @@ public:
   Node(Node&&) = delete;
   Node const& operator=(Node&&) = delete;
 
-  virtual void insert(AnnotatedLog const& log) = 0;
+  virtual bool insert(AnnotatedLog const& log) = 0;
 
   virtual Children children() const = 0;
   NodeShPtr add(NodePtr node);
