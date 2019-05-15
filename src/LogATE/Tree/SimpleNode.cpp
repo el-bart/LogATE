@@ -11,22 +11,13 @@ void SimpleNode::insert(AnnotatedLog const& log)
   insertToChildren(log);
 }
 
+
 SimpleNode::Children SimpleNode::children() const
 {
   const Lock lock{mutex_};
   return children_;
 }
 
-NodeShPtr SimpleNode::add(NodePtr node)
-{
-  auto shared = NodeShPtr{std::move(node)};
-  {
-    const Lock lock{mutex_};
-    children_.push_back(shared);
-  }
-  passAllLogsToChild(shared);
-  return shared;
-}
 
 bool SimpleNode::remove(NodeShPtr node)
 {
@@ -40,14 +31,22 @@ bool SimpleNode::remove(NodeShPtr node)
   return false;
 }
 
-void SimpleNode::insertToChildren(AnnotatedLog const& log)
+
+NodeShPtr SimpleNode::addImpl(NodePtr node)
 {
-  for(auto c: children_)
-    insertToChild(c, log);
+  auto shared = NodeShPtr{std::move(node)};
+  {
+    const Lock lock{mutex_};
+    children_.push_back(shared);
+  }
+  passAllLogsToChild(shared);
+  return shared;
 }
 
 
-void SimpleNode::insertToChild(NodeShPtr const& child, AnnotatedLog const& log)
+namespace
+{
+void insertToChild(NodeShPtr const& child, AnnotatedLog const& log)
 {
   try
   {
@@ -57,6 +56,14 @@ void SimpleNode::insertToChild(NodeShPtr const& child, AnnotatedLog const& log)
   {
     // whatever...
   }
+}
+}
+
+
+void SimpleNode::insertToChildren(AnnotatedLog const& log)
+{
+  for(auto c: children_)
+    insertToChild(c, log);
 }
 
 
@@ -72,9 +79,14 @@ auto copyAll(Logs const& logs)
 
 void SimpleNode::passAllLogsToChild(NodeShPtr child)
 {
-  workers_->enqueue( [logs=copyAll(logs_), child, this] {
+  workers_->enqueue( [logs=copyAll(logs_), ptr=NodeWeakPtr{child.underlyingPointer()}] {
       for(auto const& log: logs)
-        this->insertToChild(child, AnnotatedLog{log});
+      {
+        auto sp = ptr.lock();   // weak pointer is crucial here, to avoid cyclic dependencies (node does keep thread pool!)
+        if(not sp)
+          return;
+        insertToChild(NodeShPtr{sp}, AnnotatedLog{log});
+      }
     } );
 }
 
