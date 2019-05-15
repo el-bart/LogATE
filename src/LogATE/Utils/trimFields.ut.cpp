@@ -104,11 +104,37 @@ TEST_CASE_FIXTURE(Fixture, "trimming absolute path")
 
 TEST_CASE_FIXTURE(Fixture, "trimming relative path")
 {
+  SUBCASE("leaf")
+  {
+    const auto tf = Node::TrimFields{ Path::parse("fran") };
+    auto out = logMulti_.json();
+    out["two"]["PING"]["PONG"]["narf"].erase("fran");
+    CHECK( trimFields(logMulti_, tf).json().dump(2) == out.dump(2) );
+  }
+  SUBCASE("node")
+  {
+    const auto tf = Node::TrimFields{ Path::parse("three") };
+    auto out = logMulti_.json();
+    out.erase("three");
+    CHECK( trimFields(logMulti_, tf).json().dump(2) == out.dump(2) );
+  }
+  SUBCASE("node with longer path")
+  {
+    const auto tf = Node::TrimFields{ Path::parse("three.foo") };
+    auto out = logMulti_.json();
+    out["three"].erase("foo");
+    CHECK( trimFields(logMulti_, tf).json().dump(2) == out.dump(2) );
+  }
 }
 
 
 TEST_CASE_FIXTURE(Fixture, "trimming multiple paths")
 {
+  const auto tf = Node::TrimFields{ Path::parse("foo.bar") };
+  auto out = logMulti_.json();
+  out["three"].erase("foo");
+  out["four"].erase("foo");
+  CHECK( trimFields(logMulti_, tf).json().dump(2) == out.dump(2) );
 }
 
 }
