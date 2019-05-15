@@ -18,6 +18,8 @@
 * runtime edition of priority tags
 * export logs from a given filter to a file
 * make deleting root node possible, if there is just one child - then it will pivot root element with its child (useful for dropping non-interesting logs)
+* add help screen with key shortcuts
+* embed version tag (if present) and commit hash into a binary, so that it can be displayed on request
 
 
 ## misc
