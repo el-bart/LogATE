@@ -71,7 +71,7 @@ TEST_CASE_FIXTURE(Fixture, "no action taken on empty list")
 {
   const auto tf = Node::TrimFields{};
   CHECK( trimFields(log_, tf).sequenceNumber() == log_.sequenceNumber() );
-  CHECK( trimFields(log_, tf).json() == log_.json() );
+  CHECK( trimFields(log_, tf).json().dump(2) == log_.json().dump(2) );
 }
 
 
@@ -79,7 +79,7 @@ TEST_CASE_FIXTURE(Fixture, "trimming empty path does nothing")
 {
   const auto tf = Node::TrimFields{ Path{} };
   CHECK( trimFields(log_, tf).sequenceNumber() == log_.sequenceNumber() );
-  CHECK( trimFields(log_, tf).json() == log_.json() );
+  CHECK( trimFields(log_, tf).json().dump(2) == log_.json().dump(2) );
 }
 
 
@@ -87,7 +87,7 @@ TEST_CASE_FIXTURE(Fixture, "trimming non-existent path does nothing")
 {
   const auto tf = Node::TrimFields{ Path::parse(".no.such.path"), Path::parse("does.not.exist") };
   CHECK( trimFields(log_, tf).sequenceNumber() == log_.sequenceNumber() );
-  CHECK( trimFields(log_, tf).json() == log_.json() );
+  CHECK( trimFields(log_, tf).json().dump(2) == log_.json().dump(2) );
 }
 
 
@@ -136,17 +136,17 @@ TEST_CASE_FIXTURE(Fixture, "trimming relative path")
 }
 
 
-TEST_CASE_FIXTURE(Fixture, "trimming multiple paths")
+TEST_CASE_FIXTURE(Fixture, "trimming multi-match paths")
 {
   const auto tf = Node::TrimFields{ Path::parse("foo.bar") };
   auto out = logMulti_.json();
-  out["three"].erase("foo");
-  out["four"].erase("foo");
+  out["three"]["foo"].erase("bar");
+  out["four"]["foo"].erase("bar");
   CHECK( trimFields(logMulti_, tf).json().dump(2) == out.dump(2) );
 }
 
 
-TEST_CASE_FIXTURE(Fixture, "trimming multiple paths")
+TEST_CASE_FIXTURE(Fixture, "trimming multiple different paths")
 {
   const auto tf = Node::TrimFields{ Path::parse(".foo.bar"), Path::parse("PONG") };
   auto out = log_.json();
