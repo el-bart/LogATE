@@ -4,6 +4,7 @@
 
 using LogATE::Tree::FilterFactory;
 using LogATE::Tree::Node;
+using LogATE::Tree::Path;
 using Opts = LogATE::Tree::FilterFactory::Options;
 
 namespace
@@ -24,12 +25,28 @@ TEST_CASE_FIXTURE(Fixture, "constructing AcceptAll filter")
 
   SUBCASE("valid")
   {
-    CHECK( ff_.build( type, name_, Opts{} )->type().value_ == type.name_ );
+    const auto ptr = ff_.build( type, name_, Opts{} );
+    CHECK( ptr->type().value_ == type.name_ );
+    CHECK( ptr->trimFields().empty() );
+  }
+
+  SUBCASE("optional field trimming")
+  {
+    const auto ptr = ff_.build( type, name_, Opts{{"Trim", ".foo.bar"}} );
+    CHECK( ptr->type().value_ == type.name_ );
+    const auto tf = ptr->trimFields();
+    REQUIRE( tf.size() == 1 );
+    CHECK( tf[0] == Path::parse(".foo.bar") );
   }
 
   SUBCASE("unknown argument")
   {
     CHECK_THROWS_AS( ff_.build( type, name_, Opts{{"foo", "bar"}} ), FilterFactory::UnknownOption );
+  }
+
+  SUBCASE("invalid argument")
+  {
+    CHECK_THROWS( ff_.build( type, name_, Opts{{"Trim", "..invalid.path"}} ) );
   }
 }
 
