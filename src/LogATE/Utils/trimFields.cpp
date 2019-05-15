@@ -80,6 +80,8 @@ void trimOneField(nlohmann::json& json, Path const& path)
 
 Log trimFields(Log const& in, Node::TrimFields const& tf)
 {
+  if( tf.empty() )
+    return in;
   auto json = in.json();
   for(auto& path: tf)
     trimOneField(json, path);

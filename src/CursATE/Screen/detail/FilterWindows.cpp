@@ -1,6 +1,10 @@
 #include "CursATE/Screen/detail/FilterWindows.hpp"
 #include "CursATE/Screen/detail/LogDataSource.hpp"
 #include "CursATE/Screen/detail/formatAsPercentage.hpp"
+#include "LogATE/Utils/trimFields.hpp"
+
+using LogATE::Log;
+using LogATE::Utils::trimFields;
 
 namespace CursATE::Screen::detail
 {
@@ -35,7 +39,8 @@ void FilterWindows::prune()
 
 But::NotNullShared<Curses::ScrolableWindow> FilterWindows::newWindow(LogATE::Tree::NodeShPtr node) const
 {
-  const auto ds = But::makeSharedNN<LogDataSource>( std::move(node), log2str_ );
+  auto trimmedLog2str = [toStr=log2str_, tf=node->trimFields()](Log const& in) { return toStr( trimFields(in, tf) ); };
+  const auto ds = But::makeSharedNN<LogDataSource>( std::move(node), std::move(trimmedLog2str) );
   const auto sp = Curses::ScreenPosition{Curses::Row{0}, Curses::Column{0}};
   const auto ss = Curses::ScreenSize::global();
   const auto boxed = Curses::Window::Boxed::True;
