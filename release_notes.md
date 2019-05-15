@@ -1,6 +1,11 @@
 # release notes
 
-# dev
+## dev
+
+
+## v0.1.0
+first release of PoC.
+
 * `Filter::Explode` "exploding" logs based on a given field value.
 * `Filter::Grep` to search for selecting a given key/value configurations.
 * auto-hiding columns used selection, so that logs are not cluttered with repeated, identical values.
