@@ -1,6 +1,7 @@
 #!/bin/bash
 set -e
 DIR=$(dirname "$(readlink -e "$0")")
+mkdir -p "build/clang6/Debug/address" \
 exec docker run \
        -u "$(id -u):$(id -g)" \
        -v "$DIR:/mnt/prj" \
