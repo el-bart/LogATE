@@ -1,7 +1,12 @@
 #!/usr/bin/env python3
+
+#grep '\<docker\.pas\.json\.' \
+#  | sed "s#^[+0-9T:\-]\+${TAB}[^${TAB}]\+${TAB}##" \
+#  | jq -c .metadata
+
+import os
 import sys
 import json
-
 
 
 def toButPrecDT(timestamp):
@@ -30,109 +35,39 @@ def handleRawJson(timestamp, tag, content):
     if "metadata" not in j and isKnownPartialData(j):
         return
     out = json.dumps( j["metadata"] )
-    #print(out)
+    print(out)
+
+
+def handleGenericLog(timestamp, j):
+    if "But::PreciseDT" not in j:
+        j["But::PreciseDT"] = timestamp
+    out = json.dumps(j)
+    print(out)
 
 
 def handleNginx(timestamp, tag, content):
+    handleGenericLog( timestamp, json.loads(content) )
+
+
+def handleText(timestamp, tag, content):
     j = json.loads(content)
-    if "But::PreciseDT" not in j:
-        j["But::PreciseDT"] = timestamp
-        j["fluentd_tag"] = tag
-    out = json.dumps(j)
-    #print(out)
-
-
-class MultiLineLog:
-    def __init__(self):
-        self.logs = []
-
-    def handle(self, timestamp, tag, content):
-        if "docker.pas.json." in tag:
-            handleRawJson(timestamp, tag, content)
-            return
-        if "docker.pas.nginx." in tag:
-            handleNginx(timestamp, tag, content)
-            return
-        if "docker.pas.text." in tag:
-            self.handleText(timestamp, tag, content)
-            return
-        # if WTF?!
-        raise Exception("unknown tag family: '" + tag + "'")
-
-
-    def handleText(self, timestamp, tag, content):
-        j = json.loads(content)
-        if "metadata" in j:
-            self.clear()
-            out = json.dumps( j["metadata"] )
-            #print(out)
-            return
-        if "log" in j:
-            self.handleTextWithLog(timestamp, tag, j)
-            self.tryParsing()
-            self.printAllUntil(4)
-            return
-        if isKnownPartialData(j):
-            return
-        raise Exception("TODO")
-
-
-    def handleTextWithLog(self, timestamp, tag, j):
-        if "But::PreciseDT" not in j:
-            j["But::PreciseDT"] = timestamp
-            j["fluentd_tag"] = tag
-        self.logs.append(j)
-
-
-    def tryParsing(self):
-        line = ""
-        for i in range(0, len(self.logs)):
-            try:
-                line += self.logs[i]["log"] #.replace("\n", "\\n").replace("\r", "\\r")
-                j = json.loads(line)
-                out = json.dumps(j)
-                print(out)
-                for k in range(0, i+1):
-                    del self.logs[0]
-            except:
-                pass
-
-    def clear(self):
-        self.printAllUntil(0)
-
-
-    def printAllUntil(self, keep):
-        while len(self.logs) > keep:
-            out = json.dumps(self.logs[0])
-            #print(out)
-            del self.logs[0]
-
-
-
-class MultiStream:
-    def __init__(self):
-        self.tags = {}
-
-    def handle(self, timestamp, tag, content):
-        if tag not in self.tags:
-            self.tags[tag] = MultiLineLog()
-        ref = self.tags[tag]
-        ref.handle(timestamp, tag, content)
-
-    def clear(self):
-        for k,v in self.tags.items():
-            v.clear()
-
-    def printAllUntil(self, keep):
-        for k,v in self.tags.items():
-            v.printAllUntil(keep)
-
-
+    j["But::PreciseDT"] = timestamp
+    if "metadata" in j:
+        out = json.dumps( j["metadata"] )
+        print(out)
+        return
+    if "log" in j:
+        nj = {}
+        nj["log"] = j["log"]
+        handleGenericLog(timestamp, nj)
+        return
+    if isKnownPartialData(j):
+        return
+    raise Exception("TODO")
 
 
 
 exitCode = 0
-multiStream = MultiStream()
 
 for line in sys.stdin:
     try:
@@ -142,14 +77,28 @@ for line in sys.stdin:
         tag = tabs[0]
         del tabs[0]
         content = '\t'.join(tabs)
-        multiStream.handle(timestamp, tag, content)
+
+        if "docker.pas.json." in tag:
+            handleRawJson(timestamp, tag, content)
+            continue
+
+        if "docker.pas.nginx." in tag:
+            handleNginx(timestamp, tag, content)
+            continue
+
+        if "docker.pas.text." in tag:
+            handleText(timestamp, tag, content)
+            continue
+
+        # WTF?!
+        raise Exception("unknown tag family: '" + tag + "'")
+
     except Exception as ex:
         msg = str(ex) + "; at line: " + line
-        if True:
+        if False:
             raise Exception(msg)
         else:
             sys.stderr.write(msg + "\n")
             exitCode = 2
 
-multiStream.clear()
-sys.exit(exitCode)
+os.exit(exitCode)
