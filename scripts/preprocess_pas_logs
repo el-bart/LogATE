@@ -1,6 +1,104 @@
-#!/bin/bash
-set -e
-TAB="\t"
-grep '\<docker\.pas\.json\.' \
-  | sed "s#^[+0-9T:\-]\+${TAB}[^${TAB}]\+${TAB}##" \
-  | jq -c .metadata
+#!/usr/bin/env python3
+
+#grep '\<docker\.pas\.json\.' \
+#  | sed "s#^[+0-9T:\-]\+${TAB}[^${TAB}]\+${TAB}##" \
+#  | jq -c .metadata
+
+import os
+import sys
+import json
+
+
+def toButPrecDT(timestamp):
+    return timestamp.replace('+00:00', '.000000000Z')
+
+
+def isKnownPartialData(j):
+    tmp = j.copy()
+    if tmp["partial_message"] != "true":
+        return False
+    else:
+        del tmp["partial_message"]
+    del tmp["container_id"]
+    del tmp["container_name"]
+    if tmp["source"] != "stdout" and tmp["source"] != "stderr":
+        return False
+    else:
+        del tmp["source"]
+    if "But::PreciseDT" in tmp:
+        del tmp["But::PreciseDT"]
+    return len(tmp) == 0
+
+
+def handleRawJson(timestamp, tag, content):
+    j = json.loads(content)
+    if "metadata" not in j and isKnownPartialData(j):
+        return
+    out = json.dumps( j["metadata"] )
+    print(out)
+
+
+def handleGenericLog(timestamp, j):
+    if "But::PreciseDT" not in j:
+        j["But::PreciseDT"] = timestamp
+    out = json.dumps(j)
+    print(out)
+
+
+def handleNginx(timestamp, tag, content):
+    handleGenericLog( timestamp, json.loads(content) )
+
+
+def handleText(timestamp, tag, content):
+    j = json.loads(content)
+    j["But::PreciseDT"] = timestamp
+    if "metadata" in j:
+        out = json.dumps( j["metadata"] )
+        print(out)
+        return
+    if "log" in j:
+        nj = {}
+        nj["log"] = j["log"]
+        handleGenericLog(timestamp, nj)
+        return
+    if isKnownPartialData(j):
+        return
+    raise Exception("TODO")
+
+
+
+exitCode = 0
+
+for line in sys.stdin:
+    try:
+        tabs = line.split('\t')
+        timestamp = toButPrecDT(tabs[0])
+        del tabs[0]
+        tag = tabs[0]
+        del tabs[0]
+        content = '\t'.join(tabs)
+
+        if "docker.pas.json." in tag:
+            handleRawJson(timestamp, tag, content)
+            continue
+
+        if "docker.pas.nginx." in tag:
+            handleNginx(timestamp, tag, content)
+            continue
+
+        if "docker.pas.text." in tag:
+            handleText(timestamp, tag, content)
+            continue
+
+        # WTF?!
+        raise Exception("unknown tag family: '" + tag + "'")
+
+    except Exception as ex:
+        msg = str(ex) + "; at line: " + line
+        if False:
+            raise Exception(msg)
+        else:
+            sys.stderr.write(msg + "\n")
+            exitCode = 2
+
+os.exit(exitCode)
