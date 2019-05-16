@@ -214,6 +214,162 @@ TEST_CASE_FIXTURE(Fixture, "constructing Grep filter")
 }
 
 
+TEST_CASE_FIXTURE(Fixture, "constructing BinarySplit filter")
+{
+  const auto type = FilterFactory::Type{"BinarySplit"};
+
+  SUBCASE("valid")
+  {
+    CHECK( ff_.build( type, name_, Opts{
+                                         {"Path", ".foo.bar"},
+                                         {"regex", "a.*"},
+                                         {"Compare", "Key"},
+                                         {"Case", "Sensitive"},
+                                         {"Trim", "False"},
+                                         {"Search", "Regular"}
+                                       } )->type().value_ == type.name_ );
+    CHECK( ff_.build( type, name_, Opts{
+                                         {"Path", ".foo.bar"},
+                                         {"regex", "a.*"},
+                                         {"Compare", "Value"},
+                                         {"Case", "Sensitive"},
+                                         {"Trim", "False"},
+                                         {"Search", "Regular"}
+                                       } )->type().value_ == type.name_ );
+    CHECK( ff_.build( type, name_, Opts{
+                                         {"Path", ".foo.bar"},
+                                         {"regex", "a.*"},
+                                         {"Compare", "Key"},
+                                         {"Case", "Insensitive"},
+                                         {"Trim", "False"},
+                                         {"Search", "Regular"}
+                                       } )->type().value_ == type.name_ );
+    CHECK( ff_.build( type, name_, Opts{
+                                         {"Path", ".foo.bar"},
+                                         {"regex", "a.*"},
+                                         {"Compare", "Key"},
+                                         {"Case", "Sensitive"},
+                                         {"Trim", "False"},
+                                         {"Search", "Inverse"}
+                                       } )->type().value_ == type.name_ );
+    CHECK( ff_.build( type, name_, Opts{
+                                         {"Path", ".foo.bar"},
+                                         {"regex", "a.*"},
+                                         {"Compare", "Key"},
+                                         {"Case", "Sensitive"},
+                                         {"Trim", "True"},
+                                         {"Search", "Regular"}
+                                       } )->type().value_ == type.name_ );
+  }
+
+  SUBCASE("missing argument")
+  {
+    CHECK_THROWS_AS( ff_.build( type, name_, Opts{
+                                                   {"regex", "a.*"},
+                                                   {"Compare", "Key"},
+                                                   {"Case", "Sensitive"},
+                                                   {"Trim", "True"},
+                                                   {"Search", "Regular"}
+                                                 } ), FilterFactory::MissingOption );
+    CHECK_THROWS_AS( ff_.build( type, name_, Opts{
+                                                   {"Path", ".foo.bar"},
+                                                   {"Compare", "Key"},
+                                                   {"Case", "Sensitive"},
+                                                   {"Trim", "True"},
+                                                   {"Search", "Regular"}
+                                                 } ), FilterFactory::MissingOption );
+    CHECK_THROWS_AS( ff_.build( type, name_, Opts{
+                                                   {"Path", ".foo.bar"},
+                                                   {"regex", "a.*"},
+                                                   {"Case", "Sensitive"},
+                                                   {"Trim", "True"},
+                                                   {"Search", "Regular"}
+                                                 } ), FilterFactory::MissingOption );
+    CHECK_THROWS_AS( ff_.build( type, name_, Opts{
+                                                   {"Path", ".foo.bar"},
+                                                   {"regex", "a.*"},
+                                                   {"Compare", "Key"},
+                                                   {"Trim", "True"},
+                                                   {"Search", "Regular"}
+                                                 } ), FilterFactory::MissingOption );
+    CHECK_THROWS_AS( ff_.build( type, name_, Opts{
+                                                   {"Path", ".foo.bar"},
+                                                   {"regex", "a.*"},
+                                                   {"Compare", "Key"},
+                                                   {"Trim", "True"},
+                                                   {"Case", "Sensitive"}
+                                                 } ), FilterFactory::MissingOption );
+    CHECK_THROWS_AS( ff_.build( type, name_, Opts{
+                                                   {"Path", ".foo.bar"},
+                                                   {"regex", "a.*"},
+                                                   {"Compare", "Key"},
+                                                   {"Case", "Sensitive"},
+                                                   {"Search", "Regular"}
+                                                 } ), FilterFactory::MissingOption );
+  }
+
+  SUBCASE("unknown argument")
+  {
+    CHECK_THROWS_AS( ff_.build( type, name_, Opts{
+                                                   {"Path", ".foo.bar"},
+                                                   {"regex", "a.*"},
+                                                   {"Compare", "Key"},
+                                                   {"Case", "Sensitive"},
+                                                   {"Trim", "True"},
+                                                   {"Search", "Regular"},
+                                                   {"foo", "bar"}
+                                                 } ), FilterFactory::UnknownOption );
+  }
+
+  SUBCASE("invalid argument")
+  {
+    CHECK_THROWS( ff_.build( type, name_, Opts{
+                                                {"Path", ".foo.bar"},
+                                                {"regex", "** invalid regex **"},
+                                                {"Compare", "Key"},
+                                                {"Case", "Sensitive"},
+                                                {"Trim", "True"},
+                                                {"Search", "Regular"}
+                                              } ) );
+    CHECK_THROWS( ff_.build( type, name_, Opts{
+                                                {"Path", ".invalid..path"},
+                                                {"regex", ".*"},
+                                                {"Compare", "Key"},
+                                                {"Case", "Sensitive"},
+                                                {"Trim", "True"},
+                                                {"Search", "Regular"}
+                                               } ) );
+    CHECK_THROWS( ff_.build( type, name_, Opts{
+                                                {"Path", ".foo.bar"},
+                                                {"regex", "a.*"},
+                                                {"Compare", "Key"},
+                                                {"Case", "Sensitive"},
+                                                {"Trim", "invalid trim value"},
+                                                {"Search", "Regular"}
+                                              } ) );
+  }
+
+  SUBCASE("checking children")
+  {
+    const auto bs = ff_.build( type, name_, Opts{
+            {"Path", ".foo.bar"},
+            {"regex", "a.*"},
+            {"Compare", "Key"},
+            {"Case", "Sensitive"},
+            {"Trim", "False"},
+            {"Search", "Regular"}
+        } );
+    CHECK( bs->name() == name_ );
+    const auto children = bs->children();
+    REQUIRE( children.size() == 2 );
+    CHECK( children[0]->type() == Node::Type{"Grep"} );
+    CHECK( children[0]->name() == Node::Name{"<matched>"} );
+    CHECK( children[1]->type() == Node::Type{"AcceptAll"} );
+    CHECK( children[1]->name() == Node::Name{"<unmatched>"} );
+  }
+}
+
+
 TEST_CASE_FIXTURE(Fixture, "constructing From filter")
 {
   const auto type = FilterFactory::Type{"From"};

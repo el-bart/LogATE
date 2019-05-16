@@ -3,6 +3,7 @@
 #include "LogATE/Tree/Filter/From.hpp"
 #include "LogATE/Tree/Filter/Grep.hpp"
 #include "LogATE/Tree/Filter/Explode.hpp"
+#include "LogATE/Tree/Filter/BinarySplit.hpp"
 #include "LogATE/Tree/Filter/AcceptAll.hpp"
 #include <boost/lexical_cast.hpp>
 
@@ -148,6 +149,13 @@ std::unique_ptr<Node> buildGrep(Utils::WorkerThreadsShPtr workers, FilterFactory
                                          search,
                                          trim );
 }
+
+std::unique_ptr<Node> buildBinarySplit(Utils::WorkerThreadsShPtr workers, FilterFactory::Name name, FilterFactory::Options options)
+{
+  auto grep = NodePtr{ buildGrep( workers, FilterFactory::Name{"<matched>"}, std::move(options) ) };
+  BUT_ASSERT( options.empty() );
+  return std::make_unique<Filter::BinarySplit>( std::move(workers), std::move(name), std::move(grep) );
+}
 }
 
 
@@ -156,6 +164,7 @@ FilterFactory::FilterFactory(Utils::WorkerThreadsShPtr workers):
 {
   factory_.add( Type{"AcceptAll"}, buildAcceptAll );
   factory_.add( Type{"Explode"}, buildExplode );
+  factory_.add( Type{"BinarySplit"}, buildBinarySplit );
   factory_.add( Type{"From"}, buildFrom );
   factory_.add( Type{"To"}, buildTo );
   factory_.add( Type{"Grep"}, buildGrep );
