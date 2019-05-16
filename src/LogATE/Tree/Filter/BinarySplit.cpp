@@ -4,7 +4,7 @@
 namespace LogATE::Tree::Filter
 {
 
-BinarySplit::BinarySplit(Utils::WorkerThreadsShPtr workers, Name name, NodeShPtr matched):
+BinarySplit::BinarySplit(Utils::WorkerThreadsShPtr workers, Name name, NodePtr matched):
   Node{ workers, Type{"BinarySplit"}, std::move(name), {} },
   matched_{ std::move(matched) },
   unmatched_{ But::makeSharedNN<AcceptAll>( workers, nonMatchingChildName() ) }

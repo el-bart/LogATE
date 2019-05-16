@@ -10,7 +10,7 @@ public:
   BUT_DEFINE_EXCEPTION(ExplicitNodeAddNotSupported, Node::Error, "explicit node addition not available for 'binary split' node");
   BUT_DEFINE_EXCEPTION(ExplicitNodeRemoveNotSupported, Node::Error, "explicit node removal not available for 'binary split' node");
 
-  BinarySplit(Utils::WorkerThreadsShPtr workers, Name name, NodeShPtr matched);
+  BinarySplit(Utils::WorkerThreadsShPtr workers, Name name, NodePtr matched);
 
   bool insert(AnnotatedLog const& log) override;
   Children children() const override;
