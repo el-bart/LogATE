@@ -13,6 +13,7 @@ BinarySplit::BinarySplit(Utils::WorkerThreadsShPtr workers, Name name, NodePtr m
 
 bool BinarySplit::insert(AnnotatedLog const& log)
 {
+  logs().withLock()->insert(log.log_);
   if( matched_->insert(log) )
     return true;
   unmatched_->insert(log);

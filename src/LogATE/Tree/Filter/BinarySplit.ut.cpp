@@ -92,6 +92,16 @@ TEST_CASE_FIXTURE(Fixture, "no fields are trimmed")
 }
 
 
+TEST_CASE_FIXTURE(Fixture, "all logs are kept in master node")
+{
+  bs_.insert(log1_);
+  bs_.insert(log2_);
+  bs_.insert(log3_);
+  bs_.insert(log4_);
+  CHECK( bs_.logs().withLock()->size() == 4 );
+}
+
+
 TEST_CASE_FIXTURE(Fixture, "logs are split into matched and unmatched categories")
 {
   bs_.insert(log1_);
