@@ -57,14 +57,6 @@ TEST_CASE_FIXTURE(Fixture, "there is always a default child for getting all unma
 }
 
 
-TEST_CASE_FIXTURE(Fixture, "trimming search field")
-{
-  const auto tf = explode_.trimFields();
-  REQUIRE( tf.size() == 1 );
-  CHECK( tf[0] == Path{{".", "foo"}} );
-}
-
-
 TEST_CASE_FIXTURE(Fixture, "hitting one destination")
 {
   explode_.insert(log1_);
@@ -135,11 +127,15 @@ TEST_CASE_FIXTURE(Fixture, "explicit addition/removal of a child fails")
 
 TEST_CASE_FIXTURE(Fixture, "trimmed fields setting and propagation")
 {
-  SUBCASE("root node has trimmed fileds set")
+  SUBCASE("root node has trimmed fileds not set")
   {
-    const auto tf = explode_.trimFields();
-    REQUIRE( tf.size() == 1 );
-    CHECK( tf[0] == defaultPath_ );
+    CHECK( explode_.trimFields().empty() );
+  }
+  SUBCASE("child nodes have trim field added")
+  {
+    const auto children = explode_.children();
+    REQUIRE( children.size() == 1 );
+    CHECK( children[0]->trimFields() == Node::TrimFields{defaultPath_} );
   }
   SUBCASE("children derive trimmed nodes")
   {
@@ -147,12 +143,12 @@ TEST_CASE_FIXTURE(Fixture, "trimmed fields setting and propagation")
     const auto children = explode_.children();
     REQUIRE( children.size() == 2 );
     for(auto& c: children)
-      CHECK( c->trimFields() == explode_.trimFields() );
+      CHECK( c->trimFields() == Node::TrimFields{defaultPath_} );
   }
 }
 
 
-TEST_CASE_FIXTURE(Fixture, "insert() always adds a node")
+TEST_CASE_FIXTURE(Fixture, "insert() always adds a node on new value")
 {
   for(auto& log: {log1_, log2_, log3_, log4_})
     CHECK( explode_.insert(log) == true );

@@ -1,6 +1,7 @@
 # release notes
 
 ## dev
+* `Filter::Explode` no longer trims explode field in the root node view - only in children.
 
 
 ## v0.1.0

@@ -16,10 +16,9 @@ auto acceptAllOutput(Utils::WorkerThreadsShPtr workers, std::string name, Node::
 }
 
 Explode::Explode(Utils::WorkerThreadsShPtr workers, Name name, Path path):
-  Node{ std::move(workers), Type{"Explode"}, std::move(name), {path}},
-  path_{std::move(path)},
-  nonMatchingChild_{ acceptAllOutput( workers_, nonMatchingChildName().value_, trimFields() ) },
-  matchAny_{"", Utils::g_defaultRegexType}
+  Node{ std::move(workers), Type{"Explode"}, std::move(name), {} },
+  path_{ std::move(path) },
+  nonMatchingChild_{ acceptAllOutput( workers_, nonMatchingChildName().value_, trimFieldsExtended() ) }
 { }
 
 
@@ -79,8 +78,16 @@ NodeShPtr Explode::nodeFor(Name const& name)
   const Lock lock{mutex_};
   auto it = children_.find(name);
   if( it == end(children_) )
-    it = children_.insert( std::make_pair(name, acceptAllOutput( workers_, name.value_, trimFields() )) ).first;
+    it = children_.insert( std::make_pair(name, acceptAllOutput( workers_, name.value_, trimFieldsExtended() )) ).first;
   return it->second;
+}
+
+
+Explode::TrimFields Explode::trimFieldsExtended() const
+{
+  auto tf = trimFields();
+  tf.push_back(path_);
+  return tf;
 }
 
 }

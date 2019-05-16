@@ -2,7 +2,6 @@
 #include "LogATE/Tree/Node.hpp"
 #include <unordered_map>
 #include <mutex>
-#include <regex>
 
 namespace LogATE::Tree::Filter
 {
@@ -30,10 +29,10 @@ private:
 
   NodeShPtr addImpl(NodePtr node) override;
   NodeShPtr nodeFor(Name const& name);
+  TrimFields trimFieldsExtended() const;
 
   const Path path_;
   const NodeShPtr nonMatchingChild_;
-  const std::regex matchAny_;
   mutable std::mutex mutex_;
   std::unordered_map<Node::Name, NodeShPtr, NodeNameHash> children_;
 };
