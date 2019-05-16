@@ -98,7 +98,7 @@ namespace
 {
 auto supportedFilters()
 {
-  return std::array<std::string, 5>{{"Grep", "Explode", "From", "To", "AcceptAll"}};
+  return std::array<std::string, 6>{{"Grep", "Explode", "BinarySplit", "From", "To", "AcceptAll"}};
 }
 
 
@@ -108,9 +108,10 @@ But::Optional<std::string> selectFilter()
   auto form = Form{ KeyShortcuts{
                                   {'g', names[0]},
                                   {'e', names[1]},
-                                  {'f', names[2]},
-                                  {'t', names[3]},
-                                  {'a', names[4]},
+                                  {'b', names[2]},
+                                  {'f', names[3]},
+                                  {'t', names[4]},
+                                  {'a', names[5]},
                                   {'c', "cancel"},
                                   {'q', "cancel"}
                                 },
@@ -119,6 +120,7 @@ But::Optional<std::string> selectFilter()
                     Button{names[2]},
                     Button{names[3]},
                     Button{names[4]},
+                    Button{names[5]},
                     Button{"cancel"}
                   };
   const auto ret = form.process();
@@ -147,7 +149,11 @@ auto makeCompareRadio(But::Optional<std::string> const& value)
 }
 
 
-std::unique_ptr<LogATE::Tree::Node> createGrep(detail::LogEntryDataSource const& ds, const Curses::DataSource::Id id, FilterFactory& ff)
+std::unique_ptr<LogATE::Tree::Node> createGrepCommon(detail::LogEntryDataSource const& ds,
+                                                     const Curses::DataSource::Id id,
+                                                     FilterFactory& ff,
+                                                     std::string const& namePrefix,
+                                                     std::string const& type)
 {
   const auto value = ds.id2value(id);
   auto form = Form{ KeyShortcuts{
@@ -161,7 +167,7 @@ std::unique_ptr<LogATE::Tree::Node> createGrep(detail::LogEntryDataSource const&
                                   {'o', "ok"},
                                   {'q', "quit"}
                                 },
-                    Input{ "Name", "grep " + ds.id2path(id).str() },
+                    Input{ "Name", namePrefix + " " + ds.id2path(id).str() },
                     Input{ "Path", ds.id2path(id).str() },
                     makeRegexInput(value),
                     makeCompareRadio(value),
@@ -187,7 +193,7 @@ std::unique_ptr<LogATE::Tree::Node> createGrep(detail::LogEntryDataSource const&
           std::make_pair("Search",  ret[5]),
           std::make_pair("Trim",    ret[6])
       };
-      auto ptr = ff.build( FilterFactory::Type{"Grep"}, FilterFactory::Name{ret[0]}, std::move(opts) );
+      auto ptr = ff.build( FilterFactory::Type{type}, FilterFactory::Name{ret[0]}, std::move(opts) );
       return std::move(ptr).underlyingPointer();
     }
     catch(std::exception const& ex)
@@ -195,6 +201,17 @@ std::unique_ptr<LogATE::Tree::Node> createGrep(detail::LogEntryDataSource const&
       displayError(ex);
     }
   }
+}
+
+std::unique_ptr<LogATE::Tree::Node> createGrep(detail::LogEntryDataSource const& ds, const Curses::DataSource::Id id, FilterFactory& ff)
+{
+  return createGrepCommon(ds, id, ff, "grep", "Grep");
+}
+
+
+std::unique_ptr<LogATE::Tree::Node> createBinarySplit(detail::LogEntryDataSource const& ds, const Curses::DataSource::Id id, FilterFactory& ff)
+{
+  return createGrepCommon(ds, id, ff, "split over", "BinarySplit");
 }
 
 
@@ -342,19 +359,14 @@ template<typename DS>
 std::unique_ptr<LogATE::Tree::Node> LogEntry::createFilterBasedOnSelection(DS const& ds, const Curses::DataSource::Id id) const
 {
   const auto filterName = selectFilter();
-  if(not filterName)
-    return {};
+  if(not filterName) return {};
   const auto names = supportedFilters();
-  if( *filterName == names[0] )
-    return createGrep(ds, id, *filterFactory_);
-  if( *filterName == names[1] )
-    return createExplode(ds, id, *filterFactory_);
-  if( *filterName == names[2] )
-    return createFrom(*filterFactory_, Curses::DataSource::Id{log_.sequenceNumber().value_});
-  if( *filterName == names[3] )
-    return createTo(*filterFactory_, Curses::DataSource::Id{log_.sequenceNumber().value_});
-  if( *filterName == names[4] )
-    return createAcceptAll(*filterFactory_);
+  if( *filterName == names[0] ) return createGrep(ds, id, *filterFactory_);
+  if( *filterName == names[1] ) return createExplode(ds, id, *filterFactory_);
+  if( *filterName == names[2] ) return createBinarySplit(ds, id, *filterFactory_);
+  if( *filterName == names[3] ) return createFrom(*filterFactory_, Curses::DataSource::Id{log_.sequenceNumber().value_});
+  if( *filterName == names[4] ) return createTo(*filterFactory_, Curses::DataSource::Id{log_.sequenceNumber().value_});
+  if( *filterName == names[5] ) return createAcceptAll(*filterFactory_);
   throw std::logic_error{"unsupported filter type: " + *filterName};
 }
 
