@@ -1,10 +1,4 @@
 #!/usr/bin/env python3
-
-#grep '\<docker\.pas\.json\.' \
-#  | sed "s#^[+0-9T:\-]\+${TAB}[^${TAB}]\+${TAB}##" \
-#  | jq -c .metadata
-
-import os
 import sys
 import json
 
@@ -101,4 +95,4 @@ for line in sys.stdin:
             sys.stderr.write(msg + "\n")
             exitCode = 2
 
-os.exit(exitCode)
+sys.exit(exitCode)
