@@ -7,6 +7,7 @@
 * sorting?
 * maybe adding a child to Explode maybe should mean adding to all subnodes? how to do this? factory?
 * search inside a given node set via regex (string is already implemented)
+* searching backwards.
 * add support for arrays in all the places in the code
 * think about nice syntax for Path support of arrays
 
