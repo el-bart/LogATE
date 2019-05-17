@@ -1,6 +1,7 @@
 # release notes
 
 ## dev
+* `Filter::BinarySplit` implemented - it is essentially the `Filter::Grep`, that stores both maching and unmatching logs, split into two groups.
 * `Filter::Explode` no longer trims explode field in the root node view - only in children.
 
 
