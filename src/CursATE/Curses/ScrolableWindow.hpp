@@ -27,8 +27,18 @@ struct ScrolableWindow
   void refresh();
   void forceNextRefresh() { contentChanged_ = true; }
 
-  void scrollLeft() { backend_.scrollLeft(); contentChanged_ = true; }
-  void scrollRight() { backend_.scrollRight(); contentChanged_ = true; }
+  void scrollLeft()
+  {
+    for(auto i=0u; i<leftRightScrollMultiplier_; ++i)
+      backend_.scrollLeft();
+    contentChanged_ = true;
+  }
+  void scrollRight()
+  {
+    for(auto i=0u; i<leftRightScrollMultiplier_; ++i)
+      backend_.scrollRight();
+    contentChanged_ = true;
+  }
   void scrollToLineBegin() { backend_.scrollToLineBegin(); contentChanged_ = true; }
   void scrollToLineEnd() { backend_.scrollToLineEnd(); contentChanged_ = true; }
 
@@ -67,6 +77,7 @@ private:
     DataSource::Id current_{0};
   };
 
+  const unsigned leftRightScrollMultiplier_{10};
   bool contentChanged_{false};
   DataSourceShNN dataSource_;
   detail::ScrolableWindowBackend backend_;
