@@ -3,6 +3,7 @@
 #include "CursATE/Screen/help.hpp"
 #include "CursATE/Screen/detail/FilterTreeDataSource.hpp"
 #include "CursATE/Screen/detail/formatAsPercentage.hpp"
+#include "CursATE/Screen/detail/smallerScreenSize.hpp"
 #include "CursATE/Curses/Form.hpp"
 #include "CursATE/Curses/Field/Button.hpp"
 #include "CursATE/Curses/ScrolableWindow.hpp"
@@ -31,16 +32,6 @@ FilterTree::FilterTree(LogATE::Tree::NodeShPtr root):
 
 namespace
 {
-auto smallerScreenSize()
-{
-  auto ss = ScreenSize::global();
-  if(ss.rows_.value_ > 1+2+2)
-    ss.rows_.value_ -= 2;
-  if(ss.columns_.value_ > 1+2+2)
-    ss.columns_.value_ -= 2;
-  return ss;
-}
-
 auto confirmDelete()
 {
   auto form = Form{
@@ -113,7 +104,7 @@ LogATE::Tree::NodeShPtr FilterTree::selectNext(LogATE::Tree::NodeShPtr const& cu
 {
   auto selectedNode = current;
   const auto sp = ScreenPosition{ Row{1}, Column{1} };
-  const auto ss = smallerScreenSize();
+  const auto ss = detail::smallerScreenSize(2);
   while(true)
   {
     const auto ds = But::makeSharedNN<detail::FilterTreeDataSource>(root_);

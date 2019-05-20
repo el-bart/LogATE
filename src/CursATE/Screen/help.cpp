@@ -3,6 +3,7 @@
 #include "CursATE/Curses/ScrolableWindow.hpp"
 #include "CursATE/Screen/detail/ConstStringDataSource.hpp"
 #include "CursATE/Screen/detail/formatAsPercentage.hpp"
+#include "CursATE/Screen/detail/smallerScreenSize.hpp"
 
 using CursATE::Curses::Window;
 using CursATE::Curses::ScreenSize;
@@ -62,18 +63,6 @@ auto options()
 }
 
 
-auto smallerScreenSize()
-{
-  constexpr auto delta = 2;
-  auto ss = ScreenSize::global();
-  if(ss.rows_.value_ > 1+2*delta)
-    ss.rows_.value_ -= 2*delta;
-  if(ss.columns_.value_ > 1+2*delta)
-    ss.columns_.value_ -= 2*delta;
-  return ss;
-}
-
-
 template<typename Win, typename DS>
 void navigate(Win& win, DS const& ds)
 {
@@ -112,7 +101,7 @@ void navigate(Win& win, DS const& ds)
 void help()
 {
   const auto sp = ScreenPosition{ Row{2}, Column{2} };
-  const auto ss = smallerScreenSize();
+  const auto ss = detail::smallerScreenSize(2);
   const auto ds = But::makeSharedNN<detail::ConstStringDataSource>( options() );
   auto status = [ds](const size_t pos) { return detail::nOFmWithPercent(pos, ds->size()); };
   ScrolableWindow win{ ds, sp, ss, Window::Boxed::True, std::move(status) };

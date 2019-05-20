@@ -3,6 +3,7 @@
 #include "CursATE/Screen/help.hpp"
 #include "CursATE/Screen/detail/LogEntryDataSource.hpp"
 #include "CursATE/Screen/detail/formatAsPercentage.hpp"
+#include "CursATE/Screen/detail/smallerScreenSize.hpp"
 #include "CursATE/Curses/Form.hpp"
 #include "CursATE/Curses/Field/Button.hpp"
 #include "CursATE/Curses/Field/Input.hpp"
@@ -29,23 +30,10 @@ using CursATE::Screen::displayError;
 namespace CursATE::Screen
 {
 
-namespace
-{
-auto smallerScreenSize()
-{
-  auto ss = ScreenSize::global();
-  if(ss.rows_.value_ > 1+2+2)
-    ss.rows_.value_ -= 2;
-  if(ss.columns_.value_ > 1+2+2)
-    ss.columns_.value_ -= 2;
-  return ss;
-}
-}
-
 std::unique_ptr<LogATE::Tree::Node> LogEntry::process()
 {
   const auto sp = ScreenPosition{ Row{1}, Column{1} };
-  const auto ss = smallerScreenSize();
+  const auto ss = detail::smallerScreenSize(2);
   const auto ds = But::makeSharedNN<detail::LogEntryDataSource>(log_);
   auto status = [ds](const size_t pos) { return detail::nOFmWithPercent(pos, ds->size()); };
   ScrolableWindow win{ ds, sp, ss, Window::Boxed::True, std::move(status) };
