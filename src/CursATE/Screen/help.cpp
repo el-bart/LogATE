@@ -49,6 +49,7 @@ void navigate(Win& win, DS const& ds)
     win.refresh();
     switch( getch() )
     {
+      case KEY_F(1):
       case 'q': return;
 
       case KEY_UP:    win.selectUp(); break;
