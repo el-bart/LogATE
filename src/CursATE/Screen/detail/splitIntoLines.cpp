@@ -26,8 +26,9 @@ auto hasEscaped(char const c, const std::string::const_iterator begin, const std
   BUT_ASSERT(it!=end && "invalid sequence provided - break should not be in the middle of an escape sequence");
   return *it==c;
 }
-auto hasEscapedCr(const std::string::const_iterator begin, const std::string::const_iterator end) { return hasEscaped('n', begin, end); }
-auto hasEscapedLf(const std::string::const_iterator begin, const std::string::const_iterator end) { return hasEscaped('r', begin, end); }
+auto hasEscapedCr(const std::string::const_iterator begin, const std::string::const_iterator end)  { return hasEscaped('n', begin, end); }
+auto hasEscapedLf(const std::string::const_iterator begin, const std::string::const_iterator end)  { return hasEscaped('r', begin, end); }
+auto hasEscapedTab(const std::string::const_iterator begin, const std::string::const_iterator end) { return hasEscaped('t', begin, end); }
 
 auto findFirstEol(const std::string::const_iterator begin, const std::string::const_iterator end)
 {
@@ -69,13 +70,51 @@ auto findLastInLineBeforeSplitEscape(const std::string::const_iterator begin, co
   return effectiveEnd;
 }
 
+
+auto findLastWhitespace(const std::string::const_iterator begin, const std::string::const_iterator end)
+{
+  auto lastWs = end;
+  for(auto it=begin; it!=end; ++it)
+  {
+    if(*it == ' ')
+    {
+      lastWs = it+1;
+      continue;
+    }
+    if( hasEscapedTab(it, end) )
+    {
+      lastWs = it+2;
+      continue;
+    }
+  }
+  return lastWs;
+}
+
+auto isWhiteSpace(const std::string::const_iterator begin, const std::string::const_iterator end)
+{
+  BUT_ASSERT(begin!=end);
+  if(*begin == ' ')
+    return true;
+  if( hasEscapedTab(begin, end) )
+    return true;
+  return false;
+}
+
 auto findNextLineBreak(const std::string::const_iterator begin, const std::string::const_iterator end, const size_t cols)
 {
   const auto newEnd = findLastInLineBeforeSplitEscape(begin, end, cols);
   std::cout << "\nEE:|" << std::string{begin, newEnd} << "| of |" << std::string{begin, end} << "| @ " << cols << " cols" << std::endl;         
-  const auto it = findFirstEol(begin, newEnd);
-  std::cout << "OO:|" << std::string{begin, it} << "|" << std::endl;                   
-  return it;
+  const auto firstEol = findFirstEol(begin, newEnd);
+  std::cout << "EL:|" << std::string{begin, firstEol} << "|" << std::endl;                   
+  if(firstEol != newEnd)
+    return firstEol;
+  if(firstEol == end)
+    return firstEol;
+  if( isWhiteSpace(firstEol, end) )
+    return firstEol;
+  const auto lastWs = findLastWhitespace(begin, firstEol);
+  std::cout << "WS:|" << std::string{begin, lastWs} << "|" << std::endl;                   
+  return lastWs;
 }
 }
 

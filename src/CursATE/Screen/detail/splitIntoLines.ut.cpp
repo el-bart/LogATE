@@ -74,16 +74,15 @@ TEST_CASE("wrapping lines")
     const auto out = splitIntoLines("foo\\nbar", 4);
     REQUIRE( out.size() == 3u );
     CHECK( out[0] == "foo" );
-    CHECK( out[1] == "\\nba" );
-    CHECK( out[2] == "r" );
+    CHECK( out[1] == "\\n" );
+    CHECK( out[2] == "bar" );
   }
   SUBCASE("when escaped non-EOL is in the line break place, it is moved to a new line")
   {
-    const auto out = splitIntoLines("foo\\tbar", 4);
-    REQUIRE( out.size() == 3u );
+    const auto out = splitIntoLines("foo\\tx", 4);
+    REQUIRE( out.size() == 2u );
     CHECK( out[0] == "foo" );
-    CHECK( out[1] == "\\tba" );
-    CHECK( out[2] == "r" );
+    CHECK( out[1] == "\\tx" );
   }
   SUBCASE("when escaped non-printable char is in the line break place, it is moved to a new line")
   {
@@ -145,7 +144,7 @@ TEST_CASE("wrapping lines around words, when possible")
   }
   SUBCASE("wrap aroud CR+FL is considered single new line")
   {
-    const auto out = splitIntoLines("foo\\n\\rbar", 6);
+    const auto out = splitIntoLines("foo\\n\\rbar", 7);
     REQUIRE( out.size() == 2u );
     CHECK( out[0] == "foo\\n\\r" );
     CHECK( out[1] == "bar" );
@@ -176,10 +175,9 @@ TEST_CASE("wrapping lines around words, when possible")
   SUBCASE("line of some white spaces")
   {
     const auto out = splitIntoLines("a      z", 6);
-    REQUIRE( out.size() == 3u );
-    CHECK( out[0] == "a" );
-    CHECK( out[1] == "      " );
-    CHECK( out[2] == "z" );
+    REQUIRE( out.size() == 2u );
+    CHECK( out[0] == "a     " );
+    CHECK( out[1] == " z" );
   }
   SUBCASE("too many white spaces not possible to break")
   {
@@ -189,6 +187,8 @@ TEST_CASE("wrapping lines around words, when possible")
     CHECK( out[1] == " z" );
   }
 }
+
+// TODO: pseudo-random long text + concatenation test
 
 }
 }
