@@ -27,14 +27,16 @@ But::Optional<ConstStringDataSource::Id> ConstStringDataSource::nearestTo(Id id)
 
 But::Optional<ConstStringDataSource::Id> ConstStringDataSource::first() const
 {
-  BUT_ASSERT( not entries_.empty() );
+  if( entries_.empty() )
+    return {};
   return Id{0};
 }
 
 
 But::Optional<ConstStringDataSource::Id> ConstStringDataSource::last() const
 {
-  BUT_ASSERT( not entries_.empty() );
+  if( entries_.empty() )
+    return {};
   return Id{ entries_.size()-1u };
 }
 
