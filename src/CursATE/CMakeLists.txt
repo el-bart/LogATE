@@ -18,6 +18,7 @@ add_library(CursATEimpl
   Screen/ProgressBar.cpp
   Screen/Search.cpp
   Screen/displayError.cpp
+  Screen/help.cpp
   Screen/detail/ConstStringDataSource.cpp
   Screen/detail/FilterWindows.cpp
   Screen/detail/FilterTreeDataSource.cpp
