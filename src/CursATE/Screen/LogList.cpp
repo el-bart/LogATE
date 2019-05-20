@@ -87,9 +87,10 @@ void LogList::reactOnKey(const int ch)
     case KEY_ENTER:
     case 'f': processLogEntry(); break;
 
-    case '/': processSearch(); break;
-    case 'n': processSearchAgain(); break;
-    // TODO: search backward
+    case '/': processSearch(Search::Direction::Forward); break;
+    case 'n': processSearchAgain(Search::Direction::Forward); break;
+    case '?': processSearch(Search::Direction::Backward); break;
+    case 'N': processSearchAgain(Search::Direction::Backward); break;
 
     // TODO: searching by regex?
     // TODO: moving to a log with a given ID?
@@ -188,7 +189,7 @@ void LogList::centerAroundLog(LogATE::Tree::NodeShPtr node, const LogATE::Sequen
 }
 
 
-void LogList::processSearch()
+void LogList::processSearch(const Search::Direction dir)
 {
   const auto selected = currentWindow_->currentSelection();
   if(not selected)
@@ -196,7 +197,7 @@ void LogList::processSearch()
     displayError({"window is empty"});
     return;
   }
-  const auto ret = search_.process( currentNode_, LogATE::SequenceNumber{selected->value_} );
+  const auto ret = search_.process( currentNode_, LogATE::SequenceNumber{selected->value_}, dir );
   if(not ret)
   {
     displayError({"no matching element found"});
@@ -220,9 +221,32 @@ auto nextSn(LogATE::Tree::NodeShPtr node, const LogATE::SequenceNumber now)
     return now;
   return next->sequenceNumber();
 }
+
+auto prevSn(LogATE::Tree::NodeShPtr node, const LogATE::SequenceNumber now)
+{
+  const auto ll = node->logs().withLock();
+  const auto it = ll->find(now);
+  if( it == ll->end() )
+    return now;
+  if( it == ll->begin() )
+    return it->sequenceNumber();
+  const auto prev = it - 1;
+  return prev->sequenceNumber();
 }
 
-void LogList::processSearchAgain()
+auto moveSn(LogATE::Tree::NodeShPtr node, const LogATE::SequenceNumber now, const Search::Direction dir)
+{
+  switch(dir)
+  {
+    case Search::Direction::Forward:  return nextSn( std::move(node), now );
+    case Search::Direction::Backward: return prevSn( std::move(node), now );
+  }
+  BUT_ASSERT(!"unkonw value of Search::Direction");
+  throw std::logic_error{"unkonw value of Search::Direction when findinf adjisent iterator"};
+}
+}
+
+void LogList::processSearchAgain(const Search::Direction dir)
 {
   const auto selected = currentWindow_->currentSelection();
   if(not selected)
@@ -230,8 +254,8 @@ void LogList::processSearchAgain()
     displayError({"window is empty"});
     return;
   }
-  const auto next = nextSn( currentNode_, LogATE::SequenceNumber{selected->value_} );
-  const auto ret = search_.processAgain( currentNode_, LogATE::SequenceNumber{next.value_} );
+  const auto start = moveSn( currentNode_, LogATE::SequenceNumber{selected->value_}, dir );
+  const auto ret = search_.processAgain( currentNode_, LogATE::SequenceNumber{start.value_}, dir );
   if(not ret)
   {
     displayError({"no matching element found"});
