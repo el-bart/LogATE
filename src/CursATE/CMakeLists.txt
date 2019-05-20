@@ -81,6 +81,7 @@ if(LOGATE_ENABLE_TESTS)
     Curses/new_window.manual.cpp
     Curses/screen_size_monitor.manual.cpp
     Screen/LogEntry.manual.cpp
+    Screen/help.manual.cpp
     Screen/displayError.manual.cpp
   )
 
