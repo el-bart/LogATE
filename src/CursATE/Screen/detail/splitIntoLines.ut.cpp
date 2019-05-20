@@ -24,14 +24,6 @@ TEST_CASE("single line")
 }
 
 
-TEST_CASE("dwline")
-{
-  const auto out = splitIntoLines("foo bar", 100);
-  REQUIRE( out.size() == 1u );
-  CHECK( out[0] == "foo bar" );
-}
-
-
 TEST_CASE("wrapping lines")
 {
   SUBCASE("exactly the column size does not break line")
@@ -62,12 +54,12 @@ TEST_CASE("wrapping lines")
     CHECK( out[1] == "012345" );
     CHECK( out[2] == "xxx" );
   }
-  SUBCASE("sequence is not escaped automatically")
+  SUBCASE("escape sequence serve as split point")
   {
     const auto out = splitIntoLines("foo\\bar", 6);
     REQUIRE( out.size() == 2u );
-    CHECK( out[0] == "foo\\ba");
-    CHECK( out[1] == "r" );
+    CHECK( out[0] == "foo\\b" );
+    CHECK( out[1] == "ar" );
   }
   SUBCASE("when escaped EOL is in the line break place, it is moved to a new line")
   {
@@ -97,25 +89,25 @@ TEST_CASE("wrapping lines")
     const auto out = splitIntoLines("foo\\x42bar", 5);
     REQUIRE( out.size() == 3u );
     CHECK( out[0] == "foo" );
-    CHECK( out[1] == "\\x42b" );
-    CHECK( out[2] == "ar" );
+    CHECK( out[1] == "\\x42" );
+    CHECK( out[2] == "bar" );
   }
-  SUBCASE("when escape char is longer than number of columns, longer column is produced to fit the whole sequence")
+  SUBCASE("columns are always at least 4 characters wide")
   {
-    const auto out = splitIntoLines("foo\\x42bar", 5);
+    const auto out = splitIntoLines("foo\\x42bar", 2);
     REQUIRE( out.size() == 3u );
     CHECK( out[0] == "foo" );
     CHECK( out[1] == "\\x42" );
     CHECK( out[2] == "bar" );
   }
-  SUBCASE("EOL in last line also breaks line")
+  SUBCASE("EOL at the end of last line does not break line")
   {
-    const auto out = splitIntoLines("foobar012345x\\nok", 6);
+    const auto out = splitIntoLines("foobar012345x\\nok\\n", 6);
     REQUIRE( out.size() == 4u );
     CHECK( out[0] == "foobar" );
     CHECK( out[1] == "012345" );
     CHECK( out[2] == "x\\n" );
-    CHECK( out[3] == "ok" );
+    CHECK( out[3] == "ok\\n" );
   }
 }
 
@@ -152,17 +144,19 @@ TEST_CASE("wrapping lines around words, when possible")
   }
   SUBCASE("wrap aroud CR+FL is considered single new line")
   {
-    const auto out = splitIntoLines("foo\\n\\rbar", 7);
-    REQUIRE( out.size() == 2u );
+    const auto out = splitIntoLines("foo\\n\\r\\n\\rbar", 7);
+    REQUIRE( out.size() == 3u );
     CHECK( out[0] == "foo\\n\\r" );
-    CHECK( out[1] == "bar" );
+    CHECK( out[1] == "\\n\\r" );
+    CHECK( out[2] == "bar" );
   }
   SUBCASE("wrap aroud FL+CR is considered single new line")
   {
-    const auto out = splitIntoLines("foo\\r\\nbar", 7);
-    REQUIRE( out.size() == 2u );
+    const auto out = splitIntoLines("foo\\r\\n\\r\\nbar", 7);
+    REQUIRE( out.size() == 3u );
     CHECK( out[0] == "foo\\r\\n" );
-    CHECK( out[1] == "bar" );
+    CHECK( out[1] == "\\r\\n" );
+    CHECK( out[2] == "bar" );
   }
   SUBCASE("wrapping multiple CRs are considered separate lines")
   {
@@ -180,19 +174,20 @@ TEST_CASE("wrapping lines around words, when possible")
     CHECK( out[1] == "\\r" );
     CHECK( out[2] == "bar" );
   }
-  SUBCASE("line of some white spaces")
+  SUBCASE("any whitespace is a good split point")
   {
-    const auto out = splitIntoLines("a      z", 6);
+    const auto out = splitIntoLines("a     z", 6);
     REQUIRE( out.size() == 2u );
     CHECK( out[0] == "a     " );
-    CHECK( out[1] == " z" );
+    CHECK( out[1] == "z" );
   }
-  SUBCASE("too many white spaces not possible to break")
+  SUBCASE("more white spaces than column len")
   {
-    const auto out = splitIntoLines("a      z", 6);
-    REQUIRE( out.size() == 2u );
+    const auto out = splitIntoLines("a            z", 6);
+    REQUIRE( out.size() == 3u );
     CHECK( out[0] == "a     " );
-    CHECK( out[1] == " z" );
+    CHECK( out[1] == "      " );
+    CHECK( out[2] == " z" );
   }
 }
 
