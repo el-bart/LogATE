@@ -34,6 +34,7 @@ auto makeLut()
   lut[0x0b] = "\\v";
   lut[0x0c] = "\\f";
   lut[0x0d] = "\\r";
+  lut['\\'] = "\\\\";
 
   return lut;
 }

@@ -36,9 +36,15 @@ TEST_CASE_FIXTURE(Fixture, "printable characters")
   }
   SUBCASE("misc")
   {
-    const auto str = "`~!@#$%^&*()_+-=|\\[{]}:;\"'<,>.?/ "s;
+    const auto str = "`~!@#$%^&*()_+-=|[{]}:;\"'<,>.?/ "s;
     CHECK( psc_(str) == str );
   }
+}
+
+
+TEST_CASE_FIXTURE(Fixture, "escape char is escaped to avoid confusion")
+{
+  CHECK( psc_("a\\b") == "a\\\\b"s );
 }
 
 
@@ -75,7 +81,7 @@ TEST_CASE_FIXTURE(Fixture, "non-printable characters with special tags")
 }
 
 
-TEST_CASE_FIXTURE(Fixture, "all non-printable characters are gone")
+TEST_CASE_FIXTURE(Fixture, "all non-printable characters are replaced")
 {
   std::string s;
   s.resize(256);
