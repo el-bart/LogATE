@@ -30,6 +30,19 @@ auto hasEscapedCr(const std::string::const_iterator begin, const std::string::co
 auto hasEscapedLf(const std::string::const_iterator begin, const std::string::const_iterator end)  { return hasEscaped('r', begin, end); }
 auto hasEscapedTab(const std::string::const_iterator begin, const std::string::const_iterator end) { return hasEscaped('t', begin, end); }
 
+auto findEndOfEscapeSequence(const std::string::const_iterator begin, const std::string::const_iterator end)
+{
+  BUT_ASSERT(begin!=end);
+  BUT_ASSERT( isEscape(*begin) );
+  const auto next = begin+1;
+  if(*next=='x')
+  {
+    BUT_ASSERT( std::distance(begin, end) >= 2 );
+    return next+2;
+  }
+  return next;
+}
+
 auto findFirstEol(const std::string::const_iterator begin, const std::string::const_iterator end)
 {
   for(auto it=begin; it!=end; ++it)
@@ -48,7 +61,7 @@ auto findFirstEol(const std::string::const_iterator begin, const std::string::co
     }
     if( isEscape(*it) )
     {
-      ++it;
+      it = findEndOfEscapeSequence(it, end);
       BUT_ASSERT(it!=end && "invalid sequence - cannot end with broken escape sequence");
     }
   }
@@ -63,6 +76,7 @@ auto findLastInLineBeforeSplitEscape(const std::string::const_iterator begin, co
   {
     if( not isEscape(*it) )
       continue;
+    it = findEndOfEscapeSequence(it, effectiveEnd);
     if(it+1 == effectiveEnd)
       return it;
     ++it;

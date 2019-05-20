@@ -84,7 +84,7 @@ TEST_CASE("wrapping lines")
     CHECK( out[0] == "foo" );
     CHECK( out[1] == "\\tx" );
   }
-  SUBCASE("when escaped non-printable char is in the line break place, it is moved to a new line")
+  SUBCASE("when escaped non-printable char is in the line break place, it is moved to a new line (whole sequence)")
   {
     const auto out = splitIntoLines("foo\\x42bar", 4);
     REQUIRE( out.size() == 3u );
@@ -92,9 +92,17 @@ TEST_CASE("wrapping lines")
     CHECK( out[1] == "\\x42" );
     CHECK( out[2] == "bar" );
   }
+  SUBCASE("when escaped non-printable char is in the line break place, it is moved to a new line (sequence is part of it)")
+  {
+    const auto out = splitIntoLines("foo\\x42bar", 5);
+    REQUIRE( out.size() == 3u );
+    CHECK( out[0] == "foo" );
+    CHECK( out[1] == "\\x42b" );
+    CHECK( out[2] == "ar" );
+  }
   SUBCASE("when escape char is longer than number of columns, longer column is produced to fit the whole sequence")
   {
-    const auto out = splitIntoLines("foo\\x42bar", 3);
+    const auto out = splitIntoLines("foo\\x42bar", 5);
     REQUIRE( out.size() == 3u );
     CHECK( out[0] == "foo" );
     CHECK( out[1] == "\\x42" );
