@@ -19,6 +19,7 @@ add_library(CursATEimpl
   Screen/Search.cpp
   Screen/displayError.cpp
   Screen/help.cpp
+  Screen/multiLinePreview.cpp
   Screen/detail/ConstStringDataSource.cpp
   Screen/detail/FilterWindows.cpp
   Screen/detail/FilterTreeDataSource.cpp
@@ -83,6 +84,7 @@ if(LOGATE_ENABLE_TESTS)
     Screen/LogEntry.manual.cpp
     Screen/help.manual.cpp
     Screen/displayError.manual.cpp
+    Screen/multiLinePreview.manual.cpp
   )
 
   foreach(src ${SOURCES_MANUAL})
