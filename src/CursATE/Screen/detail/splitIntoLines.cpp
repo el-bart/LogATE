@@ -39,9 +39,9 @@ auto findFirstEol(const std::string::const_iterator begin, const std::string::co
         return it+4;
       return it+2;
     }
-    if( hasEscapedCr(it, end) )
+    if( hasEscapedLf(it, end) )
     {
-      if( hasEscapedLf(it+2, end) )
+      if( hasEscapedCr(it+2, end) )
         return it+4;
       return it+2;
     }
@@ -73,7 +73,9 @@ auto findNextLineBreak(const std::string::const_iterator begin, const std::strin
 {
   const auto newEnd = findLastInLineBeforeSplitEscape(begin, end, cols);
   std::cout << "\nEE:|" << std::string{begin, newEnd} << "| of |" << std::string{begin, end} << "| @ " << cols << " cols" << std::endl;         
-  return findFirstEol(begin, newEnd);
+  const auto it = findFirstEol(begin, newEnd);
+  std::cout << "OO:|" << std::string{begin, it} << "|" << std::endl;                   
+  return it;
 }
 }
 

@@ -152,7 +152,7 @@ TEST_CASE("wrapping lines around words, when possible")
   }
   SUBCASE("wrap aroud FL+CR is considered single new line")
   {
-    const auto out = splitIntoLines("foo\\r\\nbar", 6);
+    const auto out = splitIntoLines("foo\\r\\nbar", 7);
     REQUIRE( out.size() == 2u );
     CHECK( out[0] == "foo\\r\\n" );
     CHECK( out[1] == "bar" );
@@ -167,7 +167,7 @@ TEST_CASE("wrapping lines around words, when possible")
   }
   SUBCASE("wrapping multiple LFs are considered separate lines")
   {
-    const auto out = splitIntoLines("foo\\r\\rbar", 6);
+    const auto out = splitIntoLines("foo\\r\\rbar", 7);
     REQUIRE( out.size() == 3u );
     CHECK( out[0] == "foo\\r" );
     CHECK( out[1] == "\\r" );
