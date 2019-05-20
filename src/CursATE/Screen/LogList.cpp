@@ -1,5 +1,6 @@
 #include "CursATE/Screen/LogEntry.hpp"
 #include "CursATE/Screen/LogList.hpp"
+#include "CursATE/Screen/help.hpp"
 #include "CursATE/Screen/FilterTree.hpp"
 #include "CursATE/Screen/displayError.hpp"
 #include "CursATE/Curses/CursorVisibility.hpp"
@@ -91,6 +92,8 @@ void LogList::reactOnKey(const int ch)
     case 'n': processSearchAgain(Search::Direction::Forward); break;
     case '?': processSearch(Search::Direction::Backward); break;
     case 'N': processSearchAgain(Search::Direction::Backward); break;
+
+    case KEY_F(1): help(); break;
 
     // TODO: searching by regex?
     // TODO: moving to a log with a given ID?

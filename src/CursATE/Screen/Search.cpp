@@ -1,5 +1,6 @@
 #include "CursATE/Screen/Search.hpp"
 #include "CursATE/Screen/ProgressBar.hpp"
+#include "CursATE/Screen/help.hpp"
 #include "CursATE/Curses/Form.hpp"
 #include "LogATE/Utils/matchesLog.hpp"
 

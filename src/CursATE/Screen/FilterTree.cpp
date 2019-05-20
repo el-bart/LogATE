@@ -1,5 +1,6 @@
 #include "CursATE/Screen/FilterTree.hpp"
 #include "CursATE/Screen/displayError.hpp"
+#include "CursATE/Screen/help.hpp"
 #include "CursATE/Screen/detail/FilterTreeDataSource.hpp"
 #include "CursATE/Screen/detail/formatAsPercentage.hpp"
 #include "CursATE/Curses/Form.hpp"
@@ -98,6 +99,8 @@ std::pair<DataSource::Id, bool> navigate(ScrolableWindow& win,
       case 'H': win.selectFirstVisible(); break;
       case 'M': win.selectMiddleVisible(); break;
       case 'L': win.selectLastVisible(); break;
+
+      case KEY_F(1): help(); break;
 
       // TODO: searching by string?
       // TODO: moving to a log with a given ID?

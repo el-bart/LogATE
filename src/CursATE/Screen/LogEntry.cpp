@@ -1,5 +1,6 @@
 #include "CursATE/Screen/LogEntry.hpp"
 #include "CursATE/Screen/displayError.hpp"
+#include "CursATE/Screen/help.hpp"
 #include "CursATE/Screen/detail/LogEntryDataSource.hpp"
 #include "CursATE/Screen/detail/formatAsPercentage.hpp"
 #include "CursATE/Curses/Form.hpp"
@@ -87,6 +88,8 @@ std::unique_ptr<LogATE::Tree::Node> LogEntry::navigate(Win& win, DS const& ds)
       case 'H': win.selectFirstVisible(); break;
       case 'M': win.selectMiddleVisible(); break;
       case 'L': win.selectLastVisible(); break;
+
+      case KEY_F(1): help(); break;
 
       // TODO: searching by string?
     }
