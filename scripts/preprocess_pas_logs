@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import sys
 import json
+import signal
 
 
 def toButPrecDT(timestamp):
@@ -62,6 +63,13 @@ def handleText(timestamp, tag, content):
 
 
 exitCode = 0
+
+def exitHandler(signum, frame):
+    sys.exit(exitCode)
+
+# Set the signal handler and a 5-second alarm
+signal.signal(signal.SIGPIPE, exitHandler)
+
 
 for line in sys.stdin:
     try:
