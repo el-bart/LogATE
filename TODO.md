@@ -13,7 +13,7 @@
 
 ## UI
 
-* key shortcuts for tabs switching fast
+* key shortcuts for tabs switching fast (small 'm'arks and big 'Marks'?)
 * colored highlighting of searched elements
 * runtime edition of silent tags
 * runtime edition of priority tags
