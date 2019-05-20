@@ -20,7 +20,6 @@
 * export logs from a given filter to a file
 * make deleting root node possible, if there is just one child - then it will pivot root element with its child (useful for dropping non-interesting logs)
 * embed version tag (if present) and commit hash into a binary, so that it can be displayed on request
-* add "wrapped text" window for viewing long text fields, in a line-breaked manner, so that it is readable w/o scrolling
 * escape key handling (w/o extra 0.5s delay, plz)
 * generic mechanism for searching inside whole data source (usefull for different small-volume windows, i.e. non-log-lists)
 

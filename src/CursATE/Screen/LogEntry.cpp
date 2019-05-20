@@ -1,6 +1,7 @@
 #include "CursATE/Screen/LogEntry.hpp"
 #include "CursATE/Screen/displayError.hpp"
 #include "CursATE/Screen/help.hpp"
+#include "CursATE/Screen/multiLinePreview.hpp"
 #include "CursATE/Screen/detail/LogEntryDataSource.hpp"
 #include "CursATE/Screen/detail/formatAsPercentage.hpp"
 #include "CursATE/Screen/detail/smallerScreenSize.hpp"
@@ -25,7 +26,6 @@ using CursATE::Curses::ScreenPosition;
 using CursATE::Curses::ctrl;
 using CursATE::Curses::Row;
 using CursATE::Curses::Column;
-using CursATE::Screen::displayError;
 
 namespace CursATE::Screen
 {
@@ -33,7 +33,7 @@ namespace CursATE::Screen
 std::unique_ptr<LogATE::Tree::Node> LogEntry::process()
 {
   const auto sp = ScreenPosition{ Row{1}, Column{1} };
-  const auto ss = detail::smallerScreenSize(2);
+  const auto ss = detail::smallerScreenSize(1);
   const auto ds = But::makeSharedNN<detail::LogEntryDataSource>(log_);
   auto status = [ds](const size_t pos) { return detail::nOFmWithPercent(pos, ds->size()); };
   ScrolableWindow win{ ds, sp, ss, Window::Boxed::True, std::move(status) };
@@ -59,6 +59,8 @@ std::unique_ptr<LogATE::Tree::Node> LogEntry::navigate(Win& win, DS const& ds)
              break;
            }
       case 'q': return {};
+
+      case 'i': inspectElement( ds, *win.currentSelection() ); break;
 
       case KEY_UP:    win.selectUp(); break;
       case KEY_DOWN:  win.selectDown(); break;
@@ -359,6 +361,16 @@ std::unique_ptr<LogATE::Tree::Node> LogEntry::createFilterBasedOnSelection(DS co
   if( *filterName == names[4] ) return createTo(*filterFactory_, Curses::DataSource::Id{log_.sequenceNumber().value_});
   if( *filterName == names[5] ) return createAcceptAll(*filterFactory_);
   throw std::logic_error{"unsupported filter type: " + *filterName};
+}
+
+
+template<typename DS>
+void LogEntry::inspectElement(DS const& ds, Curses::DataSource::Id id) const
+{
+  const auto opt = ds.id2value(id);
+  if(not opt)
+    return;
+  multiLinePreview(*opt);
 }
 
 }

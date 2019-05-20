@@ -56,6 +56,7 @@ auto options()
       "",
       "",
       "### log entry detailed view window",
+      "  i            - Inspect given field in a more human readable preview window",
       "  f            - create new Filter, based on a current selection",
       "  enter        - alias for 'f' key"
     };
