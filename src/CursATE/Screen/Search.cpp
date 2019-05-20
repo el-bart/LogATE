@@ -13,19 +13,19 @@ using LogATE::Utils::matchesAnyKeyValue;
 namespace CursATE::Screen
 {
 
-But::Optional<LogATE::SequenceNumber> Search::process(LogATE::Tree::NodeShPtr node, const LogATE::SequenceNumber currentSelection)
+But::Optional<LogATE::SequenceNumber> Search::process(LogATE::Tree::NodeShPtr node, const LogATE::SequenceNumber currentSelection, const Direction dir)
 {
   if( not updateSearchPattern() )
     return {};
-  return triggerSearch(node, currentSelection);
+  return triggerSearch(node, currentSelection, dir);
 }
 
 
-But::Optional<LogATE::SequenceNumber> Search::processAgain(LogATE::Tree::NodeShPtr node, const LogATE::SequenceNumber currentSelection)
+But::Optional<LogATE::SequenceNumber> Search::processAgain(LogATE::Tree::NodeShPtr node, const LogATE::SequenceNumber currentSelection, const Direction dir)
 {
   if( keyQuery_.empty() && valueQuery_.empty() )
     return {};
-  return triggerSearch(node, currentSelection);
+  return triggerSearch(node, currentSelection, dir);
 }
 
 
@@ -97,11 +97,18 @@ struct SearchQuery
 };
 
 
-auto extractLogs(LogATE::Tree::NodeShPtr node, const LogATE::SequenceNumber currentSelection)
+auto extractLogs(LogATE::Tree::NodeShPtr node, const LogATE::SequenceNumber currentSelection, const Search::Direction dir)
 {
+  using Out = std::vector<Log>;
   const auto ll = node->logs().withLock();
   const auto it = ll->find(currentSelection);
-  return std::vector<Log>{it, ll->end()};
+  switch(dir)
+  {
+    case Search::Direction::Forward:  return Out{it, ll->end()};
+    case Search::Direction::Backward: return Out{ Out::const_reverse_iterator{it}, ll->rbegin() };
+  }
+  BUT_ASSERT(!"invalid search direction");
+  throw std::logic_error{"unknown value for Search::Direction"};
 }
 
 
@@ -120,9 +127,9 @@ bool hasResultEarly(ProgressBar::Monitor const& monitor)
 }
 
 
-But::Optional<LogATE::SequenceNumber> Search::triggerSearch(LogATE::Tree::NodeShPtr node, const LogATE::SequenceNumber currentSelection)
+But::Optional<LogATE::SequenceNumber> Search::triggerSearch(LogATE::Tree::NodeShPtr node, const LogATE::SequenceNumber currentSelection, const Direction dir)
 {
-  auto logs = extractLogs(node, currentSelection);
+  auto logs = extractLogs(node, currentSelection, dir);
   const auto monitor = But::makeSharedNN<ProgressBar::Monitor>( logs.size() );
   auto query = SearchQuery{keyQuery_, valueQuery_, std::move(logs), monitor};
   auto ret = workers_->enqueue( [q=std::move(query)] { return q(); } );

@@ -25,6 +25,11 @@ public:
   auto begin() const { BUT_ASSERT( locked() ); return logs_.begin(); }
   auto end()   const { BUT_ASSERT( locked() ); return logs_.end(); }
 
+  auto rbegin()       { BUT_ASSERT( locked() ); return logs_.rbegin(); }
+  auto rend()         { BUT_ASSERT( locked() ); return logs_.rend(); }
+  auto rbegin() const { BUT_ASSERT( locked() ); return logs_.rbegin(); }
+  auto rend()   const { BUT_ASSERT( locked() ); return logs_.rend(); }
+
   std::vector<Log>::iterator find(SequenceNumber sn);
   std::vector<Log>::const_iterator find(SequenceNumber sn) const;
 
