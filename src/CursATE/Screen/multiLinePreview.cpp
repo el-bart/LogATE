@@ -5,6 +5,7 @@
 #include "CursATE/Screen/detail/formatAsPercentage.hpp"
 #include "CursATE/Screen/detail/smallerScreenSize.hpp"
 #include "CursATE/Screen/detail/splitIntoLines.hpp"
+#include "LogATE/Utils/PrintableStringConverter.hpp"
 
 using CursATE::Curses::Window;
 using CursATE::Curses::ScreenSize;
@@ -13,6 +14,7 @@ using CursATE::Curses::Row;
 using CursATE::Curses::Column;
 using CursATE::Curses::ScrolableWindow;
 using CursATE::Curses::ctrl;
+using LogATE::Utils::PrintableStringConverter;
 
 namespace CursATE::Screen
 {
@@ -56,7 +58,8 @@ void multiLinePreview(std::string const& in)
 {
   const auto sp = ScreenPosition{ Row{2}, Column{2} };
   const auto ss = detail::smallerScreenSize(2);
-  const auto ds = But::makeSharedNN<detail::ConstStringDataSource>( detail::splitIntoLines(in, ss.columns_.value_) );
+  const auto psc = PrintableStringConverter{};
+  const auto ds = But::makeSharedNN<detail::ConstStringDataSource>( detail::splitIntoLines( psc(in) , ss.columns_.value_) );
   auto status = [ds](const size_t pos) { return detail::nOFmWithPercent(pos, ds->size()); };
   ScrolableWindow win{ ds, sp, ss, Window::Boxed::True, std::move(status) };
   navigate(win);

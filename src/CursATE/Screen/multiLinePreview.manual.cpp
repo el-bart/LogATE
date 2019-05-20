@@ -28,10 +28,10 @@ auto makeLongLine()
   std::stringstream ss;
   for(auto i=0; i<10; ++i)
   {
-    ss << "## ITERATION " << i << std::endl;
-    ss << loremIpsum << std::endl;
-    ss << loremIpsum << "\\n\\r";
-    ss << "------" << std::endl;
+    ss << "## ITERATION " << i << "\r";
+    ss << loremIpsum << "\n";
+    ss << loremIpsum << "\n\r";
+    ss << "------ xx \\n\\rr xx -----" << std::endl;
   }
   return ss.str();
 }
