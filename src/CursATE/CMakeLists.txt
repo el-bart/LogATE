@@ -25,6 +25,7 @@ add_library(CursATEimpl
   Screen/detail/FilterTreeDataSource.cpp
   Screen/detail/LogDataSource.cpp
   Screen/detail/LogEntryDataSource.cpp
+  Screen/detail/splitIntoLines.cpp
   Screen/detail/formatAsPercentage.cpp
   Main.cpp
 )
@@ -52,6 +53,7 @@ if(LOGATE_ENABLE_TESTS)
     Curses/detail/ScrolableWindowBackend.ut.cpp
     Screen/detail/LogDataSource.ut.cpp
     Screen/detail/formatAsPercentage.ut.cpp
+    Screen/detail/splitIntoLines.ut.cpp
     main.ut.cpp
   )
   add_executable(CursATE_mts
