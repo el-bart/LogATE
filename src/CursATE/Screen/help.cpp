@@ -30,11 +30,12 @@ auto options()
 
 auto smallerScreenSize()
 {
+  constexpr auto delta = 2;
   auto ss = ScreenSize::global();
-  if(ss.rows_.value_ > 1+2+2)
-    ss.rows_.value_ -= 2;
-  if(ss.columns_.value_ > 1+2+2)
-    ss.columns_.value_ -= 2;
+  if(ss.rows_.value_ > 1+2*delta)
+    ss.rows_.value_ -= 2*delta;
+  if(ss.columns_.value_ > 1+2*delta)
+    ss.columns_.value_ -= 2*delta;
   return ss;
 }
 
@@ -75,7 +76,7 @@ void navigate(Win& win, DS const& ds)
 
 void help()
 {
-  const auto sp = ScreenPosition{ Row{1}, Column{1} };
+  const auto sp = ScreenPosition{ Row{2}, Column{2} };
   const auto ss = smallerScreenSize();
   const auto ds = But::makeSharedNN<detail::ConstStringDataSource>( options() );
   auto status = [ds](const size_t pos) { return detail::nOFmWithPercent(pos, ds->size()); };
