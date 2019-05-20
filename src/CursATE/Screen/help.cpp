@@ -20,9 +20,43 @@ namespace
 auto options()
 {
   std::vector<std::string> out{
-      "CursATE - ncurses interface to LogATE",
+      ">> CursATE - ncurses interface to LogATE <<",
+      "TODO: version / hash / branch",  // TODO!!!
+      "very helpful help screen",
       "",
-      ""
+      "",
+      "### common keys",
+      "  arrow keys   - navigate window",
+      "  home/end     - select first/last entry",
+      "  page up/down - move one page up/down",
+      "  ^home/^end   - begin/end of line",
+      "  H            - select Highest visible entry",
+      "  M            - select Middle (center) visible entry",
+      "  L            - select Lowest visible entry",
+      "  q            - Quit current window",
+      "  F1           - helpful help screen full of help",
+      "",
+      "",
+      "### log list window",
+      "  q            - Quit program (requires confirmation, to avoid WTF-class issues)",
+      "  j            - Jump (center) all child filters to current log (or closest one, if not present directly)",
+      "  J            - the same as 'j', but affecting all filters, globally",
+      "  f            - go to log view (Filter creation is possible there)",
+      "  t            - open filter Tree window",
+      "  enter        - alias for 't' key",
+      "  /            - open search key/value window - forward search",
+      "  ?            - open search key/value window - backward search",
+      "  n            - repeat last search forward (select Next match)",
+      "  N            - repeat last search backward",
+      "",
+      "",
+      "### filter tree window",
+      "  enter        - switch to selected filter",
+      "",
+      "",
+      "### log entry detailed view window",
+      "  f            - create new Filter, based on a current selection",
+      "  enter        - alias for 'f' key"
     };
   return out;
 }
