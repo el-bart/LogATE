@@ -30,6 +30,7 @@ auto makeLongLine()
   {
     ss << "## ITERATION " << i << std::endl;
     ss << loremIpsum << std::endl;
+    ss << loremIpsum << "\\n\\r";
     ss << "------" << std::endl;
   }
   return ss.str();
