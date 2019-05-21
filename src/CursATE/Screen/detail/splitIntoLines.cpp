@@ -31,6 +31,7 @@ auto hasEscapedTab(const std::string::const_iterator begin, const std::string::c
 
 auto findEndOfEscapeSequence(const std::string::const_iterator begin, const std::string::const_iterator end)
 {
+  (void)end;
   BUT_ASSERT(begin!=end);
   BUT_ASSERT( isEscape(*begin) );
   const auto next = begin+1;
