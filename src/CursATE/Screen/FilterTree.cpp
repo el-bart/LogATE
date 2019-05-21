@@ -104,7 +104,7 @@ LogATE::Tree::NodeShPtr FilterTree::selectNext(LogATE::Tree::NodeShPtr const& cu
 {
   auto selectedNode = current;
   const auto sp = ScreenPosition{ Row{1}, Column{1} };
-  const auto ss = detail::smallerScreenSize(2);
+  const auto ss = detail::smallerScreenSize(1);
   while(true)
   {
     const auto ds = But::makeSharedNN<detail::FilterTreeDataSource>(root_);
