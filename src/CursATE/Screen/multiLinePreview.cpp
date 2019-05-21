@@ -5,6 +5,7 @@
 #include "CursATE/Screen/detail/formatAsPercentage.hpp"
 #include "CursATE/Screen/detail/smallerScreenSize.hpp"
 #include "CursATE/Screen/detail/splitIntoLines.hpp"
+#include "CursATE/Screen/help.hpp"
 #include "LogATE/Utils/PrintableStringConverter.hpp"
 
 using CursATE::Curses::Window;
@@ -47,6 +48,8 @@ void navigate(Win& win)
       case 'H': win.selectFirstVisible(); break;
       case 'M': win.selectMiddleVisible(); break;
       case 'L': win.selectLastVisible(); break;
+
+      case KEY_F(1): help(); break;
 
       // TODO: searching by string?
     }
