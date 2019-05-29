@@ -9,6 +9,7 @@
 * search inside a given node set via regex (string is already implemented)
 * add support for arrays in all the places in the code
 * think about nice syntax for Path support of arrays
+* speed up input logs parsing / assignment
 
 
 ## UI
@@ -22,6 +23,7 @@
 * embed version tag (if present) and commit hash into a binary, so that it can be displayed on request
 * escape key handling (w/o extra 0.5s delay, plz)
 * generic mechanism for searching inside whole data source (usefull for different small-volume windows, i.e. non-log-lists)
+* save given logs to a file
 
 
 ## misc
