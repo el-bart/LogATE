@@ -59,12 +59,12 @@ AnnotatedLog::AnnotatedLog(Log log):
 
 AnnotatedLog::AnnotatedLog(nlohmann::json in):
   log_{in},
-  json_{ std::move(in) }
+  json_( std::move(in) )
 { }
 
 AnnotatedLog::AnnotatedLog(const SequenceNumber sn, nlohmann::json in):
   log_{sn, in},
-  json_{ std::move(in) }
+  json_( std::move(in) )
 { }
 
 }
