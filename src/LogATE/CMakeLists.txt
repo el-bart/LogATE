@@ -84,6 +84,7 @@ if(LOGATE_ENABLE_TESTS)
   set(SOURCES_MANUAL
     Net/TcpClient.manual.cpp
     Net/TcpServer.manual.cpp
+    Net/TcpJsonPerformanceTest.manual.cpp
   )
 
   foreach(src ${SOURCES_MANUAL})
