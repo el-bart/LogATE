@@ -34,7 +34,8 @@ But::Optional<AnnotatedLog> TcpServer::readNextLog()
 void TcpServer::interrupt()
 {
   quit_ = true;
-  queue_.withLock()->push( Queue::value_type{} );
+  auto empty = Queue::value_type{}; // explicit variable to bypass invalid GCC-8 warning
+  queue_.withLock()->push( std::move(empty) );
 }
 
 void TcpServer::workerLoop()
