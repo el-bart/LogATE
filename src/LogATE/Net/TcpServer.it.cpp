@@ -41,7 +41,7 @@ TEST_CASE_FIXTURE(Fixture, "server can handle one client")
   const auto log = s.readNextLog();
   CHECK( s.errors() == 0 );
   REQUIRE(log);
-  CHECK( log->json() == log1_ );
+  CHECK( log->json_ == log1_ );
 }
 
 TEST_CASE_FIXTURE(Fixture, "server can handle one client and multiple messages")
@@ -55,7 +55,7 @@ TEST_CASE_FIXTURE(Fixture, "server can handle one client and multiple messages")
     const auto log = s.readNextLog();
     CHECK( s.errors() == 0 );
     REQUIRE(log);
-    CHECK( log->json() == json );
+    CHECK( log->json_ == json );
   }
 }
 
@@ -71,7 +71,7 @@ TEST_CASE_FIXTURE(Fixture, "server does not disconnect on parse errors")
   const auto log = s.readNextLog();
   CHECK( s.errors() == 12 );
   REQUIRE(log);
-  CHECK( log->json() == log1_ );
+  CHECK( log->json_ == log1_ );
 }
 
 TEST_CASE_FIXTURE(Fixture, "server can handle json spread through multiple lines")
@@ -88,7 +88,7 @@ TEST_CASE_FIXTURE(Fixture, "server can handle json spread through multiple lines
   const auto log = s.readNextLog();
   CHECK( s.errors() == 0 );
   REQUIRE(log);
-  CHECK( log->json() == nlohmann::json::parse(jsonStr) );
+  CHECK( log->json_ == nlohmann::json::parse(jsonStr) );
 }
 
 TEST_CASE_FIXTURE(Fixture, "server can handle jsons attached to next other")
@@ -106,7 +106,7 @@ TEST_CASE_FIXTURE(Fixture, "server can handle jsons attached to next other")
     const auto log = s.readNextLog();
     CHECK( s.errors() == 0 );
     REQUIRE(log);
-    CHECK( log->json() == nlohmann::json::parse(jsonStr) );
+    CHECK( log->json_ == nlohmann::json::parse(jsonStr) );
   }
 }
 
@@ -121,7 +121,7 @@ TEST_CASE_FIXTURE(Fixture, "server gets back to accepting connections once curre
     const auto log = s.readNextLog();
     CHECK( s.errors() == i );
     REQUIRE(log);
-    CHECK( log->json() == log1_ );
+    CHECK( log->json_ == log1_ );
   }
 }
 
@@ -146,7 +146,7 @@ TEST_CASE_FIXTURE(Fixture, "null jsons are dropped")
   const auto log = s.readNextLog();
   CHECK( s.errors() == 0 );
   REQUIRE(log);
-  CHECK( log->json() == log1_ );
+  CHECK( log->json_ == log1_ );
 }
 
 }

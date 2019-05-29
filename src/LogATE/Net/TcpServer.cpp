@@ -21,7 +21,7 @@ TcpServer::~TcpServer()
   interrupt();
 }
 
-But::Optional<Log> TcpServer::readNextLog()
+But::Optional<AnnotatedLog> TcpServer::readNextLog()
 {
   Queue::lock_type lock{queue_};
   if( queue_.empty() )
@@ -70,11 +70,11 @@ auto isStreamUsable(std::ostream const& os)
 void TcpServer::processClient(Poco::Net::StreamSocket clientSocket)
 {
   Poco::Net::SocketStream clientStream{clientSocket};
-  nlohmann::json tmp;
   while( not quit_ && isStreamUsable(clientStream) )
   {
     try
     {
+      nlohmann::json tmp;
       clientStream >> tmp;  // TODO: how to interrupt this when server shutdown has been requested,
                             //       yet remote end is still connected but not transmitting atm?
       if( tmp.is_null() )
@@ -83,7 +83,7 @@ void TcpServer::processClient(Poco::Net::StreamSocket clientSocket)
       while( not queue_.waitForSizeBelow(1024, lock, std::chrono::seconds{1}) )
         if(quit_)
           return;
-      queue_.push( Log{tmp} );
+      queue_.push( AnnotatedLog{ std::move(tmp) } );
     }
     catch(...)
     {

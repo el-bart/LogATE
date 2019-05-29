@@ -21,7 +21,7 @@ public:
   TcpServer(Port port, std::chrono::milliseconds pollTimeout);
   ~TcpServer();
 
-  But::Optional<Log> readNextLog() override;
+  But::Optional<AnnotatedLog> readNextLog() override;
   void interrupt() override;
   size_t errors() const override { return errors_; }
 
@@ -29,7 +29,7 @@ private:
   void workerLoop();
   void processClient(Poco::Net::StreamSocket clientSocket);
 
-  using Queue = But::Threading::Fifo<But::Optional<Log>>;
+  using Queue = But::Threading::Fifo<But::Optional<AnnotatedLog>>;
 
   const Poco::Timespan pollTimeout_;
   std::atomic<size_t> errors_{0};
