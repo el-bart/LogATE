@@ -80,11 +80,12 @@ void TcpServer::processClient(Poco::Net::StreamSocket clientSocket)
                             //       yet remote end is still connected but not transmitting atm?
       if( tmp.is_null() )
         continue;
+      auto al = AnnotatedLog{ std::move(tmp) };
       Queue::lock_type lock{queue_};
       while( not queue_.waitForSizeBelow(1024, lock, std::chrono::seconds{1}) )
         if(quit_)
           return;
-      queue_.push( AnnotatedLog{ std::move(tmp) } );
+      queue_.push( std::move(al) );
     }
     catch(...)
     {
