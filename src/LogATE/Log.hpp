@@ -9,6 +9,9 @@ namespace LogATE
 
 struct Log final
 {
+  static Log acceptRawString(std::string in);
+  static Log acceptRawString(SequenceNumber sn, std::string in);
+
   explicit Log(char const* in): Log{ std::string{in} } { }
   explicit Log(std::string const& in);
   explicit Log(nlohmann::json const& in);
@@ -27,6 +30,9 @@ struct Log final
   auto json() const { return nlohmann::json::parse(*str_); }
 
 private:
+  struct DirectInitTag{};
+  Log(DirectInitTag&&, SequenceNumber sn, std::string in);
+
   SequenceNumber sn_;
   But::NotNullShared<const std::string> str_;
   // TODO: consider adding more structure to a log -> timestamp of receiving, source IP:port, etc...
