@@ -14,7 +14,7 @@ int main()
   const auto port = LogATE::Net::Port{6666};
   LogATE::Net::TcpServer server{port};
   LogATE::Net::TcpRawClient client{"127.0.0.1", port};
-  const auto N = 100'000u;
+  const auto N = 1'000'000u;
 
   const auto testLog = std::string{
 #if 1
