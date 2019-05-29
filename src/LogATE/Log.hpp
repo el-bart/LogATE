@@ -42,6 +42,8 @@ private:
 struct AnnotatedLog final
 {
   explicit AnnotatedLog(Log const& log);
+  explicit AnnotatedLog(nlohmann::json in);
+  AnnotatedLog(SequenceNumber sn, nlohmann::json in);
 
   const Log log_;
   const nlohmann::json json_;

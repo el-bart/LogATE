@@ -57,4 +57,14 @@ AnnotatedLog::AnnotatedLog(Log const& log):
   json_( log_.json() )
 { }
 
+AnnotatedLog::AnnotatedLog(nlohmann::json in):
+  log_{in},
+  json_{ std::move(in) }
+{ }
+
+AnnotatedLog::AnnotatedLog(const SequenceNumber sn, nlohmann::json in):
+  log_{sn, in},
+  json_{ std::move(in) }
+{ }
+
 }
