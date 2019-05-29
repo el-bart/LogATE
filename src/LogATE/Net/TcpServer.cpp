@@ -2,6 +2,9 @@
 #include <Poco/Net/SocketAddress.h>
 #include <Poco/Net/Socket.h>
 #include <Poco/Net/SocketStream.h>
+#include <chrono>
+
+using Clock = std::chrono::system_clock;
 
 namespace LogATE::Net
 {
@@ -21,21 +24,39 @@ TcpServer::~TcpServer()
   interrupt();
 }
 
+namespace
+{
+auto updateBackOffTime(std::chrono::milliseconds in)
+{
+  constexpr auto maxBackOffTime = std::chrono::milliseconds{500};
+  const auto candidate = std::chrono::milliseconds{ (in.count()+1)*2 };
+  if( candidate > maxBackOffTime )
+    return maxBackOffTime;
+  return candidate;
+}
+}
+
 But::Optional<AnnotatedLog> TcpServer::readNextLog()
 {
-  Queue::lock_type lock{queue_};
-  if( queue_.empty() )
-    queue_.waitForNonEmpty(lock);
-  auto tmp = std::move( queue_.top() );
-  queue_.pop();
-  return tmp;
+  auto backOffTime = std::chrono::milliseconds{0};
+  AnnotatedLog* ptr{nullptr};
+  while( not queue_.pop(ptr) )
+  {
+    std::this_thread::sleep_for(backOffTime);
+    backOffTime = updateBackOffTime(backOffTime);
+  }
+  backOffTime = std::chrono::milliseconds{0};
+  if(not ptr)
+    return {};
+  const std::unique_ptr<AnnotatedLog> uptr{ptr};
+  return But::Optional<AnnotatedLog>{ std::move(*uptr) };
 }
 
 void TcpServer::interrupt()
 {
   quit_ = true;
   auto empty = Queue::value_type{}; // explicit variable to bypass invalid GCC-8 warning
-  queue_.withLock()->push( std::move(empty) );
+  while( not queue_.push(empty) ) { }
 }
 
 void TcpServer::workerLoop()
@@ -80,12 +101,8 @@ void TcpServer::processClient(Poco::Net::StreamSocket clientSocket)
                             //       yet remote end is still connected but not transmitting atm?
       if( tmp.is_null() )
         continue;
-      auto al = AnnotatedLog{ std::move(tmp) };
-      Queue::lock_type lock{queue_};
-      while( not queue_.waitForSizeBelow(1024, lock, std::chrono::seconds{1}) )
-        if(quit_)
-          return;
-      queue_.push( std::move(al) );
+      const auto ptr = new AnnotatedLog{ std::move(tmp) };
+      while( not queue_.push(ptr) ) { }
     }
     catch(...)
     {

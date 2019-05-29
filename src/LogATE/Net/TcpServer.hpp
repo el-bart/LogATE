@@ -2,11 +2,11 @@
 #include "LogATE/Log.hpp"
 #include "LogATE/Net/Port.hpp"
 #include "LogATE/Net/Server.hpp"
-#include <But/Threading/Fifo.hpp>
 #include <But/Threading/JoiningThread.hpp>
 #include <Poco/Net/ServerSocket.h>
 #include <Poco/Net/StreamSocket.h>
 #include <Poco/Timespan.h>
+#include <boost/lockfree/queue.hpp>
 #include <chrono>
 #include <thread>
 #include <atomic>
@@ -29,12 +29,12 @@ private:
   void workerLoop();
   void processClient(Poco::Net::StreamSocket clientSocket);
 
-  using Queue = But::Threading::Fifo<But::Optional<AnnotatedLog>>;
+  using Queue = boost::lockfree::queue<AnnotatedLog*>;
 
   const Poco::Timespan pollTimeout_;
   std::atomic<size_t> errors_{0};
   std::atomic<bool> quit_{false};
-  Queue queue_;
+  Queue queue_{2'000};
   Poco::Net::ServerSocket ss_;
   But::Threading::JoiningThread<std::thread> workerThread_;
 };
