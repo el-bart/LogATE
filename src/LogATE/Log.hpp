@@ -45,6 +45,12 @@ struct AnnotatedLog final
   explicit AnnotatedLog(nlohmann::json in);
   AnnotatedLog(SequenceNumber sn, nlohmann::json in);
 
+  AnnotatedLog(AnnotatedLog const&) = default;
+  AnnotatedLog& operator=(AnnotatedLog const&) = default;
+
+  AnnotatedLog(AnnotatedLog&&) = default;
+  AnnotatedLog& operator=(AnnotatedLog&&) = default;
+
   const Log log_;
   const nlohmann::json json_;
 };
