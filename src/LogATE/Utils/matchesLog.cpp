@@ -34,7 +34,7 @@ nlohmann::json getNodeByPath(nlohmann::json const& n, PathIter pathBegin, PathIt
 
 nlohmann::json getNodeByPath(AnnotatedLog const& log, PathIter pathBegin, PathIter pathEnd)
 {
-  return getNodeByPath(log.json_, pathBegin, pathEnd);
+  return getNodeByPath(log.json(), pathBegin, pathEnd);
 }
 
 template<typename F>
@@ -100,7 +100,7 @@ bool matchesRelativeKeyRecursive(nlohmann::json const& log, Path const& path, F 
 template<typename F>
 auto matchesRelativeKey(AnnotatedLog const& log, Path const& path, F const& cmp)
 {
-  return matchesRelativeKeyRecursive(log.json_, path, cmp);
+  return matchesRelativeKeyRecursive(log.json(), path, cmp);
 }
 
 
@@ -126,7 +126,7 @@ bool matchesRelativeValueRecursive(nlohmann::json const& log, Path const& path, 
 template<typename F, typename ToStr>
 auto matchesRelativeValue(AnnotatedLog const& log, Path const& path, F const& cmp, ToStr const& toStr)
 {
-  return matchesRelativeValueRecursive(log.json_, path, cmp, toStr);
+  return matchesRelativeValueRecursive(log.json(), path, cmp, toStr);
 }
 
 
@@ -262,7 +262,7 @@ bool matchesAnyKey(Log const& log, std::string const& str)
 
 bool matchesAnyKey(AnnotatedLog const& log, std::string const& str)
 {
-  return matchesAnyKeyRecursive(log.json_, StringSearch{&str});
+  return matchesAnyKeyRecursive(log.json(), StringSearch{&str});
 }
 
 
@@ -276,7 +276,7 @@ bool matchesAnyValue(Log const& log, std::string const& str)
 
 bool matchesAnyValue(AnnotatedLog const& log, std::string const& str)
 {
-  return matchesAnyValueRecursive(log.json_, StringSearch{&str}, LogATE::Utils::value2str);
+  return matchesAnyValueRecursive(log.json(), StringSearch{&str}, LogATE::Utils::value2str);
 }
 
 
@@ -292,7 +292,7 @@ bool matchesAnyKeyValue(Log const& log, std::string const& key, std::string cons
 
 bool matchesAnyKeyValue(AnnotatedLog const& log, std::string const& key, std::string const& value)
 {
-  return matchesAnyKeyValueRecursive(log.json_, StringSearch{&key}, StringSearch{&value}, LogATE::Utils::value2str);
+  return matchesAnyKeyValueRecursive(log.json(), StringSearch{&key}, StringSearch{&value}, LogATE::Utils::value2str);
 }
 
 

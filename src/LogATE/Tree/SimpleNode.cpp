@@ -7,7 +7,7 @@ bool SimpleNode::insert(AnnotatedLog const& log)
 {
   if( not matches(log) )
     return false;
-  logs().withLock()->insert(log.log_);
+  logs().withLock()->insert( log.log() );
   insertToChildren(log);
   return true;
 }

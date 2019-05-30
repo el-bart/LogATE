@@ -38,7 +38,7 @@ struct Fixture
 
   auto name(std::string const& name) const { return Explode::Name{name}; }
   template<typename ...Args>
-  auto sns(Args... args) { return std::vector<SequenceNumber>{args.log_.sequenceNumber()...}; }
+  auto sns(Args... args) { return std::vector<SequenceNumber>{args.log().sequenceNumber()...}; }
 
   LogATE::Utils::WorkerThreadsShPtr workers_{ But::makeSharedNN<LogATE::Utils::WorkerThreads>() };
   const Path defaultPath_{ Path::parse(".foo") };

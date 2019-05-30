@@ -68,10 +68,10 @@ TEST_CASE("annotated log")
 {
   const auto log = Log{ SN{42}, R"({"answer":42})" };
   const auto al = AnnotatedLog{log};
-  CHECK( al.log_.str() == log.str() );
-  CHECK( al.log_.sequenceNumber() == log.sequenceNumber() );
-  CHECK( al.log_.json() == log.json() );
-  CHECK( al.json_ == log.json() );
+  CHECK( al.log().str() == log.str() );
+  CHECK( al.log().sequenceNumber() == log.sequenceNumber() );
+  CHECK( al.log().json() == log.json() );
+  CHECK( al.json() == log.json() );
 }
 
 }

@@ -51,8 +51,12 @@ struct AnnotatedLog final
   AnnotatedLog(AnnotatedLog&&) = default;
   AnnotatedLog& operator=(AnnotatedLog&&) = default;
 
-  const Log log_;
-  const nlohmann::json json_;
+  auto const& log() const { return log_; }
+  auto const& json() const { return json_; }
+
+private:
+  Log log_;
+  nlohmann::json json_;
 };
 
 }

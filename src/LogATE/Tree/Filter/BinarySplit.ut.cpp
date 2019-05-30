@@ -29,7 +29,7 @@ struct OddFilter: SimpleNode
 private:
   bool matches(LogATE::AnnotatedLog const& log) const override
   {
-    return ( log.log_.sequenceNumber().value_ % 2 ) != 0;
+    return ( log.log().sequenceNumber().value_ % 2 ) != 0;
   }
 };
 
@@ -50,7 +50,7 @@ struct Fixture
   Log makeLog(const unsigned sn, std::string const& json) const { return LogATE::Log{ SequenceNumber{sn}, json }; }
 
   template<typename ...Args>
-  auto sns(Args... args) { return std::vector<SequenceNumber>{args.log_.sequenceNumber()...}; }
+  auto sns(Args... args) { return std::vector<SequenceNumber>{args.log().sequenceNumber()...}; }
 
   LogATE::Utils::WorkerThreadsShPtr workers_{ But::makeSharedNN<LogATE::Utils::WorkerThreads>() };
   BinarySplit bs_{ workers_, Node::Name{"foo"}, But::makeUniqueNN<OddFilter>(workers_) };

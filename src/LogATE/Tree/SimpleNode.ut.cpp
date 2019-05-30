@@ -25,7 +25,7 @@ struct ModFilter: SimpleNode
 private:
   bool matches(LogATE::AnnotatedLog const& log) const override
   {
-    return ( log.log_.sequenceNumber().value_ % N ) == 0;
+    return ( log.log().sequenceNumber().value_ % N ) == 0;
   }
 };
 
