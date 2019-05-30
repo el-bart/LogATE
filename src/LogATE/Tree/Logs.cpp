@@ -27,14 +27,14 @@ auto findInCollection(C& c, const SequenceNumber sn)
 }
 
 
-std::vector<Log>::iterator Logs::find(const SequenceNumber sn)
+std::deque<Log>::iterator Logs::find(const SequenceNumber sn)
 {
   BUT_ASSERT( locked() );
   return findInCollection(logs_, sn);
 }
 
 
-std::vector<Log>::const_iterator Logs::find(const SequenceNumber sn) const
+std::deque<Log>::const_iterator Logs::find(const SequenceNumber sn) const
 {
   BUT_ASSERT( locked() );
   return findInCollection(logs_, sn);

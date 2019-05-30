@@ -5,6 +5,8 @@
 #include "But/Threading/LockProxyProvider.hpp"
 #include "But/assert.hpp"
 #include <string>
+#include <deque>
+#include <vector>
 #include <mutex>
 
 namespace LogATE::Tree
@@ -30,8 +32,8 @@ public:
   auto rbegin() const { BUT_ASSERT( locked() ); return logs_.rbegin(); }
   auto rend()   const { BUT_ASSERT( locked() ); return logs_.rend(); }
 
-  std::vector<Log>::iterator find(SequenceNumber sn);
-  std::vector<Log>::const_iterator find(SequenceNumber sn) const;
+  std::deque<Log>::iterator find(SequenceNumber sn);
+  std::deque<Log>::const_iterator find(SequenceNumber sn) const;
 
   void insert(Log log);
 
@@ -42,7 +44,7 @@ public:
   std::vector<Log> to(SequenceNumber last, size_t count) const;
 
 private:
-  std::vector<Log> logs_;
+  std::deque<Log> logs_;
 };
 
 }
