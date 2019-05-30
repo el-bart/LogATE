@@ -9,7 +9,11 @@
 * search inside a given node set via regex (string is already implemented)
 * add support for arrays in all the places in the code
 * think about nice syntax for Path support of arrays
-* speed up input logs parsing / assignment
+* speed up input logs parsing (main bottleneck now):
+  - consider adding simple non-UTF8 JSON cutter, that will extract 1 JSON from input socket and pass it on for parsing.
+  - use thread pool for parsing JSONs and appending them to the filter tree.
+  - replace input streams with raw sockets for performance.
+* filter that saves all logs after spotting a given pattern (grep-like); add option to save N logs before as well.
 
 
 ## UI
@@ -27,5 +31,3 @@
 
 
 ## misc
-
-* run profiler to see where the bottlenecks are
