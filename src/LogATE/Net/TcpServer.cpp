@@ -22,6 +22,9 @@ TcpServer::TcpServer(const Port port, const std::chrono::milliseconds pollTimeou
 TcpServer::~TcpServer()
 {
   interrupt();
+  if( workerThread_.joinable() )
+    workerThread_.join();
+  clearQueue();
 }
 
 namespace
@@ -57,6 +60,16 @@ void TcpServer::interrupt()
   quit_ = true;
   auto empty = Queue::value_type{}; // explicit variable to bypass invalid GCC-8 warning
   while( not queue_.push(empty) ) { }
+}
+
+void TcpServer::clearQueue()
+{
+  while( not queue_.empty() )
+  {
+    AnnotatedLog* ptr{nullptr};
+    queue_.pop(ptr);
+    delete ptr;
+  }
 }
 
 void TcpServer::workerLoop()

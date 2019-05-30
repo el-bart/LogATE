@@ -26,6 +26,7 @@ public:
   size_t errors() const override { return errors_; }
 
 private:
+  void clearQueue();
   void workerLoop();
   void processClient(Poco::Net::StreamSocket clientSocket);
 
