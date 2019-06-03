@@ -14,6 +14,7 @@
   - use thread pool for parsing JSONs and appending them to the filter tree.
   - replace input streams with raw sockets for performance.
 * filter that saves all logs after spotting a given pattern (grep-like); add option to save N logs before as well.
+* disk/RAM auto-switching backend for `Tree::Logs`, so that it's possible to process more logs than there is RAM in computer.
 
 
 ## UI
