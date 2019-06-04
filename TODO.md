@@ -30,6 +30,7 @@
 * generic mechanism for searching inside whole data source (usefull for different small-volume windows, i.e. non-log-lists)
 * save given logs to a file
 * key shortcut to clear whole input field: at once, until given position, from given position.
+* how about a scripting language, allowing interactive searching and tree building? eg. 'search for pattern X, once found do this, start that, etc...'?
 
 
 ## misc
