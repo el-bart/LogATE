@@ -31,6 +31,10 @@
 * save given logs to a file
 * key shortcut to clear whole input field: at once, until given position, from given position.
 * how about a scripting language, allowing interactive searching and tree building? eg. 'search for pattern X, once found do this, start that, etc...'?
+* add option to plot:
+  - histogram (with and without buckets)
+  - data over time
+  - log and/or normal scale
 
 
 ## misc
