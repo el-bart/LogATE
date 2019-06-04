@@ -29,6 +29,7 @@
 * escape key handling (w/o extra 0.5s delay, plz)
 * generic mechanism for searching inside whole data source (usefull for different small-volume windows, i.e. non-log-lists)
 * save given logs to a file
+* key shortcut to clear whole input field: at once, until given position, from given position.
 
 
 ## misc
