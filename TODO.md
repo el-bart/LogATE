@@ -10,11 +10,12 @@
 * add support for arrays in all the places in the code
 * think about nice syntax for Path support of arrays
 * speed up input logs parsing (main bottleneck now):
-  - consider adding simple non-UTF8 JSON cutter, that will extract 1 JSON from input socket and pass it on for parsing.
+  - consider adding simple JSON cutter, that will extract 1 JSON from input socket and pass it on for further parsing in different threads.
   - use thread pool for parsing JSONs and appending them to the filter tree.
   - replace input streams with raw sockets for performance.
 * filter that saves all logs after spotting a given pattern (grep-like); add option to save N logs before as well.
 * disk/RAM auto-switching backend for `Tree::Logs`, so that it's possible to process more logs than there is RAM in computer.
+* make `Tree::Logs` lock-free so that processing can be done in a way more parallel mode than it is being done now...
 
 
 ## UI
