@@ -36,6 +36,7 @@
   - histogram (with and without buckets)
   - data over time
   - log and/or normal scale
+* indicator of background tasks count
 
 
 ## misc
