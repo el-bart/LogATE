@@ -35,7 +35,7 @@ auto options()
       "  M            - select Middle (center) visible entry",
       "  L            - select Lowest visible entry",
       "  q            - Quit current window",
-      "  F1           - helpful help screen full of help",
+      "  F1/h         - helpful help screen full of help",
       "",
       "",
       "### log list window",
@@ -74,6 +74,7 @@ void navigate(Win& win, DS const& ds)
     switch( getch() )
     {
       case KEY_F(1):
+      case 'h':
       case 'q': return;
 
       case KEY_UP:    win.selectUp(); break;

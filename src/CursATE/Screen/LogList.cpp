@@ -93,6 +93,7 @@ void LogList::reactOnKey(const int ch)
     case '?': processSearch(Search::Direction::Backward); break;
     case 'N': processSearchAgain(Search::Direction::Backward); break;
 
+    case 'h':
     case KEY_F(1): help(); break;
 
     // TODO: searching by regex?

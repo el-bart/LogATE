@@ -79,6 +79,7 @@ std::unique_ptr<LogATE::Tree::Node> LogEntry::navigate(Win& win, DS const& ds)
       case 'M': win.selectMiddleVisible(); break;
       case 'L': win.selectLastVisible(); break;
 
+      case 'h':
       case KEY_F(1): help(); break;
 
       // TODO: searching by string?

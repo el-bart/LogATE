@@ -91,6 +91,7 @@ std::pair<DataSource::Id, bool> navigate(ScrolableWindow& win,
       case 'M': win.selectMiddleVisible(); break;
       case 'L': win.selectLastVisible(); break;
 
+      case 'h':
       case KEY_F(1): help(); break;
 
       // TODO: searching by string?
