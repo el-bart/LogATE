@@ -27,8 +27,8 @@ namespace
 auto makePrinter()
 {
   // TODO: temporary hardcode
-  OrderedPrettyPrint::SilentTags silent{{"But::PreciseDT", "Priority", "ComponentId", "UniqueId"}};
-  OrderedPrettyPrint::PriorityTags prio{{"But::PreciseDT", "Priority", "ComponentId", "UniqueId", "But::ThreadNo"}};
+  OrderedPrettyPrint::SilentTags silent{{"But::PreciseDT", "Priority", "ComponentId", "UniqueId", "string"}};
+  OrderedPrettyPrint::PriorityTags prio{{"But::PreciseDT", "Priority", "ComponentId", "UniqueId", "But::ThreadNo", "string"}};
   return OrderedPrettyPrint{ std::move(silent), std::move(prio) };
 }
 }
