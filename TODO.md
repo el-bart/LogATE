@@ -37,6 +37,8 @@
   - data over time
   - log and/or normal scale
 * indicator of background tasks count
+* tags for log-entries and log-lists (i.e. to switch fast between log locations and log screens).
+* home/end for forms (eg. filter selection).
 
 
 ## misc
