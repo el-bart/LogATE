@@ -39,6 +39,8 @@
 * indicator of background tasks count
 * tags for log-entries and log-lists (i.e. to switch fast between log locations and log screens).
 * home/end for forms (eg. filter selection).
+* key shortcut to goto a given log entry, but on a different log-list (i.e. should pop-up filter tree screen and when navigating to a given one, select a given log there).
+* 'r' to refresh screen view (in case of filter tree preview)
 
 
 ## misc
