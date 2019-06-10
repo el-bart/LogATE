@@ -16,6 +16,9 @@
 * filter that saves all logs after spotting a given pattern (grep-like); add option to save N logs before as well.
 * disk/RAM auto-switching backend for `Tree::Logs`, so that it's possible to process more logs than there is RAM in computer.
 * make `Tree::Logs` lock-free so that processing can be done in a way more parallel mode than it is being done now...
+* save given logs to a file
+  - as JSONs
+  - as human-readable lines
 
 
 ## UI
@@ -29,7 +32,6 @@
 * embed version tag (if present) and commit hash into a binary, so that it can be displayed on request
 * escape key handling (w/o extra 0.5s delay, plz)
 * generic mechanism for searching inside whole data source (usefull for different small-volume windows, i.e. non-log-lists)
-* save given logs to a file
 * key shortcut to clear whole input field: at once, until given position, from given position.
 * how about a scripting language, allowing interactive searching and tree building? eg. 'search for pattern X, once found do this, start that, etc...'?
 * add option to plot:
