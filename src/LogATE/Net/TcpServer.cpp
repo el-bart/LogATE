@@ -29,10 +29,10 @@ TcpServer::~TcpServer()
 
 namespace
 {
-auto updateBackOffTime(std::chrono::milliseconds in)
+auto updateBackOffTime(const std::chrono::milliseconds in)
 {
   constexpr auto maxBackOffTime = std::chrono::milliseconds{500};
-  const auto candidate = std::chrono::milliseconds{ (in.count()+1)*2 };
+  const auto candidate = in + std::chrono::milliseconds{ std::max<unsigned>( in.count(), 1u ) * 2u };
   if( candidate > maxBackOffTime )
     return maxBackOffTime;
   return candidate;
@@ -48,10 +48,9 @@ But::Optional<AnnotatedLog> TcpServer::readNextLog()
     std::this_thread::sleep_for(backOffTime);
     backOffTime = updateBackOffTime(backOffTime);
   }
-  backOffTime = std::chrono::milliseconds{0};
   if(not ptr)
     return {};
-  const std::unique_ptr<AnnotatedLog> uptr{ptr};
+  std::unique_ptr<AnnotatedLog> uptr{ptr};
   return But::Optional<AnnotatedLog>{ std::move(*uptr) };
 }
 
