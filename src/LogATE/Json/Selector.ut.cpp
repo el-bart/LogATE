@@ -190,9 +190,31 @@ TEST_CASE_FIXTURE(Fixture, "parsing valid number")
               }
 }
 
-// TODO: number
-// TODO: array
+
+TEST_CASE_FIXTURE(Fixture, "parsing valid object")
+{
+  SUBCASE("empty object")
+  {
+    update("{}");
+    CHECK( s_.jsonComplete() );
+    CHECK( s_.str() == "{}" );
+  }
+  SUBCASE("empty object with whitespaces")
+  {
+    update("\t\r\n {\r\t\n } \r\t\n");
+    CHECK( s_.jsonComplete() );
+    CHECK( s_.str() == "{}" );
+  }
+  SUBCASE("object with simple key-value pair")
+  {
+    update(R"({  "foo"   :  "b a r"  })");
+    CHECK( s_.jsonComplete() );
+    CHECK( s_.str() == R"({"foo":"b a r"})" );
+  }
+}
+
 // TODO: object
+// TODO: array
 
 // TODO: nested elements
 

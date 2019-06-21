@@ -5,8 +5,19 @@
 namespace LogATE::Json
 {
 
+namespace
+{
+auto isWhitespace(const char c)
+{
+  return c == ' ' || c == '\r' || c == '\n' || c == '\t';
+}
+}
+
+
 void Selector::update(const char c)
 {
+  if( state_.empty() && isWhitespace(c) )
+    return;
   if( jsonNotStarted() )
     startNew(c);
   else
@@ -41,6 +52,11 @@ void Selector::updateExisting(const char c)
     BUT_THROW(InvalidParserState, "while processing '" << c << "' character, internal state is empty, buf buffer is not");
   switch( state_.top() )
   {
+    case ParserState::InsideObjectExpectValue: updateObjectExpectValue(c); return;
+    case ParserState::InsideObjectExpectColon: updateObjectExpectColon(c); return;
+    case ParserState::InsideObjectExpectEnd: updateObjectExpectEnd(c); return;
+    case ParserState::InsideObject: updateObject(c); return;
+    case ParserState::InsideObjectKey: updateObjectKey(c); return;
     case ParserState::InsideNumber: updateNumber(c); return;
     case ParserState::InsideNull: updateNull(c); return;
     case ParserState::InsideBoolFalse: updateBoolFalse(c); return;
@@ -54,8 +70,76 @@ void Selector::updateExisting(const char c)
 
 void Selector::updateObject(const char c)
 {
-  (void)c;
-  // TODO
+  if( isWhitespace(c) )
+    return;
+  if(c == '"')
+  {
+    startObjectKey();
+    return;
+  }
+  if(c == '}')
+  {
+    buffer_.push_back(c);
+    state_.pop();
+    return;
+  }
+  BUT_THROW(UnexpectedCharacter, "when updating object - got '" << c << "'");
+}
+
+
+void Selector::updateObjectKey(const char c)
+{
+  buffer_.push_back(c);
+  if(c == '"')
+  {
+    state_.pop();
+    state_.push(ParserState::InsideObjectExpectColon);
+    return;
+  }
+  if(c == '\\')
+  {
+    state_.push(ParserState::AcceptNextCharacter);
+    return;
+  }
+}
+
+
+void Selector::updateObjectExpectColon(const char c)
+{
+  if( isWhitespace(c) )
+    return;
+  if(c == ':')
+  {
+    buffer_.push_back(c);
+    state_.pop();
+    state_.push(ParserState::InsideObjectExpectValue);
+    return;
+  }
+  BUT_THROW(UnexpectedCharacter, "when updating object - expected ':' or a whitespace, got '" << c << "'");
+}
+
+
+void Selector::updateObjectExpectEnd(const char c)
+{
+  if( isWhitespace(c) )
+    return;
+  if(c == '}')
+  {
+    buffer_.push_back(c);
+    state_.pop();
+    return;
+  }
+  BUT_THROW(UnexpectedCharacter, "when expecting object end - expected '}' or a whitespace, got '" << c << "'");
+}
+
+
+void Selector::updateObjectExpectValue(const char c)
+{
+  if( isWhitespace(c) )
+    return;
+  state_.pop();
+  state_.push(ParserState::InsideObjectExpectEnd);
+  startNew(c);
 }
 
 
@@ -151,33 +235,31 @@ void Selector::startNew(char c)
     case 't': startBoolTrue(); return;
     case 'f': startBoolFalse(); return;
     case 'n': startNull(); return;
-    // object/array continuation:
-    // TODO: ','...
-    // number:
-    case '-':
-    case '0':
-    case '1':
-    case '2':
-    case '3':
-    case '4':
-    case '5':
-    case '6':
-    case '7':
-    case '8':
-    case '9': startNumber(c); return;
-    // white space:
-    case ' ':
-    case '\t':
-    case '\n':
-    case '\r': return;
   }
+  if( isdigit(c) || c == '-' )
+  {
+    startNumber(c);
+    return;
+  }
+  if( isWhitespace(c) )
+    return;
   BUT_THROW(UnexpectedCharacter, "got '" << c << "' where new object was expected");
 }
 
 
 void Selector::startObject()
 {
-  // TODO
+  buffer_.push_back('{');
+  state_.push( ParserState::InsideObject );
+}
+
+
+void Selector::startObjectKey()
+{
+  buffer_.push_back('"');
+  BUT_ASSERT( state_.top() == ParserState::InsideObject );
+  state_.pop();
+  state_.push( ParserState::InsideObjectKey );
 }
 
 
