@@ -43,6 +43,7 @@
 * home/end for forms (eg. filter selection).
 * key shortcut to goto a given log entry, but on a different log-list (i.e. should pop-up filter tree screen and when navigating to a given one, select a given log there).
 * 'r' to refresh screen view (in case of filter tree preview)
+* `follow mode` - add a hey to auto-refresh screen upon new logs arrival (i.e. keep view always at the end).
 
 
 ## misc
