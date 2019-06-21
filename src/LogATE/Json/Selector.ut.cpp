@@ -142,6 +142,54 @@ TEST_CASE_FIXTURE(Fixture, "parsing invalid null")
   CHECK_THROWS_AS( s_.update('X'), Selector::InvalidNull );
 }
 
+
+TEST_CASE_FIXTURE(Fixture, "end of stream")
+{
+  SUBCASE("empty stream is ok")
+  {
+    s_.eos();
+    CHECK( not s_.jsonComplete() );
+    CHECK( s_.str() == "" );
+  }
+  SUBCASE("ending a number")
+  {
+    update("42");
+    CHECK( not s_.jsonComplete() );
+    s_.eos();
+    CHECK( s_.jsonComplete() );
+    CHECK( s_.str() == "42" );
+  }
+  SUBCASE("ending with non-empty and non-number state is an error")
+  {
+    update(R"("xx)");
+    CHECK( not s_.jsonComplete() );
+    CHECK_THROWS_AS( s_.eos(), Selector::UnexpectedEndOfStream );
+  }
+}
+
+
+TEST_CASE_FIXTURE(Fixture, "parsing valid number")
+{
+  for(auto sign: {"", "-"})
+    for(auto front: {"0", "123", "10"})
+      for(auto dot: {"", "."})
+        for(auto back: {"", "0", "01", "12345"})
+          for(auto exp: {"e", "E"})
+            for(auto expSign: {"", "-", "+"})
+              for(auto expDig: {"0", "1", "6789"})
+              {
+                std::stringstream ss;
+                ss << sign << front << dot << back << exp << expSign << expDig;
+                const auto n = ss.str();
+                update(n);
+                CHECK( not s_.jsonComplete() );
+                s_.eos();
+                CHECK( s_.jsonComplete() );
+                CHECK( s_.str() == n );
+                s_.reset();
+              }
+}
+
 // TODO: number
 // TODO: array
 // TODO: object

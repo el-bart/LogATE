@@ -1,5 +1,6 @@
 #include "LogATE/Json/Selector.hpp"
 #include <But/assert.hpp>
+#include <ctype.h>
 
 namespace LogATE::Json
 {
@@ -10,6 +11,19 @@ void Selector::update(const char c)
     startNew(c);
   else
     updateExisting(c);
+}
+
+
+void Selector::eos()
+{
+  if( state_.empty() )
+    return;
+  if( state_.size() == 1 && state_.top() == ParserState::InsideNumber )
+  {
+    state_.pop();
+    return;
+  }
+  BUT_THROW(UnexpectedEndOfStream, "still have " << state_.size() << " of states opened");
 }
 
 
@@ -27,6 +41,7 @@ void Selector::updateExisting(const char c)
     BUT_THROW(InvalidParserState, "while processing '" << c << "' character, internal state is empty, buf buffer is not");
   switch( state_.top() )
   {
+    case ParserState::InsideNumber: updateNumber(c); return;
     case ParserState::InsideNull: updateNull(c); return;
     case ParserState::InsideBoolFalse: updateBoolFalse(c); return;
     case ParserState::InsideBoolTrue: updateBoolTrue(c); return;
@@ -97,8 +112,13 @@ void Selector::updateBoolFalse(const char c)
 
 void Selector::updateNumber(const char c)
 {
-  (void)c;
-  // TODO
+  if( isdigit(c) || c == 'e' || c == 'E' || c == '+' || c == '-' || c == '.' )
+  {
+    buffer_.push_back(c);
+    return;
+  }
+  state_.pop();
+  update(c);
 }
 
 
@@ -131,6 +151,8 @@ void Selector::startNew(char c)
     case 't': startBoolTrue(); return;
     case 'f': startBoolFalse(); return;
     case 'n': startNull(); return;
+    // object/array continuation:
+    // TODO: ','...
     // number:
     case '-':
     case '0':
@@ -142,7 +164,7 @@ void Selector::startNew(char c)
     case '6':
     case '7':
     case '8':
-    case '9': startNumber(); return;
+    case '9': startNumber(c); return;
     // white space:
     case ' ':
     case '\t':
@@ -186,9 +208,10 @@ void Selector::startBoolFalse()
 }
 
 
-void Selector::startNumber()
+void Selector::startNumber(const char c)
 {
-  // TODO
+  buffer_.push_back(c);
+  state_.push( ParserState::InsideNumber );
 }
 
 

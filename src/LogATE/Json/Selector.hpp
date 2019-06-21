@@ -14,8 +14,10 @@ struct Selector final
   BUT_DEFINE_EXCEPTION(UnexpectedCharacter, Error, "unexpected character");
   BUT_DEFINE_EXCEPTION(InvalidBoolean, Error, "invalid boolean");
   BUT_DEFINE_EXCEPTION(InvalidNull, Error, "invalid null");
+  BUT_DEFINE_EXCEPTION(UnexpectedEndOfStream, Error, "unexpected end of stream");
 
   void update(char c);
+  void eos();
   void reset();
   auto jsonComplete() const { return state_.empty() && not buffer_.empty(); }
   auto str() const { return std::string{ begin(buffer_), end(buffer_) }; }
@@ -23,6 +25,7 @@ struct Selector final
 private:
   enum class ParserState: uint8_t
   {
+    InsideNumber,
     InsideNull,
     InsideBoolFalse,
     InsideBoolTrue,
@@ -47,7 +50,7 @@ private:
   void startString();
   void startBoolTrue();
   void startBoolFalse();
-  void startNumber();
+  void startNumber(char c);
   void startNull();
 
   std::string buffer_;
