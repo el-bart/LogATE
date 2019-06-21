@@ -249,7 +249,97 @@ TEST_CASE_FIXTURE(Fixture, "parsing valid object")
   }
 }
 
-// TODO: array
+
+TEST_CASE_FIXTURE(Fixture, "parsing invalid object throws")
+{
+  SUBCASE("missing end bracket")
+  {
+    update("{");
+    CHECK_THROWS_AS( s_.eos(), Selector::UnexpectedEndOfStream );
+    CHECK( not s_.jsonComplete() );
+    CHECK( s_.str() == "{" );
+  }
+  SUBCASE("key must be a string")
+  {
+    update("{ ");
+    CHECK_THROWS_AS( s_.update('4'), Selector::UnexpectedCharacter );
+    CHECK( not s_.jsonComplete() );
+    CHECK( s_.str() == "{" );
+  }
+  SUBCASE("collon is a must")
+  {
+    update(R"({ "foo" )");
+    CHECK_THROWS_AS( s_.update('4'), Selector::UnexpectedCharacter );
+    CHECK( not s_.jsonComplete() );
+    CHECK( s_.str() == R"({"foo")" );
+  }
+  SUBCASE("object must be key-value")
+  {
+    update(R"({ "foo" )");
+    CHECK_THROWS_AS( s_.update('}'), Selector::UnexpectedCharacter );
+    CHECK( not s_.jsonComplete() );
+    CHECK( s_.str() == R"({"foo")" );
+  }
+}
+
+
+TEST_CASE_FIXTURE(Fixture, "parsing valid array")
+{
+  SUBCASE("empty array")
+  {
+    update("[]");
+    CHECK( s_.jsonComplete() );
+    CHECK( s_.str() == "[]" );
+  }
+  SUBCASE("empty array with spaces")
+  {
+    update(" \t\r\n[ \t\r\n] \r\n\t");
+    CHECK( s_.jsonComplete() );
+    CHECK( s_.str() == "[]" );
+  }
+  SUBCASE("one element array - string")
+  {
+    update(R"(["foo bar"])");
+    CHECK( s_.jsonComplete() );
+    CHECK( s_.str() == R"(["foo bar"])" );
+  }
+  SUBCASE("one element array - number")
+  {
+    update(R"([42.666])");
+    CHECK( s_.jsonComplete() );
+    CHECK( s_.str() == R"([42.666])" );
+  }
+  SUBCASE("one element array - bool/true")
+  {
+    update(R"([true])");
+    CHECK( s_.jsonComplete() );
+    CHECK( s_.str() == R"([true])" );
+  }
+  SUBCASE("one element array - bool/false")
+  {
+    update(R"([false])");
+    CHECK( s_.jsonComplete() );
+    CHECK( s_.str() == R"([false])" );
+  }
+  SUBCASE("multi element array")
+  {
+    update(R"([false,true,"narf"])");
+    CHECK( s_.jsonComplete() );
+    CHECK( s_.str() == R"([false,true,"narf"])" );
+  }
+  SUBCASE("multi element array with spaces")
+  {
+    update(" [ false , true\r\t \n, \r\t\n \"narf\" ] ");
+    CHECK( s_.jsonComplete() );
+    CHECK( s_.str() == R"([false,true,"narf"])" );
+  }
+}
+
+
+TEST_CASE_FIXTURE(Fixture, "parsing invalid array throws")
+{
+  // TODO
+}
 
 // TODO: nested elements
 

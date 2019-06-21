@@ -25,6 +25,8 @@ struct Selector final
 private:
   enum class ParserState: uint8_t
   {
+    InsideArray,
+    InsideArrayElement,
     InsideObject,
     InsideObjectKey,
     InsideObjectExpectColon,
@@ -47,6 +49,7 @@ private:
   void updateObjectExpectEnd(char c);
   void updateObjectExpectValue(char c);
   void updateArray(char c);
+  void updateArrayElement(char c);
   void updateString(char c);
   void updateBoolTrue(char c);
   void updateBoolFalse(char c);

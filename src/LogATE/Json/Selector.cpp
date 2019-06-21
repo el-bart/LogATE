@@ -52,6 +52,8 @@ void Selector::updateExisting(const char c)
     BUT_THROW(InvalidParserState, "while processing '" << c << "' character, internal state is empty, buf buffer is not");
   switch( state_.top() )
   {
+    case ParserState::InsideArrayElement: updateArrayElement(c); return;
+    case ParserState::InsideArray: updateArray(c); return;
     case ParserState::InsideObjectExpectValue: updateObjectExpectValue(c); return;
     case ParserState::InsideObjectExpectColon: updateObjectExpectColon(c); return;
     case ParserState::InsideObjectExpectEnd: updateObjectExpectEnd(c); return;
@@ -136,7 +138,7 @@ void Selector::updateObjectExpectEnd(const char c)
     state_.pop();
     return;
   }
-  BUT_THROW(UnexpectedCharacter, "when expecting object end - expected '}' or a whitespace, got '" << c << "'");
+  BUT_THROW(UnexpectedCharacter, "when expecting object end - expected '}' or ',' or a whitespace, got '" << c << "'");
 }
 
 
@@ -152,8 +154,38 @@ void Selector::updateObjectExpectValue(const char c)
 
 void Selector::updateArray(const char c)
 {
-  (void)c;
-  // TODO
+  if( isWhitespace(c) )
+    return;
+  if(c == ']')
+  {
+    buffer_.push_back(c);
+    state_.pop();
+    return;
+  }
+  state_.pop();
+  state_.push(ParserState::InsideArrayElement);
+  startNew(c);
+}
+
+
+void Selector::updateArrayElement(const char c)
+{
+  if( isWhitespace(c) )
+    return;
+  if(c == ',')
+  {
+    state_.pop();
+    startNew(' ');
+    return;
+  }
+  if(c == ']')
+  {
+    buffer_.push_back(c);
+    BUT_ASSERT( state_.top() == ParserState::InsideArrayElement );
+    state_.pop();
+    return;
+  }
+  BUT_THROW(UnexpectedCharacter, "when expecting array end - expected ']' or ',' or a whitespace, got '" << c << "'");
 }
 
 
@@ -257,7 +289,7 @@ void Selector::startNew(char c)
 void Selector::startObject()
 {
   buffer_.push_back('{');
-  state_.push( ParserState::InsideObject );
+  state_.push(ParserState::InsideObject);
 }
 
 
@@ -266,48 +298,49 @@ void Selector::startObjectKey()
   buffer_.push_back('"');
   BUT_ASSERT( state_.top() == ParserState::InsideObject );
   state_.pop();
-  state_.push( ParserState::InsideObjectKey );
+  state_.push(ParserState::InsideObjectKey);
 }
 
 
 void Selector::startArray()
 {
-  // TODO
+  buffer_.push_back('[');
+  state_.push(ParserState::InsideArray);
 }
 
 
 void Selector::startString()
 {
   buffer_.push_back('"');
-  state_.push( ParserState::InsideString );
+  state_.push(ParserState::InsideString);
 }
 
 
 void Selector::startBoolTrue()
 {
   buffer_.push_back('t');
-  state_.push( ParserState::InsideBoolTrue );
+  state_.push(ParserState::InsideBoolTrue);
 }
 
 
 void Selector::startBoolFalse()
 {
   buffer_.push_back('f');
-  state_.push( ParserState::InsideBoolFalse );
+  state_.push(ParserState::InsideBoolFalse);
 }
 
 
 void Selector::startNumber(const char c)
 {
   buffer_.push_back(c);
-  state_.push( ParserState::InsideNumber );
+  state_.push(ParserState::InsideNumber);
 }
 
 
 void Selector::startNull()
 {
   buffer_.push_back('n');
-  state_.push( ParserState::InsideNull );
+  state_.push(ParserState::InsideNull);
 }
 
 }
