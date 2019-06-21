@@ -76,11 +76,56 @@ TEST_CASE_FIXTURE(Fixture, "parsing string with escape characters")
   CHECK( s_.jsonComplete() );
 }
 
+
+TEST_CASE_FIXTURE(Fixture, "parsing boolean true value")
+{
+  update(R"(true)");
+  CHECK( s_.str() == R"(true)" );
+  CHECK( s_.jsonComplete() );
+}
+
+
+TEST_CASE_FIXTURE(Fixture, "parsing invalid boolean true value")
+{
+  update(R"(tr)");
+  CHECK_THROWS_AS( s_.update('X'), Selector::InvalidBoolean );
+}
+
+
+TEST_CASE_FIXTURE(Fixture, "parsing boolean false value")
+{
+  update(R"(false)");
+  CHECK( s_.str() == R"(false)" );
+  CHECK( s_.jsonComplete() );
+}
+
+
+TEST_CASE_FIXTURE(Fixture, "parsing invalid boolean false value")
+{
+  update(R"(fal)");
+  CHECK_THROWS_AS( s_.update('X'), Selector::InvalidBoolean );
+}
+
+
+TEST_CASE_FIXTURE(Fixture, "parsing null")
+{
+  update(R"(null)");
+  CHECK( s_.str() == R"(null)" );
+  CHECK( s_.jsonComplete() );
+}
+
+
+TEST_CASE_FIXTURE(Fixture, "parsing invalid null")
+{
+  update(R"(nu)");
+  CHECK_THROWS_AS( s_.update('X'), Selector::InvalidNull );
+  s_.update('l');
+  CHECK_THROWS_AS( s_.update('X'), Selector::InvalidNull );
+}
+
+// TODO: number
 // TODO: array
 // TODO: object
-// TODO: bools
-// TODO: bools
-// TODO: number
 
 // TODO: nested elements
 

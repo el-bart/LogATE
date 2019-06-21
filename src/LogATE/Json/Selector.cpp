@@ -25,6 +25,9 @@ void Selector::updateExisting(const char c)
     BUT_THROW(InvalidParserState, "while processing '" << c << "' character, internal state is empty, buf buffer is not");
   switch( state_.top() )
   {
+    case ParserState::InsideNull: updateNull(c); return;
+    case ParserState::InsideBoolFalse: updateBoolFalse(c); return;
+    case ParserState::InsideBoolTrue: updateBoolTrue(c); return;
     case ParserState::InsideString: updateString(c); return;
     case ParserState::AcceptNextCharacter: buffer_.push_back(c); state_.pop(); return;
   }
@@ -59,21 +62,34 @@ void Selector::updateString(const char c)
     state_.push(ParserState::AcceptNextCharacter);
     return;
   }
-  // TODO: esc
 }
 
 
 void Selector::updateBoolTrue(const char c)
 {
-  (void)c;
-  // TODO
+  buffer_.push_back(c);
+  if(c == 'r' || c == 'u')
+    return;
+  if(c == 'e')
+  {
+    state_.pop();
+    return;
+  }
+  BUT_THROW(InvalidBoolean, "unexpected char '" << c << "' in bool/true");
 }
 
 
 void Selector::updateBoolFalse(const char c)
 {
-  (void)c;
-  // TODO
+  buffer_.push_back(c);
+  if(c == 'a' || c == 'l' || c == 's')
+    return;
+  if(c == 'e')
+  {
+    state_.pop();
+    return;
+  }
+  BUT_THROW(InvalidBoolean, "unexpected char '" << c << "' in bool/false");
 }
 
 
@@ -81,6 +97,25 @@ void Selector::updateNumber(const char c)
 {
   (void)c;
   // TODO
+}
+
+
+void Selector::updateNull(const char c)
+{
+  if(c == 'u')
+  {
+    buffer_.push_back(c);
+    return;
+  }
+  if(c == 'l')
+  {
+    BUT_ASSERT( not buffer_.empty() );
+    if( buffer_.back() == 'l' )
+      state_.pop();
+    buffer_.push_back(c);
+    return;
+  }
+  BUT_THROW(InvalidNull, "unexpected char '" << c << "' in null value");
 }
 
 
@@ -93,6 +128,7 @@ void Selector::startNew(char c)
     case '"': startString(); return;
     case 't': startBoolTrue(); return;
     case 'f': startBoolFalse(); return;
+    case 'n': startNull(); return;
     case '-':
     case '0':
     case '1':
@@ -134,19 +170,28 @@ void Selector::startString()
 
 void Selector::startBoolTrue()
 {
-  // TODO
+  buffer_.push_back('t');
+  state_.push( ParserState::InsideBoolTrue );
 }
 
 
 void Selector::startBoolFalse()
 {
-  // TODO
+  buffer_.push_back('f');
+  state_.push( ParserState::InsideBoolFalse );
 }
 
 
 void Selector::startNumber()
 {
   // TODO
+}
+
+
+void Selector::startNull()
+{
+  buffer_.push_back('n');
+  state_.push( ParserState::InsideNull );
 }
 
 }

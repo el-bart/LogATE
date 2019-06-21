@@ -11,6 +11,8 @@ struct Selector final
   BUT_DEFINE_EXCEPTION(Error, But::Exception, "JSON selector error");
   BUT_DEFINE_EXCEPTION(InvalidParserState, Error, "invalid parser state");
   BUT_DEFINE_EXCEPTION(UnexpectedCharacter, Error, "unexpected character");
+  BUT_DEFINE_EXCEPTION(InvalidBoolean, Error, "invalid boolean");
+  BUT_DEFINE_EXCEPTION(InvalidNull, Error, "invalid null");
 
   void update(char c);
   void reset();
@@ -20,6 +22,9 @@ struct Selector final
 private:
   enum class ParserState: uint8_t
   {
+    InsideNull,
+    InsideBoolFalse,
+    InsideBoolTrue,
     AcceptNextCharacter,
     InsideString
   };
@@ -33,6 +38,7 @@ private:
   void updateBoolTrue(char c);
   void updateBoolFalse(char c);
   void updateNumber(char c);
+  void updateNull(char c);
 
   void startNew(char c);
   void startObject();
@@ -41,6 +47,7 @@ private:
   void startBoolTrue();
   void startBoolFalse();
   void startNumber();
+  void startNull();
 
   std::string buffer_;
   std::stack<ParserState> state_;
