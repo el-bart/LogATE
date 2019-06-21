@@ -205,15 +205,50 @@ TEST_CASE_FIXTURE(Fixture, "parsing valid object")
     CHECK( s_.jsonComplete() );
     CHECK( s_.str() == "{}" );
   }
-  SUBCASE("object with simple key-value pair")
+  SUBCASE("object with simple key-value pair - string")
   {
     update(R"({  "foo"   :  "b a r"  })");
     CHECK( s_.jsonComplete() );
     CHECK( s_.str() == R"({"foo":"b a r"})" );
   }
+  SUBCASE("object with simple key-value pair - number")
+  {
+    update(R"({  "foo"   :  4.2  })");
+    CHECK( s_.jsonComplete() );
+    CHECK( s_.str() == R"({"foo":4.2})" );
+  }
+  SUBCASE("object with simple key-value pair - bool/true")
+  {
+    update(R"({  "foo"   :  true  })");
+    CHECK( s_.jsonComplete() );
+    CHECK( s_.str() == R"({"foo":true})" );
+  }
+  SUBCASE("object with simple key-value pair - bool/false")
+  {
+    update(R"({  "foo"   :  false })");
+    CHECK( s_.jsonComplete() );
+    CHECK( s_.str() == R"({"foo":false})" );
+  }
+  SUBCASE("object with simple key-value pair - null")
+  {
+    update(R"({  "foo"   :  null })");
+    CHECK( s_.jsonComplete() );
+    CHECK( s_.str() == R"({"foo":null})" );
+  }
+  SUBCASE("object with multiple key-value pairs (2 elements)")
+  {
+    update(R"({ "foo" : "b a a r"  , "answer": 42 })");
+    CHECK( s_.jsonComplete() );
+    CHECK( s_.str() == R"({"foo":"b a a r","answer":42})" );
+  }
+  SUBCASE("object with multiple key-value pairs (3 elements)")
+  {
+    update(R"({ "xx":false,"foo" : "b a a r"  , "answer": 42 })");
+    CHECK( s_.jsonComplete() );
+    CHECK( s_.str() == R"({"xx":false,"foo":"b a a r","answer":42})" );
+  }
 }
 
-// TODO: object
 // TODO: array
 
 // TODO: nested elements

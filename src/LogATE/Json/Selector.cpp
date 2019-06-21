@@ -123,6 +123,13 @@ void Selector::updateObjectExpectEnd(const char c)
 {
   if( isWhitespace(c) )
     return;
+  if(c == ',')
+  {
+    buffer_.push_back(c);
+    state_.pop();
+    state_.push(ParserState::InsideObject);
+    return;
+  }
   if(c == '}')
   {
     buffer_.push_back(c);
