@@ -15,7 +15,9 @@ void Selector::update(const char c)
 
 void Selector::reset()
 {
-  // TODO
+  buffer_.clear();
+  while( not state_.empty() )
+    state_.pop();
 }
 
 
@@ -129,6 +131,7 @@ void Selector::startNew(char c)
     case 't': startBoolTrue(); return;
     case 'f': startBoolFalse(); return;
     case 'n': startNull(); return;
+    // number:
     case '-':
     case '0':
     case '1':
@@ -140,6 +143,7 @@ void Selector::startNew(char c)
     case '7':
     case '8':
     case '9': startNumber(); return;
+    // white space:
     case ' ':
     case '\t':
     case '\n':

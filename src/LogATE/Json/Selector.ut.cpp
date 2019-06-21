@@ -69,6 +69,25 @@ TEST_CASE_FIXTURE(Fixture, "parsing string")
 }
 
 
+TEST_CASE_FIXTURE(Fixture, "reset is clearing state")
+{
+  SUBCASE("in the middle of parsing")
+  {
+    update(R"("foo )");
+    s_.reset();
+    CHECK( s_.str() == "" );
+    CHECK( not s_.jsonComplete() );
+  }
+  SUBCASE("after the parsing")
+  {
+    update(R"("foo bar")");
+    s_.reset();
+    CHECK( s_.str() == "" );
+    CHECK( not s_.jsonComplete() );
+  }
+}
+
+
 TEST_CASE_FIXTURE(Fixture, "parsing string with escape characters")
 {
   update(R"("foo \"\r\n bar")");

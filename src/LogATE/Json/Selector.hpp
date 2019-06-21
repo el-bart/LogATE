@@ -1,6 +1,7 @@
 #pragma once
 #include <But/Exception.hpp>
 #include <stack>
+#include <vector>
 #include <string>
 
 namespace LogATE::Json
@@ -50,7 +51,7 @@ private:
   void startNull();
 
   std::string buffer_;
-  std::stack<ParserState> state_;
+  std::stack<ParserState, std::vector<ParserState>> state_;
 };
 
 }
