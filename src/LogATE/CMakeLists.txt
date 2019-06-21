@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.0)
 project(LogATE)
 
 add_library(LogATE
+  Json/Selector.cpp
   Log.cpp
   Net/TcpClient.cpp
   Net/TcpRawClient.cpp
@@ -43,6 +44,7 @@ install(TARGETS LogATE
 
 if(LOGATE_ENABLE_TESTS)
   add_executable(LogATE_uts
+    Json/Selector.ut.cpp
     Printers/OrderedPrettyPrint.ut.cpp
     Printers/jsonLine.ut.cpp
     Tree/Logs.ut.cpp
