@@ -19,6 +19,8 @@
 * save given logs to a file
   - as JSONs
   - as human-readable lines
+* make sort-field configurable (if field does not exist use SN)
+* maybe logs could be in a lock-free balanced tree?
 
 
 ## UI
