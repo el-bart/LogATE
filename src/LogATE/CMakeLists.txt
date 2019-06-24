@@ -84,6 +84,7 @@ if(LOGATE_ENABLE_TESTS)
   endforeach()
 
   set(SOURCES_MANUAL
+    Json/Selector.manual.cpp
     Net/TcpClient.manual.cpp
     Net/TcpServer.manual.cpp
     Net/TcpJsonPerformanceTest.manual.cpp
