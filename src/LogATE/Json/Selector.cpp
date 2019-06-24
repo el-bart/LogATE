@@ -162,6 +162,7 @@ void Selector::updateArray(const char c)
     state_.pop();
     return;
   }
+  BUT_ASSERT( state_.top() == ParserState::InsideArray );
   state_.pop();
   state_.push(ParserState::InsideArrayElement);
   startNew(c);
@@ -174,8 +175,7 @@ void Selector::updateArrayElement(const char c)
     return;
   if(c == ',')
   {
-    state_.pop();
-    startNew(' ');
+    buffer_.push_back(c);
     return;
   }
   if(c == ']')
@@ -185,7 +185,7 @@ void Selector::updateArrayElement(const char c)
     state_.pop();
     return;
   }
-  BUT_THROW(UnexpectedCharacter, "when expecting array end - expected ']' or ',' or a whitespace, got '" << c << "'");
+  startNew(c);
 }
 
 

@@ -338,10 +338,38 @@ TEST_CASE_FIXTURE(Fixture, "parsing valid array")
 
 TEST_CASE_FIXTURE(Fixture, "parsing invalid array throws")
 {
-  // TODO
+  SUBCASE("missing array closing")
+  {
+    update(" [ ");
+    CHECK_THROWS_AS( s_.eos(), Selector::UnexpectedEndOfStream );
+    CHECK( not s_.jsonComplete() );
+    CHECK( s_.str() == R"([)" );
+  }
+  SUBCASE("wrong element")
+  {
+    update(" [ false , ");
+    CHECK_THROWS_AS( s_.update('x'), Selector::UnexpectedCharacter );
+    CHECK( not s_.jsonComplete() );
+    CHECK( s_.str() == R"([false,)" );
+  }
 }
 
-// TODO: nested elements
+
+TEST_CASE_FIXTURE(Fixture, "parsing nested elements")
+{
+  SUBCASE("nested objects")
+  {
+    update(R"( { "narf" : { "foo" : "bar" } } )");
+    CHECK( s_.jsonComplete() );
+    CHECK( s_.str() == R"({"narf":{"foo":"bar"}})" );
+  }
+  SUBCASE("array of objects")
+  {
+    update(R"( [ 42, { "raspberry": 3.14 }, { "true": false } ] )");
+    CHECK( s_.jsonComplete() );
+    CHECK( s_.str() == R"([42,{"raspberry":3.14},{"true":false}])" );
+  }
+}
 
 }
 }
