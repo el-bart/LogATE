@@ -27,10 +27,12 @@ struct Fixture
   const nlohmann::json log2_{ str2json( R"({ "xxx": "yyy" })" ) };
 };
 
+
 TEST_CASE_FIXTURE(Fixture, "client fails to connect to a closed socket")
 {
   CHECK_THROWS_WITH( (TcpClient{"127.6.6.6", Port{6666}}), "Connection refused" );
 }
+
 
 TEST_CASE_FIXTURE(Fixture, "server can handle one client")
 {
@@ -44,6 +46,7 @@ TEST_CASE_FIXTURE(Fixture, "server can handle one client")
   REQUIRE(log);
   CHECK( log->json() == log1_ );
 }
+
 
 TEST_CASE_FIXTURE(Fixture, "server can handle one client and multiple messages")
 {
@@ -60,6 +63,7 @@ TEST_CASE_FIXTURE(Fixture, "server can handle one client and multiple messages")
   }
 }
 
+
 TEST_CASE_FIXTURE(Fixture, "server does not disconnect on parse errors")
 {
   TcpServer s{workers_, port_};
@@ -74,6 +78,7 @@ TEST_CASE_FIXTURE(Fixture, "server does not disconnect on parse errors")
   REQUIRE(log);
   CHECK( log->json() == log1_ );
 }
+
 
 TEST_CASE_FIXTURE(Fixture, "server can handle json spread through multiple lines")
 {
@@ -91,6 +96,7 @@ TEST_CASE_FIXTURE(Fixture, "server can handle json spread through multiple lines
   REQUIRE(log);
   CHECK( log->json() == nlohmann::json::parse(jsonStr) );
 }
+
 
 TEST_CASE_FIXTURE(Fixture, "server can handle jsons attached to next other")
 {
@@ -111,6 +117,7 @@ TEST_CASE_FIXTURE(Fixture, "server can handle jsons attached to next other")
   }
 }
 
+
 TEST_CASE_FIXTURE(Fixture, "server gets back to accepting connections once current client disconnects")
 {
   TcpServer s{workers_, port_};
@@ -126,11 +133,23 @@ TEST_CASE_FIXTURE(Fixture, "server gets back to accepting connections once curre
   }
 }
 
+
 TEST_CASE_FIXTURE(Fixture, "server can be stopped even when client is still connected")
 {
   But::Optional<TcpRawClient> rc;
   TcpServer s{workers_, port_};
   rc.emplace(host_, port_);
+}
+
+
+TEST_CASE_FIXTURE(Fixture, "server can be stopped even when client is in a middle of json transfer")
+{
+  But::Optional<TcpRawClient> rc;
+  TcpServer s{workers_, port_};
+  rc.emplace(host_, port_);
+  rc->write(R"({ "foo":)");
+  std::this_thread::yield();
+  s.interrupt();
 }
 
 }
