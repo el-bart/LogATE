@@ -38,6 +38,7 @@ private:
   Queue queue_{2'000};
   Utils::WorkerThreadsShPtr workers_;
   detail::TcpServerImpl server_;
+  std::string buffer_;
   But::Threading::JoiningThread<std::thread> workerThread_;
 };
 

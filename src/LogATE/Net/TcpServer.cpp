@@ -76,6 +76,7 @@ void TcpServer::workerLoop()
   {
     try
     {
+      buffer_.resize(1*1024*1024);
       auto client = server_.accept();
       if(not client)
         continue;
@@ -95,7 +96,7 @@ void TcpServer::processClient(Socket& socket)
   selector_.reset();
   while(not quit_)
   {
-    const auto str = socket.readSome(10*1024);
+    const auto str = socket.readSome(buffer_);
     if( str.empty() )
       return;
     for(auto c: str)
