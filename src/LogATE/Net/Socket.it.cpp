@@ -46,7 +46,8 @@ TEST_CASE_FIXTURE(Fixture, "writing and reading")
   Socket s1{std::move(sp_.first)};
   Socket s2{std::move(sp_.second)};
   CHECK( s1.write("test!") == 5 );
-  CHECK( "test!" == s2.read(5) );
+  buf_.resize(5);
+  CHECK( "test!" == s2.read(buf_) );
 }
 
 
@@ -63,10 +64,12 @@ TEST_CASE_FIXTURE(Fixture, "interrupting socket affects only the first I/O opera
   }
 
   CHECK( s1.write("ignored") == 0u );
-  CHECK( s2.read(7).size() == 0u );
+  buf_.resize(7);
+  CHECK( s2.read(buf_).size() == 0u );
 
   CHECK(data.size() == s1.write(data));
-  CHECK(data == s2.read(data.size()));
+  buf_.resize( data.size() );
+  CHECK(data == s2.read(buf_));
 }
 
 
@@ -82,7 +85,8 @@ TEST_CASE_FIXTURE(Fixture, "interrputing reading")
     }
     s.interrupt();
   } };
-  CHECK( 0u < s.read(256 * 1024).size() );
+  buf_.resize(256*1024);
+  CHECK( 0u < s.read(buf_).size() );
 }
 
 
@@ -91,7 +95,8 @@ TEST_CASE_FIXTURE(Fixture, "interrupting writing")
   Socket in{std::move(sp_.first)};
   Socket out{std::move(sp_.second)};
   Thread th{ [&]{
-    CHECK( out.read(1).size() == 1u );  // wait for sth to be written - i.e. write() blocks
+    buf_.resize(1);
+    CHECK( out.read(buf_).size() == 1u );  // wait for sth to be written - i.e. write() blocks
     in.interrupt();
   } };
   const auto big = generate(256 * 1024);
@@ -105,7 +110,8 @@ TEST_CASE_FIXTURE(Fixture, "async read and write")
   Socket out{std::move(sp_.second)};
   CHECK( in.write("123") == 3u );
   Thread th{ [&]{ CHECK( in.write("4567") == 4u ); } };
-  CHECK( out.read(7) == "1234567" );
+  buf_.resize(7);
+  CHECK( out.read(buf_) == "1234567" );
 }
 
 
@@ -118,8 +124,9 @@ TEST_CASE_FIXTURE(Fixture, "writing multi part data works fine")
   Socket in{std::move(sp_.first)};
   Socket out{std::move(sp_.second)};
   Thread th{ [&]{
+    buf_.resize(chunkSize);
     for(auto i=0u; i<chunks; ++i)
-      CHECK( data.substr(i * chunkSize, chunkSize) == out.read(chunkSize) );
+      CHECK( data.substr(i * chunkSize, chunkSize) == out.read(buf_) );
   } };
   CHECK( data.size() == in.write(data) );
 }
@@ -136,7 +143,8 @@ TEST_CASE_FIXTURE(Fixture, "reading multi part works fine")
     for(auto i=0u; i<chunks; ++i)
       CHECK( in.write(data.substr(i * chunkSize, chunkSize)) == chunkSize );
   } };
-  CHECK( data == out.read(data.size()) );
+  buf_.resize( data.size() );
+  CHECK( data == out.read(buf_) );
 }
 
 
@@ -145,7 +153,8 @@ TEST_CASE_FIXTURE(Fixture, "reading from closed socket should return partial rea
   But::Optional<Socket> in{Socket{std::move(sp_.first)}};
   Thread th{ [&] { CHECK( in->write("x") == 1u ); in.reset(); } };
   Socket out{std::move(sp_.second)};
-  CHECK( out.read(1024).size() == 1u );
+  buf_.resize(1024);
+  CHECK( out.read(buf_).size() == 1u );
 }
 
 
