@@ -4,6 +4,7 @@ project(LogATE)
 add_library(LogATE
   Json/Selector.cpp
   Log.cpp
+  Net/Socket.cpp
   Net/SocketDescriptorPair.cpp
   Net/TcpClient.cpp
   Net/TcpRawClient.cpp
@@ -69,6 +70,7 @@ if(LOGATE_ENABLE_TESTS)
     main.mt.cpp
   )
   add_executable(LogATE_its
+    Net/Socket.it.cpp
     Net/TcpServer.it.cpp
     main.it.cpp
   )
