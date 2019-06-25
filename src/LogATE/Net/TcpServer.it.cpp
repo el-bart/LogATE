@@ -66,11 +66,11 @@ TEST_CASE_FIXTURE(Fixture, "server does not disconnect on parse errors")
   TcpRawClient rc{host_, port_};
 
   CHECK( s.errors() == 0 );
-  rc.write("not a valid json\n");
+  rc.write("}}}\n");
   rc.write( log1_.dump() );
 
   const auto log = s.readNextLog();
-  CHECK( s.errors() == 12 );
+  CHECK( s.errors() == 3 );
   REQUIRE(log);
   CHECK( log->json() == log1_ );
 }
@@ -120,7 +120,7 @@ TEST_CASE_FIXTURE(Fixture, "server gets back to accepting connections once curre
     TcpClient c{host_, port_};
     c.write(log1_);
     const auto log = s.readNextLog();
-    CHECK( s.errors() == i );
+    CHECK( s.errors() == 0 );   // disconnection is not an error
     REQUIRE(log);
     CHECK( log->json() == log1_ );
   }
@@ -131,23 +131,6 @@ TEST_CASE_FIXTURE(Fixture, "server can be stopped even when client is still conn
   But::Optional<TcpRawClient> rc;
   TcpServer s{workers_, port_};
   rc.emplace(host_, port_);
-}
-
-TEST_CASE_FIXTURE(Fixture, "null jsons are dropped")
-{
-  TcpServer s{workers_, port_};
-  TcpClient r{host_, port_};
-
-  CHECK( s.errors() == 0 );
-  const nlohmann::json null;
-  REQUIRE( null.is_null() );
-  r.write(null);
-  r.write(log1_);
-
-  const auto log = s.readNextLog();
-  CHECK( s.errors() == 0 );
-  REQUIRE(log);
-  CHECK( log->json() == log1_ );
 }
 
 }
