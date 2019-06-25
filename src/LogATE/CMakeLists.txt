@@ -9,6 +9,7 @@ add_library(LogATE
   Net/TcpClient.cpp
   Net/TcpRawClient.cpp
   Net/TcpServer.cpp
+  Net/detail/TcpServerImpl.cpp
   Net/epoll.cpp
   Printers/OrderedPrettyPrint.cpp
   Tree/Node.cpp
