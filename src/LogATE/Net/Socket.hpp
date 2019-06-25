@@ -27,13 +27,14 @@ public:
   void interrupt();
 
   std::string read(size_t bytes);
+  std::string readSome(size_t bytes);
   size_t write(std::string const& data);
 
 private:
   bool waitForData(ReadyFor op);
 
-  But::System::Descriptor sock;
-  SocketDescriptorPair sdp;
+  But::System::Descriptor sock_;
+  SocketDescriptorPair sdp_;
 };
 
 }
