@@ -52,6 +52,11 @@ Log::Log(DirectInitTag&&, SequenceNumber sn, std::string in):
 }
 
 
+AnnotatedLog::AnnotatedLog(std::string str):
+  log_{ Log::DirectInitTag{}, SequenceNumber::next(), std::move(str) },
+  json_( log_.json() )
+{ }
+
 AnnotatedLog::AnnotatedLog(Log log):
   log_{ std::move(log) },
   json_( log_.json() )

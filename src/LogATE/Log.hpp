@@ -7,6 +7,8 @@
 namespace LogATE
 {
 
+struct AnnotatedLog;
+
 struct Log final
 {
   static Log acceptRawString(std::string in);
@@ -32,6 +34,7 @@ struct Log final
 private:
   struct DirectInitTag{};
   Log(DirectInitTag&&, SequenceNumber sn, std::string in);
+  friend struct AnnotatedLog;
 
   SequenceNumber sn_;
   But::NotNullShared<const std::string> str_;
@@ -41,6 +44,14 @@ private:
 
 struct AnnotatedLog final
 {
+  template<size_t N>
+  explicit AnnotatedLog(char const (&str)[N]): AnnotatedLog{ std::string{str} } { }
+  explicit AnnotatedLog(char const* str): AnnotatedLog{ std::string{str} } { }
+  explicit AnnotatedLog(std::string_view str): AnnotatedLog{ std::string{str} } { }
+  /** @brief direct initialization with a string.
+   *  @note this c-tor does NOT perform JSON compacting - it is assummed it is already compacted.
+   */
+  explicit AnnotatedLog(std::string str);
   explicit AnnotatedLog(Log log);
   explicit AnnotatedLog(nlohmann::json in);
   AnnotatedLog(SequenceNumber sn, nlohmann::json in);

@@ -74,5 +74,27 @@ TEST_CASE("annotated log")
   CHECK( al.json() == log.json() );
 }
 
+
+TEST_CASE("annotated log directly from string")
+{
+  const auto str = R"({"answer":42})";
+  SUBCASE("valid JSON")
+  {
+    const auto al = AnnotatedLog{str};
+    CHECK( al.log().str() == str );
+    CHECK( al.log().json() == nlohmann::json::parse(str) );
+  }
+  SUBCASE("invalid JSON throws")
+  {
+    CHECK_THROWS( AnnotatedLog{ std::string{"["} + str} );
+  }
+  SUBCASE("sequence numbers are assigned uniquely and consecutively")
+  {
+    const auto al1 = AnnotatedLog{str};
+    const auto al2 = AnnotatedLog{str};
+    CHECK( al1.log().sequenceNumber() < al2.log().sequenceNumber() );
+  }
+}
+
 }
 }
