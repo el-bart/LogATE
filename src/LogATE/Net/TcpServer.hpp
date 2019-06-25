@@ -2,6 +2,7 @@
 #include "LogATE/Log.hpp"
 #include "LogATE/Net/Port.hpp"
 #include "LogATE/Net/Server.hpp"
+#include "LogATE/Utils/WorkerThreads.hpp"
 #include <But/Threading/JoiningThread.hpp>
 #include <Poco/Net/ServerSocket.h>
 #include <Poco/Net/StreamSocket.h>
@@ -17,8 +18,8 @@ namespace LogATE::Net
 class TcpServer final: public Server
 {
 public:
-  explicit TcpServer(Port port);
-  TcpServer(Port port, std::chrono::milliseconds pollTimeout);
+  TcpServer(Utils::WorkerThreadsShPtr workers, Port port);
+  TcpServer(Utils::WorkerThreadsShPtr workers, Port port, std::chrono::milliseconds pollTimeout);
   ~TcpServer();
 
   But::Optional<AnnotatedLog> readNextLog() override;
@@ -36,6 +37,7 @@ private:
   std::atomic<size_t> errors_{0};
   std::atomic<bool> quit_{false};
   Queue queue_{2'000};
+  Utils::WorkerThreadsShPtr workers_;
   Poco::Net::ServerSocket ss_;
   But::Threading::JoiningThread<std::thread> workerThread_;
 };

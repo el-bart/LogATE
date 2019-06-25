@@ -9,12 +9,13 @@ using Clock = std::chrono::system_clock;
 namespace LogATE::Net
 {
 
-TcpServer::TcpServer(const Port port):
-  TcpServer{port, std::chrono::seconds{2}}
+TcpServer::TcpServer(Utils::WorkerThreadsShPtr workers, const Port port):
+  TcpServer{std::move(workers), port, std::chrono::seconds{2}}
 { }
 
-TcpServer::TcpServer(const Port port, const std::chrono::milliseconds pollTimeout):
+TcpServer::TcpServer(Utils::WorkerThreadsShPtr workers, const Port port, const std::chrono::milliseconds pollTimeout):
   pollTimeout_{ pollTimeout.count() },
+  workers_{ std::move(workers) },
   ss_{ Poco::Net::SocketAddress("0.0.0.0", port.value_) },
   workerThread_{ [this]{ this->workerLoop(); } }
 { }

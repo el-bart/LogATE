@@ -12,7 +12,8 @@ using Thread = But::Threading::JoiningThread<std::thread>;
 int main()
 {
   const auto port = LogATE::Net::Port{6666};
-  LogATE::Net::TcpServer server{port};
+  const auto workers = But::makeSharedNN<LogATE::Utils::WorkerThreads>();
+  LogATE::Net::TcpServer server{workers, port};
   LogATE::Net::TcpRawClient client{"127.0.0.1", port};
   const auto N = 1'000'000u;
 
