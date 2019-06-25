@@ -6,8 +6,7 @@ using Clock = std::chrono::system_clock;
 namespace LogATE::Net
 {
 
-TcpServer::TcpServer(Utils::WorkerThreadsShPtr workers, const Port port):
-  workers_{ std::move(workers) },
+TcpServer::TcpServer(const Port port):
   server_{port},
   workerThread_{ [this]{ this->workerLoop(); } }
 { }
@@ -106,13 +105,9 @@ void TcpServer::processClient(Socket& socket)
         selector_.update(c);
         if( not selector_.jsonComplete() )
           continue;
-        // TODO: use thread pool for actual parsing!
-
-        auto str = selector_.str();
-        selector_.reset();
-        auto json = nlohmann::json::parse( std::move(str) );
-        const auto ptr = new AnnotatedLog{ std::move(json) };
+        const auto ptr = new AnnotatedLog{ selector_.str() };
         while( not queue_.push(ptr) ) { }
+        selector_.reset();
       }
       catch(...)
       {

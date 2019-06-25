@@ -45,7 +45,7 @@ int main()
       s.update(buf[i]);
       if( s.jsonComplete() )
       {
-        const auto str = s.str() + "\n";
+        const auto str = std::string{ s.str() } + "\n";
         const auto out = write(1, str.data(), str.size());
         if( out == -1 )
         {

@@ -17,8 +17,7 @@ void signalHandler(int sig)
 
 int main()
 {
-  const auto workers = But::makeSharedNN<LogATE::Utils::WorkerThreads>();
-  auto server = std::make_shared<LogATE::Net::TcpServer>(workers, LogATE::Net::Port{6666});
+  auto server = std::make_shared<LogATE::Net::TcpServer>(LogATE::Net::Port{6666});
   g_serverPtr = server;
   for(auto sig: {SIGTERM, SIGHUP, SIGINT})
     if( signal(sig, signalHandler) == SIG_ERR )

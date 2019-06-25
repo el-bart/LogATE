@@ -4,7 +4,6 @@
 #include "LogATE/Net/Server.hpp"
 #include "LogATE/Net/Socket.hpp"
 #include "LogATE/Net/detail/TcpServerImpl.hpp"
-#include "LogATE/Utils/WorkerThreads.hpp"
 #include "LogATE/Json/Selector.hpp"
 #include <But/Threading/JoiningThread.hpp>
 #include <boost/lockfree/queue.hpp>
@@ -18,7 +17,7 @@ namespace LogATE::Net
 class TcpServer final: public Server
 {
 public:
-  TcpServer(Utils::WorkerThreadsShPtr workers, Port port);
+  explicit TcpServer(Port port);
   ~TcpServer();
 
   But::Optional<AnnotatedLog> readNextLog() override;
@@ -36,7 +35,6 @@ private:
   std::atomic<bool> quit_{false};
   Json::Selector selector_;
   Queue queue_{2'000};
-  Utils::WorkerThreadsShPtr workers_;
   detail::TcpServerImpl server_;
   std::string buffer_;
   But::Threading::JoiningThread<std::thread> workerThread_;

@@ -20,7 +20,6 @@ struct Fixture
 {
   nlohmann::json str2json(std::string const& in) const { return nlohmann::json::parse(in); }
 
-  const LogATE::Utils::WorkerThreadsShPtr workers_{ But::makeSharedNN<LogATE::Utils::WorkerThreads>() };
   const Port port_{4242};
   const std::string host_{"127.0.0.1"};
   const nlohmann::json log1_{ str2json( R"({ "foo": "bar" })" ) };
@@ -36,7 +35,7 @@ TEST_CASE_FIXTURE(Fixture, "client fails to connect to a closed socket")
 
 TEST_CASE_FIXTURE(Fixture, "server can handle one client")
 {
-  TcpServer s{workers_, port_};
+  TcpServer s{port_};
   TcpClient c{host_, port_};
   CHECK( s.errors() == 0 );
 
@@ -50,7 +49,7 @@ TEST_CASE_FIXTURE(Fixture, "server can handle one client")
 
 TEST_CASE_FIXTURE(Fixture, "server can handle one client and multiple messages")
 {
-  TcpServer s{workers_, port_};
+  TcpServer s{port_};
   TcpClient c{host_, port_};
 
   for(auto const& json: {log1_, log2_})
@@ -66,7 +65,7 @@ TEST_CASE_FIXTURE(Fixture, "server can handle one client and multiple messages")
 
 TEST_CASE_FIXTURE(Fixture, "server does not disconnect on parse errors")
 {
-  TcpServer s{workers_, port_};
+  TcpServer s{port_};
   TcpRawClient rc{host_, port_};
 
   CHECK( s.errors() == 0 );
@@ -82,7 +81,7 @@ TEST_CASE_FIXTURE(Fixture, "server does not disconnect on parse errors")
 
 TEST_CASE_FIXTURE(Fixture, "server can handle json spread through multiple lines")
 {
-  TcpServer s{workers_, port_};
+  TcpServer s{port_};
   TcpRawClient rc{host_, port_};
 
   const auto jsonStr = std::string{R"( {
@@ -100,7 +99,7 @@ TEST_CASE_FIXTURE(Fixture, "server can handle json spread through multiple lines
 
 TEST_CASE_FIXTURE(Fixture, "server can handle jsons attached to next other")
 {
-  TcpServer s{workers_, port_};
+  TcpServer s{port_};
   TcpRawClient rc{host_, port_};
 
   const auto jsonStr = std::string{R"({"foo":"bar"})"};
@@ -120,7 +119,7 @@ TEST_CASE_FIXTURE(Fixture, "server can handle jsons attached to next other")
 
 TEST_CASE_FIXTURE(Fixture, "server gets back to accepting connections once current client disconnects")
 {
-  TcpServer s{workers_, port_};
+  TcpServer s{port_};
 
   for(auto i=0; i<2; ++i)
   {
@@ -137,7 +136,7 @@ TEST_CASE_FIXTURE(Fixture, "server gets back to accepting connections once curre
 TEST_CASE_FIXTURE(Fixture, "server can be stopped even when client is still connected")
 {
   But::Optional<TcpRawClient> rc;
-  TcpServer s{workers_, port_};
+  TcpServer s{port_};
   rc.emplace(host_, port_);
 }
 
@@ -145,7 +144,7 @@ TEST_CASE_FIXTURE(Fixture, "server can be stopped even when client is still conn
 TEST_CASE_FIXTURE(Fixture, "server can be stopped even when client is in a middle of json transfer")
 {
   But::Optional<TcpRawClient> rc;
-  TcpServer s{workers_, port_};
+  TcpServer s{port_};
   rc.emplace(host_, port_);
   rc->write(R"({ "foo":)");
   std::this_thread::yield();
