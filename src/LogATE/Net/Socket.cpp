@@ -86,17 +86,14 @@ size_t Socket::write(std::string const& data)
 {
   auto bytesLeft = data.size();
   auto written = size_t{0};
-  while (bytesLeft)
+  while(bytesLeft)
   {
     BUT_ASSERT(sock_.opened());
-    if (not waitForData(ReadyFor::Write))
+    if( not waitForData(ReadyFor::Write) )
       return written;
-    const auto wrapper = [fd = sock_.get(), ptr = data.data(), written, bytesLeft]()
-    {
-      return ::write(fd, ptr + written, bytesLeft);
-    };
+    const auto wrapper = [fd = sock_.get(), ptr = data.data(), written, bytesLeft]() { return ::write(fd, ptr + written, bytesLeft); };
     auto ret = detail::sysCallWrapper(wrapper);
-    if (ret == -1)
+    if(ret == -1)
       BUT_THROW(Error, "write() failed: " << strerror(errno));
     BUT_ASSERT(ret >= 0);
     bytesLeft -= ret;
