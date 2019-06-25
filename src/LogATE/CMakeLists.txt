@@ -4,6 +4,7 @@ project(LogATE)
 add_library(LogATE
   Json/Selector.cpp
   Log.cpp
+  Net/SocketDescriptorPair.cpp
   Net/TcpClient.cpp
   Net/TcpRawClient.cpp
   Net/TcpServer.cpp
@@ -45,6 +46,7 @@ install(TARGETS LogATE
 if(LOGATE_ENABLE_TESTS)
   add_executable(LogATE_uts
     Json/Selector.ut.cpp
+    Net/SocketDescriptorPair.ut.cpp
     Printers/OrderedPrettyPrint.ut.cpp
     Printers/jsonLine.ut.cpp
     Tree/Logs.ut.cpp
