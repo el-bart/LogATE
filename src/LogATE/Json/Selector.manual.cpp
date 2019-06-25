@@ -1,6 +1,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <signal.h>
+#include <cstring>
 #include <atomic>
 #include <iostream>
 #include "LogATE/Json/Selector.hpp"
@@ -29,18 +30,35 @@ int main()
   LogATE::Json::Selector s;
   std::string buf;
   buf.resize(10*1024*1024);
-  do
+  while(not g_end)
   {
     const auto size = read(0, buf.data(), buf.size());
+    if(size == -1 && errno != EAGAIN &&  errno != EWOULDBLOCK && errno != EINTR )
+    {
+      std::cerr << "ERROR from read(): " << strerror(errno) << std::endl;
+      return 3;
+    }
+    if(size == 0)
+      return 0;
     for(auto i=0; i<size; ++i)
     {
       s.update(buf[i]);
       if( s.jsonComplete() )
       {
-        std::cout << s.str() << std::endl;
+        const auto str = s.str() + "\n";
+        const auto out = write(1, str.data(), str.size());
+        if( out == -1 )
+        {
+          std::cerr << "ERROR from write(): " << strerror(errno) << std::endl;
+          return 4;
+        }
+        if( static_cast<uint64_t>(out) != str.size() )
+        {
+          std::cerr << "ERROR from write(): " << strerror(errno) << std::endl;
+          return 0;
+        }
         s.reset();
       }
     }
   }
-  while(not g_end); // TODO: continue if size >0
 }
