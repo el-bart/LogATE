@@ -58,10 +58,10 @@ std::string Socket::read(const size_t bytes)
 }
 
 
-std::string Socket::readSome(const size_t bytes)
+std::string_view Socket::readSome(std::string& buffer)
 {
-  std::string out;
-  out.resize(bytes);
+  if( buffer.empty() )
+    return {};
 
   BUT_ASSERT(sock_.opened());
   if( not waitForData(ReadyFor::Read) )
@@ -69,19 +69,17 @@ std::string Socket::readSome(const size_t bytes)
     // interruption requested
     return {};
   }
-  const auto wrapper = [fd = sock_.get(), ptr = out.data(), bytes] { return ::read(fd, ptr, bytes); };
+  const auto wrapper = [fd=sock_.get(), ptr=buffer.data(), bytes=buffer.size()] { return ::read(fd, ptr, bytes); };
   auto ret = detail::sysCallWrapper(wrapper);
   if(ret == -1)
     BUT_THROW(Error, "read() failed: " << strerror(errno));
-  BUT_ASSERT(ret >= 0);
-  out.resize(ret);
   if(ret == 0)
   {
     // remote socket closed
-    return out;
+    return {};
   }
   BUT_ASSERT(ret > 0);
-  return out;
+  return std::string_view{ buffer.data(), static_cast<uint64_t>(ret) };
 }
 
 

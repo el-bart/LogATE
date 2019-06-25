@@ -27,7 +27,7 @@ public:
   void interrupt();
 
   std::string read(size_t bytes);
-  std::string readSome(size_t bytes);
+  std::string_view readSome(std::string& buffer);
   size_t write(std::string const& data);
 
 private:
