@@ -8,6 +8,7 @@ add_library(LogATE
   Net/TcpClient.cpp
   Net/TcpRawClient.cpp
   Net/TcpServer.cpp
+  Net/epoll.cpp
   Printers/OrderedPrettyPrint.cpp
   Tree/Node.cpp
   Tree/Logs.cpp
@@ -47,6 +48,7 @@ if(LOGATE_ENABLE_TESTS)
   add_executable(LogATE_uts
     Json/Selector.ut.cpp
     Net/SocketDescriptorPair.ut.cpp
+    Net/epoll.ut.cpp
     Printers/OrderedPrettyPrint.ut.cpp
     Printers/jsonLine.ut.cpp
     Tree/Logs.ut.cpp
