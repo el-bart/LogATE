@@ -59,6 +59,11 @@ auto options()
       "  i            - Inspect given field in a more human readable preview window",
       "  f            - create new Filter, based on a current selection",
       "  enter        - alias for 'f' key"
+      "",
+      "",
+      "### input forms",
+      "  ^DEL         - delete all characters from current position, to the EOL",
+      "  ^BACKSPACE   - delete all characters from current position to the beging of the line"
     };
   return out;
 }

@@ -13,8 +13,10 @@ inline constexpr auto ctrl(const int k)
   switch(k)
   {
     case KEY_HOME: return 535;
-    case KEY_END:  return 530;
-    case 'l':      return 12;
+    case KEY_END: return 530;
+    case 'l': return 12;
+    case KEY_DC: return 519;
+    case KEY_BACKSPACE: return 8;
   }
   // workaround for a GCC bug...
 #if GCC_VERSION < 90000

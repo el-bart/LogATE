@@ -1,4 +1,5 @@
 #pragma once
+#include "CursATE/Curses/ctrl.hpp"
 #include "CursATE/Curses/Change.hpp"
 #include "CursATE/Curses/Exception.hpp"
 #include "CursATE/Curses/FieldSize.hpp"
@@ -187,6 +188,13 @@ private:
            if( input.value_.empty() )
              break;
            input.value_.erase(input.cursorPosition_, 1);
+           break;
+      case ctrl(KEY_DC):
+           input.value_.erase(input.cursorPosition_, std::string::npos);
+           break;
+      case ctrl(KEY_BACKSPACE):
+           input.value_.erase(0, input.cursorPosition_);
+           input.cursorPosition_ = 0;
            break;
     }
     // sanity checks
