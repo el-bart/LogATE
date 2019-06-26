@@ -1,0 +1,15 @@
+#!/bin/bash -ex
+for f in "$@"
+do
+  if grep -q '\.log$' <<< "$f"
+  then
+    pv "$f" | iconv -c -f utf8 -t ascii//translit 
+    continue
+  fi
+  if grep -q '\.gz$' <<< "$f"
+  then
+    pv "$f" | pigz -d | iconv -c -f utf8 -t ascii//ignore
+    continue
+  fi
+  echo "$0: unknown file format: $f - skipping" >&2
+done | preprocess_pas_logs | nc localhost 4242
