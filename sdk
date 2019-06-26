@@ -1,9 +1,12 @@
-#!/bin/bash
-set -e
+#!/bin/bash -ex
 DIR=$(dirname "$(readlink -e "$0")")
 mkdir -p "build/clang6/Debug/address"
+xhost "+si:localuser:$USER"
 exec docker run \
        -u "$(id -u):$(id -g)" \
+       -e DISPLAY="$DISPLAY" \
+       -v /tmp/.X11-unix:/tmp/.X11-unix:ro \
+       -e QT_X11_NO_MITSHM=1 \
        -v "$DIR:/mnt/prj" \
        -w "/mnt/prj/build/clang6/Debug/address" \
        --cap-add SYS_PTRACE \
