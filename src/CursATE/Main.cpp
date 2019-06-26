@@ -4,7 +4,7 @@ namespace CursATE
 {
 
 Main::Main(const LogATE::Net::Port port):
-  server_{port},
+  server_{workers_, port},
   logList_{ workers_, [&] { return server_.errors(); } },
   root_{ logList_.root() },
   dataPump_{ [&] { this->dataPumpLoop(); } }

@@ -6,7 +6,8 @@ using Clock = std::chrono::system_clock;
 namespace LogATE::Net
 {
 
-TcpServer::TcpServer(const Port port):
+TcpServer::TcpServer(Utils::WorkerThreadsShPtr workers, const Port port):
+  workers_{ std::move(workers) },
   server_{port},
   workerThread_{ [this]{ this->workerLoop(); } }
 { }
@@ -17,35 +18,26 @@ TcpServer::~TcpServer()
   interrupt();
   if( workerThread_.joinable() )
     workerThread_.join();
-  clearQueue();
 }
-
 
 namespace
 {
-auto updateBackOffTime(const std::chrono::milliseconds in)
+template<typename Q>
+auto getNext(Q& q)
 {
-  constexpr auto maxBackOffTime = std::chrono::milliseconds{500};
-  const auto candidate = in + std::chrono::milliseconds{ std::max<unsigned>( in.count(), 1u ) * 2u };
-  if( candidate > maxBackOffTime )
-    return maxBackOffTime;
-  return candidate;
+  typename Q::lock_type lock{q};
+  q.waitForNonEmpty(lock);
+  auto v = std::move( q.top() );
+  q.pop();
+  return v;
 }
 }
 
 But::Optional<AnnotatedLog> TcpServer::readNextLog()
 {
   auto backOffTime = std::chrono::milliseconds{0};
-  AnnotatedLog* ptr{nullptr};
-  while( not queue_.pop(ptr) )
-  {
-    std::this_thread::sleep_for(backOffTime);
-    backOffTime = updateBackOffTime(backOffTime);
-  }
-  if(not ptr)
-    return {};
-  std::unique_ptr<AnnotatedLog> uptr{ptr};
-  return But::Optional<AnnotatedLog>{ std::move(*uptr) };
+  auto fut = getNext(queue_);
+  return std::move( fut.get() );
 }
 
 
@@ -53,18 +45,10 @@ void TcpServer::interrupt()
 {
   quit_ = true;
   server_.interrupt();
-  auto empty = Queue::value_type{}; // explicit variable to bypass invalid GCC-8 warning
-  while( not queue_.push(empty) ) { }
-}
-
-
-void TcpServer::clearQueue()
-{
-  while( not queue_.empty() )
   {
-    AnnotatedLog* ptr{nullptr};
-    queue_.pop(ptr);
-    delete ptr;
+    std::promise< But::Optional<AnnotatedLog> > promise;
+    promise.set_value( But::Optional<AnnotatedLog>{} );
+    queue_.push( promise.get_future() );
   }
 }
 
@@ -105,9 +89,17 @@ void TcpServer::processClient(Socket& socket)
         selector_.update(c);
         if( not selector_.jsonComplete() )
           continue;
-        const auto ptr = new AnnotatedLog{ selector_.str() };
-        while( not queue_.push(ptr) ) { }
+
+        auto fut = workers_->enqueue( [&, str = std::string{ selector_.str() }] {
+            auto log = AnnotatedLog{ std::move(str) };
+            return But::Optional<AnnotatedLog>{ std::move(log) };
+        } );
+
         selector_.reset();
+
+        Queue::lock_type lock{queue_};
+        queue_.waitForSizeBelow(10'000, lock);
+        queue_.push( std::move(fut) );
       }
       catch(...)
       {
