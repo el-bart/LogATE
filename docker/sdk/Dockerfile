@@ -1,7 +1,7 @@
 #FROM baszerr/but-sdk:v1.2.0
 FROM baszerr/but-sdk:latest
 RUN apt-get update
-RUN apt-get dist-upgrade -y
+RUN apt-get upgrade -y
 RUN apt-get install -y git wget
 #ENV BUT_VER=1.2.0
 #RUN cd /usr/src/ && \
@@ -28,3 +28,4 @@ RUN apt-get install -y libpoco-dev
 RUN apt-get install -y libncurses-dev
 RUN apt-get install -y gdb
 RUN apt-get install -y valgrind
+RUN apt-get install -y kcachegrind
