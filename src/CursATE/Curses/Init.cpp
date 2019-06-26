@@ -2,6 +2,7 @@
 #include "CursATE/Curses/CursorVisibility.hpp"
 #include <ncurses.h>
 #include <mutex>
+#include <stdlib.h>
 
 namespace CursATE::Curses
 {
@@ -11,6 +12,12 @@ namespace
 std::mutex g_mutex;
 auto g_counter{0};
 using Lock = std::lock_guard<std::mutex>;
+
+void disableEscapeKeyDelay()
+{
+  if( setenv("ESCDELAY", "10", true) == -1 )
+    BUT_THROW(Init::EnvSetupFailed, "ESCDELAY could not be set");
+}
 }
 
 Init::Init()
@@ -19,6 +26,8 @@ Init::Init()
   ++g_counter;
   if(g_counter > 1)
     return;
+
+  disableEscapeKeyDelay();
 
   initscr();  // ncurses init
   if(not has_colors())
