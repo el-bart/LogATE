@@ -27,4 +27,6 @@ inline constexpr auto ctrl(const int k)
 #endif
 }
 
+static constexpr int escapeKey = 27;
+
 }

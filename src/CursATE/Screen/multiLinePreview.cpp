@@ -30,6 +30,7 @@ void navigate(Win& win)
     win.refresh();
     switch( getch() )
     {
+      case Curses::escapeKey:
       case 'q': return;
 
       case KEY_UP:    win.selectUp(); break;

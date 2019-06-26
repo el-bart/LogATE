@@ -1,6 +1,7 @@
 # release notes
 
 ## dev
+* escape key support has been added, alongside with `q` shortcut.
 * input form now allow usage of ^DEL and ^BACKSPACE to erase until EOL and begin of line respectively.
 * status bar now contains info about background threads and how many of them are still processing sth.
 * internal queue of `TcpServer` is now lock-free (+30-50% in processing speed under heavy load).

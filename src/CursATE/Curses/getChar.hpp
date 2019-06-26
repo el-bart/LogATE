@@ -1,6 +1,7 @@
 #pragma once
 #include <But/Optional.hpp>
 #include <chrono>
+#include "CursATE/Curses/ctrl.hpp"
 
 namespace CursATE::Curses
 {

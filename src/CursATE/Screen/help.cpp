@@ -34,7 +34,7 @@ auto options()
       "  H            - select Highest visible entry",
       "  M            - select Middle (center) visible entry",
       "  L            - select Lowest visible entry",
-      "  q            - Quit current window",
+      "  q/escape     - Quit current window",
       "  F1/h         - helpful help screen full of help",
       "",
       "",
@@ -79,6 +79,7 @@ void navigate(Win& win, DS const& ds)
     switch( getch() )
     {
       case KEY_F(1):
+      case Curses::escapeKey:
       case 'h':
       case 'q': return;
 

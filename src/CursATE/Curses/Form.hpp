@@ -132,6 +132,7 @@ private:
       case ' ':
       case 10:
       case KEY_ENTER: button.clicked_ = true; return Change::Exit;
+      case escapeKey: return Change::Exit;
     }
     return tryProcessingAsShortcut(ch);
   }
@@ -196,6 +197,7 @@ private:
            input.value_.erase(0, input.cursorPosition_);
            input.cursorPosition_ = 0;
            break;
+      case escapeKey: return Change::Exit;
     }
     // sanity checks
     if( input.value_.empty() )
@@ -223,6 +225,7 @@ private:
       case KEY_ENTER: return Change::Next;
       case KEY_RIGHT: radio.selection_ = (radio.selection_ + 1) % radio.values_.size(); break;
       case KEY_LEFT:  radio.selection_ = (radio.selection_ == 0) ? radio.values_.size()-1u : radio.selection_-1; break;
+      case escapeKey: return Change::Exit;
     }
     return tryProcessingAsShortcut(ch);
   }
