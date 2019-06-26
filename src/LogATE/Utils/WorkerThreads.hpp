@@ -27,6 +27,7 @@ public:
 
   auto threads() const { return pool_.size(); }
   //auto tasks() const { return pool_.enqueued();  };   // TODO: after BUT upgrade
+  auto running() const { return nonProcessed_.load(); }
 
 private:
   explicit WorkerThreads(const size_t threads):

@@ -12,7 +12,8 @@ class FilterWindows final
 {
 public:
   FilterWindows(std::function<std::string(LogATE::Log const&)> log2str,
-                std::function<size_t()> inputErrors);
+                std::function<size_t()> inputErrors,
+                std::function<std::string()> workerThreadsStats);
 
   But::NotNullShared<Curses::ScrolableWindow> window(LogATE::Tree::NodeShPtr const& node);
   void prune();
@@ -29,6 +30,7 @@ private:
 
   const std::function<std::string(LogATE::Log const&)> log2str_;
   const std::function<size_t()> inputErrors_;
+  const std::function<std::string()> workerThreadsStats_;
 };
 
 }

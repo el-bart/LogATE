@@ -31,12 +31,23 @@ auto makePrinter()
   OrderedPrettyPrint::PriorityTags prio{{"But::PreciseDT", "Priority", "ComponentId", "UniqueId", "But::ThreadNo", "string"}};
   return OrderedPrettyPrint{ std::move(silent), std::move(prio) };
 }
+
+std::function<std::string()> threadsStats(LogATE::Utils::WorkerThreadsShPtr const& workers)
+{
+  auto wp = std::weak_ptr<LogATE::Utils::WorkerThreads>{ workers.underlyingPointer() };
+  return [wp] {
+    auto w = wp.lock();
+    if(not w)
+      return std::string{"T:0/0"};
+    return "T:" + std::to_string( w->running() ) + "/" + std::to_string( w->threads() );
+  };
+}
 }
 
 LogList::LogList(LogATE::Utils::WorkerThreadsShPtr workers, std::function<size_t()> inputErrors):
   search_{workers},
-  filterFactory_{ std::move(workers) },
-  filterWindows_{ makePrinter(), std::move(inputErrors) },
+  filterFactory_{workers},
+  filterWindows_{ makePrinter(), std::move(inputErrors), threadsStats(workers) },
   root_{ filterFactory_.build( FilterFactory::Type{"AcceptAll"}, FilterFactory::Name{"all logs"}, FilterFactory::Options{} ) },
   currentNode_{root_},
   currentWindow_{ filterWindows_.window(currentNode_) }

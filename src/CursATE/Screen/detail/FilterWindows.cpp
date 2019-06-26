@@ -2,6 +2,7 @@
 #include "CursATE/Screen/detail/LogDataSource.hpp"
 #include "CursATE/Screen/detail/formatAsPercentage.hpp"
 #include "LogATE/Utils/trimFields.hpp"
+#include <sstream>
 
 using LogATE::Log;
 using LogATE::Utils::trimFields;
@@ -10,9 +11,11 @@ namespace CursATE::Screen::detail
 {
 
 FilterWindows::FilterWindows(std::function<std::string(LogATE::Log const&)> log2str,
-                             std::function<size_t()> inputErrors):
+                             std::function<size_t()> inputErrors,
+                             std::function<std::string()> workerThreadsStats):
   log2str_{ std::move(log2str) },
-  inputErrors_{ std::move(inputErrors) }
+  inputErrors_{ std::move(inputErrors) },
+  workerThreadsStats_{ std::move(workerThreadsStats) }
 { }
 
 
@@ -44,8 +47,13 @@ But::NotNullShared<Curses::ScrolableWindow> FilterWindows::newWindow(LogATE::Tre
   const auto sp = Curses::ScreenPosition{Curses::Row{0}, Curses::Column{0}};
   const auto ss = Curses::ScreenSize::global();
   const auto boxed = Curses::Window::Boxed::True;
-  auto status = [ds, errCnt = inputErrors_](const size_t pos) { return detail::nOFmWithPercent(pos, ds->size()) +
-                                                              " E:" + std::to_string( errCnt() ); };
+  auto status = [ds, thStats = workerThreadsStats_, errCnt = inputErrors_](const size_t pos) {
+    std::stringstream ss;
+    ss << thStats() << " ";
+    ss << detail::nOFmWithPercent(pos, ds->size()) << " ";
+    ss << "E:" << errCnt();
+    return ss.str();
+  };
   return But::makeSharedNN<Curses::ScrolableWindow>(ds, sp, ss, boxed, std::move(status));
 }
 

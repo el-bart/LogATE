@@ -1,6 +1,7 @@
 # release notes
 
 ## dev
+* status bar now contains info about background threads and how many of them are still processing sth.
 * internal queue of `TcpServer` is now lock-free (+30-50% in processing speed under heavy load).
 * `Filter::BinarySplit` implemented - it is essentially the `Filter::Grep`, that stores both maching and unmatching logs, split into two groups.
 * `Filter::Explode` no longer trims explode field in the root node view - only in children.
