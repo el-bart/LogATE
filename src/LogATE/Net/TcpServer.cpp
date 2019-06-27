@@ -102,12 +102,18 @@ void TcpServer::processClient(Socket& socket)
     {
       try
       {
+        // 1800 k/s
         selector_.update(c);
         if( not selector_.jsonComplete() )
           continue;
-        const auto ptr = new AnnotatedLog{ selector_.str() };
-        while( not queue_.push(ptr) ) { }
+        //  250 k/s
+        auto str = std::string{ selector_.str() };
         selector_.reset();
+        //  220 k/s
+        const auto ptr = new AnnotatedLog{ std::move(str) };
+        //   60 k/s
+        while( not queue_.push(ptr) ) { }
+        //   60 k/s (i.e. 50 k/s, but -10 k/s is accounted for inserting into main collections on receiver's end
       }
       catch(...)
       {
