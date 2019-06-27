@@ -21,6 +21,7 @@
   - as JSONs
   - as human-readable lines
 * make sort-field configurable (if field does not exist use SN)
+* `Filter::Grep` should support empty path, as a mean of defining "any path"
 
 
 ## UI
