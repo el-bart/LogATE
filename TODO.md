@@ -53,3 +53,4 @@
   - why does it require special TERM via PuTTY?
   - how does mc solve this?
 * fix busy loop when receiving/putting data to lock-free queue, so that 100% core is not used.
+* logs list does not refresh after opening and closing help() screen.
