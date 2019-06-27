@@ -94,6 +94,25 @@ But::Optional<LogDataSource::Id> LogDataSource::last() const
   return Id{ ll->last().sequenceNumber().value_ };
 }
 
+
+namespace
+{
+template<typename F>
+std::string logToString(F const& f, LogATE::Log const& log)
+{
+  try
+  {
+    return f(log);
+  }
+  catch(std::exception const& ex)
+  {
+    std::stringstream ss;
+    ss << log.sequenceNumber().value_ << " << log printing failed: " << ex.what() << " >>";
+    return ss.str();
+  }
+}
+}
+
 std::map<LogDataSource::Id, std::string> LogDataSource::get(size_t before, Id id, size_t after) const
 {
   BUT_ASSERT(log2str_);
@@ -104,7 +123,7 @@ std::map<LogDataSource::Id, std::string> LogDataSource::get(size_t before, Id id
   std::map<Id, std::string> out;
   for(auto& set: { pre, post })
     for(auto& log: set)
-      out[ sn2id(log.sequenceNumber()) ] = log2str_(log);
+      out[ sn2id(log.sequenceNumber()) ] = logToString(log2str_, log);
   return out;
 }
 
