@@ -48,7 +48,7 @@
 ## misc
 
 ## issues
-* ncurses vs. $TERM settings:
+* ncurses vs. `$TERM` settings:
   - why does it require special TERM via screen?
   - why does it require special TERM via PuTTY?
   - how does mc solve this?
