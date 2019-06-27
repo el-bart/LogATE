@@ -49,6 +49,8 @@ std::unique_ptr<LogATE::Tree::Node> LogEntry::navigate(Win& win, DS const& ds)
     win.refresh();
     switch( getch() )
     {
+      case Curses::escapeKey: return {};
+
       case 10:
       case KEY_ENTER:
       case 'f':
@@ -122,8 +124,6 @@ But::Optional<std::string> selectFilter()
   for(auto i=0u; i<names.size(); ++i)
     if(ret[i] == "true")
       return names[i];
-  // cancle
-  BUT_ASSERT( *ret.rbegin() == "true" );
   return {};
 }
 
@@ -176,9 +176,8 @@ std::unique_ptr<LogATE::Tree::Node> createGrepCommon(detail::LogEntryDataSource 
     try
     {
       const auto ret = form.process();
-      if(ret[8] == "true")
+      if(ret[7] != "true")
         return {};
-      BUT_ASSERT(ret[7] == "true" && "'OK' not clicked");
       FilterFactory::Options opts{
           std::make_pair("Path",    ret[1]),
           std::make_pair("regex",   ret[2]),
@@ -230,9 +229,8 @@ std::unique_ptr<LogATE::Tree::Node> createExplode(detail::LogEntryDataSource con
     try
     {
       const auto ret = form.process();
-      if(ret[3] == "true")
+      if(ret[2] != "true")
         return {};
-      BUT_ASSERT(ret[2] == "true" && "'OK' not clicked");
       FilterFactory::Options opts{ std::make_pair("Path", ret[1]) };
       auto ptr = ff.build( FilterFactory::Type{"Explode"}, FilterFactory::Name{ret[0]}, std::move(opts) );
       return std::move(ptr).underlyingPointer();
@@ -264,9 +262,8 @@ std::unique_ptr<LogATE::Tree::Node> createFrom(FilterFactory& ff, const Curses::
     try
     {
       const auto ret = form.process();
-      if(ret[3] == "true")
+      if(ret[2] != "true")
         return {};
-      BUT_ASSERT(ret[2] == "true" && "'OK' not clicked");
       FilterFactory::Options opts{ std::make_pair("Edge", ret[1]) };
       auto ptr = ff.build( FilterFactory::Type{"From"}, FilterFactory::Name{ret[0]}, std::move(opts) );
       return std::move(ptr).underlyingPointer();
@@ -298,9 +295,8 @@ std::unique_ptr<LogATE::Tree::Node> createTo(FilterFactory& ff, const Curses::Da
     try
     {
       const auto ret = form.process();
-      if(ret[3] == "true")
+      if(ret[2] != "true")
         return {};
-      BUT_ASSERT(ret[2] == "true" && "'OK' not clicked");
       FilterFactory::Options opts{ std::make_pair("Edge", ret[1]) };
       auto ptr = ff.build( FilterFactory::Type{"To"}, FilterFactory::Name{ret[0]}, std::move(opts) );
       return std::move(ptr).underlyingPointer();
@@ -331,9 +327,8 @@ std::unique_ptr<LogATE::Tree::Node> createAcceptAll(FilterFactory& ff)
     try
     {
       const auto ret = form.process();
-      if(ret[3] == "true")
+      if(ret[2] != "true")
         return {};
-      BUT_ASSERT(ret[2] == "true" && "'OK' not clicked");
       FilterFactory::Options opts{};
       if( not ret[1].empty() )
         opts["Trim"] = ret[1];

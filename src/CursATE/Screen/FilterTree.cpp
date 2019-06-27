@@ -61,6 +61,8 @@ std::pair<DataSource::Id, bool> navigate(ScrolableWindow& win,
     {
       case 10:
       case KEY_ENTER: return std::make_pair( *win.currentSelection(), true );
+
+      case Curses::escapeKey:
       case 'q': return std::make_pair(initialSelection, true);
 
       case 'd':

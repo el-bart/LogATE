@@ -79,6 +79,7 @@ if(LOGATE_ENABLE_TESTS)
 
   set(SOURCES_MANUAL
     Curses/form_window.manual.cpp
+    Curses/getChar.manual.cpp
     Curses/hello_world.manual.cpp
     Curses/new_scrolable_window.manual.cpp
     Curses/new_window.manual.cpp

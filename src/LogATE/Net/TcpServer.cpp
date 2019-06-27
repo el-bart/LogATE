@@ -86,6 +86,7 @@ void TcpServer::processClient(Socket& socket)
     {
       try
       {
+        // 1800 k/s
         selector_.update(c);
         if( not selector_.jsonComplete() )
           continue;
@@ -100,6 +101,7 @@ void TcpServer::processClient(Socket& socket)
         Queue::lock_type lock{queue_};
         queue_.waitForSizeBelow(10'000, lock);
         queue_.push( std::move(fut) );
+        //   60 k/s (i.e. 50 k/s, but -10 k/s is accounted for inserting into main collections on receiver's end
       }
       catch(...)
       {

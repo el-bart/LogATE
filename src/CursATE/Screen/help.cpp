@@ -34,7 +34,7 @@ auto options()
       "  H            - select Highest visible entry",
       "  M            - select Middle (center) visible entry",
       "  L            - select Lowest visible entry",
-      "  q            - Quit current window",
+      "  q/escape     - Quit current window",
       "  F1/h         - helpful help screen full of help",
       "",
       "",
@@ -59,6 +59,11 @@ auto options()
       "  i            - Inspect given field in a more human readable preview window",
       "  f            - create new Filter, based on a current selection",
       "  enter        - alias for 'f' key"
+      "",
+      "",
+      "### input forms",
+      "  ^DEL         - delete all characters from current position, to the EOL",
+      "  ^BACKSPACE   - delete all characters from current position to the beging of the line"
     };
   return out;
 }
@@ -74,6 +79,7 @@ void navigate(Win& win, DS const& ds)
     switch( getch() )
     {
       case KEY_F(1):
+      case Curses::escapeKey:
       case 'h':
       case 'q': return;
 
