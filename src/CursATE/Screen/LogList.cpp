@@ -115,6 +115,7 @@ void LogList::reactOnKey(const int ch)
 
 void LogList::processQuitProgram()
 {
+  currentWindow_->forceNextRefresh();
   auto form = makeForm( KeyShortcuts{
                           {'y', "exit"},
                           {'e', "exit"},
@@ -162,12 +163,12 @@ void LogList::processLogEntry()
     currentNode_ = currentNode_->add( LogATE::Tree::NodePtr{ std::move(newNode) } );
     currentWindow_ = filterWindows_.window(currentNode_);
     currentWindow_->select(*id);
-    currentWindow_->forceNextRefresh();
   }
   catch(std::exception const& ex)
   {
     displayError(ex);
   }
+  currentWindow_->forceNextRefresh();
 }
 
 
@@ -206,6 +207,7 @@ void LogList::centerAroundLog(LogATE::Tree::NodeShPtr node, const LogATE::Sequen
 
 void LogList::processSearch(const Search::Direction dir)
 {
+  currentWindow_->forceNextRefresh();
   const auto selected = currentWindow_->currentSelection();
   if(not selected)
   {
@@ -219,7 +221,6 @@ void LogList::processSearch(const Search::Direction dir)
     return;
   }
   currentWindow_->select( Curses::DataSource::Id{ret->value_} );
-  currentWindow_->forceNextRefresh();
 }
 
 
@@ -263,6 +264,7 @@ auto moveSn(LogATE::Tree::NodeShPtr node, const LogATE::SequenceNumber now, cons
 
 void LogList::processSearchAgain(const Search::Direction dir)
 {
+  currentWindow_->forceNextRefresh();
   const auto selected = currentWindow_->currentSelection();
   if(not selected)
   {
@@ -277,7 +279,6 @@ void LogList::processSearchAgain(const Search::Direction dir)
     return;
   }
   currentWindow_->select( Curses::DataSource::Id{ret->value_} );
-  currentWindow_->forceNextRefresh();
 }
 
 }
