@@ -88,7 +88,6 @@ void TcpServer::processClient(Socket& socket)
     {
       try
       {
-        // 1800 k/s
         selector_.update(c);
         if( not selector_.jsonComplete() )
           continue;
@@ -101,7 +100,7 @@ void TcpServer::processClient(Socket& socket)
         tmp.reserve( inputJsons.size() );
         tmp.swap(inputJsons);
 
-        while( workers_->running() > 100*workers_->threads() )
+        while( workers_->running() >= 10*workers_->threads() )
         {
           if(*quit_)
             return;
