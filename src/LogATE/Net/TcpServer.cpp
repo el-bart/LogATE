@@ -104,7 +104,7 @@ void TcpServer::processClient(Socket& socket)
         {
           if(*quit_)
             return;
-          std::this_thread::yield();
+          std::this_thread::sleep_for(std::chrono::milliseconds{100});
         }
         auto fut = workers_->enqueue( [&, c = std::move(tmp), quit = quit_] {
             for(auto&& str: std::move(c))
