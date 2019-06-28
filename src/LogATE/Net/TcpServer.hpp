@@ -31,10 +31,10 @@ private:
   void processClient(Socket& socket);
 
   //using Queue = boost::lockfree::queue<AnnotatedLog*>;
-  using Queue = But::Threading::Fifo<std::future<But::Optional<AnnotatedLog>>>;
+  using Queue = But::Threading::Fifo<But::Optional<AnnotatedLog>>;
 
   std::atomic<size_t> errors_{0};
-  std::atomic<bool> quit_{false};
+  But::NotNullShared<std::atomic<bool>> quit_{ But::makeSharedNN<std::atomic<bool>>(false) };
   Json::Selector selector_;
   Queue queue_;
   Utils::WorkerThreadsShPtr workers_;

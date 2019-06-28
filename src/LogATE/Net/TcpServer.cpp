@@ -20,42 +20,31 @@ TcpServer::~TcpServer()
     workerThread_.join();
 }
 
-namespace
-{
-template<typename Q>
-auto getNext(Q& q)
-{
-  typename Q::lock_type lock{q};
-  q.waitForNonEmpty(lock);
-  auto v = std::move( q.top() );
-  q.pop();
-  return v;
-}
-}
 
 But::Optional<AnnotatedLog> TcpServer::readNextLog()
 {
-  auto backOffTime = std::chrono::milliseconds{0};
-  auto fut = getNext(queue_);
-  return std::move( fut.get() );
+  Queue::lock_type lock{queue_};
+  queue_.waitForNonEmpty(lock);
+  auto v = std::move( queue_.top() );
+  queue_.pop();
+  return v;
 }
 
 
 void TcpServer::interrupt()
 {
-  quit_ = true;
+  *quit_ = true;
   server_.interrupt();
   {
-    std::promise< But::Optional<AnnotatedLog> > promise;
-    promise.set_value( But::Optional<AnnotatedLog>{} );
-    queue_.push( promise.get_future() );
+    Queue::lock_type lock{queue_};
+    queue_.push( But::Optional<AnnotatedLog>{} );
   }
 }
 
 
 void TcpServer::workerLoop()
 {
-  while(not quit_)
+  while(not *quit_)
   {
     try
     {
@@ -77,11 +66,24 @@ void TcpServer::workerLoop()
 void TcpServer::processClient(Socket& socket)
 {
   selector_.reset();
-  while(not quit_)
+  std::vector<std::string> inputJsons;
+  while(not *quit_)
   {
     const auto str = socket.readSome(buffer_);
     if( str.empty() )
+    {
+      for(auto&& str: std::move(inputJsons))
+      {
+        if(*quit_)
+          return;
+        auto log = AnnotatedLog{ std::move(str) };
+        auto opt = But::Optional<AnnotatedLog>{ std::move(log) };
+        Queue::lock_type lock{queue_};
+        queue_.push( std::move(opt) );
+      }
       return;
+    }
+
     for(auto c: str)
     {
       try
@@ -90,18 +92,35 @@ void TcpServer::processClient(Socket& socket)
         selector_.update(c);
         if( not selector_.jsonComplete() )
           continue;
-
-        auto fut = workers_->enqueue( [&, str = std::string{ selector_.str() }] {
-            auto log = AnnotatedLog{ std::move(str) };
-            return But::Optional<AnnotatedLog>{ std::move(log) };
-        } );
-
+        inputJsons.push_back( std::string{ selector_.str() } );
         selector_.reset();
 
-        Queue::lock_type lock{queue_};
-        queue_.waitForSizeBelow(10'000, lock);
-        queue_.push( std::move(fut) );
-        //   60 k/s (i.e. 50 k/s, but -10 k/s is accounted for inserting into main collections on receiver's end
+        if( inputJsons.size() < 1'000 )    // TODO + timeout for life preview!
+          continue;
+        std::vector<std::string> tmp;
+        tmp.reserve( inputJsons.size() );
+        tmp.swap(inputJsons);
+
+        while( workers_->running() > 100*workers_->threads() )
+        {
+          if(*quit_)
+            return;
+          std::this_thread::yield();
+        }
+        auto fut = workers_->enqueue( [&, c = std::move(tmp), quit = quit_] {
+            for(auto&& str: std::move(c))
+            {
+              if(*quit)
+                return;
+              auto log = AnnotatedLog{ std::move(str) };    // TODO: sequence number should be preserved from original input...
+              auto opt = But::Optional<AnnotatedLog>{ std::move(log) };
+              Queue::lock_type lock{queue_};
+              while( not queue_.waitForSizeBelow(2'000, lock, std::chrono::seconds{1}) )
+                if(*quit)
+                  return;
+              queue_.push( std::move(opt) );
+            }
+        } );
       }
       catch(...)
       {
