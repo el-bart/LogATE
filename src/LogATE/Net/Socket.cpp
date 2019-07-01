@@ -145,6 +145,8 @@ std::ostream& operator<<(std::ostream& os, const Socket::Reason reason)
     case Socket::Reason::Interrupted: return os << "Reason::Interrupted";
     case Socket::Reason::ClosedByRemoteEnd: return os << "Reason::ClosedByRemoteEnd";
   }
+  BUT_ASSERT(!"unknown Socket::Reason");
+  throw std::logic_error{"unknown Socket::Reason: " + std::to_string(static_cast<unsigned>(reason))};
 }
 
 }

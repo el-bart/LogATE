@@ -78,6 +78,8 @@ bool TcpServerImpl::waitForConnection()
     case detail::WaitResult::Timeout:     return false;
     case detail::WaitResult::Interrupted: return false;
   }
+  BUT_ASSERT(!"unknown WaitResult");
+  throw std::logic_error{"unknown WaitResult: " + std::to_string(static_cast<unsigned>(ret))};
 }
 
 }
