@@ -34,7 +34,7 @@ private:
   Screen::LogList logList_;
   LogATE::Tree::NodeShPtr root_;
   std::atomic<bool> quit_{false};
-  But::Threading::JoiningThread<std::thread> dataPump_;
+  std::vector<But::Threading::JoiningThread<std::thread>> dataPumpThreads_;
 };
 
 }

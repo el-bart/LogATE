@@ -6,9 +6,12 @@ namespace CursATE
 Main::Main(const LogATE::Net::Port port):
   server_{workers_, port},
   logList_{ workers_, [&] { return server_.errors(); } },
-  root_{ logList_.root() },
-  dataPump_{ [&] { this->dataPumpLoop(); } }
-{ }
+  root_{ logList_.root() }
+{
+  const auto threads = std::max( std::thread::hardware_concurrency() / 2, 1u );
+  for(auto i=0u; i<threads; ++i)
+    dataPumpThreads_.emplace_back( [&] { this->dataPumpLoop(); } );
+}
 
 Main::~Main()
 {
@@ -21,7 +24,8 @@ Main::~Main()
 void Main::stop()
 {
   quit_ = true;
-  server_.interrupt();
+  for(auto i=0u; i<dataPumpThreads_.size(); ++i)
+    server_.interrupt();
   logList_.stop();
 }
 
