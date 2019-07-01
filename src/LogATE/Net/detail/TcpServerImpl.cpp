@@ -71,7 +71,13 @@ But::Optional<Socket> TcpServerImpl::accept()
 
 bool TcpServerImpl::waitForConnection()
 {
-  return detail::waitForData(sdp.second, ReadyFor::Read, sock);
+  const auto ret = detail::waitForData(sdp.second, ReadyFor::Read, sock);
+  switch(ret)
+  {
+    case detail::WaitResult::HasData:     return true;
+    case detail::WaitResult::Timeout:     return false;
+    case detail::WaitResult::Interrupted: return false;
+  }
 }
 
 }
