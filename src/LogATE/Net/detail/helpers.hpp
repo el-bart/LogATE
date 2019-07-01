@@ -25,6 +25,7 @@ auto sysCallWrapper(F&& f)
   return tmp;
 }
 
+
 BUT_DEFINE_EXCEPTION(SocketSetupError, Exception, "fcntl() failed");
 
 inline auto fcntlGet(const int fd)
@@ -43,11 +44,13 @@ inline void fcntlSet(const int fd, const int flags)
 inline void makeNonBlocking(const int fd) { fcntlSet(fd, fcntlGet(fd) |  O_NONBLOCK); }
 inline void makeBlocking(const int fd)    { fcntlSet(fd, fcntlGet(fd) & ~O_NONBLOCK); }
 
+
 inline void allowAddressReuse(const int fd)
 {
   if( sysCallWrapper( [=]{ const auto flag = 1; return ::setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &flag, sizeof(flag)); } ) == -1 )
     BUT_THROW(SocketSetupError, "setsockopt(SO_REUSEPORT): " << strerror(errno));
 }
+
 
 inline void ignoreDataFromSocket(const int fd)
 {
@@ -56,9 +59,25 @@ inline void ignoreDataFromSocket(const int fd)
   { }
 }
 
+
 inline bool waitForData(But::System::Descriptor& interruptSource, const ReadyFor op, But::System::Descriptor& socket)
 {
   const auto fd = ::LogATE::Net::epoll( { {&interruptSource, ReadyFor::Read}, {&socket, op} } );
+  if(fd != &interruptSource)
+    return true;
+  ignoreDataFromSocket(interruptSource.get());
+  return false;
+}
+
+
+inline bool waitForData(But::System::Descriptor& interruptSource,
+                        const ReadyFor op,
+                        But::System::Descriptor& socket,
+                        const std::chrono::milliseconds timeout)
+{
+  const auto fd = ::LogATE::Net::epoll( { {&interruptSource, ReadyFor::Read}, {&socket, op} }, timeout );
+  if(fd == nullptr)
+    return false;
   if(fd != &interruptSource)
     return true;
   ignoreDataFromSocket(interruptSource.get());
