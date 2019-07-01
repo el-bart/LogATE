@@ -8,7 +8,6 @@
 #include "LogATE/Json/Selector.hpp"
 #include <But/Threading/Fifo.hpp>
 #include <But/Threading/JoiningThread.hpp>
-#include <boost/lockfree/queue.hpp>
 #include <chrono>
 #include <thread>
 #include <atomic>
@@ -19,7 +18,9 @@ namespace LogATE::Net
 class TcpServer final: public Server
 {
 public:
-  TcpServer(Utils::WorkerThreadsShPtr workers, Port port);
+  TcpServer(Utils::WorkerThreadsShPtr workers,
+            Port port,
+            std::chrono::milliseconds bulkPackageTimeout = std::chrono::milliseconds{500});
   ~TcpServer();
 
   But::Optional<AnnotatedLog> readNextLog() override;
@@ -27,16 +28,22 @@ public:
   size_t errors() const override { return errors_; }
 
 private:
+  using Clock = std::chrono::steady_clock;
+  using Queue = But::Threading::Fifo<But::Optional<AnnotatedLog>>;
+
   void workerLoop();
   void processClient(Socket& socket);
-
-  //using Queue = boost::lockfree::queue<AnnotatedLog*>;
-  using Queue = But::Threading::Fifo<But::Optional<AnnotatedLog>>;
+  void sendOutRemainingLogs(std::vector<std::string>&& jsons);
+  bool waitForQueueSizeLowEnough();
+  void queueJsonsForParsing(std::vector<std::string>& jsons);
+  bool processInputData(std::vector<std::string>& inputJsons, std::string_view const& str, Clock::time_point deadline);
+  bool processInputIfReady(std::vector<std::string>& inputJsons, Clock::time_point deadline);
 
   std::atomic<size_t> errors_{0};
   But::NotNullShared<std::atomic<bool>> quit_{ But::makeSharedNN<std::atomic<bool>>(false) };
+  std::chrono::milliseconds bulkPackageTimeout_;
   Json::Selector selector_;
-  Queue queue_;
+  But::NotNullShared<Queue> queue_{ But::makeSharedNN<Queue>() };
   Utils::WorkerThreadsShPtr workers_;
   detail::TcpServerImpl server_;
   std::string buffer_;
