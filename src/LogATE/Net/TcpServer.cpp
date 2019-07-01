@@ -137,7 +137,7 @@ void TcpServer::queueJsonsForParsing(std::vector<std::string>& jsons)
       auto log = AnnotatedLog{ std::move(str) };    // TODO: sequence number should be preserved from original input...
       auto opt = But::Optional<AnnotatedLog>{ std::move(log) };
       Queue::lock_type lock{*queue};
-      while( not queue->waitForSizeBelow(2'000, lock, std::chrono::seconds{1}) )
+      while( not queue->waitForSizeBelow(750'000, lock, std::chrono::seconds{1}) )
         if(*quit)
           return;
       queue->push( std::move(opt) );
