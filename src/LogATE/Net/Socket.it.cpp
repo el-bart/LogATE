@@ -47,7 +47,11 @@ TEST_CASE_FIXTURE(Fixture, "writing and reading")
   Socket s2{std::move(sp_.second)};
   CHECK( s1.write("test!") == 5 );
   buf_.resize(5);
-  CHECK( "test!" == s2.read(buf_) );
+  {
+    const auto ret = s2.read(buf_);
+    CHECK( ret.first == Socket::Reason::Ok );
+    CHECK( "test!" == ret.second );
+  }
 }
 
 
@@ -65,11 +69,19 @@ TEST_CASE_FIXTURE(Fixture, "interrupting socket affects only the first I/O opera
 
   CHECK( s1.write("ignored") == 0u );
   buf_.resize(7);
-  CHECK( s2.read(buf_).size() == 0u );
+  {
+    const auto ret = s2.read(buf_);
+    CHECK( ret.first == Socket::Reason::Interrupted );
+    CHECK( ret.second.size() == 0u );
+  }
 
   CHECK(data.size() == s1.write(data));
   buf_.resize( data.size() );
-  CHECK(data == s2.read(buf_));
+  {
+    const auto ret = s2.read(buf_);
+    CHECK(ret.first == Socket::Reason::Ok);
+    CHECK(data == ret.second);
+  }
 }
 
 
@@ -86,7 +98,11 @@ TEST_CASE_FIXTURE(Fixture, "interrputing reading")
     s.interrupt();
   } };
   buf_.resize(256*1024);
-  CHECK( 0u < s.read(buf_).size() );
+  {
+    const auto ret = s.read(buf_);
+    CHECK( ret.first == Socket::Reason::Interrupted );
+    CHECK( 0u < ret.second.size() );
+  }
 }
 
 
@@ -96,7 +112,7 @@ TEST_CASE_FIXTURE(Fixture, "interrupting writing")
   Socket out{std::move(sp_.second)};
   Thread th{ [&]{
     buf_.resize(1);
-    CHECK( out.read(buf_).size() == 1u );  // wait for sth to be written - i.e. write() blocks
+    CHECK( out.read(buf_).second.size() == 1u );    // wait for sth to be written - i.e. write() blocks
     in.interrupt();
   } };
   const auto big = generate(256 * 1024);
@@ -111,7 +127,11 @@ TEST_CASE_FIXTURE(Fixture, "async read and write")
   CHECK( in.write("123") == 3u );
   Thread th{ [&]{ CHECK( in.write("4567") == 4u ); } };
   buf_.resize(7);
-  CHECK( out.read(buf_) == "1234567" );
+  {
+    const auto ret = out.read(buf_);
+    CHECK( ret.first == Socket::Reason::Ok );
+    CHECK( ret.second == "1234567" );
+  }
 }
 
 
@@ -126,7 +146,11 @@ TEST_CASE_FIXTURE(Fixture, "writing multi part data works fine")
   Thread th{ [&]{
     buf_.resize(chunkSize);
     for(auto i=0u; i<chunks; ++i)
-      CHECK( data.substr(i * chunkSize, chunkSize) == out.read(buf_) );
+    {
+      const auto ret = out.read(buf_);
+      CHECK( ret.first == Socket::Reason::Ok );
+      CHECK( data.substr(i * chunkSize, chunkSize) == ret.second );
+    }
   } };
   CHECK( data.size() == in.write(data) );
 }
@@ -144,7 +168,11 @@ TEST_CASE_FIXTURE(Fixture, "reading multi part works fine")
       CHECK( in.write(data.substr(i * chunkSize, chunkSize)) == chunkSize );
   } };
   buf_.resize( data.size() );
-  CHECK( data == out.read(buf_) );
+  {
+    const auto ret = out.read(buf_);
+    CHECK( ret.first == Socket::Reason::Ok );
+    CHECK( data == ret.second );
+  }
 }
 
 
@@ -154,7 +182,11 @@ TEST_CASE_FIXTURE(Fixture, "reading from closed socket should return partial rea
   Thread th{ [&] { CHECK( in->write("x") == 1u ); in.reset(); } };
   Socket out{std::move(sp_.second)};
   buf_.resize(1024);
-  CHECK( out.read(buf_).size() == 1u );
+  {
+    const auto ret = out.read(buf_);
+    CHECK( ret.first == Socket::Reason::ClosedByRemoteEnd );
+    CHECK( ret.second.size() == 1u );
+  }
 }
 
 
@@ -164,7 +196,11 @@ TEST_CASE_FIXTURE(Fixture, "readSome() blocks until any data is available")
   Socket s2{std::move(sp_.second)};
   CHECK( s1.write("test!") == 5 );
   buf_.resize(1000);
-  CHECK( "test!" == s2.readSome(buf_) );
+  {
+    const auto ret = s2.readSome(buf_);
+    CHECK( ret.first == Socket::Reason::Ok );
+    CHECK( "test!" == ret.second );
+  }
 }
 
 
@@ -173,7 +209,11 @@ TEST_CASE_FIXTURE(Fixture, "readSome() blocks until any data is available")
   Socket in{std::move(sp_.first)};
   Socket out{std::move(sp_.second)};
   Thread th{ [&] { CHECK( in.write("x") == 1u ); } };
-  CHECK( out.readSome(buf_) == "x" );
+  {
+    const auto ret = out.readSome(buf_);
+    CHECK( ret.first == Socket::Reason::Ok );
+    CHECK( ret.second == "x" );
+  }
 }
 
 
@@ -182,12 +222,39 @@ TEST_CASE_FIXTURE(Fixture, "readSome() returns empty view on timeout")
   Socket s1{std::move(sp_.first)};
   Socket s2{std::move(sp_.second)};
   buf_.resize(1000);
-  const auto timeout = std::chrono::milliseconds{3};
+  const auto timeout = std::chrono::milliseconds{1};
   const auto start = std::chrono::steady_clock::now();
   const auto ret = s2.readSome(buf_, timeout);
   const auto stop = std::chrono::steady_clock::now();
-  CHECK(ret == nullptr);
+  CHECK( ret.first == Socket::Reason::Timeout );
+  CHECK( ret.second.empty() );
   CHECK(stop-start >= timeout);
+}
+
+
+TEST_CASE_FIXTURE(Fixture, "reading to empty buffer returns no data as a reason")
+{
+  Socket s1{std::move(sp_.first)};
+  Socket s2{std::move(sp_.second)};
+  buf_.resize(0);
+  SUBCASE("read()")
+  {
+    const auto ret = s1.read(buf_);
+    CHECK( ret.first == Socket::Reason::NoData );
+    CHECK( ret.second.empty() );
+  }
+  SUBCASE("readSome()")
+  {
+    const auto ret = s1.readSome(buf_);
+    CHECK( ret.first == Socket::Reason::NoData );
+    CHECK( ret.second.empty() );
+  }
+  SUBCASE("readSome(timeout)")
+  {
+    const auto ret = s1.readSome(buf_, std::chrono::seconds{13});
+    CHECK( ret.first == Socket::Reason::NoData );
+    CHECK( ret.second.empty() );
+  }
 }
 
 }

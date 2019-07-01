@@ -1,6 +1,7 @@
 #include <cerrno>
 #include <cstring>
 #include <unistd.h>
+#include <iostream>
 #include <But/assert.hpp>
 #include "LogATE/Net/Socket.hpp"
 #include "LogATE/Net/detail/helpers.hpp"
@@ -26,44 +27,45 @@ void Socket::interrupt()
 }
 
 
-std::string_view Socket::read(std::string& buffer)
+std::pair<Socket::Reason, std::string_view> Socket::read(std::string& buffer)
 {
   if( buffer.empty() )
-    return {};
+    return std::make_pair( Reason::NoData, std::string_view{} );
   const auto bytes = buffer.size();
   auto ready = size_t{0};
   while(ready != bytes)
   {
     BUT_ASSERT(sock_.opened());
-    if( not waitForData(ReadyFor::Read) )
+    switch( waitForData(ReadyFor::Read) )
     {
-      // interruption requested
-      return std::string_view{ buffer.data(), static_cast<size_t>(ready) };
+      case detail::WaitResult::Timeout:
+           return std::make_pair( Reason::Timeout, std::string_view{ buffer.data(), static_cast<size_t>(ready) } );
+      case detail::WaitResult::Interrupted:
+           return std::make_pair( Reason::Interrupted, std::string_view{ buffer.data(), static_cast<size_t>(ready) } );
+      case detail::WaitResult::HasData:
+           break;
     }
     const auto wrapper = [fd=sock_.get(), ptr=buffer.data(), ready, bytes] { return ::read(fd, ptr + ready, bytes - ready); };
     auto ret = detail::sysCallWrapper(wrapper);
     if(ret == -1)
       BUT_THROW(Error, "read() failed: " << strerror(errno));
     if(ret == 0)
-    {
-      // remote socket closed
-      return std::string_view{ buffer.data(), static_cast<size_t>(ready) };
-    }
+      return std::make_pair( Reason::ClosedByRemoteEnd, std::string_view{ buffer.data(), static_cast<size_t>(ready) } );
     BUT_ASSERT(ret > 0);
     ready += ret;
   }
   BUT_ASSERT(ready == bytes);
-  return std::string_view{ buffer.data(), bytes };
+  return std::make_pair( Reason::Ok, std::string_view{ buffer.data(), bytes } );
 }
 
 
-std::string_view Socket::readSome(std::string& buffer)
+std::pair<Socket::Reason, std::string_view> Socket::readSome(std::string& buffer)
 {
   return readSomeImpl(buffer);
 }
 
 
-std::string_view Socket::readSome(std::string& buffer, const std::chrono::milliseconds timeout)
+std::pair<Socket::Reason, std::string_view> Socket::readSome(std::string& buffer, const std::chrono::milliseconds timeout)
 {
   return readSomeImpl(buffer, timeout);
 }
@@ -76,8 +78,12 @@ size_t Socket::write(std::string const& data)
   while(bytesLeft)
   {
     BUT_ASSERT(sock_.opened());
-    if( not waitForData(ReadyFor::Write) )
-      return written;
+    switch( waitForData(ReadyFor::Write) )
+    {
+      case detail::WaitResult::Interrupted:
+      case detail::WaitResult::Timeout: return written;
+      case detail::WaitResult::HasData: break;
+    }
     const auto wrapper = [fd = sock_.get(), ptr = data.data(), written, bytesLeft]() { return ::write(fd, ptr + written, bytesLeft); };
     auto ret = detail::sysCallWrapper(wrapper);
     if(ret == -1)
@@ -92,41 +98,53 @@ size_t Socket::write(std::string const& data)
 }
 
 
-bool Socket::waitForData(const ReadyFor op)
+detail::WaitResult Socket::waitForData(const ReadyFor op)
 {
   return detail::waitForData(sdp_.second, op, sock_);
 }
 
 
-bool Socket::waitForData(ReadyFor op, const std::chrono::milliseconds timeout)
+detail::WaitResult Socket::waitForData(ReadyFor op, const std::chrono::milliseconds timeout)
 {
   return detail::waitForData(sdp_.second, op, sock_, timeout);
 }
 
 
 template<typename ...Args>
-std::string_view Socket::readSomeImpl(std::string& buffer, Args const&... args)
+std::pair<Socket::Reason, std::string_view> Socket::readSomeImpl(std::string& buffer, Args const&... args)
 {
   if( buffer.empty() )
-    return {};
+    return std::make_pair(Reason::NoData, std::string_view{});
 
   BUT_ASSERT(sock_.opened());
-  if( not waitForData(ReadyFor::Read, args...) )
+  switch( waitForData(ReadyFor::Read, args...) )
   {
-    // interruption requested
-    return {};
+    case detail::WaitResult::Interrupted: return std::make_pair(Reason::Interrupted, std::string_view{});
+    case detail::WaitResult::Timeout:     return std::make_pair(Reason::Timeout,     std::string_view{});
+    case detail::WaitResult::HasData:     break;
   }
+
   const auto wrapper = [fd=sock_.get(), ptr=buffer.data(), bytes=buffer.size()] { return ::read(fd, ptr, bytes); };
   auto ret = detail::sysCallWrapper(wrapper);
   if(ret == -1)
     BUT_THROW(Error, "read() failed: " << strerror(errno));
   if(ret == 0)
-  {
-    // remote socket closed
-    return {};
-  }
+    return std::make_pair(Reason::ClosedByRemoteEnd, std::string_view{});
   BUT_ASSERT(ret > 0);
-  return std::string_view{ buffer.data(), static_cast<uint64_t>(ret) };
+  return std::make_pair(Reason::Ok, std::string_view{ buffer.data(), static_cast<uint64_t>(ret) });
+}
+
+
+std::ostream& operator<<(std::ostream& os, const Socket::Reason reason)
+{
+  switch(reason)
+  {
+    case Socket::Reason::Ok: return os << "Reason::Ok";
+    case Socket::Reason::NoData: return os << "Reason::NoData";
+    case Socket::Reason::Timeout: return os << "Reason::Timeout";
+    case Socket::Reason::Interrupted: return os << "Reason::Interrupted";
+    case Socket::Reason::ClosedByRemoteEnd: return os << "Reason::ClosedByRemoteEnd";
+  }
 }
 
 }
