@@ -59,26 +59,13 @@ std::string_view Socket::read(std::string& buffer)
 
 std::string_view Socket::readSome(std::string& buffer)
 {
-  if( buffer.empty() )
-    return {};
+  return readSomeImpl(buffer);
+}
 
-  BUT_ASSERT(sock_.opened());
-  if( not waitForData(ReadyFor::Read) )
-  {
-    // interruption requested
-    return {};
-  }
-  const auto wrapper = [fd=sock_.get(), ptr=buffer.data(), bytes=buffer.size()] { return ::read(fd, ptr, bytes); };
-  auto ret = detail::sysCallWrapper(wrapper);
-  if(ret == -1)
-    BUT_THROW(Error, "read() failed: " << strerror(errno));
-  if(ret == 0)
-  {
-    // remote socket closed
-    return {};
-  }
-  BUT_ASSERT(ret > 0);
-  return std::string_view{ buffer.data(), static_cast<uint64_t>(ret) };
+
+std::string_view Socket::readSome(std::string& buffer, const std::chrono::milliseconds timeout)
+{
+  return readSomeImpl(buffer, timeout);
 }
 
 
@@ -108,6 +95,38 @@ size_t Socket::write(std::string const& data)
 bool Socket::waitForData(const ReadyFor op)
 {
   return detail::waitForData(sdp_.second, op, sock_);
+}
+
+
+bool Socket::waitForData(ReadyFor op, const std::chrono::milliseconds timeout)
+{
+  return detail::waitForData(sdp_.second, op, sock_, timeout);
+}
+
+
+template<typename ...Args>
+std::string_view Socket::readSomeImpl(std::string& buffer, Args const&... args)
+{
+  if( buffer.empty() )
+    return {};
+
+  BUT_ASSERT(sock_.opened());
+  if( not waitForData(ReadyFor::Read, args...) )
+  {
+    // interruption requested
+    return {};
+  }
+  const auto wrapper = [fd=sock_.get(), ptr=buffer.data(), bytes=buffer.size()] { return ::read(fd, ptr, bytes); };
+  auto ret = detail::sysCallWrapper(wrapper);
+  if(ret == -1)
+    BUT_THROW(Error, "read() failed: " << strerror(errno));
+  if(ret == 0)
+  {
+    // remote socket closed
+    return {};
+  }
+  BUT_ASSERT(ret > 0);
+  return std::string_view{ buffer.data(), static_cast<uint64_t>(ret) };
 }
 
 }

@@ -28,10 +28,15 @@ public:
 
   std::string_view read(std::string& buffer);
   std::string_view readSome(std::string& buffer);
+  std::string_view readSome(std::string& buffer, std::chrono::milliseconds timeout);
   size_t write(std::string const& data);
 
 private:
   bool waitForData(ReadyFor op);
+  bool waitForData(ReadyFor op, std::chrono::milliseconds timeout);
+
+  template<typename ...Args>
+  std::string_view readSomeImpl(std::string& buffer, Args const&...);
 
   But::System::Descriptor sock_;
   SocketDescriptorPair sdp_;

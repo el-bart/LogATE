@@ -176,5 +176,19 @@ TEST_CASE_FIXTURE(Fixture, "readSome() blocks until any data is available")
   CHECK( out.readSome(buf_) == "x" );
 }
 
+
+TEST_CASE_FIXTURE(Fixture, "readSome() returns empty view on timeout")
+{
+  Socket s1{std::move(sp_.first)};
+  Socket s2{std::move(sp_.second)};
+  buf_.resize(1000);
+  const auto timeout = std::chrono::milliseconds{3};
+  const auto start = std::chrono::steady_clock::now();
+  const auto ret = s2.readSome(buf_, timeout);
+  const auto stop = std::chrono::steady_clock::now();
+  CHECK(ret == nullptr);
+  CHECK(stop-start >= timeout);
+}
+
 }
 }
