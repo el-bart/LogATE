@@ -38,12 +38,11 @@ void registerDescriptors(But::System::Descriptor const& epollFd, std::initialize
   }
 }
 
-Descriptor* waitForEvent(But::System::Descriptor const& epollFd)
+Descriptor* waitForEvent(But::System::Descriptor const& epollFd, const int timeout)
 {
   epoll_event ev;
   constexpr auto maxEvents = 1;
-  constexpr auto noTimeout = -1;
-  const auto ret = detail::sysCallWrapper( [&] { return epoll_wait(epollFd.get(), &ev, maxEvents, noTimeout); } );
+  const auto ret = detail::sysCallWrapper( [&] { return epoll_wait(epollFd.get(), &ev, maxEvents, timeout); } );
   if(ret == -1)
     BUT_THROW(EpollFailed, "epoll_wait() failed: " << strerror(errno));
   if(ret == 0)
@@ -53,10 +52,8 @@ Descriptor* waitForEvent(But::System::Descriptor const& epollFd)
   BUT_ASSERT(!"epoll_wait() returned unknown value - update the code!");
   throw std::logic_error{"epoll_wait() returned unknown value..."};
 }
-}
 
-
-Descriptor* epoll(std::initializer_list<ObservedEntry> oe)
+Descriptor* epollImpl(std::initializer_list<ObservedEntry> oe, const int timeout)
 {
   if( oe.size() == 0u )
     return nullptr;
@@ -66,7 +63,21 @@ Descriptor* epoll(std::initializer_list<ObservedEntry> oe)
     BUT_THROW(EpollFailed, "epoll_create1() failed: " << strerror(errno));
 
   registerDescriptors(epollFd, oe);
-  return waitForEvent(epollFd);
+  return waitForEvent(epollFd, timeout);
+}
+}
+
+
+Descriptor* epoll(std::initializer_list<ObservedEntry> oe)
+{
+  const auto noTimeout = -1;
+  return epollImpl(oe, noTimeout);
+}
+
+
+Descriptor* epoll(std::initializer_list<ObservedEntry> oe, std::chrono::milliseconds timeout)
+{
+  return epollImpl( oe, timeout.count() );
 }
 
 }

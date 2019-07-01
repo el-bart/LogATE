@@ -1,7 +1,8 @@
 #pragma once
-#include <initializer_list>
-#include <But/System/Descriptor.hpp>
 #include "LogATE/Net/Exception.hpp"
+#include <But/System/Descriptor.hpp>
+#include <initializer_list>
+#include <chrono>
 
 namespace LogATE::Net
 {
@@ -21,6 +22,7 @@ struct ObservedEntry final
     ReadyFor readyFor;
 };
 
-But::System::Descriptor* epoll(std::initializer_list<ObservedEntry> fds);
+But::System::Descriptor* epoll(std::initializer_list<ObservedEntry> oe);
+But::System::Descriptor* epoll(std::initializer_list<ObservedEntry> oe, std::chrono::milliseconds timeout);
 
 }

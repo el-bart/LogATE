@@ -58,5 +58,18 @@ TEST_CASE_FIXTURE(Fixture, "waiting for async change on read write descriptors")
   CHECK( &sdp.second == ret );
 }
 
+
+TEST_CASE_FIXTURE(Fixture, "timeout returns nullptr")
+{
+  const auto timeout = std::chrono::milliseconds{3};
+  SocketDescriptorPair sdp[2];
+  const auto start = std::chrono::steady_clock::now();
+  const auto ret = epoll( { {&sdp[0].second, ReadyFor::Read}, {&sdp[1].second, ReadyFor::Read} }, timeout );
+  const auto stop = std::chrono::steady_clock::now();
+  CHECK( ret == nullptr );
+  CHECK( stop-start >= timeout );
+
+}
+
 }
 }
