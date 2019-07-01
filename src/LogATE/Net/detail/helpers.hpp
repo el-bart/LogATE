@@ -8,6 +8,7 @@
 #include <sys/socket.h>
 #include "LogATE/Net/Exception.hpp"
 #include "LogATE/Net/epoll.hpp"
+#include "LogATE/Net/detail/WaitResult.hpp"
 
 namespace LogATE::Net::detail
 {
@@ -60,28 +61,28 @@ inline void ignoreDataFromSocket(const int fd)
 }
 
 
-inline bool waitForData(But::System::Descriptor& interruptSource, const ReadyFor op, But::System::Descriptor& socket)
+inline WaitResult waitForData(But::System::Descriptor& interruptSource, const ReadyFor op, But::System::Descriptor& socket)
 {
   const auto fd = ::LogATE::Net::epoll( { {&interruptSource, ReadyFor::Read}, {&socket, op} } );
   if(fd != &interruptSource)
-    return true;
+    return WaitResult::HasData;
   ignoreDataFromSocket(interruptSource.get());
-  return false;
+  return WaitResult::Interrupted;
 }
 
 
-inline bool waitForData(But::System::Descriptor& interruptSource,
-                        const ReadyFor op,
-                        But::System::Descriptor& socket,
-                        const std::chrono::milliseconds timeout)
+inline WaitResult waitForData(But::System::Descriptor& interruptSource,
+                              const ReadyFor op,
+                              But::System::Descriptor& socket,
+                              const std::chrono::milliseconds timeout)
 {
   const auto fd = ::LogATE::Net::epoll( { {&interruptSource, ReadyFor::Read}, {&socket, op} }, timeout );
   if(fd == nullptr)
-    return false;
+    return WaitResult::Timeout;
   if(fd != &interruptSource)
-    return true;
+    return WaitResult::HasData;
   ignoreDataFromSocket(interruptSource.get());
-  return false;
+  return WaitResult::Interrupted;
 }
 
 }
