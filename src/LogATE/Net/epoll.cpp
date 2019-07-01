@@ -45,7 +45,7 @@ Descriptor* waitForEvent(But::System::Descriptor const& epollFd, const int timeo
   const auto ret = detail::sysCallWrapper( [&] { return epoll_wait(epollFd.get(), &ev, maxEvents, timeout); } );
   if(ret == -1)
     BUT_THROW(EpollFailed, "epoll_wait() failed: " << strerror(errno));
-  if(ret == 0)
+  if(ret == 0)      // timeout
     return nullptr;
   if(ret == 1)
     return reinterpret_cast<Descriptor*>(ev.data.ptr);
