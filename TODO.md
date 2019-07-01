@@ -9,10 +9,6 @@
 * search inside a given node set via regex (string is already implemented)
 * add support for arrays in all the places in the code
   - think about nice syntax for Path support of arrays
-* speed up input logs parsing (main bottleneck now):
-  - consider adding simple JSON cutter, that will extract 1 JSON from input socket and pass it on for further parsing in different threads.
-  - use thread pool for parsing JSONs and appending them to the filter tree.
-  - replace input streams with raw sockets for performance.
 * filter that saves all logs after spotting a given pattern (grep-like); add option to save N logs before as well.
 * disk/RAM auto-switching backend for `Tree::Logs`, so that it's possible to process more logs than there is RAM in computer.
 * make `Tree::Logs` lock-free so that processing can be done in a way more parallel mode than it is being done now...
@@ -54,4 +50,3 @@
   - why does it require special TERM via screen?
   - why does it require special TERM via PuTTY?
   - how does mc solve this?
-* fix busy loop when receiving/putting data to lock-free queue, so that 100% core is not used.
