@@ -41,6 +41,8 @@
 * 'r' to refresh screen view (in case of filter tree preview)
 * `follow mode` - add a hey to auto-refresh screen upon new logs arrival (i.e. keep view always at the end).
 * `^o` shortcut for confirming windows? just to minimize number of key strokes required to get filter up and running...
+* add logs-per-second into a status bar.
+* add split between runnig threads and queue length (just for readability).
 
 
 ## misc
