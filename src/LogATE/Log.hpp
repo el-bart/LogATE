@@ -11,6 +11,8 @@ struct AnnotatedLog;
 
 struct Log final
 {
+  struct Key final { std::string value_; };
+
   static Log acceptRawString(std::string in);
   static Log acceptRawString(SequenceNumber sn, std::string in);
 
@@ -28,6 +30,7 @@ struct Log final
   Log& operator=(Log&&) = default;
 
   auto const& str() const { return *str_; }
+  auto const& key() const { return key_; }
   auto sequenceNumber() const { return sn_; }
   auto json() const { return nlohmann::json::parse(*str_); }
 
@@ -38,6 +41,7 @@ private:
 
   SequenceNumber sn_;
   But::NotNullShared<const std::string> str_;
+  Key key_;
   // TODO: consider adding more structure to a log -> timestamp of receiving, source IP:port, etc...
 };
 
@@ -64,6 +68,7 @@ struct AnnotatedLog final
 
   auto const& log() const { return log_; }
   auto const& json() const { return json_; }
+  auto const& key() const { return log_.key(); }
 
 private:
   Log log_;

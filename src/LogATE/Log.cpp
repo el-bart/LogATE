@@ -1,4 +1,6 @@
 #include "LogATE/Log.hpp"
+#include <iomanip>
+#include <sstream>
 
 namespace LogATE
 {
@@ -44,9 +46,20 @@ Log::Log(const SequenceNumber sn, nlohmann::json const& in):
 { }
 
 
+namespace
+{
+auto toPaddedString(const SequenceNumber sn)
+{
+  std::stringstream ss;
+  ss << std::setfill('0') << std::setw(20) << sn.value_;
+  return ss.str();
+}
+}
+
 Log::Log(DirectInitTag&&, SequenceNumber sn, std::string in):
   sn_{sn},
-  str_{ But::makeSharedNN<const std::string>( std::move(in) ) }
+  str_{ But::makeSharedNN<const std::string>( std::move(in) ) },
+  key_{ toPaddedString(sn) }
 {
   BUT_ASSERT( not nlohmann::json(*str_).dump().empty() && "given string is NOT a JSON..." );
 }
