@@ -17,11 +17,11 @@ Node::TrimFields Node::trimFields() const
 }
 
 
-void Node::pruneUpTo(const SequenceNumber sn)
+void Node::pruneUpTo(Log::Key const& key)
 {
-  logs().withLock()->pruneUpTo(sn);
+  logs().withLock()->pruneUpTo(key);
   for(auto child: children())
-    workers_->enqueue( [child,sn] { child->pruneUpTo(sn); } );
+    workers_->enqueue( [child,key] { child->pruneUpTo(key); } );
 }
 
 

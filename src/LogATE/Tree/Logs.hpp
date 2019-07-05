@@ -1,5 +1,4 @@
 #pragma once
-#include "LogATE/SequenceNumber.hpp"
 #include "LogATE/Log.hpp"
 #include "But/Threading/BasicLockable.hpp"
 #include "But/Threading/LockProxyProvider.hpp"
@@ -32,16 +31,16 @@ public:
   auto rbegin() const { BUT_ASSERT( locked() ); return logs_.rbegin(); }
   auto rend()   const { BUT_ASSERT( locked() ); return logs_.rend(); }
 
-  std::deque<Log>::iterator find(SequenceNumber sn);
-  std::deque<Log>::const_iterator find(SequenceNumber sn) const;
+  std::deque<Log>::iterator find(Log::Key const& key);
+  std::deque<Log>::const_iterator find(Log::Key const& key) const;
 
   void insert(Log log);
 
-  size_t pruneUpTo(SequenceNumber firstToKeep);
+  size_t pruneUpTo(Log::Key const& firstToKeep);
 
-  std::vector<Log> range(SequenceNumber begin, SequenceNumber end) const;
-  std::vector<Log> from(SequenceNumber first, size_t count) const;
-  std::vector<Log> to(SequenceNumber last, size_t count) const;
+  std::vector<Log> range(Log::Key const& begin, Log::Key const& end) const;
+  std::vector<Log> from(Log::Key const& first, size_t count) const;
+  std::vector<Log> to(Log::Key const& last, size_t count) const;
 
 private:
   std::deque<Log> logs_;

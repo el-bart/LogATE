@@ -1,5 +1,4 @@
 #pragma once
-#include "LogATE/SequenceNumber.hpp"
 #include "LogATE/Log.hpp"
 #include "LogATE/Tree/Logs.hpp"
 #include "LogATE/Tree/Path.hpp"
@@ -49,7 +48,7 @@ public:
   Logs& logs()             { return logs_; }
   Logs const& logs() const { return logs_; }
 
-  void pruneUpTo(const SequenceNumber sn);
+  void pruneUpTo(Log::Key const& key);
 
 protected:
   Node(Utils::WorkerThreadsShPtr workers, Type type, Name name, TrimFields trimFields):
