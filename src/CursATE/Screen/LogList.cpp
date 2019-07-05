@@ -148,8 +148,8 @@ void LogList::processLogEntry()
   const auto id = currentWindow_->currentSelection();
   if(not id)
     return;
-  const auto sn = LogATE::SequenceNumber{id->value_};
-  auto logs = currentNode_->logs().withLock()->from(sn, 1);
+  const auto key = LogATE::Log::Key{id->value_};
+  auto logs = currentNode_->logs().withLock()->from(key, 1);
   if( logs.empty() )
     return;
   BUT_ASSERT( logs.size() == 1u );
@@ -189,19 +189,19 @@ void LogList::centerAroundLogSelection(LogATE::Tree::NodeShPtr node)
   const auto id = currentWindow_->currentSelection();
   if(not id)
     return;
-  const auto sn = LogATE::SequenceNumber{id->value_};
-  centerAroundLog(node, sn);
+  const auto key = LogATE::Log::Key{id->value_};
+  centerAroundLog(node, key);
 }
 
 
-void LogList::centerAroundLog(LogATE::Tree::NodeShPtr node, const LogATE::SequenceNumber sn)
+void LogList::centerAroundLog(LogATE::Tree::NodeShPtr node, LogATE::Log::Key const& key)
 {
   {
     auto win = filterWindows_.window(node);
-    win->selectNearest( Curses::DataSource::Id{sn.value_} );
+    win->selectNearest( Curses::DataSource::Id{key.str()} );
   }
   for(auto c: node->children())
-    centerAroundLog(c, sn);
+    centerAroundLog(c, key);
 }
 
 
@@ -214,19 +214,19 @@ void LogList::processSearch(const Search::Direction dir)
     displayError({"window is empty"});
     return;
   }
-  const auto ret = search_.process( currentNode_, LogATE::SequenceNumber{selected->value_}, dir );
+  const auto ret = search_.process( currentNode_, LogATE::Log::Key{selected->value_}, dir );
   if(not ret)
   {
     displayError({"no matching element found"});
     return;
   }
-  currentWindow_->select( Curses::DataSource::Id{ret->value_} );
+  currentWindow_->select( Curses::DataSource::Id{ret->str()} );
 }
 
 
 namespace
 {
-auto nextSn(LogATE::Tree::NodeShPtr node, const LogATE::SequenceNumber now)
+auto nextKey(LogATE::Tree::NodeShPtr node, LogATE::Log::Key const& now)
 {
   const auto ll = node->logs().withLock();
   const auto it = ll->find(now);
@@ -235,27 +235,27 @@ auto nextSn(LogATE::Tree::NodeShPtr node, const LogATE::SequenceNumber now)
   const auto next = it + 1;
   if( next == ll->end() )
     return now;
-  return next->sequenceNumber();
+  return next->key();
 }
 
-auto prevSn(LogATE::Tree::NodeShPtr node, const LogATE::SequenceNumber now)
+auto prevKey(LogATE::Tree::NodeShPtr node, LogATE::Log::Key const& now)
 {
   const auto ll = node->logs().withLock();
   const auto it = ll->find(now);
   if( it == ll->end() )
     return now;
   if( it == ll->begin() )
-    return it->sequenceNumber();
+    return it->key();
   const auto prev = it - 1;
-  return prev->sequenceNumber();
+  return prev->key();
 }
 
-auto moveSn(LogATE::Tree::NodeShPtr node, const LogATE::SequenceNumber now, const Search::Direction dir)
+auto moveKey(LogATE::Tree::NodeShPtr node, LogATE::Log::Key const& now, const Search::Direction dir)
 {
   switch(dir)
   {
-    case Search::Direction::Forward:  return nextSn( std::move(node), now );
-    case Search::Direction::Backward: return prevSn( std::move(node), now );
+    case Search::Direction::Forward:  return nextKey( std::move(node), now );
+    case Search::Direction::Backward: return prevKey( std::move(node), now );
   }
   BUT_ASSERT(!"unkonw value of Search::Direction");
   throw std::logic_error{"unkonw value of Search::Direction when findinf adjisent iterator"};
@@ -271,14 +271,14 @@ void LogList::processSearchAgain(const Search::Direction dir)
     displayError({"window is empty"});
     return;
   }
-  const auto start = moveSn( currentNode_, LogATE::SequenceNumber{selected->value_}, dir );
-  const auto ret = search_.processAgain( currentNode_, LogATE::SequenceNumber{start.value_}, dir );
+  const auto start = moveKey( currentNode_, LogATE::Log::Key{selected->value_}, dir );
+  const auto ret = search_.processAgain( currentNode_, start, dir );
   if(not ret)
   {
     displayError({"no matching element found"});
     return;
   }
-  currentWindow_->select( Curses::DataSource::Id{ret->value_} );
+  currentWindow_->select( Curses::DataSource::Id{ret->str()} );
 }
 
 }

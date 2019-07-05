@@ -5,31 +5,21 @@ namespace CursATE::Screen::detail
 
 namespace
 {
-auto id2sn(const LogDataSource::Id id) { return LogATE::SequenceNumber{ id.value_ }; }
+auto id2key(LogDataSource::Id const& id) { return LogATE::Log::Key{ id.value_ }; }
 
-auto sn2id(const LogATE::SequenceNumber sn) { return LogDataSource::Id{ sn.value_ }; }
+auto key2id(LogATE::Log::Key const& key) { return LogDataSource::Id{ key.str() }; }
 
 auto data(LogATE::Tree::NodeShPtr const& node, size_t before, LogDataSource::Id id, size_t after)
 {
   const auto& ll = node->logs().withLock();
-  auto pre = ll->to( id2sn(id), before+1 );
-  auto post = ll->from( id2sn(id), after+1 );
+  auto pre = ll->to( id2key(id), before+1 );
+  auto post = ll->from( id2key(id), after+1 );
   return std::make_pair( std::move(pre), std::move(post) );
 }
-
-struct OrderBySequenceNumber final
-{
-  using Log = LogATE::Log;
-  using SN = LogATE::SequenceNumber;
-  auto operator()(Log const& lhs, Log const& rhs) const { return lhs.sequenceNumber() < rhs.sequenceNumber(); }
-  auto operator()(Log const& lhs, SN const&  rhs) const { return lhs.sequenceNumber() < rhs; }
-  auto operator()(SN const&  lhs, Log const& rhs) const { return lhs                  < rhs.sequenceNumber(); }
-  auto operator()(SN const&  lhs, SN const&  rhs) const { return lhs                  < rhs; }
-};
 }
 
 
-size_t LogDataSource::index(const Id id) const
+size_t LogDataSource::index(Id const& id) const
 {
   auto node = node_.lock();
   if(not node)
@@ -38,10 +28,10 @@ size_t LogDataSource::index(const Id id) const
   if( ll->empty() )
     return 0;
 
-  const auto it = std::lower_bound( ll->begin(), ll->end(), id2sn(id), OrderBySequenceNumber{} );
+  const auto it = std::lower_bound( ll->begin(), ll->end(), id2key(id), LogATE::OrderByKey{} );
   if( it == ll->end() )
     return 0;
-  if( it->sequenceNumber() != id2sn(id) )
+  if( it->key() != id2key(id) )
     return 0;
   return std::distance( ll->begin(), it );
 }
@@ -55,7 +45,7 @@ size_t LogDataSource::size() const
 }
 
 
-But::Optional<LogDataSource::Id> LogDataSource::nearestTo(const Id id) const
+But::Optional<LogDataSource::Id> LogDataSource::nearestTo(Id const& id) const
 {
   auto node = node_.lock();
   if(not node)
@@ -64,12 +54,12 @@ But::Optional<LogDataSource::Id> LogDataSource::nearestTo(const Id id) const
   if( ll->empty() )
     return {};
 
-  const auto it = std::lower_bound( ll->begin(), ll->end(), id2sn(id), OrderBySequenceNumber{} );
+  const auto it = std::lower_bound( ll->begin(), ll->end(), id2key(id), LogATE::OrderByKey{} );
   if( it == ll->end() )
-    return sn2id( ll->last().sequenceNumber() );
+    return key2id( ll->last().key() );
   if( it == ll->begin() )
-    return sn2id(it->sequenceNumber());
-  return closest(id, sn2id( (it-1)->sequenceNumber() ), sn2id(it->sequenceNumber()));
+    return key2id( it->key() );
+  return closest( id, key2id( (it-1)->key() ), key2id( it->key() ) );
 }
 
 But::Optional<LogDataSource::Id> LogDataSource::first() const
@@ -80,7 +70,7 @@ But::Optional<LogDataSource::Id> LogDataSource::first() const
   const auto& ll = node->logs().withLock();
   if( ll->empty() )
     return {};
-  return Id{ ll->first().sequenceNumber().value_ };
+  return key2id( ll->first().key() );
 }
 
 But::Optional<LogDataSource::Id> LogDataSource::last() const
@@ -91,7 +81,7 @@ But::Optional<LogDataSource::Id> LogDataSource::last() const
   const auto& ll = node->logs().withLock();
   if( ll->empty() )
     return {};
-  return Id{ ll->last().sequenceNumber().value_ };
+  return key2id( ll->last().key() );
 }
 
 
@@ -113,7 +103,7 @@ std::string logToString(F const& f, LogATE::Log const& log)
 }
 }
 
-std::map<LogDataSource::Id, std::string> LogDataSource::get(size_t before, Id id, size_t after) const
+std::map<LogDataSource::Id, std::string> LogDataSource::get(size_t before, Id const& id, size_t after) const
 {
   BUT_ASSERT(log2str_);
   const auto node = node_.lock();
@@ -123,7 +113,7 @@ std::map<LogDataSource::Id, std::string> LogDataSource::get(size_t before, Id id
   std::map<Id, std::string> out;
   for(auto& set: { pre, post })
     for(auto& log: set)
-      out[ sn2id(log.sequenceNumber()) ] = logToString(log2str_, log);
+      out[ key2id( log.key() ) ] = logToString(log2str_, log);
   return out;
 }
 

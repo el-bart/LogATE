@@ -26,9 +26,9 @@ private:
   template<typename Win, typename DS>
   std::unique_ptr<LogATE::Tree::Node> navigate(Win& win, DS const& ds);
   template<typename DS>
-  std::unique_ptr<LogATE::Tree::Node> createFilterBasedOnSelection(DS const& ds, Curses::DataSource::Id id) const;
+  std::unique_ptr<LogATE::Tree::Node> createFilterBasedOnSelection(DS const& ds, Curses::DataSource::Id const& id) const;
   template<typename DS>
-  void inspectElement(DS const& ds, Curses::DataSource::Id id) const;
+  void inspectElement(DS const& ds, Curses::DataSource::Id const& id) const;
 
   But::NotNullRaw<LogATE::Tree::FilterFactory> filterFactory_;
   LogATE::Tree::NodeShPtr node_;

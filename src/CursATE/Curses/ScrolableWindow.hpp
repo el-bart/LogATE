@@ -71,10 +71,10 @@ private:
              current_ == other.current_;
     }
 
-    DataSource::Id first_{0};
-    DataSource::Id last_{0};
+    DataSource::Id first_{"0"};
+    DataSource::Id last_{"0"};
     size_t size_{0};
-    DataSource::Id current_{0};
+    DataSource::Id current_{"0"};
   };
 
   const unsigned leftRightScrollMultiplier_{10};

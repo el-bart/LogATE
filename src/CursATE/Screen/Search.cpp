@@ -5,7 +5,6 @@
 #include "LogATE/Utils/matchesLog.hpp"
 
 using LogATE::Log;
-using LogATE::SequenceNumber;
 using LogATE::Utils::matchesAnyKey;
 using LogATE::Utils::matchesAnyValue;
 using LogATE::Utils::matchesAnyKeyValue;
@@ -14,7 +13,9 @@ using LogATE::Utils::matchesAnyKeyValue;
 namespace CursATE::Screen
 {
 
-But::Optional<LogATE::SequenceNumber> Search::process(LogATE::Tree::NodeShPtr node, const LogATE::SequenceNumber currentSelection, const Direction dir)
+But::Optional<LogATE::Log::Key> Search::process(LogATE::Tree::NodeShPtr node,
+                                                      LogATE::Log::Key const& currentSelection,
+                                                      const Direction dir)
 {
   if( not updateSearchPattern() )
     return {};
@@ -22,7 +23,9 @@ But::Optional<LogATE::SequenceNumber> Search::process(LogATE::Tree::NodeShPtr no
 }
 
 
-But::Optional<LogATE::SequenceNumber> Search::processAgain(LogATE::Tree::NodeShPtr node, const LogATE::SequenceNumber currentSelection, const Direction dir)
+But::Optional<LogATE::Log::Key> Search::processAgain(LogATE::Tree::NodeShPtr node,
+                                                           LogATE::Log::Key const& currentSelection,
+                                                           const Direction dir)
 {
   if( keyQuery_.empty() && valueQuery_.empty() )
     return {};
@@ -63,7 +66,7 @@ namespace
 {
 struct SearchQuery
 {
-  But::Optional<LogATE::SequenceNumber> operator()() const
+  But::Optional<LogATE::Log::Key> operator()() const
   {
     BUT_ASSERT( not key_.empty() || not value_.empty() );
     BUT_ASSERT( logs_.size() == monitor_->totalSize_ );
@@ -83,7 +86,7 @@ struct SearchQuery
       if(found)
       {
         monitor_->done_ = true;
-        return log.sequenceNumber();
+        return log.key();
       }
       ++monitor_->processed_;
     }
@@ -98,7 +101,7 @@ struct SearchQuery
 };
 
 
-auto extractLogs(LogATE::Tree::NodeShPtr node, const LogATE::SequenceNumber currentSelection, const Search::Direction dir)
+auto extractLogs(LogATE::Tree::NodeShPtr node, LogATE::Log::Key const& currentSelection, const Search::Direction dir)
 {
   using Out = std::vector<Log>;
   const auto ll = node->logs().withLock();
@@ -128,7 +131,9 @@ bool hasResultEarly(ProgressBar::Monitor const& monitor)
 }
 
 
-But::Optional<LogATE::SequenceNumber> Search::triggerSearch(LogATE::Tree::NodeShPtr node, const LogATE::SequenceNumber currentSelection, const Direction dir)
+But::Optional<LogATE::Log::Key> Search::triggerSearch(LogATE::Tree::NodeShPtr node,
+                                                      LogATE::Log::Key const& currentSelection,
+                                                      const Direction dir)
 {
   auto logs = extractLogs(node, currentSelection, dir);
   const auto monitor = But::makeSharedNN<ProgressBar::Monitor>( logs.size() );

@@ -30,7 +30,7 @@ private:
   void centerAllChildrenAroundCurrentLog();
   void centerAllNodesAroundCurrentLog();
   void centerAroundLogSelection(LogATE::Tree::NodeShPtr node);
-  void centerAroundLog(LogATE::Tree::NodeShPtr node, LogATE::Log::Key key);
+  void centerAroundLog(LogATE::Tree::NodeShPtr node, LogATE::Log::Key const& key);
   void processSearch(Search::Direction dir);
   void processSearchAgain(Search::Direction dir);
 

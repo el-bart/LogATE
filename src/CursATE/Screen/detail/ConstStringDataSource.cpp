@@ -1,11 +1,12 @@
 #include "CursATE/Screen/detail/ConstStringDataSource.hpp"
+#include <boost/lexical_cast.hpp>
 
 namespace CursATE::Screen::detail
 {
 
-size_t ConstStringDataSource::index(const Id id) const
+size_t ConstStringDataSource::index(Id const& id) const
 {
-  return id.value_;
+  return boost::lexical_cast<size_t>(id.value_);
 }
 
 
@@ -15,12 +16,12 @@ size_t ConstStringDataSource::size() const
 }
 
 
-But::Optional<ConstStringDataSource::Id> ConstStringDataSource::nearestTo(Id id) const
+But::Optional<ConstStringDataSource::Id> ConstStringDataSource::nearestTo(Id const& id) const
 {
   if( entries_.empty() )
     return  {};
-  if( entries_.size() >= id.value_ )
-    return Id{ entries_.size()-1u };
+  if( entries_.size() >= boost::lexical_cast<size_t>(id.value_) )
+    return Id{ std::to_string( entries_.size()-1u ) };
   return id;
 }
 
@@ -37,19 +38,20 @@ But::Optional<ConstStringDataSource::Id> ConstStringDataSource::last() const
 {
   if( entries_.empty() )
     return {};
-  return Id{ entries_.size()-1u };
+  return Id{ std::to_string( entries_.size()-1u ) };
 }
 
 
-std::map<ConstStringDataSource::Id, std::string> ConstStringDataSource::get(size_t before, Id id, size_t after) const
+std::map<ConstStringDataSource::Id, std::string> ConstStringDataSource::get(size_t before, Id const& id, size_t after) const
 {
-  if( id.value_ > entries_.size() )
+  const auto idNum = boost::lexical_cast<size_t>(id.value_);
+  if( idNum > entries_.size() )
     throw std::logic_error{"requested ID in tree, that is out of range"};
   std::map<Id, std::string> out;
-  const auto from = ( before > id.value_ ) ? 0u : id.value_ - before;
+  const auto from = ( before > idNum ) ? 0u : idNum - before;
   const auto to = std::min( entries_.size(), from + before + 1u + after );
   for(auto i=from; i!=to; ++i)
-    out[ Id{i} ] = entries_[i];
+    out[ Id{ std::to_string(i) } ] = entries_[i];
   return out;
 }
 

@@ -144,7 +144,7 @@ auto makeCompareRadio(But::Optional<std::string> const& value)
 
 
 std::unique_ptr<LogATE::Tree::Node> createGrepCommon(detail::LogEntryDataSource const& ds,
-                                                     const Curses::DataSource::Id id,
+                                                     Curses::DataSource::Id const& id,
                                                      FilterFactory& ff,
                                                      std::string const& namePrefix,
                                                      std::string const& type)
@@ -196,20 +196,20 @@ std::unique_ptr<LogATE::Tree::Node> createGrepCommon(detail::LogEntryDataSource 
   }
 }
 
-std::unique_ptr<LogATE::Tree::Node> createGrep(detail::LogEntryDataSource const& ds, const Curses::DataSource::Id id, FilterFactory& ff)
+std::unique_ptr<LogATE::Tree::Node> createGrep(detail::LogEntryDataSource const& ds, Curses::DataSource::Id const& id, FilterFactory& ff)
 {
   return createGrepCommon(ds, id, ff, "grep", "Grep");
 }
 
 
-std::unique_ptr<LogATE::Tree::Node> createBinarySplit(detail::LogEntryDataSource const& ds, const Curses::DataSource::Id id, FilterFactory& ff)
+std::unique_ptr<LogATE::Tree::Node> createBinarySplit(detail::LogEntryDataSource const& ds, Curses::DataSource::Id const& id, FilterFactory& ff)
 {
   return createGrepCommon(ds, id, ff, "split over", "BinarySplit");
 }
 
 
 std::unique_ptr<LogATE::Tree::Node> createExplode(detail::LogEntryDataSource const& ds,
-                                                  const Curses::DataSource::Id id,
+                                                  Curses::DataSource::Id const& id,
                                                   FilterFactory& ff)
 {
   const auto value = ds.id2value(id);
@@ -243,7 +243,7 @@ std::unique_ptr<LogATE::Tree::Node> createExplode(detail::LogEntryDataSource con
 }
 
 
-std::unique_ptr<LogATE::Tree::Node> createFrom(FilterFactory& ff, const Curses::DataSource::Id id)
+std::unique_ptr<LogATE::Tree::Node> createFrom(FilterFactory& ff, Curses::DataSource::Id const& id)
 {
   auto form = Form{ KeyShortcuts{
                                   {'n', "Name"},
@@ -252,8 +252,8 @@ std::unique_ptr<LogATE::Tree::Node> createFrom(FilterFactory& ff, const Curses::
                                   {'o', "ok"},
                                   {'q', "quit"}
                                 },
-                    Input{ "Name", "from " + std::to_string(id.value_) },
-                    Input{ "Edge", std::to_string(id.value_) },
+                    Input{ "Name", "from " + id.value_ },
+                    Input{ "Edge", id.value_ },
                     Button{"ok"},
                     Button{"quit"}
                   };
@@ -276,7 +276,7 @@ std::unique_ptr<LogATE::Tree::Node> createFrom(FilterFactory& ff, const Curses::
 }
 
 
-std::unique_ptr<LogATE::Tree::Node> createTo(FilterFactory& ff, const Curses::DataSource::Id id)
+std::unique_ptr<LogATE::Tree::Node> createTo(FilterFactory& ff, Curses::DataSource::Id const& id)
 {
   auto form = Form{ KeyShortcuts{
                                   {'n', "Name"},
@@ -285,8 +285,8 @@ std::unique_ptr<LogATE::Tree::Node> createTo(FilterFactory& ff, const Curses::Da
                                   {'o', "ok"},
                                   {'q', "quit"}
                                 },
-                    Input{ "Name", "to " + std::to_string(id.value_) },
-                    Input{ "Edge", std::to_string(id.value_) },
+                    Input{ "Name", "to " + id.value_ },
+                    Input{ "Edge", id.value_ },
                     Button{"ok"},
                     Button{"quit"}
                   };
@@ -345,7 +345,7 @@ std::unique_ptr<LogATE::Tree::Node> createAcceptAll(FilterFactory& ff)
 
 
 template<typename DS>
-std::unique_ptr<LogATE::Tree::Node> LogEntry::createFilterBasedOnSelection(DS const& ds, const Curses::DataSource::Id id) const
+std::unique_ptr<LogATE::Tree::Node> LogEntry::createFilterBasedOnSelection(DS const& ds, Curses::DataSource::Id const& id) const
 {
   const auto filterName = selectFilter();
   if(not filterName) return {};
@@ -353,15 +353,15 @@ std::unique_ptr<LogATE::Tree::Node> LogEntry::createFilterBasedOnSelection(DS co
   if( *filterName == names[0] ) return createGrep(ds, id, *filterFactory_);
   if( *filterName == names[1] ) return createExplode(ds, id, *filterFactory_);
   if( *filterName == names[2] ) return createBinarySplit(ds, id, *filterFactory_);
-  if( *filterName == names[3] ) return createFrom(*filterFactory_, Curses::DataSource::Id{log_.sequenceNumber().value_});
-  if( *filterName == names[4] ) return createTo(*filterFactory_, Curses::DataSource::Id{log_.sequenceNumber().value_});
+  if( *filterName == names[3] ) return createFrom(*filterFactory_, Curses::DataSource::Id{log_.key().str()});
+  if( *filterName == names[4] ) return createTo(*filterFactory_, Curses::DataSource::Id{log_.key().str()});
   if( *filterName == names[5] ) return createAcceptAll(*filterFactory_);
   throw std::logic_error{"unsupported filter type: " + *filterName};
 }
 
 
 template<typename DS>
-void LogEntry::inspectElement(DS const& ds, Curses::DataSource::Id id) const
+void LogEntry::inspectElement(DS const& ds, Curses::DataSource::Id const& id) const
 {
   const auto opt = ds.id2value(id);
   if(not opt)
