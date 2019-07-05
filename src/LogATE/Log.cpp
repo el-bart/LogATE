@@ -1,4 +1,5 @@
 #include "LogATE/Log.hpp"
+#include "LogATE/Utils/value2str.hpp"
 #include <iomanip>
 #include <sstream>
 
@@ -56,10 +57,14 @@ auto toPaddedString(const SequenceNumber sn)
 }
 }
 
-Log::Log(DirectInitTag&&, SequenceNumber sn, std::string in):
+Log::Log(DirectInitTag&& dit, SequenceNumber sn, std::string in):
+  Log{ std::move(dit), sn, std::move(in), Key{ toPaddedString(sn) } }
+{ }
+
+Log::Log(DirectInitTag&&, SequenceNumber sn, std::string in, Key key):
   sn_{sn},
   str_{ But::makeSharedNN<const std::string>( std::move(in) ) },
-  key_{ toPaddedString(sn) }
+  key_{ std::move(key) }
 {
   BUT_ASSERT( not nlohmann::json(*str_).dump().empty() && "given string is NOT a JSON..." );
 }
@@ -69,6 +74,32 @@ AnnotatedLog::AnnotatedLog(std::string str):
   log_{ Log::DirectInitTag{}, SequenceNumber::next(), std::move(str) },
   json_( log_.json() )
 { }
+
+namespace
+{
+auto getKey(nlohmann::json const& json, Tree::Path const& keyPath)
+{
+  auto* node = &json;
+  for(auto& e: keyPath)
+  {
+    auto it = node->find(e);
+    if( it == node->end() )
+      return Log::Key{"<< key not found >>"};
+    node = &*it;
+  }
+  auto opt = Utils::value2str(*node);
+  if(not opt)
+    return Log::Key{"<< key not found >>"};
+  return Log::Key{*opt};
+}
+}
+
+AnnotatedLog::AnnotatedLog(std::string str, Tree::Path const& keyPath):
+  log_{ Log::DirectInitTag{}, SequenceNumber::next(), std::move(str), Log::Key{""} },
+  json_( log_.json() )
+{
+  log_.key_ = getKey(json_, keyPath);
+}
 
 AnnotatedLog::AnnotatedLog(Log log):
   log_{ std::move(log) },
