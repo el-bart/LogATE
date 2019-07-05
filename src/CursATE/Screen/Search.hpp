@@ -23,12 +23,12 @@ public:
   Search(Search&&) = delete;
   Search& operator=(Search&&) = delete;
 
-  But::Optional<LogATE::SequenceNumber> process(LogATE::Tree::NodeShPtr node, LogATE::SequenceNumber currentSelection, Direction dir);
-  But::Optional<LogATE::SequenceNumber> processAgain(LogATE::Tree::NodeShPtr node, LogATE::SequenceNumber currentSelection, Direction dir);
+  But::Optional<LogATE::Log::Key> process(LogATE::Tree::NodeShPtr node, LogATE::Log::Key currentSelection, Direction dir);
+  But::Optional<LogATE::Log::Key> processAgain(LogATE::Tree::NodeShPtr node, LogATE::Log::Key currentSelection, Direction dir);
 
 private:
   bool updateSearchPattern();
-  But::Optional<LogATE::SequenceNumber> triggerSearch(LogATE::Tree::NodeShPtr node, LogATE::SequenceNumber currentSelection, Direction dir);
+  But::Optional<LogATE::Log::Key> triggerSearch(LogATE::Tree::NodeShPtr node, LogATE::Log::Key currentSelection, Direction dir);
 
   LogATE::Utils::WorkerThreadsShPtr workers_;
   std::string keyQuery_;
