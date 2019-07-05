@@ -10,7 +10,7 @@ namespace CursATE::Curses
 
 struct DataSource
 {
-  struct Id { size_t value_{0}; };
+  struct Id final { std::string value_; };
 
   virtual ~DataSource() = default;
 
@@ -22,14 +22,43 @@ struct DataSource
   virtual std::map<Id, std::string> get(size_t before, Id id, size_t after) const = 0;
 
 protected:
-  auto absDiff(size_t lhs, size_t rhs) const
+  static auto firstDiffPoint(std::string const& lhs, std::string const& rhs)
   {
-    if( lhs > rhs )
-      return lhs - rhs;
-    return rhs - lhs;
+    BUT_ASSERT( lhs.size() <= rhs.size() );
+    for(auto i=0ul; i<lhs.size(); ++i)
+      if( lhs[i] != rhs[i] )
+        return i;
+    return lhs.size();
   }
 
-  Id closest(const Id reference, const Id id1, const Id id2) const
+  static auto absCharDiff(const char a, const char b)
+  {
+    const auto ua = unsigned(a);
+    const auto ub = unsigned(b);
+    if(ua >= ub)
+      return ua - ub;
+    return ub - ua;
+  }
+
+  static double absDiff(std::string const& lhs, std::string const& rhs)
+  {
+    if( lhs.size() > rhs.size() )
+      return absDiff(rhs, lhs);
+    BUT_ASSERT( lhs.size() <= rhs.size() );
+
+    const auto maxSize = std::max( lhs.size(), rhs.size() );
+    const auto diff = firstDiffPoint(lhs, rhs);
+    BUT_ASSERT( maxSize >= diff );
+    const auto score = static_cast<double>(maxSize-diff);
+
+    if( diff == lhs.size() )
+      return score + ( 1.0 - static_cast<double>(lhs.size()) / rhs.size() );
+    BUT_ASSERT( diff < lhs.size() );
+    const auto acd = absCharDiff(lhs[diff], rhs[diff]);
+    return score + acd/256.0;
+  }
+
+  static Id const& closest(Id const& reference, Id const& id1, Id const& id2)
   {
     const auto diff1 = absDiff(reference.value_, id1.value_);
     const auto diff2 = absDiff(reference.value_, id2.value_);
