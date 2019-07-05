@@ -100,7 +100,7 @@ void TcpServer::sendOutRemainingLogs(std::vector<std::string>&& jsons)
   {
     if(*quit_)
       return;
-    auto log = AnnotatedLog{ std::move(str) };
+    auto log = AnnotatedLog{ std::move(str), keyPath_ };
     auto opt = But::Optional<AnnotatedLog>{ std::move(log) };
     Queue::lock_type lock{*queue_};
     queue_->push( std::move(opt) );

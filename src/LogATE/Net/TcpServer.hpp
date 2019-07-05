@@ -6,6 +6,7 @@
 #include "LogATE/Net/detail/TcpServerImpl.hpp"
 #include "LogATE/Utils/WorkerThreads.hpp"
 #include "LogATE/Json/Selector.hpp"
+#include "LogATE/Tree/Path.hpp"
 #include <But/Threading/Fifo.hpp>
 #include <But/Threading/JoiningThread.hpp>
 #include <chrono>
@@ -42,6 +43,7 @@ private:
   std::atomic<size_t> errors_{0};
   But::NotNullShared<std::atomic<bool>> quit_{ But::makeSharedNN<std::atomic<bool>>(false) };
   std::chrono::milliseconds bulkPackageTimeout_;
+  const Tree::Path keyPath_{ Tree::Path::parse(".But::PreciseDT") };    // TODO: temporary hardcode...
   Json::Selector selector_;
   But::NotNullShared<Queue> queue_{ But::makeSharedNN<Queue>() };
   Utils::WorkerThreadsShPtr workers_;

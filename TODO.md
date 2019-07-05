@@ -18,6 +18,7 @@
   - as human-readable lines
 * make sort-field configurable (if field does not exist use SN)
 * `Filter::Grep` should support empty path, as a mean of defining "any path"
+* make `Net::TcpServer` use `Path` as a parameter, instead of a hardcoded value.
 
 
 ## UI
