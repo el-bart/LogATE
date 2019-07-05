@@ -7,7 +7,7 @@ namespace CursATE::Curses::detail
 
 struct StringDataSource: public DataSource
 {
-  size_t index(const Id id) const override
+  size_t index(Id const& id) const override
   {
     const auto it = data_.find(id);
     return std::distance( data_.begin(), it );
@@ -15,7 +15,7 @@ struct StringDataSource: public DataSource
 
   size_t size() const override { return data_.size(); }
 
-  But::Optional<Id> nearestTo(const Id id) const override
+  But::Optional<Id> nearestTo(Id const& id) const override
   {
     if( data_.empty() )
       return {};
@@ -43,7 +43,7 @@ struct StringDataSource: public DataSource
     return data_.rbegin()->first;
   }
 
-  std::map<Id, std::string> get(size_t before, Id id, size_t after) const override
+  std::map<Id, std::string> get(size_t before, Id const& id, size_t after) const override
   {
     std::map<Id, std::string> out;
     const auto it = data_.find(id);
@@ -79,7 +79,7 @@ struct StringDataSource: public DataSource
 
   auto addNewest(std::string str)
   {
-    Id id{nextFreeId_};
+    Id id{ std::to_string( nextFreeId_.load() ) };
     nextFreeId_ += nextStep_;
     ++nextStep_;
     data_[id] = std::move(str);
