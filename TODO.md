@@ -44,6 +44,7 @@
 * `^o` shortcut for confirming windows? just to minimize number of key strokes required to get filter up and running...
 * add logs-per-second into a status bar.
 * add split between runnig threads and queue length (just for readability).
+* nodes removal should be done in a sepratate thread (thread pool) to avoid stalls in UI when removing of huge collections.
 
 
 ## misc
