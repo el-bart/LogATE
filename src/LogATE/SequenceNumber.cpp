@@ -6,16 +6,26 @@ namespace LogATE
 
 namespace
 {
-auto nextFreeSN()
+auto& counter()
 {
   static std::atomic<uint64_t> nextFree{0};
-  return nextFree++;
+  return nextFree;
+}
+auto nextFreeSN()
+{
+  return counter()++;
 }
 }
 
 SequenceNumber SequenceNumber::next()
 {
   return SequenceNumber{ nextFreeSN() };
+}
+
+
+SequenceNumber SequenceNumber::lastIssued()
+{
+  return SequenceNumber{ counter().load() };
 }
 
 }

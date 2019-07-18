@@ -21,10 +21,22 @@ OrderedPrettyPrint::OrderedPrettyPrint(PriorityTags const& priorityTags, SilentT
 { }
 
 
+namespace
+{
+auto maxSnDigits()
+{
+  const auto value = SequenceNumber::lastIssued().value_;
+  const auto vlog = std::log10(value);
+  const auto clog = std::ceil(vlog);
+  return static_cast<decltype(value)>(clog);
+}
+}
+
 std::string OrderedPrettyPrint::operator()(LogATE::Log const& in) const
 {
   std::stringstream ss;
-  ss << in.sequenceNumber().value_ << " ";
+  const auto snDigits = maxSnDigits();
+  ss << std::setw(snDigits) << std::setfill('0') << in.sequenceNumber().value_ << std::setw(0) << " ";
   constructString(ss, in.json());
   return ss.str();
 }
