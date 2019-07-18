@@ -77,20 +77,22 @@ AnnotatedLog::AnnotatedLog(std::string str):
 
 namespace
 {
-auto getKey(nlohmann::json const& json, Tree::Path const& keyPath)
+auto getKey(nlohmann::json const& json, Tree::Path const& keyPath, const SequenceNumber sn)
 {
   auto* node = &json;
-  for(auto& e: keyPath)
+  BUT_ASSERT( keyPath.absolute() );
+  BUT_ASSERT( not keyPath.empty() );
+  for(auto pit=keyPath.begin()+1; pit!=keyPath.end(); ++pit)
   {
-    auto it = node->find(e);
+    auto it = node->find(*pit);
     if( it == node->end() )
-      return Log::Key{"<< key not found >>"};
+      return Log::Key{ "<< key not found >>" + std::to_string(sn.value_) };
     node = &*it;
   }
   auto opt = Utils::value2str(*node);
   if(not opt)
-    return Log::Key{"<< key not found >>"};
-  return Log::Key{*opt};
+    return Log::Key{ "<< key not found >>" + std::to_string(sn.value_) };
+  return Log::Key{ *opt + " / " + std::to_string(sn.value_) };
 }
 }
 
@@ -98,7 +100,7 @@ AnnotatedLog::AnnotatedLog(std::string str, Tree::Path const& keyPath):
   log_{ Log::DirectInitTag{}, SequenceNumber::next(), std::move(str), Log::Key{""} },
   json_( log_.json() )
 {
-  log_.key_ = getKey(json_, keyPath);
+  log_.key_ = getKey( json_, keyPath, log_.sequenceNumber() );
 }
 
 AnnotatedLog::AnnotatedLog(Log log):
