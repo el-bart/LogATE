@@ -28,7 +28,7 @@ auto maxSnDigits()
   const auto value = SequenceNumber::lastIssued().value_;
   const auto vlog = std::log10(value);
   const auto clog = std::ceil(vlog);
-  return static_cast<decltype(value)>(clog);
+  return static_cast<decltype(SequenceNumber::value_)>(clog);
 }
 }
 
