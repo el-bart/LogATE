@@ -10,7 +10,16 @@ namespace CursATE::Curses
 
 struct DataSource
 {
-  struct Id final { std::string value_; };
+  struct Id final
+  {
+    Id() = default;
+    Id(uint64_t value);
+    template<size_t N>
+    Id(char const (&value)[N]): Id{ std::string{value, N} } { }
+    Id(std::string_view value): Id{ std::string{ value.begin(), value.end() } } { }
+    Id(std::string value): value_{ std::move(value) } { }
+    std::string value_;
+  };
 
   virtual ~DataSource() = default;
 

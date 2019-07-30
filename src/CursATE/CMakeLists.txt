@@ -4,6 +4,7 @@ project(CursATE)
 add_library(CursATEimpl
   Curses/ColorGuard.cpp
   Curses/CursorVisibility.cpp
+  Curses/DataSource.cpp
   Curses/Init.cpp
   Curses/Field/Button.cpp
   Curses/Field/Input.cpp
