@@ -15,7 +15,10 @@ struct Log final
 {
   struct Key final
   {
-    explicit Key(std::string value): value_{ std::move(value) } { }
+    template<size_t N>
+    explicit Key(char const (&value)[N]): Key{ std::string_view{ value, N } } { }
+    explicit Key(std::string_view const& value);
+    explicit Key(std::string const& value);
 
     Key(Key const&) = default;
     Key& operator=(Key const&) = default;
@@ -30,10 +33,11 @@ struct Log final
     inline auto operator==(Log::Key const& rhs) const { return value_ == rhs.value_; }
     inline auto operator!=(Log::Key const& rhs) const { return value_ != rhs.value_; }
 
-    auto const& str() const { return value_; }
+    auto str() const { return std::string_view{ value_.get(), size_ }; }
 
   private:
-    std::string value_;
+    size_t size_;
+    But::NotNullShared<const char[]> value_;
   };
 
   static Log acceptRawString(std::string in);
