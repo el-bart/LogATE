@@ -40,9 +40,6 @@ struct Log final
     But::NotNullShared<const char[]> value_;
   };
 
-  static Log acceptRawString(std::string in);
-  static Log acceptRawString(SequenceNumber sn, std::string in);
-
   explicit Log(char const* in): Log{ std::string{in} } { }
   explicit Log(std::string const& in);
   explicit Log(nlohmann::json const& in);

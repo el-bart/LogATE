@@ -29,17 +29,6 @@ Log::Key::Key(std::string const& value):
 { }
 
 
-Log Log::acceptRawString(std::string in)
-{
-  return acceptRawString( SequenceNumber::next(), std::move(in) );
-}
-
-
-Log Log::acceptRawString(const SequenceNumber sn, std::string in)
-{
-  return Log{ DirectInitTag{}, sn, std::move(in) };
-}
-
 Log::Log(std::string const& in):
   Log{ SequenceNumber::next(), nlohmann::json::parse(in) }
 { }
