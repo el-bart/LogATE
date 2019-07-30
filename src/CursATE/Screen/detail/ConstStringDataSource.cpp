@@ -21,7 +21,7 @@ But::Optional<ConstStringDataSource::Id> ConstStringDataSource::nearestTo(Id con
   if( entries_.empty() )
     return  {};
   if( entries_.size() >= boost::lexical_cast<size_t>(id.value_) )
-    return Id{ std::to_string( entries_.size()-1u ) };
+    return Id{entries_.size()-1u};
   return id;
 }
 
@@ -38,7 +38,7 @@ But::Optional<ConstStringDataSource::Id> ConstStringDataSource::last() const
 {
   if( entries_.empty() )
     return {};
-  return Id{ std::to_string( entries_.size()-1u ) };
+  return Id{entries_.size()-1u};
 }
 
 
@@ -51,7 +51,7 @@ std::map<ConstStringDataSource::Id, std::string> ConstStringDataSource::get(size
   const auto from = ( before > idNum ) ? 0u : idNum - before;
   const auto to = std::min( entries_.size(), from + before + 1u + after );
   for(auto i=from; i!=to; ++i)
-    out[ Id{ std::to_string(i) } ] = entries_[i];
+    out[ Id{i} ] = entries_[i];
   return out;
 }
 

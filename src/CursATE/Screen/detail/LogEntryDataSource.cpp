@@ -26,7 +26,7 @@ But::Optional<LogEntryDataSource::Id> LogEntryDataSource::nearestTo(Id const& id
   if( entries_.empty() )
     return  {};
   if( entries_.size() >= boost::lexical_cast<size_t>(id.value_) )
-    return Id{ std::to_string( entries_.size()-1u ) };
+    return Id{entries_.size()-1u};
   return id;
 }
 
@@ -34,14 +34,14 @@ But::Optional<LogEntryDataSource::Id> LogEntryDataSource::nearestTo(Id const& id
 But::Optional<LogEntryDataSource::Id> LogEntryDataSource::first() const
 {
   BUT_ASSERT( not entries_.empty() );
-  return Id{"0"};
+  return Id{0};
 }
 
 
 But::Optional<LogEntryDataSource::Id> LogEntryDataSource::last() const
 {
   BUT_ASSERT( not entries_.empty() );
-  return Id{ std::to_string( entries_.size()-1u ) };
+  return Id{entries_.size()-1u};
 }
 
 
@@ -54,7 +54,7 @@ std::map<LogEntryDataSource::Id, std::string> LogEntryDataSource::get(size_t bef
   const auto from = ( before > idNum ) ? 0u : idNum - before;
   const auto to = std::min( entries_.size(), from + before + 1u + after );
   for(auto i=from; i!=to; ++i)
-    out[ Id{ std::to_string(i) } ] = entries_[i].text_;
+    out[ Id{i} ] = entries_[i].text_;
   return out;
 }
 

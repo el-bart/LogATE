@@ -26,7 +26,7 @@ But::Optional<FilterTreeDataSource::Id> FilterTreeDataSource::nearestTo(Id const
   if( entries_.empty() )
     return  {};
   if( entries_.size() >= boost::lexical_cast<size_t>(id.value_) )
-    return Id{ std::to_string( entries_.size()-1u ) };
+    return Id{entries_.size()-1u};
   return id;
 }
 
@@ -34,14 +34,14 @@ But::Optional<FilterTreeDataSource::Id> FilterTreeDataSource::nearestTo(Id const
 But::Optional<FilterTreeDataSource::Id> FilterTreeDataSource::first() const
 {
   BUT_ASSERT( not entries_.empty() );
-  return Id{"0"};
+  return Id{0};
 }
 
 
 But::Optional<FilterTreeDataSource::Id> FilterTreeDataSource::last() const
 {
   BUT_ASSERT( not entries_.empty() );
-  return Id{ std::to_string( entries_.size()-1u ) };
+  return Id{entries_.size()-1u};
 }
 
 
@@ -54,7 +54,7 @@ std::map<FilterTreeDataSource::Id, std::string> FilterTreeDataSource::get(size_t
   const auto from = ( before > idNum ) ? 0u : idNum - before;
   const auto to = std::min( entries_.size(), from + before + 1u + after );
   for(auto i=from; i!=to; ++i)
-    out[ Id{ std::to_string(i) } ] = entries_[i].text_;
+    out[ Id{i} ] = entries_[i].text_;
   return out;
 }
 
@@ -63,7 +63,7 @@ FilterTreeDataSource::Id FilterTreeDataSource::node2id(LogATE::Tree::NodeShPtr c
 {
   for(auto i=0u; i<entries_.size(); ++i)
     if( entries_[i].node_.get() == selected.get() )
-      return Id{ std::to_string(i) };
+      return Id{i};
   BUT_ASSERT( not entries_.empty() );
   // NOTE: entry might be missed, if this was auto-managed node, removed on a fly - default to begin of the list
   return Id{0};
