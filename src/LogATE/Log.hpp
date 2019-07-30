@@ -16,9 +16,9 @@ struct Log final
   struct Key final
   {
     template<size_t N>
-    explicit Key(char const (&value)[N]): Key{ std::string_view{ value, N } } { }
-    explicit Key(std::string_view const& value);
-    explicit Key(std::string const& value);
+    explicit Key(char const (&value)[N]): Key{ std::string_view{ value, N-1u } } { }
+    explicit Key(std::string_view const& value): Key{ std::string{ value.begin(), value.end() } } { }
+    explicit Key(std::string value): value_{ But::makeSharedNN<const std::string>( std::move(value) ) } { }
 
     Key(Key const&) = default;
     Key& operator=(Key const&) = default;
@@ -26,18 +26,17 @@ struct Log final
     Key(Key&&) = default;
     Key& operator=(Key&&) = default;
 
-    inline auto operator< (Log::Key const& rhs) const { return value_ <  rhs.value_; }
-    inline auto operator<=(Log::Key const& rhs) const { return value_ <= rhs.value_; }
-    inline auto operator> (Log::Key const& rhs) const { return value_ >  rhs.value_; }
-    inline auto operator>=(Log::Key const& rhs) const { return value_ >= rhs.value_; }
-    inline auto operator==(Log::Key const& rhs) const { return value_ == rhs.value_; }
-    inline auto operator!=(Log::Key const& rhs) const { return value_ != rhs.value_; }
+    auto str() const { return *value_; }
 
-    auto str() const { return std::string_view{ value_.get(), size_ }; }
+    inline auto operator< (Log::Key const& rhs) const { return str() <  rhs.str(); }
+    inline auto operator<=(Log::Key const& rhs) const { return str() <= rhs.str(); }
+    inline auto operator> (Log::Key const& rhs) const { return str() >  rhs.str(); }
+    inline auto operator>=(Log::Key const& rhs) const { return str() >= rhs.str(); }
+    inline auto operator==(Log::Key const& rhs) const { return str() == rhs.str(); }
+    inline auto operator!=(Log::Key const& rhs) const { return str() != rhs.str(); }
 
   private:
-    size_t size_;
-    But::NotNullShared<const char[]> value_;
+    But::NotNullShared<const std::string> value_;
   };
 
   explicit Log(char const* in): Log{ std::string{in} } { }

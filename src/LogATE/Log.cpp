@@ -6,29 +6,6 @@
 namespace LogATE
 {
 
-namespace
-{
-template<typename S>
-auto copyData(S const& s)
-{
-  auto nn = But::makeSharedNN<char[]>( s.size() );
-  strncpy( nn.get(), s.data(), s.size() );
-  return nn;
-}
-}
-
-Log::Key::Key(std::string_view const& value):
-  size_{ value.size() },
-  value_{ copyData(value) }
-{ }
-
-
-Log::Key::Key(std::string const& value):
-  size_{ value.size() },
-  value_{ copyData(value) }
-{ }
-
-
 Log::Log(std::string const& in):
   Log{ SequenceNumber::next(), nlohmann::json::parse(in) }
 { }
