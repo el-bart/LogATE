@@ -1,14 +1,14 @@
 #include "CursATE/Screen/detail/LogDataSource.hpp"
+#include "CursATE/Screen/detail/id2key.hpp"
+#include "LogATE/Utils/zeroPaddedString.hpp"
+#include <But/assert.hpp>
+#include <boost/lexical_cast.hpp>
 
 namespace CursATE::Screen::detail
 {
 
 namespace
 {
-auto id2key(LogDataSource::Id const& id) { return LogATE::Log::Key{ id.value_ }; }
-
-auto key2id(LogATE::Log::Key const& key) { return LogDataSource::Id{ key.str() }; }
-
 auto data(LogATE::Tree::NodeShPtr const& node, size_t before, LogDataSource::Id id, size_t after)
 {
   const auto& ll = node->logs().withLock();
@@ -16,6 +16,9 @@ auto data(LogATE::Tree::NodeShPtr const& node, size_t before, LogDataSource::Id 
   auto post = ll->from( id2key(id), after+1 );
   return std::make_pair( std::move(pre), std::move(post) );
 }
+
+template<typename It>
+auto prevIt(It it) { return --it; }
 }
 
 
@@ -59,7 +62,7 @@ But::Optional<LogDataSource::Id> LogDataSource::nearestTo(Id const& id) const
     return key2id( ll->last().key() );
   if( it == ll->begin() )
     return key2id( it->key() );
-  return closest( id, key2id( (it-1)->key() ), key2id( it->key() ) );
+  return closest( id, key2id( prevIt(it)->key() ), key2id( it->key() ) );
 }
 
 But::Optional<LogDataSource::Id> LogDataSource::first() const
