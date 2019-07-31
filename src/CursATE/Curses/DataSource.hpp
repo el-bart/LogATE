@@ -1,4 +1,5 @@
 #pragma once
+#include "LogATE/Utils/zeroPaddedString.hpp"
 #include <But/NotNull.hpp>
 #include <But/Optional.hpp>
 #include <But/Mpl/FreeOperators.hpp>
@@ -13,7 +14,7 @@ struct DataSource
   struct Id final
   {
     Id() = default;
-    explicit Id(uint64_t value);
+    explicit Id(uint64_t value): value_{ LogATE::Utils::zeroPaddedString(value) } { }
     template<size_t N>
     explicit Id(char const (&value)[N]): Id{ std::string{value, N} } { }
     explicit Id(std::string_view value): Id{ std::string{ value.begin(), value.end() } } { }
