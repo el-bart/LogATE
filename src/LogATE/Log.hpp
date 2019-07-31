@@ -119,6 +119,10 @@ inline auto operator!=(AnnotatedLog const& lhs, AnnotatedLog const& rhs) { retur
 
 struct OrderByKey final
 {
+  using is_transparent = void;  // voidever...
+
+  auto operator()(AnnotatedLog const& lhs, AnnotatedLog const& rhs) const { return lhs.key() < rhs.key(); };
+  auto operator()(Log          const& lhs, Log          const& rhs) const { return lhs.key() < rhs.key(); };
   auto operator()(Log          const& lhs, Log::Key     const& rhs) const { return lhs.key() < rhs;       };
   auto operator()(Log::Key     const& lhs, Log          const& rhs) const { return lhs       < rhs.key(); };
   auto operator()(AnnotatedLog const& lhs, Log::Key     const& rhs) const { return lhs.key() < rhs;       };
