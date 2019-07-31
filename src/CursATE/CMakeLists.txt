@@ -55,6 +55,7 @@ if(LOGATE_ENABLE_TESTS)
     Curses/detail/ScrolableWindowBackend.ut.cpp
     Screen/detail/LogDataSource.ut.cpp
     Screen/detail/formatAsPercentage.ut.cpp
+    Screen/detail/id2key.ut.cpp
     Screen/detail/splitIntoLines.ut.cpp
     main.ut.cpp
   )
