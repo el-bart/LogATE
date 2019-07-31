@@ -66,12 +66,9 @@ struct Log final
     SequenceNumber sn_;
   };
 
-  explicit Log(char const* in): Log{ std::string{in} } { }
-  explicit Log(std::string const& in);
-  explicit Log(nlohmann::json const& in);
-  Log(SequenceNumber sn, char const* in): Log{ sn, std::string{in} } { }
-  Log(SequenceNumber sn, std::string const& in);
-  Log(SequenceNumber sn, nlohmann::json const& in);
+  Log(Key key, char const* in): Log{ std::move(key), std::string{in} } { }
+  Log(Key key, std::string const& in);
+  Log(Key key, nlohmann::json const& in);
 
   Log(Log const&) = default;
   Log& operator=(Log const&) = default;
@@ -81,16 +78,14 @@ struct Log final
 
   auto const& str() const { return *str_; }
   auto const& key() const { return key_; }
-  auto sequenceNumber() const { return sn_; }
+  auto sequenceNumber() const { return key_.sequenceNumber(); }
   auto json() const { return nlohmann::json::parse(*str_); }
 
 private:
   struct DirectInitTag{};
-  Log(DirectInitTag&&, SequenceNumber sn, std::string in);
-  Log(DirectInitTag&&, SequenceNumber sn, std::string in, Key key);
+  Log(DirectInitTag&&, Key&& key, std::string&& in);
   friend struct AnnotatedLog;
 
-  SequenceNumber sn_;
   But::NotNullShared<const std::string> str_;
   Key key_;
   // TODO: consider adding more structure to a log -> timestamp of receiving, source IP:port, etc...
@@ -107,18 +102,12 @@ inline auto operator!=(Log const& lhs, Log const& rhs) { return lhs.key() != rhs
 
 struct AnnotatedLog final
 {
-  template<size_t N>
-  explicit AnnotatedLog(char const (&str)[N]): AnnotatedLog{ std::string{str} } { }
-  explicit AnnotatedLog(char const* str): AnnotatedLog{ std::string{str} } { }
-  explicit AnnotatedLog(std::string_view str): AnnotatedLog{ std::string{str} } { }
+  explicit AnnotatedLog(Log log);
   /** @brief direct initialization with a string.
    *  @note this c-tor does NOT perform JSON compacting - it is assummed it is already compacted.
+   *  @note syntax of JSON is still being checked.
    */
-  explicit AnnotatedLog(std::string str);
-  explicit AnnotatedLog(std::string str, Tree::Path const& keyPath);
-  explicit AnnotatedLog(Log log);
-  explicit AnnotatedLog(nlohmann::json in);
-  AnnotatedLog(SequenceNumber sn, nlohmann::json in);
+  AnnotatedLog(std::string str, Tree::Path const& keyPath);
 
   AnnotatedLog(AnnotatedLog const&) = default;
   AnnotatedLog& operator=(AnnotatedLog const&) = default;
@@ -131,8 +120,8 @@ struct AnnotatedLog final
   auto const& key() const { return log_.key(); }
 
 private:
-  Log log_;
   nlohmann::json json_;
+  Log log_;
 };
 
 

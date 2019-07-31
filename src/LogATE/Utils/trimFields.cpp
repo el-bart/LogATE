@@ -85,7 +85,7 @@ Log trimFields(Log const& in, Node::TrimFields const& tf)
   auto json = in.json();
   for(auto& path: tf)
     trimOneField(json, path);
-  return Log{ in.sequenceNumber(), std::move(json) };
+  return Log{ in.key(), std::move(json) };
 }
 
 }

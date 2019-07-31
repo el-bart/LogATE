@@ -7,18 +7,8 @@
 namespace LogATE
 {
 
-Log::Log(std::string const& in):
-  Log{ SequenceNumber::next(), nlohmann::json::parse(in) }
-{ }
-
-
-Log::Log(nlohmann::json const& in):
-  Log{ SequenceNumber::next(), in }
-{ }
-
-
-Log::Log(const SequenceNumber sn, std::string const& in):
-  Log{ sn, nlohmann::json::parse(in) }
+Log::Log(Key key, std::string const& in):
+  Log{ std::move(key), nlohmann::json::parse(in) }
 { }
 
 
@@ -32,17 +22,12 @@ auto minimalString(nlohmann::json const& in)
 }
 }
 
-Log::Log(const SequenceNumber sn, nlohmann::json const& in):
-  Log{ DirectInitTag{}, sn, minimalString(in) }
+Log::Log(Key key, nlohmann::json const& in):
+  Log{ DirectInitTag{}, std::move(key), minimalString(in) }
 { }
 
 
-Log::Log(DirectInitTag&& dit, SequenceNumber sn, std::string in):
-  Log{ std::move(dit), sn, std::move(in), Key{ Utils::zeroPaddedString(sn.value_) } }
-{ }
-
-Log::Log(DirectInitTag&&, SequenceNumber sn, std::string in, Key key):
-  sn_{sn},
+Log::Log(DirectInitTag&&, Key&& key, std::string&& in):
   str_{ But::makeSharedNN<const std::string>( std::move(in) ) },
   key_{ std::move(key) }
 {
@@ -50,10 +35,11 @@ Log::Log(DirectInitTag&&, SequenceNumber sn, std::string in, Key key):
 }
 
 
-AnnotatedLog::AnnotatedLog(std::string str):
-  log_{ Log::DirectInitTag{}, SequenceNumber::next(), std::move(str) },
-  json_( log_.json() )
+AnnotatedLog::AnnotatedLog(Log log):
+  json_( log.json() ),
+  log_{ std::move(log) }
 { }
+
 
 namespace
 {
@@ -66,36 +52,19 @@ auto getKey(nlohmann::json const& json, Tree::Path const& keyPath, const Sequenc
   {
     auto it = node->find(*pit);
     if( it == node->end() )
-      return Log::Key{ "<< key not found >>" + std::to_string(sn.value_) };
+      return Log::Key{"<< key not found >>", sn};
     node = &*it;
   }
   auto opt = Utils::value2str(*node);
   if(not opt)
-    return Log::Key{ "<< key not found >>" + std::to_string(sn.value_) };
-  return Log::Key{ *opt + " / " + std::to_string(sn.value_) };
+    return Log::Key{"<< key not found >>", sn};
+  return Log::Key{ std::move(*opt), sn };
 }
 }
 
 AnnotatedLog::AnnotatedLog(std::string str, Tree::Path const& keyPath):
-  log_{ Log::DirectInitTag{}, SequenceNumber::next(), std::move(str), Log::Key{""} },
-  json_( log_.json() )
-{
-  log_.key_ = getKey( json_, keyPath, log_.sequenceNumber() );
-}
-
-AnnotatedLog::AnnotatedLog(Log log):
-  log_{ std::move(log) },
-  json_( log_.json() )
-{ }
-
-AnnotatedLog::AnnotatedLog(nlohmann::json in):
-  log_{in},
-  json_( std::move(in) )
-{ }
-
-AnnotatedLog::AnnotatedLog(const SequenceNumber sn, nlohmann::json in):
-  log_{sn, in},
-  json_( std::move(in) )
+  json_( nlohmann::json::parse(str) ),
+  log_{ Log::DirectInitTag{}, getKey( json_, keyPath, SequenceNumber::next() ), std::move(str) }
 { }
 
 }
