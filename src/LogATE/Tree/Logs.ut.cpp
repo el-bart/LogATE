@@ -1,13 +1,14 @@
 #include <doctest/doctest.h>
 #include "LogATE/Tree/Logs.hpp"
-#include "LogATE/Tree/TestHelpers.ut.hpp"
+#include "LogATE/TestHelpers.ut.hpp"
 #include "LogATE/TestPrints.ut.hpp"
 
 using LogATE::Log;
 using LogATE::Tree::Logs;
-using LogATE::Tree::makeLog;
-using LogATE::Tree::makeSns;
-using LogATE::Tree::logs2sns;
+using LogATE::makeKey;
+using LogATE::makeLog;
+using LogATE::makeSns;
+using LogATE::logs2sns;
 
 namespace
 {
@@ -16,7 +17,7 @@ TEST_SUITE("Tree::Logs")
 
 struct Fixture
 {
-  auto allSns() const { return LogATE::Tree::allSns(logs_); }
+  auto allSns() const { return LogATE::allSns(logs_); }
 
   Logs logs_;
 };
@@ -70,7 +71,7 @@ TEST_CASE_FIXTURE(Fixture, "prunning elements until given value")
 {
   for(auto sn: {2,3,5,7,8,9})
     logs_.withLock()->insert( makeLog(sn) );
-  CHECK( logs_.withLock()->pruneUpTo(Log::Key{"8"}) == 4 );
+  CHECK( logs_.withLock()->pruneUpTo( makeKey(8) ) == 4 );
   CHECK( allSns() == makeSns({8,9}) );
 }
 
@@ -79,7 +80,7 @@ TEST_CASE_FIXTURE(Fixture, "prunning elements until non existing low value will 
 {
   for(auto sn: {2,3,5,7,8,9})
     logs_.withLock()->insert( makeLog(sn) );
-  CHECK( logs_.withLock()->pruneUpTo(Log::Key{"1"}) == 0 );
+  CHECK( logs_.withLock()->pruneUpTo(makeKey(1)) == 0 );
   CHECK( allSns() == makeSns({2,3,5,7,8,9}) );
 }
 
@@ -88,7 +89,7 @@ TEST_CASE_FIXTURE(Fixture, "prunning elements until non existing high value will
 {
   for(auto sn: {2,3,5,7,8,9})
     logs_.withLock()->insert( makeLog(sn) );
-  CHECK( logs_.withLock()->pruneUpTo(Log::Key{"42"}) == 6 );
+  CHECK( logs_.withLock()->pruneUpTo(makeKey(42)) == 6 );
   CHECK( logs_.withLock()->empty() );
 }
 
@@ -97,10 +98,10 @@ TEST_CASE_FIXTURE(Fixture, "getting given range")
 {
   for(auto sn: {2,3,5,7,8,9})
     logs_.withLock()->insert( makeLog(sn) );
-  CHECK( logs2sns( logs_.withLock()->range(Log::Key{"3"}, Log::Key{"8"})  ) == makeSns({3,5,7}) );
-  CHECK( logs2sns( logs_.withLock()->range(Log::Key{"1"}, Log::Key{"8"})  ) == makeSns({2,3,5,7}) );
-  CHECK( logs2sns( logs_.withLock()->range(Log::Key{"3"}, Log::Key{"42"}) ) == makeSns({3,5,7,8,9}) );
-  CHECK( logs2sns( logs_.withLock()->range(Log::Key{"3"}, Log::Key{"6"})  ) == makeSns({3,5}) );
+  CHECK( logs2sns( logs_.withLock()->range(makeKey(3), makeKey(8))  ) == makeSns({3,5,7}) );
+  CHECK( logs2sns( logs_.withLock()->range(makeKey(1), makeKey(8))  ) == makeSns({2,3,5,7}) );
+  CHECK( logs2sns( logs_.withLock()->range(makeKey(3), makeKey(42)) ) == makeSns({3,5,7,8,9}) );
+  CHECK( logs2sns( logs_.withLock()->range(makeKey(3), makeKey(6))  ) == makeSns({3,5}) );
 }
 
 
@@ -108,16 +109,16 @@ TEST_CASE_FIXTURE(Fixture, "getting count starting with a given position")
 {
   for(auto sn: {2,3,5,7,8,9})
     logs_.withLock()->insert( makeLog(sn) );
-  CHECK( logs2sns( logs_.withLock()->from(Log::Key{"3"}, 0)  ) == makeSns({}) );
-  CHECK( logs2sns( logs_.withLock()->from(Log::Key{"2"}, 1)  ) == makeSns({2}) );
-  CHECK( logs2sns( logs_.withLock()->from(Log::Key{"9"}, 1)  ) == makeSns({9}) );
-  CHECK( logs2sns( logs_.withLock()->from(Log::Key{"1"}, 1)  ) == makeSns({2}) );
-  CHECK( logs2sns( logs_.withLock()->from(Log::Key{"6"}, 1)  ) == makeSns({7}) );
-  CHECK( logs2sns( logs_.withLock()->from(Log::Key{"4"}, 2)  ) == makeSns({5,7}) );
-  CHECK( logs2sns( logs_.withLock()->from(Log::Key{"9"}, 1)  ) == makeSns({9}) );
-  CHECK( logs2sns( logs_.withLock()->from(Log::Key{"3"}, 99)  ) == makeSns({3,5,7,8,9}) );
-  CHECK( logs2sns( logs_.withLock()->from(Log::Key{"13"}, 5)  ) == makeSns({}) );
-  CHECK( logs2sns( logs_.withLock()->from(Log::Key{"0"}, 99)  ) == makeSns({2,3,5,7,8,9}) );
+  CHECK( logs2sns( logs_.withLock()->from(makeKey(3), 0)  ) == makeSns({}) );
+  CHECK( logs2sns( logs_.withLock()->from(makeKey(2), 1)  ) == makeSns({2}) );
+  CHECK( logs2sns( logs_.withLock()->from(makeKey(9), 1)  ) == makeSns({9}) );
+  CHECK( logs2sns( logs_.withLock()->from(makeKey(1), 1)  ) == makeSns({2}) );
+  CHECK( logs2sns( logs_.withLock()->from(makeKey(6), 1)  ) == makeSns({7}) );
+  CHECK( logs2sns( logs_.withLock()->from(makeKey(4), 2)  ) == makeSns({5,7}) );
+  CHECK( logs2sns( logs_.withLock()->from(makeKey(9), 1)  ) == makeSns({9}) );
+  CHECK( logs2sns( logs_.withLock()->from(makeKey(3), 99)  ) == makeSns({3,5,7,8,9}) );
+  CHECK( logs2sns( logs_.withLock()->from(makeKey(13), 5)  ) == makeSns({}) );
+  CHECK( logs2sns( logs_.withLock()->from(makeKey(0), 99)  ) == makeSns({2,3,5,7,8,9}) );
 }
 
 
@@ -125,17 +126,17 @@ TEST_CASE_FIXTURE(Fixture, "getting count ending with a given position")
 {
   for(auto sn: {2,3,5,7,8,9})
     logs_.withLock()->insert( makeLog(sn) );
-  CHECK( logs2sns( logs_.withLock()->to(Log::Key{"3"}, 0)  ) == makeSns({}) );
-  CHECK( logs2sns( logs_.withLock()->to(Log::Key{"99"}, 0)  ) == makeSns({}) );
-  CHECK( logs2sns( logs_.withLock()->to(Log::Key{"2"}, 1)  ) == makeSns({2}) );
-  CHECK( logs2sns( logs_.withLock()->to(Log::Key{"9"}, 1)  ) == makeSns({9}) );
-  CHECK( logs2sns( logs_.withLock()->to(Log::Key{"0"}, 1)  ) == makeSns({}) );
-  CHECK( logs2sns( logs_.withLock()->to(Log::Key{"13"}, 1)  ) == makeSns({9}) );
-  CHECK( logs2sns( logs_.withLock()->to(Log::Key{"9"}, 2)  ) == makeSns({8,9}) );
-  CHECK( logs2sns( logs_.withLock()->to(Log::Key{"9"}, 6)  ) == makeSns({2,3,5,7,8,9}) );
-  CHECK( logs2sns( logs_.withLock()->to(Log::Key{"9"}, 666)  ) == makeSns({2,3,5,7,8,9}) );
-  CHECK( logs2sns( logs_.withLock()->to(Log::Key{"5"}, 666)  ) == makeSns({2,3,5}) );
-  CHECK( logs2sns( logs_.withLock()->to(Log::Key{"5"}, 2)  ) == makeSns({3,5}) );
+  CHECK( logs2sns( logs_.withLock()->to(makeKey(3), 0)  ) == makeSns({}) );
+  CHECK( logs2sns( logs_.withLock()->to(makeKey(99), 0)  ) == makeSns({}) );
+  CHECK( logs2sns( logs_.withLock()->to(makeKey(2), 1)  ) == makeSns({2}) );
+  CHECK( logs2sns( logs_.withLock()->to(makeKey(9), 1)  ) == makeSns({9}) );
+  CHECK( logs2sns( logs_.withLock()->to(makeKey(0), 1)  ) == makeSns({}) );
+  CHECK( logs2sns( logs_.withLock()->to(makeKey(13), 1)  ) == makeSns({9}) );
+  CHECK( logs2sns( logs_.withLock()->to(makeKey(9), 2)  ) == makeSns({8,9}) );
+  CHECK( logs2sns( logs_.withLock()->to(makeKey(9), 6)  ) == makeSns({2,3,5,7,8,9}) );
+  CHECK( logs2sns( logs_.withLock()->to(makeKey(9), 666)  ) == makeSns({2,3,5,7,8,9}) );
+  CHECK( logs2sns( logs_.withLock()->to(makeKey(5), 666)  ) == makeSns({2,3,5}) );
+  CHECK( logs2sns( logs_.withLock()->to(makeKey(5), 2)  ) == makeSns({3,5}) );
 }
 
 
@@ -146,43 +147,43 @@ TEST_CASE_FIXTURE(Fixture, "finding element in set")
   auto ll = logs_.withLock();
   SUBCASE("first")
   {
-    const auto it = ll->find( Log::Key{"2"} );
+    const auto it = ll->find( makeKey(2) );
     REQUIRE( it != ll->end() );
-    CHECK( it->key() == Log::Key{"2"} );
+    CHECK( it->key() == makeKey(2) );
   }
   SUBCASE("middle")
   {
-    const auto it = ll->find( Log::Key{"5"} );
+    const auto it = ll->find( makeKey(5) );
     REQUIRE( it != ll->end() );
-    CHECK( it->key() == Log::Key{"5"} );
+    CHECK( it->key() == makeKey(5) );
   }
   SUBCASE("last")
   {
-    const auto it = ll->find( Log::Key{"9"} );
+    const auto it = ll->find( makeKey(9) );
     REQUIRE( it != ll->end() );
-    CHECK( it->key() == Log::Key{"9"} );
+    CHECK( it->key() == makeKey(9) );
   }
   SUBCASE("non-existing - middle")
   {
-    const auto it = ll->find( Log::Key{"4"} );
+    const auto it = ll->find( makeKey(4) );
     REQUIRE( it == ll->end() );
   }
   SUBCASE("non-existing - before first")
   {
-    const auto it = ll->find( Log::Key{"1"} );
+    const auto it = ll->find( makeKey(1) );
     REQUIRE( it == ll->end() );
   }
   SUBCASE("non-existing - after last")
   {
-    const auto it = ll->find( Log::Key{"10"} );
+    const auto it = ll->find( makeKey(10) );
     REQUIRE( it == ll->end() );
   }
   SUBCASE("const")
   {
     const auto llc = std::move(ll);
-    const auto it = llc->find( Log::Key{"2"} );
+    const auto it = llc->find( makeKey(2) );
     REQUIRE( it != llc->end() );
-    CHECK( it->key() == Log::Key{"2"} );
+    CHECK( it->key() == makeKey(2) );
   }
 }
 

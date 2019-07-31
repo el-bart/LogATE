@@ -1,9 +1,12 @@
 #include <doctest/doctest.h>
 #include "LogATE/Utils/matchesLog.hpp"
+#include "LogATE/TestHelpers.ut.hpp"
 
 using LogATE::Log;
 using LogATE::AnnotatedLog;
 using LogATE::Tree::Path;
+using LogATE::makeKey;
+using LogATE::makeLog;
 using LogATE::Utils::matchesKey;
 using LogATE::Utils::matchesValue;
 using LogATE::Utils::matchesAnyKey;
@@ -36,7 +39,7 @@ struct Fixture
     return testMatch(path, re, logMulti_);
   }
 
-  const Log log_{ R"({
+  const Log log_{ makeKey(), R"({
                                 "PING": {
                                   "PONG": {
                                     "narf": {
@@ -52,7 +55,7 @@ struct Fixture
                                   { "two": 2 }
                                 ]
                               })" };
-  const Log logMulti_{ R"({
+  const Log logMulti_{ makeKey(), R"({
                                 "one": {
                                   "PING": {
                                     "PONG": {
@@ -95,27 +98,27 @@ TEST_CASE_FIXTURE(Fixture, "converting all basic types for value comparison")
   matchFunction = matchesValue;
   SUBCASE("string")
   {
-    const auto log = Log{R"({ "val": "axxx" })"};
+    const auto log = makeLog(R"({ "val": "axxx" })");
     CHECK( testMatch(Path{{".", "val"}}, "ax*", log) );
   }
   SUBCASE("int")
   {
-    const auto log = Log{R"({ "val": 42 })"};
+    const auto log = makeLog(R"({ "val": 42 })");
     CHECK( testMatch(Path{{".", "val"}}, "^42$", log) );
   }
   SUBCASE("float")
   {
-    const auto log = Log{R"({ "val": 4.0 })"};
+    const auto log = makeLog(R"({ "val": 4.0 })");
     CHECK( testMatch(Path{{".", "val"}}, "^4.0*", log) );
   }
   SUBCASE("bool")
   {
-    const auto log = Log{R"({ "val": true })"};
+    const auto log = makeLog(R"({ "val": true })");
     CHECK( testMatch(Path{{".", "val"}}, "true", log) );
   }
   SUBCASE("regex matches in the middle as well")
   {
-    const auto log = Log{R"({ "val": "foo-xxx-bar" })"};
+    const auto log = makeLog(R"({ "val": "foo-xxx-bar" })");
     CHECK( testMatch(Path{{".", "val"}}, "xxx", log) );
   }
 }
@@ -247,14 +250,14 @@ TEST_CASE_FIXTURE(Fixture, "keys can only be taken out of key:value pair (not ob
 
 TEST_CASE_FIXTURE(Fixture, "relative paths leading to the same values are unified")
 {
-  const Log repeatedLog{ R"({
+  const Log repeatedLog{ makeLog(R"({
                                 "one": {
                                   "bar": "xx"
                                 },
                                 "two": {
                                   "bar": "xx"
                                 }
-                              })" };
+                              })") };
   auto out = allValues(AnnotatedLog{repeatedLog}, Path{{"bar"}});
   REQUIRE( out.size() == 1 );
   CHECK( out[0] == "xx" );

@@ -26,15 +26,15 @@ struct Log final
     Key(Key&&) = default;
     Key& operator=(Key&&) = default;
 
-    auto str() const { return *value_; }
+    auto const& str() const { return *value_; }
     auto sequenceNumber() const { return sn_; }
 
+    inline auto operator==(Log::Key const& rhs) const { return starshipOperator(*this, rhs) ==  0; }
+    inline auto operator!=(Log::Key const& rhs) const { return starshipOperator(*this, rhs) !=  0; }
     inline auto operator< (Log::Key const& rhs) const { return starshipOperator(*this, rhs) == -1; }
     inline auto operator> (Log::Key const& rhs) const { return starshipOperator(*this, rhs) == +1; }
     inline auto operator<=(Log::Key const& rhs) const { return starshipOperator(*this, rhs) <=  0; }
     inline auto operator>=(Log::Key const& rhs) const { return starshipOperator(*this, rhs) >=  0; }
-    inline auto operator==(Log::Key const& rhs) const { return starshipOperator(*this, rhs) ==  0; }
-    inline auto operator!=(Log::Key const& rhs) const { return starshipOperator(*this, rhs) !=  0; }
 
   private:
     inline int starshipOperator(Log::Key const& lhs, Log::Key const& rhs) const
@@ -44,11 +44,15 @@ struct Log final
         BUT_ASSERT( lhs.str() == rhs.str() );
         return 0;
       }
-      return starshipOperator( lhs.str(), rhs.str() );
+      const auto ssoStr = starshipOperator( lhs.str(), rhs.str() );
+      if(ssoStr!=0)
+        return ssoStr;
+      return starshipOperator( lhs.sequenceNumber(), rhs.sequenceNumber() );
     }
 
     inline int starshipOperator(std::string const& lhs, std::string const& rhs) const
     {
+      BUT_ASSERT( lhs.data() != rhs.data() );
       const auto common = std::min( lhs.size(), rhs.size() );
       for(auto i=0u; i<common; ++i)
       {
@@ -60,6 +64,15 @@ struct Log final
       if( lhs.size() == rhs.size() )
         return 0;
       return ( lhs.size() <  rhs.size() ) ? -1 : +1;
+    }
+
+    inline int starshipOperator(const SequenceNumber lhs, const SequenceNumber rhs) const
+    {
+      if( lhs < rhs )
+        return -1;
+      if( lhs > rhs )
+        return +1;
+      return 0;
     }
 
     But::NotNullShared<const std::string> value_;

@@ -1,13 +1,13 @@
 #include <doctest/doctest.h>
 #include "LogATE/Tree/SimpleNode.hpp"
-#include "LogATE/Tree/TestHelpers.ut.hpp"
+#include "LogATE/TestHelpers.ut.hpp"
 #include "LogATE/TestPrints.ut.hpp"
 
 using LogATE::Tree::Node;
 using LogATE::Tree::SimpleNode;
-using LogATE::Tree::makeAnnotatedLog;
-using LogATE::Tree::makeSns;
-using LogATE::Tree::logs2sns;
+using LogATE::makeAnnotatedLog;
+using LogATE::makeSns;
+using LogATE::logs2sns;
 using SN = LogATE::SequenceNumber;
 
 namespace
@@ -32,7 +32,7 @@ private:
 
 struct Fixture
 {
-  auto allSns(Node const& n) const { return LogATE::Tree::allSns( n.logs() ); }
+  auto allSns(Node const& n) const { return LogATE::allSns( n.logs() ); }
   auto allSns() const { return allSns(f2_); }
 
   LogATE::Utils::WorkerThreadsShPtr workers_{ But::makeSharedNN<LogATE::Utils::WorkerThreads>() };

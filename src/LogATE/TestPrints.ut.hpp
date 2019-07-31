@@ -13,9 +13,14 @@ inline std::ostream& operator<<(std::ostream& os, const SequenceNumber sn)
   return os << "S/N=" << sn.value_;
 }
 
+inline std::ostream& operator<<(std::ostream& os, Log::Key const& key)
+{
+  return os << "Key=(" << key.str() << "/" << key.sequenceNumber().value_ << ")";
+}
+
 inline std::ostream& operator<<(std::ostream& os, Log const& log)
 {
-  return os << "< " << log.sequenceNumber() << " ; " << log.json() << " >";
+  return os << "< " << log.key() << " ; " << log.json() << " >";
 }
 
 

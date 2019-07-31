@@ -1,8 +1,10 @@
 #include <doctest/doctest.h>
 #include "LogATE/Tree/Filter/Grep.hpp"
+#include "LogATE/TestHelpers.ut.hpp"
 
 using LogATE::Log;
 using LogATE::AnnotatedLog;
+using LogATE::makeKey;
 using LogATE::Tree::Path;
 using LogATE::Tree::Filter::Grep;
 
@@ -30,7 +32,7 @@ struct Fixture
     return testMatch(path, re, logMulti_);
   }
 
-  const Log log_{ R"({
+  const Log log_{ makeKey(), R"({
                                 "PING": {
                                   "PONG": {
                                     "narf": {
@@ -46,7 +48,7 @@ struct Fixture
                                   { "two": 2 }
                                 ]
                               })" };
-  const Log logMulti_{ R"({
+  const Log logMulti_{ makeKey(), R"({
                                 "one": {
                                   "PING": {
                                     "PONG": {

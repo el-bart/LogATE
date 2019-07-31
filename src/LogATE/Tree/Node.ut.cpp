@@ -1,7 +1,7 @@
 #include <doctest/doctest.h>
 #include "LogATE/Tree/Node.hpp"
 #include "LogATE/Tree/Filter/AcceptAll.hpp"
-#include "LogATE/Tree/TestHelpers.ut.hpp"
+#include "LogATE/TestHelpers.ut.hpp"
 #include <But/Optional.hpp>
 #include <utility>
 #include <set>
@@ -11,7 +11,8 @@ using LogATE::SequenceNumber;
 using LogATE::Tree::Node;
 using LogATE::Tree::NodeShPtr;
 using LogATE::Tree::Path;
-using LogATE::Tree::makeLog;
+using LogATE::makeKey;
+using LogATE::makeLog;
 using LogATE::Tree::Filter::AcceptAll;
 using LogATE::Utils::WorkerThreads;
 using LogATE::Utils::WorkerThreadsShPtr;
@@ -77,7 +78,7 @@ TEST_CASE("prunning logs works recursively")
     CHECK( allMinMax.begin()->second == SequenceNumber{9} );
   }
 
-  root->pruneUpTo( SequenceNumber{2} );
+  root->pruneUpTo( makeKey(2) );
   workers->waitForAll();
   {
     const auto allMinMax = treeMinMaxId(root);
@@ -86,7 +87,7 @@ TEST_CASE("prunning logs works recursively")
     CHECK( allMinMax.begin()->second == SequenceNumber{9} );
   }
 
-  root->pruneUpTo( SequenceNumber{8} );
+  root->pruneUpTo( makeKey(8) );
   workers->waitForAll();
   {
     const auto allMinMax = treeMinMaxId(root);
@@ -95,7 +96,7 @@ TEST_CASE("prunning logs works recursively")
     CHECK( allMinMax.begin()->second == SequenceNumber{9} );
   }
 
-  root->pruneUpTo( SequenceNumber{69} );
+  root->pruneUpTo( makeKey(69) );
   workers->waitForAll();
   {
     const auto allMinMax = treeMinMaxId(root);

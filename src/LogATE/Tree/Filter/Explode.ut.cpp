@@ -1,7 +1,7 @@
 #include <doctest/doctest.h>
 #include "LogATE/Tree/Filter/Explode.hpp"
 #include "LogATE/Tree/Filter/AcceptAll.hpp"
-#include "LogATE/Tree/TestHelpers.ut.hpp"
+#include "LogATE/TestHelpers.ut.hpp"
 #include "LogATE/TestPrints.ut.hpp"
 #include <vector>
 #include <map>
@@ -9,7 +9,8 @@
 using LogATE::Log;
 using LogATE::AnnotatedLog;
 using LogATE::SequenceNumber;
-using LogATE::Tree::allSns;
+using LogATE::allSns;
+using LogATE::makeLog;
 using LogATE::Tree::Node;
 using LogATE::Tree::Path;
 using LogATE::Tree::Filter::Explode;
@@ -30,11 +31,6 @@ struct Fixture
   }
 
   auto extractLogs() const { return extractLogs(explode_); }
-
-  Log makeLog(const unsigned sn, std::string const& json) const
-  {
-    return LogATE::Log{ SequenceNumber{sn}, json };
-  }
 
   auto name(std::string const& name) const { return Explode::Name{name}; }
   template<typename ...Args>

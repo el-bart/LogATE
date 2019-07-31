@@ -2,13 +2,14 @@
 #include "LogATE/Tree/Filter/BinarySplit.hpp"
 #include "LogATE/Tree/Filter/AcceptAll.hpp"
 #include "LogATE/Tree/SimpleNode.hpp"
-#include "LogATE/Tree/TestHelpers.ut.hpp"
+#include "LogATE/TestHelpers.ut.hpp"
 #include "LogATE/TestPrints.ut.hpp"
 
 using LogATE::Log;
 using LogATE::AnnotatedLog;
 using LogATE::SequenceNumber;
-using LogATE::Tree::allSns;
+using LogATE::allSns;
+using LogATE::makeLog;
 using LogATE::Tree::Node;
 using LogATE::Tree::Path;
 using LogATE::Tree::SimpleNode;
@@ -46,8 +47,6 @@ struct Fixture
     return out;
   }
   auto extractLogs() const { return extractLogs(bs_); }
-
-  Log makeLog(const unsigned sn, std::string const& json) const { return LogATE::Log{ SequenceNumber{sn}, json }; }
 
   template<typename ...Args>
   auto sns(Args... args) { return std::vector<SequenceNumber>{args.log().sequenceNumber()...}; }

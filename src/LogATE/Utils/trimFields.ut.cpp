@@ -1,9 +1,11 @@
 #include <doctest/doctest.h>
 #include "LogATE/Utils/trimFields.hpp"
+#include "LogATE/TestHelpers.ut.hpp"
 
 using LogATE::Utils::trimFields;
 using LogATE::Log;
 using LogATE::AnnotatedLog;
+using LogATE::makeLog;
 using LogATE::Tree::Path;
 using LogATE::Tree::Node;
 
@@ -14,7 +16,7 @@ TEST_SUITE("Tree::Utils::trimFields")
 
 struct Fixture
 {
-  const Log log_{ R"({
+  const Log log_{ makeLog(R"({
                                 "PING": {
                                   "PONG": {
                                     "narf": {
@@ -29,8 +31,8 @@ struct Fixture
                                   { "one": 1 },
                                   { "two": 2 }
                                 ]
-                              })" };
-  const Log logMulti_{ R"({
+                              })") };
+  const Log logMulti_{ makeLog(R"({
                                 "one": {
                                   "PING": {
                                     "PONG": {
@@ -63,7 +65,7 @@ struct Fixture
                                     { "two": 2 }
                                   ]
                                 }
-                              })" };
+                              })") };
 };
 
 

@@ -3,12 +3,30 @@
 
 namespace LogATE
 {
-namespace Tree
+
+inline auto makeKey(const unsigned num, std::string const& str="str")
 {
+  return Log::Key{ str, LogATE::SequenceNumber{num} };
+}
+
+inline auto makeKey()
+{
+  return makeKey( LogATE::SequenceNumber::next().value_ );
+}
+
+inline auto makeLog(const unsigned num, std::string const& json)
+{
+  return Log{ makeKey(num), json };
+}
 
 inline auto makeLog(const unsigned num)
 {
-  return Log{ LogATE::SequenceNumber{num}, R"({ "foo": "bar" })" };
+  return makeLog( num, R"({ "foo": "bar" })" );
+}
+
+inline auto makeLog(std::string const& json)
+{
+  return makeLog( SequenceNumber::next().value_, json );
 }
 
 inline auto makeAnnotatedLog(const unsigned num)
@@ -16,7 +34,7 @@ inline auto makeAnnotatedLog(const unsigned num)
   return LogATE::AnnotatedLog{ makeLog(num) };
 }
 
-inline auto allSns(Logs const& logs)
+inline auto allSns(Tree::Logs const& logs)
 {
   std::vector<SequenceNumber> out;
   auto locked = logs.withLock();
@@ -44,5 +62,4 @@ inline auto logs2sns(std::vector<LogATE::Log> const& in)
   return out;
 }
 
-}
 }
