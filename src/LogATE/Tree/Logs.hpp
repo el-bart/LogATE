@@ -32,6 +32,16 @@ public:
   std::set<Log>::iterator find(Log::Key const& key);
   std::set<Log>::const_iterator find(Log::Key const& key) const;
 
+  template<typename Key>
+  auto lower_bound(Key const& key)       { BUT_ASSERT( locked() ); return logs_.lower_bound(key); }
+  template<typename Key>
+  auto lower_bound(Key const& key) const { BUT_ASSERT( locked() ); return logs_.lower_bound(key); }
+
+  template<typename Key>
+  auto upper_bound(Key const& key)       { BUT_ASSERT( locked() ); return logs_.upper_bound(key); }
+  template<typename Key>
+  auto upper_bound(Key const& key) const { BUT_ASSERT( locked() ); return logs_.upper_bound(key); }
+
   Log const& first() const { BUT_ASSERT( locked() ); BUT_ASSERT( not empty() ); return *begin(); }
   Log const& last()  const { BUT_ASSERT( locked() ); BUT_ASSERT( not empty() ); return *rbegin(); }
 
