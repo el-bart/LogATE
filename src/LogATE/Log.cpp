@@ -1,5 +1,6 @@
 #include "LogATE/Log.hpp"
 #include "LogATE/Utils/value2str.hpp"
+#include "LogATE/Utils/zeroPaddedString.hpp"
 #include <iomanip>
 #include <sstream>
 
@@ -36,18 +37,8 @@ Log::Log(const SequenceNumber sn, nlohmann::json const& in):
 { }
 
 
-namespace
-{
-auto toPaddedString(const SequenceNumber sn)
-{
-  std::stringstream ss;
-  ss << std::setfill('0') << std::setw(20) << sn.value_;
-  return ss.str();
-}
-}
-
 Log::Log(DirectInitTag&& dit, SequenceNumber sn, std::string in):
-  Log{ std::move(dit), sn, std::move(in), Key{ toPaddedString(sn) } }
+  Log{ std::move(dit), sn, std::move(in), Key{ Utils::zeroPaddedString(sn.value_) } }
 { }
 
 Log::Log(DirectInitTag&&, SequenceNumber sn, std::string in, Key key):

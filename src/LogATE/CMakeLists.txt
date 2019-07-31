@@ -27,6 +27,7 @@ add_library(LogATE
   Utils/matchesLog.cpp
   Utils/trimFields.cpp
   Utils/value2str.cpp
+  Utils/zeroPaddedString.cpp
   SequenceNumber.cpp
 )
 target_include_directories(LogATE PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
@@ -64,6 +65,7 @@ if(LOGATE_ENABLE_TESTS)
     Utils/PrintableStringConverter.ut.cpp
     Utils/matchesLog.ut.cpp
     Utils/trimFields.ut.cpp
+    Utils/zeroPaddedString.ut.cpp
     Log.ut.cpp
     main.ut.cpp
   )
