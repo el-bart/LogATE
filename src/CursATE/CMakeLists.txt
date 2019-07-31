@@ -26,8 +26,9 @@ add_library(CursATEimpl
   Screen/detail/FilterTreeDataSource.cpp
   Screen/detail/LogDataSource.cpp
   Screen/detail/LogEntryDataSource.cpp
-  Screen/detail/splitIntoLines.cpp
   Screen/detail/formatAsPercentage.cpp
+  Screen/detail/id2key.cpp
+  Screen/detail/splitIntoLines.cpp
   Main.cpp
 )
 target_include_directories(CursATEimpl PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
