@@ -15,10 +15,10 @@ struct Log final
 {
   struct Key final
   {
-    template<size_t N>
-    Key(char const (&value)[N], const SequenceNumber sn): Key{ std::string_view{ value, N-1u }, sn } { }
-    Key(std::string_view const& value, const SequenceNumber sn): Key{ std::string{ value.begin(), value.end() }, sn } { }
-    Key(std::string value, const SequenceNumber sn): value_{ But::makeSharedNN<const std::string>( std::move(value) ) }, sn_{sn} { }
+    Key(std::string value, const SequenceNumber sn):
+      value_{ But::makeSharedNN<const std::string>( std::move(value) ) },
+      sn_{sn}
+    { }
 
     Key(Key const&) = default;
     Key& operator=(Key const&) = default;
