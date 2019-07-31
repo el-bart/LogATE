@@ -16,9 +16,9 @@ struct Log final
   struct Key final
   {
     template<size_t N>
-    explicit Key(char const (&value)[N]): Key{ std::string_view{ value, N-1u } } { }
-    explicit Key(std::string_view const& value): Key{ std::string{ value.begin(), value.end() } } { }
-    explicit Key(std::string value): value_{ But::makeSharedNN<const std::string>( std::move(value) ) } { }
+    Key(char const (&value)[N], const SequenceNumber sn): Key{ std::string_view{ value, N-1u }, sn } { }
+    Key(std::string_view const& value, const SequenceNumber sn): Key{ std::string{ value.begin(), value.end() }, sn } { }
+    Key(std::string value, const SequenceNumber sn): value_{ But::makeSharedNN<const std::string>( std::move(value) ) }, sn_{sn} { }
 
     Key(Key const&) = default;
     Key& operator=(Key const&) = default;
@@ -27,16 +27,43 @@ struct Log final
     Key& operator=(Key&&) = default;
 
     auto str() const { return *value_; }
+    auto sequenceNumber() const { return sn_; }
 
-    inline auto operator< (Log::Key const& rhs) const { return str() <  rhs.str(); }
-    inline auto operator<=(Log::Key const& rhs) const { return str() <= rhs.str(); }
-    inline auto operator> (Log::Key const& rhs) const { return str() >  rhs.str(); }
-    inline auto operator>=(Log::Key const& rhs) const { return str() >= rhs.str(); }
-    inline auto operator==(Log::Key const& rhs) const { return str() == rhs.str(); }
-    inline auto operator!=(Log::Key const& rhs) const { return str() != rhs.str(); }
+    inline auto operator< (Log::Key const& rhs) const { return starshipOperator(*this, rhs) == -1; }
+    inline auto operator> (Log::Key const& rhs) const { return starshipOperator(*this, rhs) == +1; }
+    inline auto operator<=(Log::Key const& rhs) const { return starshipOperator(*this, rhs) <=  0; }
+    inline auto operator>=(Log::Key const& rhs) const { return starshipOperator(*this, rhs) >=  0; }
+    inline auto operator==(Log::Key const& rhs) const { return starshipOperator(*this, rhs) ==  0; }
+    inline auto operator!=(Log::Key const& rhs) const { return starshipOperator(*this, rhs) !=  0; }
 
   private:
+    inline int starshipOperator(Log::Key const& lhs, Log::Key const& rhs) const
+    {
+      if( lhs.sequenceNumber() == rhs.sequenceNumber() )
+      {
+        BUT_ASSERT( lhs.str() == rhs.str() );
+        return 0;
+      }
+      return starshipOperator( lhs.str(), rhs.str() );
+    }
+
+    inline int starshipOperator(std::string const& lhs, std::string const& rhs) const
+    {
+      const auto common = std::min( lhs.size(), rhs.size() );
+      for(auto i=0u; i<common; ++i)
+      {
+        if( lhs[i] < rhs[i] )
+          return -1;
+        if( lhs[i] > rhs[i] )
+          return +1;
+      }
+      if( lhs.size() == rhs.size() )
+        return 0;
+      return ( lhs.size() <  rhs.size() ) ? -1 : +1;
+    }
+
     But::NotNullShared<const std::string> value_;
+    SequenceNumber sn_;
   };
 
   explicit Log(char const* in): Log{ std::string{in} } { }
