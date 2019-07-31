@@ -110,15 +110,15 @@ TEST_CASE_FIXTURE(Fixture, "adding elements starting from a default selection")
     ds_->addNewest("foo1");
     swb_.update();
     CHECK( displayData().lines_ == dsSubset(0,1) );
-    CHECK( displayData().currentSelection_.value_ == 42 );
+    CHECK( displayData().currentSelection_ == Id{42} );
     ds_->addNewest("foo2");
     swb_.update();
     CHECK( displayData().lines_ == dsSubset(0,2) );
-    CHECK( displayData().currentSelection_.value_ == 42 );
+    CHECK( displayData().currentSelection_ == Id{42} );
     ds_->addNewest("foo3");
     swb_.update();
     CHECK( displayData().lines_ == dsSubset(0,3) );
-    CHECK( displayData().currentSelection_.value_ == 42 );
+    CHECK( displayData().currentSelection_ == Id{42} );
   }
   SUBCASE("full-screen at once")
   {
@@ -127,7 +127,7 @@ TEST_CASE_FIXTURE(Fixture, "adding elements starting from a default selection")
     INFO("source data buffer: " << ds_->data_);
     swb_.update();
     CHECK( displayData().lines_ == dsSubset(0,3) );
-    CHECK( displayData().currentSelection_.value_ == 42 );
+    CHECK( displayData().currentSelection_ == Id{42} );
   }
   SUBCASE("more than a single screen")
   {
@@ -136,7 +136,7 @@ TEST_CASE_FIXTURE(Fixture, "adding elements starting from a default selection")
     INFO("source data buffer: " << ds_->data_);
     swb_.update();
     CHECK( displayData().lines_ == dsSubset(0,3) );
-    CHECK( displayData().currentSelection_.value_ == 42 );
+    CHECK( displayData().currentSelection_ == Id{42} );
   }
 }
 
@@ -160,67 +160,67 @@ TEST_CASE_FIXTURE(Fixture, "iterating over bigger set of elements")
   SUBCASE("moving down one element at a time")
   {
     CHECK( displayData().lines_ == dsSubset(0,3) );
-    CHECK( displayData().currentSelection_.value_ == 42 );
+    CHECK( displayData().currentSelection_ == Id{42} );
     swb_.selectDown();
     CHECK( displayData().lines_ == dsSubset(0,3) );
-    CHECK( displayData().currentSelection_.value_ == 43 );
+    CHECK( displayData().currentSelection_ == Id{43} );
     swb_.selectDown();
     CHECK( displayData().lines_ == dsSubset(0,3) );
-    CHECK( displayData().currentSelection_.value_ == 45 );
+    CHECK( displayData().currentSelection_ == Id{45} );
     swb_.selectDown();
     CHECK( displayData().lines_ == dsSubset(1,4) );
-    CHECK( displayData().currentSelection_.value_ == 48 );
+    CHECK( displayData().currentSelection_ == Id{48} );
     swb_.selectDown();
     CHECK( displayData().lines_ == dsSubset(2,5) );
-    CHECK( displayData().currentSelection_.value_ == 52 );
+    CHECK( displayData().currentSelection_ == Id{52} );
 
     swb_.selectUp();
     CHECK( displayData().lines_ == dsSubset(2,5) );
-    CHECK( displayData().currentSelection_.value_ == 48 );
+    CHECK( displayData().currentSelection_ == Id{48} );
     swb_.selectUp();
     CHECK( displayData().lines_ == dsSubset(2,5) );
-    CHECK( displayData().currentSelection_.value_ == 45 );
+    CHECK( displayData().currentSelection_ == Id{45} );
     swb_.selectUp();
     CHECK( displayData().lines_ == dsSubset(1,4) );
-    CHECK( displayData().currentSelection_.value_ == 43 );
+    CHECK( displayData().currentSelection_ == Id{43} );
     swb_.selectUp();
     CHECK( displayData().lines_ == dsSubset(0,3) );
-    CHECK( displayData().currentSelection_.value_ == 42 );
+    CHECK( displayData().currentSelection_ == Id{42} );
     swb_.selectUp();
     CHECK( displayData().lines_ == dsSubset(0,3) );
-    CHECK( displayData().currentSelection_.value_ == 42 );
+    CHECK( displayData().currentSelection_ == Id{42} );
   }
 
   SUBCASE("selecting page by page")
   {
     swb_.selectDown();
     CHECK( displayData().lines_ == dsSubset(0,3) );
-    CHECK( displayData().currentSelection_.value_ == 43 );
+    CHECK( displayData().currentSelection_ == Id{43} );
 
     swb_.selectPageDown();
     CHECK( displayData().lines_ == dsSubset(2,5) );
-    CHECK( displayData().currentSelection_.value_ == 52 );
+    CHECK( displayData().currentSelection_ == Id{52} );
     swb_.selectPageDown();
     CHECK( displayData().lines_ == dsSubset(5,8) );
-    CHECK( displayData().currentSelection_.value_ == 70 );
+    CHECK( displayData().currentSelection_ == Id{70} );
 
     swb_.selectPageUp();
     CHECK( displayData().lines_ == dsSubset(4,7) );
-    CHECK( displayData().currentSelection_.value_ == 52 );
+    CHECK( displayData().currentSelection_ == Id{52} );
     swb_.selectPageUp();
     CHECK( displayData().lines_ == dsSubset(1,4) );
-    CHECK( displayData().currentSelection_.value_ == 43 );
+    CHECK( displayData().currentSelection_ == Id{43} );
   }
 
   SUBCASE("jumping to first/last elements")
   {
     swb_.selectLast();
     CHECK( displayData().lines_ == dsSubset(27,30) );
-    CHECK( displayData().currentSelection_.value_ == 477 );
+    CHECK( displayData().currentSelection_ == Id{477} );
 
     swb_.selectFirst();
     CHECK( displayData().lines_ == dsSubset(0,3) );
-    CHECK( displayData().currentSelection_.value_ == 42 );
+    CHECK( displayData().currentSelection_ == Id{42} );
   }
 }
 
@@ -256,7 +256,7 @@ TEST_CASE_FIXTURE(Fixture, "resizing window on a fly")
 
   swb_.selectDown();
   REQUIRE( displayData().lines_ == dsSubset(0,3) );
-  REQUIRE( displayData().currentSelection_.value_ == 43 );
+  REQUIRE( displayData().currentSelection_ == Id{43} );
 
   SUBCASE("increasing size")
   {
@@ -264,7 +264,7 @@ TEST_CASE_FIXTURE(Fixture, "resizing window on a fly")
     tmp.rows_.value_ = 4;
     swb_.resize(tmp);
     CHECK( displayData().lines_ == dsSubset(0,4) );
-    CHECK( displayData().currentSelection_.value_ == 43 );
+    CHECK( displayData().currentSelection_ == Id{43} );
   }
 
   SUBCASE("increasing size beyond window size")
@@ -273,7 +273,7 @@ TEST_CASE_FIXTURE(Fixture, "resizing window on a fly")
     tmp.rows_.value_ = 10;
     swb_.resize(tmp);
     CHECK( displayData().lines_ == dsSubset(0,5) );
-    CHECK( displayData().currentSelection_.value_ == 43 );
+    CHECK( displayData().currentSelection_ == Id{43} );
   }
 
   SUBCASE("decreasing size")
@@ -282,7 +282,7 @@ TEST_CASE_FIXTURE(Fixture, "resizing window on a fly")
     tmp.rows_.value_ = 2;
     swb_.resize(tmp);
     CHECK( displayData().lines_ == dsSubset(0,2) );
-    CHECK( displayData().currentSelection_.value_ == 43 );
+    CHECK( displayData().currentSelection_ == Id{43} );
   }
 
   SUBCASE("decreasing size such that current selection is out of scope")
@@ -291,7 +291,7 @@ TEST_CASE_FIXTURE(Fixture, "resizing window on a fly")
     tmp.rows_.value_ = 1;
     swb_.resize(tmp);
     CHECK( displayData().lines_ == dsSubset(1,2) );
-    CHECK( displayData().currentSelection_.value_ == 43 );
+    CHECK( displayData().currentSelection_ == Id{43} );
   }
 }
 
@@ -314,14 +314,14 @@ TEST_CASE_FIXTURE(Fixture, "dropping selected item scrolls back to the first ele
 
   swb_.selectDown();
   REQUIRE( displayData().lines_ == dsSubset(0,3) );
-  REQUIRE( displayData().currentSelection_.value_ == 43 );
+  REQUIRE( displayData().currentSelection_ == Id{43} );
 
   SUBCASE("drop element right before selected only moves window")
   {
     ds_->removeOldest();
     swb_.update();
     CHECK( displayData().lines_ == dsSubset(0,3) );
-    CHECK( displayData().currentSelection_.value_ == 43 );
+    CHECK( displayData().currentSelection_ == Id{43} );
   }
 
   SUBCASE("drop selected element moves window at the begining")
@@ -330,7 +330,7 @@ TEST_CASE_FIXTURE(Fixture, "dropping selected item scrolls back to the first ele
       ds_->removeOldest();
     swb_.update();
     CHECK( displayData().lines_ == dsSubset(0,3) );
-    CHECK( displayData().currentSelection_.value_ == 45 );
+    CHECK( displayData().currentSelection_ == Id{45} );
   }
 
   SUBCASE("whole window removal moves to the next one")
@@ -339,7 +339,7 @@ TEST_CASE_FIXTURE(Fixture, "dropping selected item scrolls back to the first ele
       ds_->removeOldest();
     swb_.update();
     CHECK( displayData().lines_ == dsSubset(0,2) );
-    CHECK( displayData().currentSelection_.value_ == 48 );
+    CHECK( displayData().currentSelection_ == Id{48} );
   }
 
   SUBCASE("all elements were removed - not data left")
@@ -348,7 +348,7 @@ TEST_CASE_FIXTURE(Fixture, "dropping selected item scrolls back to the first ele
       ds_->removeOldest();
     swb_.update();
     CHECK( displayData().lines_ == dsSubset(0,0) );
-    CHECK( displayData().currentSelection_.value_ == 0 );
+    CHECK( displayData().currentSelection_.value_ == "" );
   }
 }
 
@@ -365,36 +365,36 @@ TEST_CASE_FIXTURE(Fixture, "scrolling columns")
   swb_.resize(ss);
   swb_.update();
 
-  REQUIRE( displayData().currentSelection_.value_ == 42 );
+  REQUIRE( displayData().currentSelection_ == Id{42} );
   REQUIRE( displayData().lines_ == dsSubsetStr(0,4, {"", "012", "01234", "01234"}) );
 
   SUBCASE("scroll left and right")
   {
     swb_.scrollRight();
-    CHECK( displayData().currentSelection_.value_ == 42 );
+    CHECK( displayData().currentSelection_ == Id{42} );
     CHECK( displayData().lines_ == dsSubsetStr(0,4, {"", "12", "1234", "12345"}) );
 
     swb_.scrollRight();
-    CHECK( displayData().currentSelection_.value_ == 42 );
+    CHECK( displayData().currentSelection_ == Id{42} );
     CHECK( displayData().lines_ == dsSubsetStr(0,4, {"", "2", "234", "23456"}) );
 
     swb_.scrollLeft();
-    CHECK( displayData().currentSelection_.value_ == 42 );
+    CHECK( displayData().currentSelection_ == Id{42} );
     CHECK( displayData().lines_ == dsSubsetStr(0,4, {"", "12", "1234", "12345"}) );
 
     swb_.scrollLeft();
-    CHECK( displayData().currentSelection_.value_ == 42 );
+    CHECK( displayData().currentSelection_ == Id{42} );
     CHECK( displayData().lines_ == dsSubsetStr(0,4, {"", "012", "01234", "01234"}) );
   }
 
   SUBCASE("scroll to begin and end of line")
   {
     swb_.scrollToLineEnd();
-    CHECK( displayData().currentSelection_.value_ == 42 );
+    CHECK( displayData().currentSelection_ == Id{42} );
     CHECK( displayData().lines_ == dsSubsetStr(0,4, {"", "2", "234", "23456"}) );
 
     swb_.scrollToLineBegin();
-    CHECK( displayData().currentSelection_.value_ == 42 );
+    CHECK( displayData().currentSelection_ == Id{42} );
     CHECK( displayData().lines_ == dsSubsetStr(0,4, {"", "012", "01234", "01234"}) );
   }
 
@@ -402,12 +402,12 @@ TEST_CASE_FIXTURE(Fixture, "scrolling columns")
   {
     for(auto i=0; i<10; ++i)
       swb_.scrollRight();
-    CHECK( displayData().currentSelection_.value_ == 42 );
+    CHECK( displayData().currentSelection_ == Id{42} );
     CHECK( displayData().lines_ == dsSubsetStr(0,4, {"", "2", "234", "23456"}) );
 
     for(auto i=0; i<20; ++i)
       swb_.scrollLeft();
-    CHECK( displayData().currentSelection_.value_ == 42 );
+    CHECK( displayData().currentSelection_ == Id{42} );
     CHECK( displayData().lines_ == dsSubsetStr(0,4, {"", "012", "01234", "01234"}) );
   }
 }
@@ -432,29 +432,29 @@ TEST_CASE_FIXTURE(Fixture, "explicit requesting given ID")
   {
     swb_.select(Id{42});
     CHECK( displayData().lines_ == dsSubset(0,3) );
-    CHECK( displayData().currentSelection_.value_ == 42 );
+    CHECK( displayData().currentSelection_ == Id{42} );
 
     swb_.select(Id{43});
     CHECK( displayData().lines_ == dsSubset(0,3) );
-    CHECK( displayData().currentSelection_.value_ == 43 );
+    CHECK( displayData().currentSelection_ == Id{43} );
   }
 
   SUBCASE("selecting elements from end")
   {
     swb_.select(Id{87});
     CHECK( displayData().lines_ == dsSubset(7,10) );
-    CHECK( displayData().currentSelection_.value_ == 87 );
+    CHECK( displayData().currentSelection_ == Id{87} );
 
     swb_.select(Id{78});
     CHECK( displayData().lines_ == dsSubset(7,10) );
-    CHECK( displayData().currentSelection_.value_ == 78 );
+    CHECK( displayData().currentSelection_ == Id{78} );
   }
 
   SUBCASE("selecting in the middle")
   {
     swb_.select(Id{52});
     CHECK( displayData().lines_ == dsSubset(3,6) );
-    CHECK( displayData().currentSelection_.value_ == 52 );
+    CHECK( displayData().currentSelection_ == Id{52} );
   }
 
   SUBCASE("selecting when rows number is even")
@@ -465,27 +465,27 @@ TEST_CASE_FIXTURE(Fixture, "explicit requesting given ID")
 
     swb_.select(Id{42});
     CHECK( displayData().lines_ == dsSubset(0,4) );
-    CHECK( displayData().currentSelection_.value_ == 42 );
+    CHECK( displayData().currentSelection_ == Id{42} );
 
     swb_.select(Id{43});
     CHECK( displayData().lines_ == dsSubset(0,4) );
-    CHECK( displayData().currentSelection_.value_ == 43 );
+    CHECK( displayData().currentSelection_ == Id{43} );
 
     swb_.select(Id{45});
     CHECK( displayData().lines_ == dsSubset(1,5) );
-    CHECK( displayData().currentSelection_.value_ == 45 );
+    CHECK( displayData().currentSelection_ == Id{45} );
 
     swb_.select(Id{70});
     CHECK( displayData().lines_ == dsSubset(6,10) );
-    CHECK( displayData().currentSelection_.value_ == 70 );
+    CHECK( displayData().currentSelection_ == Id{70} );
 
     swb_.select(Id{78});
     CHECK( displayData().lines_ == dsSubset(6,10) );
-    CHECK( displayData().currentSelection_.value_ == 78 );
+    CHECK( displayData().currentSelection_ == Id{78} );
 
     swb_.select(Id{87});
     CHECK( displayData().lines_ == dsSubset(6,10) );
-    CHECK( displayData().currentSelection_.value_ == 87 );
+    CHECK( displayData().currentSelection_ == Id{87} );
   }
 }
 
@@ -499,11 +499,11 @@ TEST_CASE_FIXTURE(Fixture, "selecting in a not full set")
 
   swb_.select(Id{42});
   CHECK( displayData().lines_ == dsSubset(0,2) );
-  CHECK( displayData().currentSelection_.value_ == 42 );
+  CHECK( displayData().currentSelection_ == Id{42} );
 
   swb_.select(Id{43});
   CHECK( displayData().lines_ == dsSubset(0,2) );
-  CHECK( displayData().currentSelection_.value_ == 43 );
+  CHECK( displayData().currentSelection_ == Id{43} );
 }
 
 
@@ -542,15 +542,15 @@ TEST_CASE_FIXTURE(Fixture, "selecting first/middle/last visible elemenst")
     swb_.selectMiddleVisible();
     CHECK( swb_.currentSelection() );
     CHECK( displayData().lines_ == dsSubset(0,3) );
-    CHECK( displayData().currentSelection_.value_ == 43 );
+    CHECK( displayData().currentSelection_ == Id{43} );
 
     swb_.selectLastVisible();
     CHECK( displayData().lines_ == dsSubset(0,3) );
-    CHECK( displayData().currentSelection_.value_ == 45 );
+    CHECK( displayData().currentSelection_ == Id{45} );
 
     swb_.selectFirstVisible();
     CHECK( displayData().lines_ == dsSubset(0,3) );
-    CHECK( displayData().currentSelection_.value_ == 42 );
+    CHECK( displayData().currentSelection_ == Id{42} );
 
   }
   SUBCASE("full-screen at once")
@@ -564,15 +564,15 @@ TEST_CASE_FIXTURE(Fixture, "selecting first/middle/last visible elemenst")
 
     swb_.selectMiddleVisible();
     CHECK( displayData().lines_ == dsSubset(0,3) );
-    CHECK( displayData().currentSelection_.value_ == 43 );
+    CHECK( displayData().currentSelection_ == Id{43} );
 
     swb_.selectLastVisible();
     CHECK( displayData().lines_ == dsSubset(0,3) );
-    CHECK( displayData().currentSelection_.value_ == 45 );
+    CHECK( displayData().currentSelection_ == Id{45} );
 
     swb_.selectFirstVisible();
     CHECK( displayData().lines_ == dsSubset(0,3) );
-    CHECK( displayData().currentSelection_.value_ == 42 );
+    CHECK( displayData().currentSelection_ == Id{42} );
   }
   SUBCASE("more than a single screen")
   {
@@ -585,15 +585,15 @@ TEST_CASE_FIXTURE(Fixture, "selecting first/middle/last visible elemenst")
 
     swb_.selectMiddleVisible();
     CHECK( displayData().lines_ == dsSubset(0,3) );
-    CHECK( displayData().currentSelection_.value_ == 43 );
+    CHECK( displayData().currentSelection_ == Id{43} );
 
     swb_.selectLastVisible();
     CHECK( displayData().lines_ == dsSubset(0,3) );
-    CHECK( displayData().currentSelection_.value_ == 45 );
+    CHECK( displayData().currentSelection_ == Id{45} );
 
     swb_.selectFirstVisible();
     CHECK( displayData().lines_ == dsSubset(0,3) );
-    CHECK( displayData().currentSelection_.value_ == 42 );
+    CHECK( displayData().currentSelection_ == Id{42} );
   }
 }
 

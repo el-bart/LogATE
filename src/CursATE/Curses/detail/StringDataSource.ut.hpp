@@ -79,7 +79,7 @@ struct StringDataSource: public DataSource
 
   auto addNewest(std::string str)
   {
-    Id id{ std::to_string( nextFreeId_.load() ) };
+    Id id{nextFreeId_};
     nextFreeId_ += nextStep_;
     ++nextStep_;
     data_[id] = std::move(str);
