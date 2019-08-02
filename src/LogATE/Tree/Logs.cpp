@@ -3,14 +3,14 @@
 namespace LogATE::Tree
 {
 
-std::set<Log>::iterator Logs::find(Log::Key const& key)
+Logs::iterator Logs::find(Log::Key const& key)
 {
   BUT_ASSERT( locked() );
   return logs_.find(key);
 }
 
 
-std::set<Log>::const_iterator Logs::find(Log::Key const& key) const
+Logs::const_iterator Logs::find(Log::Key const& key) const
 {
   BUT_ASSERT( locked() );
   return logs_.find(key);

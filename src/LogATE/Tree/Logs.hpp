@@ -36,8 +36,8 @@ public:
   auto rbegin() const { BUT_ASSERT( locked() ); return logs_.rbegin(); }
   auto rend()   const { BUT_ASSERT( locked() ); return logs_.rend(); }
 
-  std::set<Log>::iterator find(Log::Key const& key);
-  std::set<Log>::const_iterator find(Log::Key const& key) const;
+  iterator find(Log::Key const& key);
+  const_iterator find(Log::Key const& key) const;
 
   template<typename Key>
   auto lower_bound(Key const& key)       { BUT_ASSERT( locked() ); return logs_.lower_bound(key); }
