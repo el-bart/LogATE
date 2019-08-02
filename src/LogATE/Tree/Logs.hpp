@@ -15,7 +15,7 @@ namespace LogATE::Tree
 class Logs: public But::Threading::BasicLockable<Logs>,
             public But::Threading::LockProxyProvider<Logs>
 {
-  using Data = std::deque<Log>;
+  using Data = std::set<Log, OrderByKey>;
 
 public:
   using iterator = Data::iterator;
@@ -36,14 +36,14 @@ public:
   auto rbegin() const { BUT_ASSERT( locked() ); return logs_.rbegin(); }
   auto rend()   const { BUT_ASSERT( locked() ); return logs_.rend(); }
 
-  iterator       find(Log::Key const& key);
+  iterator find(Log::Key const& key);
   const_iterator find(Log::Key const& key) const;
 
-  iterator       lower_bound(Log::Key const& key);
-  const_iterator lower_bound(Log::Key const& key) const;
+  iterator lower_bound(Log::Key const& key)       { BUT_ASSERT( locked() ); return logs_.lower_bound(key); }
+  const_iterator lower_bound(Log::Key const& key) const { BUT_ASSERT( locked() ); return logs_.lower_bound(key); }
 
-  iterator       upper_bound(Log::Key const& key);
-  const_iterator upper_bound(Log::Key const& key) const;
+  iterator upper_bound(Log::Key const& key)       { BUT_ASSERT( locked() ); return logs_.upper_bound(key); }
+  const_iterator upper_bound(Key const& key) const { BUT_ASSERT( locked() ); return logs_.upper_bound(key); }
 
   Log const& first() const { BUT_ASSERT( locked() ); BUT_ASSERT( not empty() ); return *begin(); }
   Log const& last()  const { BUT_ASSERT( locked() ); BUT_ASSERT( not empty() ); return *rbegin(); }
