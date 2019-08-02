@@ -109,7 +109,7 @@ auto extractLogs(LogATE::Tree::NodeShPtr node, LogATE::Log::Key const& currentSe
   switch(dir)
   {
     case Search::Direction::Forward:  return Out{it, ll->end()};
-    case Search::Direction::Backward: return Out{ std::set<Log>::const_reverse_iterator{it}, ll->rend() };
+    case Search::Direction::Backward: return Out{ LogATE::Tree::Logs::const_reverse_iterator{it}, ll->rend() };
   }
   BUT_ASSERT(!"invalid search direction");
   throw std::logic_error{"unknown value for Search::Direction"};
