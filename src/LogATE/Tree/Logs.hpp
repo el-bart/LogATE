@@ -15,7 +15,14 @@ namespace LogATE::Tree
 class Logs: public But::Threading::BasicLockable<Logs>,
             public But::Threading::LockProxyProvider<Logs>
 {
+  using Data = std::set<Log, OrderByKey>;
+
 public:
+  using iterator = Data::iterator;
+  using const_iterator = Data::const_iterator;
+  using reverse_iterator = Data::reverse_iterator;
+  using const_reverse_iterator = Data::const_reverse_iterator;
+
   auto size() const { BUT_ASSERT( locked() ); return logs_.size(); }
   auto empty() const { BUT_ASSERT( locked() ); return size() == 0u; }
 
@@ -54,7 +61,7 @@ public:
   std::vector<Log> to(Log::Key const& last, size_t count) const;
 
 private:
-  std::set<Log, OrderByKey> logs_;
+  Data logs_;
 };
 
 }
