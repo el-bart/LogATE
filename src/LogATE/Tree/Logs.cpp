@@ -74,7 +74,7 @@ void Logs::insert(Log log)
     logs_.push_back(std::move(log));
     return;
   }
-  if( logs_.back().sequenceNumber() < log.sequenceNumber() )
+  if( logs_.back().key() < log.key() )
   {
     logs_.push_back(std::move(log));
     return;
