@@ -110,7 +110,8 @@ void TcpServer::sendOutRemainingLogs(std::vector<std::string>&& jsons)
 
 bool TcpServer::waitForQueueSizeLowEnough()
 {
-  while( workers_->running() >= 10*workers_->threads() )
+  const auto maxRunning = std::min( 5u*workers_->threads(), 10lu ); // TODO: limitation can be lifted when locking contingention is solved
+  while( workers_->running() >= maxRunning )
   {
     if(*quit_)
       return false;
