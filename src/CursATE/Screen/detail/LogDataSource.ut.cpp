@@ -107,7 +107,7 @@ TEST_CASE_FIXTURE(Fixture, "finding nearest log")
     CHECK( expectId( lds_.nearestTo( sn2id(3) ) ) == sn2id(4) );
     CHECK( expectId( lds_.nearestTo( sn2id(5) ) ) == sn2id(6) );
     CHECK( expectId( lds_.nearestTo( sn2id(7) ) ) == sn2id(6) );
-    CHECK( expectId( lds_.nearestTo( sn2id(10) ) ) == sn2id(6) );
+    CHECK( expectId( lds_.nearestTo( sn2id(10) ) ) == sn2id(18) );  // NOTE: nearest according to lexical distance
     CHECK( expectId( lds_.nearestTo( sn2id(16) ) ) == sn2id(18) );
     CHECK( expectId( lds_.nearestTo( sn2id(666) ) ) == sn2id(18) );
   }
