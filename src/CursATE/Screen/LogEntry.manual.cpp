@@ -2,9 +2,11 @@
 #include "CursATE/Curses/CursorVisibility.hpp"
 #include "CursATE/Screen/LogEntry.hpp"
 #include "LogATE/Tree/Filter/AcceptAll.hpp"
+#include "LogATE/TestHelpers.ut.hpp"
 
 using namespace CursATE::Curses;
 using LogATE::Tree::Node;
+using LogATE::makeKey;
 
 namespace
 {
@@ -17,7 +19,7 @@ auto makeLog()
   json["basic types"]["int"] = 42;
   json["basic types"]["float"] = 4.2;
   json["basic types"]["bool"] = true;
-  return LogATE::Log{ LogATE::SequenceNumber{42}, std::move(json) };
+  return LogATE::Log{ makeKey(42), std::move(json) };
 }
 }
 
