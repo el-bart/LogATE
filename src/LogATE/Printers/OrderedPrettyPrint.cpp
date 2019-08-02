@@ -1,4 +1,5 @@
 #include "LogATE/Printers/OrderedPrettyPrint.hpp"
+#include "LogATE/Printers/detail/maxDigits.hpp"
 #include <iomanip>
 
 namespace LogATE::Printers
@@ -21,21 +22,10 @@ OrderedPrettyPrint::OrderedPrettyPrint(PriorityTags const& priorityTags, SilentT
 { }
 
 
-namespace
-{
-auto maxSnDigits()
-{
-  const auto value = SequenceNumber::lastIssued().value_;
-  const auto vlog = std::log10(value);
-  const auto clog = std::ceil(vlog);
-  return static_cast<decltype(SequenceNumber::value_)>(clog);
-}
-}
-
 std::string OrderedPrettyPrint::operator()(LogATE::Log const& in) const
 {
   std::stringstream ss;
-  const auto snDigits = maxSnDigits();
+  const auto snDigits = detail::maxDigits( SequenceNumber::lastIssued().value_ );
   ss << std::setw(snDigits) << std::setfill('0') << in.sequenceNumber().value_ << std::setw(0) << " ";
   constructString(ss, in.json());
   return ss.str();
