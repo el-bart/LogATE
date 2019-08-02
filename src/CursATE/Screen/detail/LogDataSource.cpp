@@ -31,12 +31,12 @@ size_t LogDataSource::index(Id const& id) const
   if( ll->empty() )
     return 0;
 
-  const auto it = std::lower_bound( ll->begin(), ll->end(), id2key(id), LogATE::OrderByKey{} );
+  const auto it = ll->lower_bound( id2key(id) );
   if( it == ll->end() )
     return 0;
   if( it->key() != id2key(id) )
     return 0;
-  return std::distance( ll->begin(), it );
+  return std::distance( ll->begin(), it );  // TODO: LINEAR!!!!!!!!!!!!!
 }
 
 size_t LogDataSource::size() const
@@ -57,7 +57,7 @@ But::Optional<LogDataSource::Id> LogDataSource::nearestTo(Id const& id) const
   if( ll->empty() )
     return {};
 
-  const auto it = std::lower_bound( ll->begin(), ll->end(), id2key(id), LogATE::OrderByKey{} );
+  const auto it = ll->lower_bound( id2key(id) );
   if( it == ll->end() )
     return key2id( ll->last().key() );
   if( it == ll->begin() )
