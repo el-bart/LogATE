@@ -38,7 +38,7 @@ Logs::iterator Logs::upper_bound(Log::Key const& key)
 }
 
 
-Logs::const_iterator Logs::upper_bound(Key const& key) const
+Logs::const_iterator Logs::upper_bound(Log::Key const& key) const
 {
   BUT_ASSERT( locked() );
   return logs_.upper_bound(key);
