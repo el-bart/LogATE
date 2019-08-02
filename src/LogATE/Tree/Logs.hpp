@@ -15,7 +15,7 @@ namespace LogATE::Tree
 class Logs: public But::Threading::BasicLockable<Logs>,
             public But::Threading::LockProxyProvider<Logs>
 {
-  using Data = std::vector<Log>;
+  using Data = std::deque<Log>;
 
 public:
   using iterator = Data::iterator;
