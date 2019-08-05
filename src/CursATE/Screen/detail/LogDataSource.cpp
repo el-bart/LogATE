@@ -24,19 +24,7 @@ auto prevIt(It it) { return --it; }
 
 size_t LogDataSource::index(Id const& id) const
 {
-  auto node = node_.lock();
-  if(not node)
-    return {};
-  auto ll = node->logs().withLock();
-  if( ll->empty() )
-    return 0;
-
-  const auto it = ll->lower_bound( id2key(id) );
-  if( it == ll->end() )
-    return 0;
-  if( it->key() != id2key(id) )
-    return 0;
-  return std::distance( ll->begin(), it );  // TODO: LINEAR!!!!!!!!!!!!!
+  return indexCache_.index( id2key(id) );
 }
 
 size_t LogDataSource::size() const
