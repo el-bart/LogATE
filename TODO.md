@@ -8,11 +8,12 @@
 * maybe adding a child to Explode maybe should mean adding to all subnodes? how to do this? factory?
 * search inside a given node set via regex (string is already implemented)
 * add support for arrays in all the places in the code
-  - think about nice syntax for Path support of arrays
+  - think about nice syntax for Path support of arrays (`jq` as an inspiration?)
 * filter that saves all logs after spotting a given pattern (grep-like); add option to save N logs before as well.
 * disk/RAM auto-switching backend for `Tree::Logs`, so that it's possible to process more logs than there is RAM in computer.
 * make `Tree::Logs` lock-free so that processing can be done in a way more parallel mode than it is being done now...
   - maybe logs could be in a lock-free balanced tree?
+  - versioned tree would be needed to provide a steady view of a dynamic structure!
 * save given logs to a file
   - as JSONs
   - as human-readable lines
@@ -33,6 +34,7 @@
 * embed version tag (if present) and commit hash into a binary, so that it can be displayed on request
 * generic mechanism for searching inside whole data source (usefull for different small-volume windows, i.e. non-log-lists)
 * how about a scripting language, allowing interactive searching and tree building? eg. 'search for pattern X, once found do this, start that, etc...'?
+  - if adding nodes to dynamically managed ones would be possible, it would be good to allow creation of a ready-to-process structure (i.e. auto-splitting into elements).
 * add option to plot:
   - histogram (with and without buckets)
   - data over time
