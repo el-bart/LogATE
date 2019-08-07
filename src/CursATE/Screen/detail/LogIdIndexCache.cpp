@@ -38,6 +38,7 @@ void LogIdIndexCache::invalidateCacheOnChange() const
   if(firstKey_)
     if( *firstKey_ == ll->first().key() )
       return;
+  // TODO: this does not need to be a full reset - it is enough to decrease index_ of all entries by a removed elements.
   reset();
   firstKey_ = ll->first().key();
 }
