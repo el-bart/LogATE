@@ -28,8 +28,21 @@ void LogKeyIndexCache::updateAfterInsertion(LogATE::Log::Key const& key)
 
 void LogKeyIndexCache::updateAfterPruneUpTo(LogATE::Log::Key const& key)
 {
-  // TODO
-  (void)key;
+  BUT_ASSERT( std::is_sorted( cache_.begin(), cache_.end(), OrderByKey{} ) );
+  const auto cacheLb = std::lower_bound( cache_.begin(), cache_.end(), key, OrderByKey{} );
+  if( cacheLb == cache_.end() )
+  {
+    cache_.clear();
+    return;
+  }
+  cache_.erase( cache_.begin(), cacheLb );
+  if( cache_.empty() )
+    return;
+  const auto it = data_->find( cache_.begin()->key_ );
+  const auto dist = static_cast<size_t>( std::distance( data_->begin(), it ) );
+  const auto diff = cache_.begin()->index_ - dist;
+  for(auto& e: cache_)
+    e.index_ -= diff;
 }
 
 

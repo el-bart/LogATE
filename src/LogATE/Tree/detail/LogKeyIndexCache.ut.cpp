@@ -101,7 +101,7 @@ TEST_CASE_FIXTURE(Fixture, "auto-cleanup of outdated entries")
   CHECK( liic_.size() == 4u );
 
   pruneUpTo( makeKey(666, "xxx") );
-  CHECK( liic_.size() == 4u );
+  CHECK( liic_.size() == 0u );
   CHECK( index( makeKey(1, "bar") ) == 0 );
   CHECK( liic_.size() == 0u );
   CHECK( index( makeKey(4, "bar") ) == 0 );
