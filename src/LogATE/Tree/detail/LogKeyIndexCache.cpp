@@ -6,6 +6,12 @@
 namespace LogATE::Tree::detail
 {
 
+namespace
+{
+template<typename It>
+auto prevIt(It it) { return --it; }
+}
+
 size_t LogKeyIndexCache::index(LogATE::Log::Key key)
 {
   BUT_ASSERT( std::is_sorted( cache_.begin(), cache_.end(), CacheOrderByKey{} ) );
@@ -15,7 +21,10 @@ size_t LogKeyIndexCache::index(LogATE::Log::Key key)
   if( cacheLb->key_ == key )
     return cacheLb->index_;
   BUT_ASSERT( key < cacheLb->key_ );
-  return addToCacheLeftOf( cacheLb, std::move(key) );
+
+  if( cacheLb == cache_.begin() )
+    return addToCacheLeftOf( cacheLb, std::move(key) );
+  return addToCacheBetween( prevIt(cacheLb), cacheLb, std::move(key) );
 }
 
 
@@ -83,6 +92,44 @@ size_t LogKeyIndexCache::addToCacheLeftOf(const std::vector<Entry>::const_iterat
   cache_.insert( it, Entry{ std::move(key), pos } );
   BUT_ASSERT( std::is_sorted( cache_.begin(), cache_.end(), CacheOrderByKey{} ) );
   return pos;
+}
+
+
+size_t LogKeyIndexCache::addToCacheBetween(std::vector<Entry>::const_iterator low, std::vector<Entry>::const_iterator high, LogATE::Log::Key&& key)
+{
+  BUT_ASSERT( low != high );
+  BUT_ASSERT( low != cache_.end() );
+  BUT_ASSERT( low->key_ != key );
+  BUT_ASSERT( high->key_ != key );
+
+  auto lowIt = data_->find(low->key_);
+  BUT_ASSERT( lowIt != data_->end() );
+  auto lowIndex = low->index_;
+
+  auto highIt = data_->find(high->key_);
+  BUT_ASSERT( highIt != data_->end() );
+  auto highIndex = high->index_;
+
+  while(true)
+  {
+    ++lowIndex;
+    ++lowIt;
+    if( lowIt->key() == key )
+    {
+      cache_.insert( high, Entry{ std::move(key), lowIndex } );
+      BUT_ASSERT( std::is_sorted( cache_.begin(), cache_.end(), CacheOrderByKey{} ) );
+      return lowIndex;
+    }
+
+    --highIndex;
+    --highIt;
+    if( highIt->key() == key )
+    {
+      cache_.insert( high, Entry{ std::move(key), highIndex } );
+      BUT_ASSERT( std::is_sorted( cache_.begin(), cache_.end(), CacheOrderByKey{} ) );
+      return highIndex;
+    }
+  }
 }
 
 }

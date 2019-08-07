@@ -32,6 +32,7 @@ private:
 
   size_t addToCacheAtTheEnd(LogATE::Log::Key&& key);
   size_t addToCacheLeftOf(std::vector<Entry>::const_iterator it, LogATE::Log::Key&& key);
+  size_t addToCacheBetween(std::vector<Entry>::const_iterator low, std::vector<Entry>::const_iterator high, LogATE::Log::Key&& key);
 
   struct CacheOrderByKey final
   {
