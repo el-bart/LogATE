@@ -79,6 +79,28 @@ TEST_CASE_FIXTURE(Fixture, "finding elements in node")
   // repeated search
   CHECK( index( makeKey(8, "kamboom!") ) == 3 );
   CHECK( liic_.size() == 6u );
+
+  SUBCASE("cache gets ipdated after insertion in the middle of the data set")
+  {
+    insert( makeLog(666, "gemini") );
+    // repeated searches
+    CHECK( liic_.size() == 6u );
+    CHECK( index( makeKey(1, "bar") ) == 0 );
+    CHECK( liic_.size() == 6u );
+    CHECK( index( makeKey(4, "bar") ) == 1 );
+    CHECK( liic_.size() == 6u );
+    CHECK( index( makeKey(0, "foo") ) == 2 );
+    CHECK( liic_.size() == 6u );
+    CHECK( index( makeKey(8, "kamboom!") ) == 4 );
+    CHECK( liic_.size() == 6u );
+    CHECK( index( makeKey(5, "kszy") ) == 5 );
+    CHECK( liic_.size() == 6u );
+    CHECK( index( makeKey(3, "narf") ) == 6 );
+    CHECK( liic_.size() == 6u );
+    // search for new element
+    CHECK( index( makeKey(666, "gemini") ) == 3 );
+    CHECK( liic_.size() == 7u );
+  }
 }
 
 

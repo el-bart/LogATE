@@ -21,8 +21,9 @@ size_t LogKeyIndexCache::index(LogATE::Log::Key key)
 
 void LogKeyIndexCache::updateAfterInsertion(LogATE::Log::Key const& key)
 {
-  // TODO
-  (void)key;
+  BUT_ASSERT( std::is_sorted( cache_.begin(), cache_.end(), OrderByKey{} ) );
+  for(auto it = std::upper_bound( cache_.begin(), cache_.end(), key, OrderByKey{} ); it != cache_.end(); ++it)
+    ++it->index_;
 }
 
 
