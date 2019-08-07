@@ -9,7 +9,7 @@ namespace LogATE::Utils
 LogATE::Log::Key string2key(std::string const& in)
 {
   const auto splitPos = in.rfind('/');
-  if( splitPos != std::string::npos )
+  if( splitPos == std::string::npos )
     BUT_THROW(StringDoesNotRepresentKey, "missing '/': " << in);
   const auto splitPoint = in.begin() + splitPos;
   auto str = std::string{ in.begin(), splitPoint };
