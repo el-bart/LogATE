@@ -26,6 +26,7 @@ add_library(LogATE
   Utils/PrintableStringConverter.cpp
   Utils/WorkerThreads.cpp
   Utils/matchesLog.cpp
+  Utils/string2key.cpp
   Utils/trimFields.cpp
   Utils/value2str.cpp
   Utils/zeroPaddedString.cpp
@@ -67,6 +68,7 @@ if(LOGATE_ENABLE_TESTS)
     Tree/detail/LogKeyIndexCache.ut.cpp
     Utils/PrintableStringConverter.ut.cpp
     Utils/matchesLog.ut.cpp
+    Utils/string2key.ut.cpp
     Utils/trimFields.ut.cpp
     Utils/zeroPaddedString.ut.cpp
     Log.ut.cpp
