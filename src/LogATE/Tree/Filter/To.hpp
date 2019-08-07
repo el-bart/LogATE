@@ -7,18 +7,18 @@ namespace LogATE::Tree::Filter
 class To: public SimpleNode
 {
 public:
-  explicit To(Utils::WorkerThreadsShPtr workers, Name name, const SequenceNumber edge):
+  explicit To(Utils::WorkerThreadsShPtr workers, Name name, Log::Key edge):
     SimpleNode{ std::move(workers), Type{"To"}, std::move(name), {} },
-    edge_{edge}
+    edge_{ std::move(edge) }
   { }
 
 private:
   bool matches(AnnotatedLog const& log) const override
   {
-    return log.log().sequenceNumber() <= edge_;
+    return log.log().key() <= edge_;
   }
 
-  const SequenceNumber edge_;
+  const Log::Key edge_;
 };
 
 }

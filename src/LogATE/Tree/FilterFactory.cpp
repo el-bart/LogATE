@@ -5,7 +5,9 @@
 #include "LogATE/Tree/Filter/Explode.hpp"
 #include "LogATE/Tree/Filter/BinarySplit.hpp"
 #include "LogATE/Tree/Filter/AcceptAll.hpp"
+#include "LogATE/Utils/string2key.hpp"
 #include <boost/lexical_cast.hpp>
+
 
 namespace LogATE::Tree
 {
@@ -49,12 +51,12 @@ std::unique_ptr<Node> buildAcceptAll(Utils::WorkerThreadsShPtr workers, FilterFa
   return std::make_unique<Filter::AcceptAll>( std::move(workers), std::move(name), std::move(tf) );
 }
 
-auto extractSequenceNumber(std::string const& type, FilterFactory::Options& options, std::string const& name)
+auto extractKey(std::string const& type, FilterFactory::Options& options, std::string const& name)
 {
   const auto str = extractOption(type, options, name);
   try
   {
-    return SequenceNumber{ boost::lexical_cast<uint64_t>(str) };
+    return Utils::string2key(str);
   }
   catch(std::exception const& ex)
   {
@@ -65,7 +67,7 @@ auto extractSequenceNumber(std::string const& type, FilterFactory::Options& opti
 std::unique_ptr<Node> buildFrom(Utils::WorkerThreadsShPtr workers, FilterFactory::Name name, FilterFactory::Options options)
 {
   const auto type = std::string{"From"};
-  const auto edge = extractSequenceNumber(type, options, "Edge");
+  const auto edge = extractKey(type, options, "Edge");
   if( not options.empty() )
     BUT_THROW(FilterFactory::UnknownOption, "filter " << name.value_ << "; unknown option: " << options.begin()->first);
   return std::make_unique<Filter::From>( std::move(workers), std::move(name), edge );
@@ -74,7 +76,7 @@ std::unique_ptr<Node> buildFrom(Utils::WorkerThreadsShPtr workers, FilterFactory
 std::unique_ptr<Node> buildTo(Utils::WorkerThreadsShPtr workers, FilterFactory::Name name, FilterFactory::Options options)
 {
   const auto type = std::string{"To"};
-  const auto edge = extractSequenceNumber(type, options, "Edge");
+  const auto edge = extractKey(type, options, "Edge");
   if( not options.empty() )
     BUT_THROW(FilterFactory::UnknownOption, "filter " << name.value_ << "; unknown option: " << options.begin()->first);
   return std::make_unique<Filter::To>( std::move(workers), std::move(name), edge );

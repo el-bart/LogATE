@@ -5,6 +5,7 @@
 #include "CursATE/Screen/detail/LogEntryDataSource.hpp"
 #include "CursATE/Screen/detail/formatAsPercentage.hpp"
 #include "CursATE/Screen/detail/smallerScreenSize.hpp"
+#include "CursATE/Screen/detail/id2key.hpp"
 #include "CursATE/Curses/Form.hpp"
 #include "CursATE/Curses/Field/Button.hpp"
 #include "CursATE/Curses/Field/Input.hpp"
@@ -26,6 +27,7 @@ using CursATE::Curses::ScreenPosition;
 using CursATE::Curses::ctrl;
 using CursATE::Curses::Row;
 using CursATE::Curses::Column;
+using CursATE::Screen::detail::key2id;
 
 namespace CursATE::Screen
 {
@@ -353,8 +355,8 @@ std::unique_ptr<LogATE::Tree::Node> LogEntry::createFilterBasedOnSelection(DS co
   if( *filterName == names[0] ) return createGrep(ds, id, *filterFactory_);
   if( *filterName == names[1] ) return createExplode(ds, id, *filterFactory_);
   if( *filterName == names[2] ) return createBinarySplit(ds, id, *filterFactory_);
-  if( *filterName == names[3] ) return createFrom(*filterFactory_, Curses::DataSource::Id{log_.key().str()});
-  if( *filterName == names[4] ) return createTo(*filterFactory_, Curses::DataSource::Id{log_.key().str()});
+  if( *filterName == names[3] ) return createFrom(*filterFactory_, key2id( log_.key() ));
+  if( *filterName == names[4] ) return createTo(*filterFactory_, key2id( log_.key() ));
   if( *filterName == names[5] ) return createAcceptAll(*filterFactory_);
   throw std::logic_error{"unsupported filter type: " + *filterName};
 }
