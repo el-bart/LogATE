@@ -25,7 +25,6 @@ add_library(CursATEimpl
   Screen/detail/FilterTreeDataSource.cpp
   Screen/detail/LogDataSource.cpp
   Screen/detail/LogEntryDataSource.cpp
-  Screen/detail/LogIdIndexCache.cpp
   Screen/detail/formatAsPercentage.cpp
   Screen/detail/id2key.cpp
   Screen/detail/splitIntoLines.cpp
@@ -54,7 +53,6 @@ if(LOGATE_ENABLE_TESTS)
     Curses/Field/detail/resizePadded.ut.cpp
     Curses/detail/ScrolableWindowBackend.ut.cpp
     Screen/detail/LogDataSource.ut.cpp
-    Screen/detail/LogIdIndexCache.ut.cpp
     Screen/detail/formatAsPercentage.ut.cpp
     Screen/detail/id2key.ut.cpp
     Screen/detail/splitIntoLines.ut.cpp

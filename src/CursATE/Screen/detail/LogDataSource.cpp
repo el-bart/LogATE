@@ -24,7 +24,10 @@ auto prevIt(It it) { return --it; }
 
 size_t LogDataSource::index(Id const& id) const
 {
-  return indexCache_.index( id2key(id) );
+  const auto node = node_.lock();
+  if(not node)
+    return 0;
+  return node->logs().withLock()->index( id2key(id) );
 }
 
 size_t LogDataSource::size() const

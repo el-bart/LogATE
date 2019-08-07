@@ -1,5 +1,6 @@
 #pragma once
 #include "LogATE/Log.hpp"
+#include "LogATE/Tree/detail/LogKeyIndexCache.hpp"
 #include "But/Threading/BasicLockable.hpp"
 #include "But/Threading/LockProxyProvider.hpp"
 #include "But/assert.hpp"
@@ -15,13 +16,18 @@ namespace LogATE::Tree
 class Logs: public But::Threading::BasicLockable<Logs>,
             public But::Threading::LockProxyProvider<Logs>
 {
-  using Data = std::set<Log, OrderByKey>;
-
 public:
+  using Data = std::set<Log, OrderByKey>;
   using iterator = Data::iterator;
   using const_iterator = Data::const_iterator;
   using reverse_iterator = Data::reverse_iterator;
   using const_reverse_iterator = Data::const_reverse_iterator;
+
+  Logs() = default;
+  Logs(Logs const&) = delete;
+  Logs& operator=(Logs const&) = delete;
+  Logs(Logs&&) = delete;
+  Logs& operator=(Logs&&) = delete;
 
   auto size() const { BUT_ASSERT( locked() ); return logs_.size(); }
   auto empty() const { BUT_ASSERT( locked() ); return size() == 0u; }
@@ -50,6 +56,8 @@ public:
 
   void insert(Log log);
 
+  size_t index(Log::Key const& key) const;
+
   size_t pruneUpTo(Log::Key const& firstToKeep);
 
   std::vector<Log> range(Log::Key const& begin, Log::Key const& end) const;
@@ -58,6 +66,7 @@ public:
 
 private:
   Data logs_;
+  mutable detail::LogKeyIndexCache cache_{&logs_};  // TODO: hack until more decent data strucutr efor keeping logs is introduced...
 };
 
 }

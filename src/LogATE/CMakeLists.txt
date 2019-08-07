@@ -22,6 +22,7 @@ add_library(LogATE
   Tree/Filter/BinarySplit.cpp
   Tree/FilterFactory.cpp
   Tree/findParent.cpp
+  Tree/detail/LogKeyIndexCache.cpp
   Utils/PrintableStringConverter.cpp
   Utils/WorkerThreads.cpp
   Utils/matchesLog.cpp
@@ -63,6 +64,7 @@ if(LOGATE_ENABLE_TESTS)
     Tree/Filter/Grep.ut.cpp
     Tree/Filter/BinarySplit.ut.cpp
     Tree/FilterFactory.ut.cpp
+    Tree/detail/LogKeyIndexCache.ut.cpp
     Utils/PrintableStringConverter.ut.cpp
     Utils/matchesLog.ut.cpp
     Utils/trimFields.ut.cpp

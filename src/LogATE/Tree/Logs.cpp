@@ -48,7 +48,15 @@ Logs::const_iterator Logs::upper_bound(Log::Key const& key) const
 void Logs::insert(Log log)
 {
   BUT_ASSERT( locked() );
+  const auto key = log.key();
   logs_.insert( std::move(log) );
+  cache_.updateAfterInsertion(key);
+}
+
+
+size_t Logs::index(Log::Key const& key) const
+{
+  return cache_.index(key);
 }
 
 
@@ -61,6 +69,7 @@ size_t Logs::pruneUpTo(Log::Key const& firstToKeep)
     logs_.erase( begin() );
     ++count;
   }
+  cache_.updateAfterPruneUpTo(firstToKeep);
   return count;
 }
 
