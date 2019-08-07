@@ -19,22 +19,17 @@ public:
   auto size() const { std::lock_guard<std::mutex> lock{mutex_}; return cache_.size(); }
 
 private:
-  void invalidateCacheOnChange() const;
-  size_t addToCache(LogATE::Log::Key&& key) const;
-  size_t addToCache(LogATE::Log::Key const& lb, size_t lbPos,
-                    LogATE::Log::Key&& key) const;
-  size_t addToCache(LogATE::Log::Key const& lb, size_t lbPos,
-                    LogATE::Log::Key const& ub, size_t ubPos,
-                    LogATE::Log::Key&& key) const;
-  size_t addToCache(LogATE::Tree::Logs::const_iterator lb, size_t lbPos,
-                    LogATE::Tree::Logs::const_iterator ub, size_t ubPos,
-                    LogATE::Log::Key&& key) const;
-
   struct Entry
   {
     LogATE::Log::Key key_;
     size_t index_;
   };
+
+  void invalidateCacheOnChange() const;
+  void reset() const;
+
+  size_t addToCacheAtTheEnd(LogATE::Log::Key&& key) const;
+  size_t addToCacheLeftOf(std::vector<Entry>::const_iterator it, LogATE::Log::Key&& key) const;
 
   struct OrderByKey final
   {

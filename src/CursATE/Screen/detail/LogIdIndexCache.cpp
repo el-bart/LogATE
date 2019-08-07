@@ -17,15 +17,11 @@ size_t LogIdIndexCache::index(LogATE::Log::Key key) const
   BUT_ASSERT( std::is_sorted( cache_.begin(), cache_.end(), OrderByKey{} ) );
   const auto cacheLb = std::lower_bound( cache_.begin(), cache_.end(), key, OrderByKey{} );
   if( cacheLb == cache_.end() )
-    return addToCache( std::move(key) );
+    return addToCacheAtTheEnd( std::move(key) );
   if( cacheLb->key_ == key )
     return cacheLb->index_;
-
-  const auto cacheUb = std::upper_bound( cacheLb, cache_.end(), key, OrderByKey{} );
-  if( cacheUb == cache_.end() )
-    return addToCache( cacheLb->key_, cacheLb->index_, std::move(key) );
-
-  return addToCache( cacheLb->key_, cacheLb->index_, cacheUb->key_, cacheUb->index_, std::move(key) );
+  BUT_ASSERT( key < cacheLb->key_ );
+  return addToCacheLeftOf( cacheLb, std::move(key) );
 }
 
 
@@ -35,67 +31,61 @@ void LogIdIndexCache::invalidateCacheOnChange() const
     BUT_ASSERT(firstKey_);
   const auto ll = node_.lock()->logs().withLock();
   if( ll->empty() )
+  {
+    reset();
     return;
+  }
   if(firstKey_)
     if( *firstKey_ == ll->first().key() )
       return;
-  cache_.clear();
+  reset();
   firstKey_ = ll->first().key();
 }
 
 
-size_t LogIdIndexCache::addToCache(LogATE::Log::Key&& key) const
+void LogIdIndexCache::reset() const
 {
-  const auto ll = node_.lock()->logs().withLock();
-  return addToCache( ll->begin(), 0, ll->end(), ll->size(), std::move(key) );
+  cache_.clear();
+  firstKey_.reset();
 }
 
 
-size_t LogIdIndexCache::addToCache(LogATE::Log::Key const& lb, size_t lbPos, LogATE::Log::Key&& key) const
+size_t LogIdIndexCache::addToCacheAtTheEnd(LogATE::Log::Key&& key) const
 {
   const auto ll = node_.lock()->logs().withLock();
-  return addToCache( ll->find(lb), lbPos, ll->end(), ll->size(), std::move(key) );
-}
-
-
-size_t LogIdIndexCache::addToCache(LogATE::Log::Key const& lb, size_t lbPos,
-                                   LogATE::Log::Key const& ub, size_t ubPos,
-                                   LogATE::Log::Key&& key) const
-{
-  const auto ll = node_.lock()->logs().withLock();
-  return addToCache( ll->find(lb), lbPos, ll->find(ub), ubPos, std::move(key) );
-}
-
-
-size_t LogIdIndexCache::addToCache(LogATE::Tree::Logs::const_iterator lb, size_t lbPos,
-                                   LogATE::Tree::Logs::const_iterator ub, size_t ubPos,
-                                   LogATE::Log::Key&& key) const
-{
-  if( lb == ub )
+  const auto it = ll->find(key);
+  if( it == ll->end() )
     return 0;
 
-  BUT_ASSERT( lbPos < ubPos );
-  while( lbPos < ubPos )
+  if( cache_.empty() )
   {
-    if( lb->key() == key )
-    {
-      const auto it = std::lower_bound( cache_.begin(), cache_.end(), key, OrderByKey{} );
-      cache_.insert( it, Entry{ std::move(key), lbPos } );
-      return lbPos;
-    }
-    ++lb;
-    ++lbPos;
-
-    --ub;
-    --ubPos;
-    if( ub->key() == key )
-    {
-      const auto it = std::lower_bound( cache_.begin(), cache_.end(), key, OrderByKey{} );
-      cache_.insert( it, Entry{ std::move(key), ubPos } );
-      return ubPos;
-    }
+    const auto pos = static_cast<size_t>( std::distance( ll->begin(), it ) );
+    firstKey_ = ll->first().key();
+    cache_.push_back( Entry{ std::move(key), pos } );
+    BUT_ASSERT( std::is_sorted( cache_.begin(), cache_.end(), OrderByKey{} ) );
+    return pos;
   }
-  return 0;
+
+  BUT_ASSERT( cache_.rbegin()->key_ < key );
+  const auto& last = cache_.back();
+  const auto lastIt = ll->find(last.key_);
+  const auto pos = static_cast<size_t>( std::distance( lastIt, it ) ) + last.index_;
+  cache_.push_back( Entry{ std::move(key), pos } );
+  BUT_ASSERT( std::is_sorted( cache_.begin(), cache_.end(), OrderByKey{} ) );
+  return pos;
+}
+
+
+size_t LogIdIndexCache::addToCacheLeftOf(const std::vector<Entry>::const_iterator it, LogATE::Log::Key&& key) const
+{
+  BUT_ASSERT( it != cache_.end() );
+  const auto ll = node_.lock()->logs().withLock();
+  const auto keyIt = ll->find(key);
+  const auto nextKnownIt = ll->find(it->key_);
+  const auto pos = it->index_ - static_cast<size_t>( std::distance( keyIt, nextKnownIt ) );
+  cache_.insert( it, Entry{ std::move(key), pos } );
+  BUT_ASSERT( std::is_sorted( cache_.begin(), cache_.end(), OrderByKey{} ) );
+  return pos;
 }
 
 }

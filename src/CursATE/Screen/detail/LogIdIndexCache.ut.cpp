@@ -86,7 +86,85 @@ TEST_CASE_FIXTURE(Fixture, "auto-cleanup of outdated entries")
   CHECK( liic_.size() == 3u );
   CHECK( liic_.index( makeKey(3, "narf") ) == 3 );
   CHECK( liic_.size() == 4u );
+
+  node_->pruneUpTo( makeKey(666, "xxx") );
+  workers_->waitForAll();
+  CHECK( liic_.size() == 4u );
+  CHECK( liic_.index( makeKey(1, "bar") ) == 0 );
+  CHECK( liic_.size() == 0u );
+  CHECK( liic_.index( makeKey(4, "bar") ) == 0 );
+  CHECK( liic_.size() == 0u );
+  CHECK( liic_.index( makeKey(0, "foo") ) == 0 );
+  CHECK( liic_.size() == 0u );
+  CHECK( liic_.index( makeKey(8, "kamboom!") ) == 0 );
+  CHECK( liic_.size() == 0u );
+  CHECK( liic_.index( makeKey(5, "kszy") ) == 0 );
+  CHECK( liic_.size() == 0u );
+  CHECK( liic_.index( makeKey(3, "narf") ) == 0 );
+  CHECK( liic_.size() == 0u );
 }
+
+
+TEST_CASE_FIXTURE(Fixture, "test working on 1-element set")
+{
+  node_->insert( LogATE::AnnotatedLog{ makeLog(0, "foo") } );
+  CHECK( liic_.size() == 0u );
+  CHECK( liic_.index( makeKey(1, "bar") ) == 0 );
+  CHECK( liic_.size() == 0u );
+  CHECK( liic_.index( makeKey(4, "bar") ) == 0 );
+  CHECK( liic_.size() == 0u );
+  CHECK( liic_.index( makeKey(0, "foo") ) == 0 );
+  CHECK( liic_.size() == 1u );
+  CHECK( liic_.index( makeKey(8, "kamboom!") ) == 0 );
+  CHECK( liic_.size() == 1u );
+  CHECK( liic_.index( makeKey(5, "kszy") ) == 0 );
+  CHECK( liic_.size() == 1u );
+  CHECK( liic_.index( makeKey(3, "narf") ) == 0 );
+  CHECK( liic_.size() == 1u );
+}
+
+
+TEST_CASE_FIXTURE(Fixture, "test random scenarios")
+{
+  fillWithData();
+  CHECK( liic_.size() == 0u );
+
+  SUBCASE("test first elements")
+  {
+    CHECK( liic_.index( makeKey(1, "bar") ) == 0 );
+    CHECK( liic_.size() == 1u );
+  }
+  SUBCASE("last element")
+  {
+    CHECK( liic_.index( makeKey(3, "narf") ) == 5 );
+    CHECK( liic_.size() == 1u );
+  }
+  SUBCASE("middle element")
+  {
+    CHECK( liic_.index( makeKey(8, "kamboom!") ) == 3 );
+    CHECK( liic_.size() == 1u );
+  }
+  SUBCASE("element in between different ones")
+  {
+    CHECK( liic_.index( makeKey(4, "bar") ) == 1 );
+    CHECK( liic_.size() == 1u );
+    CHECK( liic_.index( makeKey(5, "kszy") ) == 4 );
+    CHECK( liic_.size() == 2u );
+    CHECK( liic_.index( makeKey(8, "kamboom!") ) == 3 );
+    CHECK( liic_.size() == 3u );
+  }
+  SUBCASE("search elements in backward order")
+  {
+    CHECK( liic_.index( makeKey(3, "narf") ) == 5 );
+    CHECK( liic_.size() == 1u );
+    CHECK( liic_.index( makeKey(5, "kszy") ) == 4 );
+    CHECK( liic_.size() == 2u );
+    CHECK( liic_.index( makeKey(8, "kamboom!") ) == 3 );
+    CHECK( liic_.size() == 3u );
+  }
+}
+
+// TODO: pseudo-random search in a big data set
 
 }
 }
