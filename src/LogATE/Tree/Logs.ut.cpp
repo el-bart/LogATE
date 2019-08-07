@@ -187,5 +187,29 @@ TEST_CASE_FIXTURE(Fixture, "finding element in set")
   }
 }
 
+
+TEST_CASE_FIXTURE(Fixture, "finding elements' indexes")
+{
+  for(auto sn: {2,3,5,7,8,9})
+    logs_.withLock()->insert( makeLog(sn) );
+  CHECK( logs_.withLock()->index( makeKey(5) ) == 2 );
+  CHECK( logs_.withLock()->index( makeKey(9) ) == 5 );
+  CHECK( logs_.withLock()->index( makeKey(3) ) == 1 );
+  CHECK( logs_.withLock()->index( makeKey(2) ) == 0 );
+
+  SUBCASE("indexes get updated after prunning")
+  {
+    logs_.withLock()->pruneUpTo( makeKey(5) );
+    CHECK( logs_.withLock()->index( makeKey(5) ) == 0 );
+    CHECK( logs_.withLock()->index( makeKey(9) ) == 3 );
+  }
+  SUBCASE("non-existing elements return 0")
+  {
+    logs_.withLock()->pruneUpTo( makeKey(5) );
+    CHECK( logs_.withLock()->index( makeKey(3) ) == 0 );
+    CHECK( logs_.withLock()->index( makeKey(2) ) == 0 );
+  }
+}
+
 }
 }
