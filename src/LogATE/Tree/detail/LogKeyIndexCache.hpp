@@ -33,11 +33,11 @@ private:
   size_t addToCacheAtTheEnd(LogATE::Log::Key&& key);
   size_t addToCacheLeftOf(std::vector<Entry>::const_iterator it, LogATE::Log::Key&& key);
 
-  struct OrderByKey final
+  struct CacheOrderByKey final
   {
     auto operator()(LogKeyIndexCache::Entry const& lhs, LogKeyIndexCache::Entry const& rhs) const { return lhs.key_ < rhs.key_; }
-    auto operator()(LogKeyIndexCache::Entry const& lhs, LogATE::Log::Key       const& rhs) const { return lhs.key_ < rhs;      }
-    auto operator()(LogATE::Log::Key       const& lhs, LogKeyIndexCache::Entry const& rhs) const { return lhs      < rhs.key_; }
+    auto operator()(LogKeyIndexCache::Entry const& lhs, LogATE::Log::Key        const& rhs) const { return lhs.key_ < rhs;      }
+    auto operator()(LogATE::Log::Key        const& lhs, LogKeyIndexCache::Entry const& rhs) const { return lhs      < rhs.key_; }
   };
 
   Data const* data_;

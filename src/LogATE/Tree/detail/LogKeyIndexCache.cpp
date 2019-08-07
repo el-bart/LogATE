@@ -8,8 +8,8 @@ namespace LogATE::Tree::detail
 
 size_t LogKeyIndexCache::index(LogATE::Log::Key key)
 {
-  BUT_ASSERT( std::is_sorted( cache_.begin(), cache_.end(), OrderByKey{} ) );
-  const auto cacheLb = std::lower_bound( cache_.begin(), cache_.end(), key, OrderByKey{} );
+  BUT_ASSERT( std::is_sorted( cache_.begin(), cache_.end(), CacheOrderByKey{} ) );
+  const auto cacheLb = std::lower_bound( cache_.begin(), cache_.end(), key, CacheOrderByKey{} );
   if( cacheLb == cache_.end() )
     return addToCacheAtTheEnd( std::move(key) );
   if( cacheLb->key_ == key )
@@ -21,16 +21,16 @@ size_t LogKeyIndexCache::index(LogATE::Log::Key key)
 
 void LogKeyIndexCache::updateAfterInsertion(LogATE::Log::Key const& key)
 {
-  BUT_ASSERT( std::is_sorted( cache_.begin(), cache_.end(), OrderByKey{} ) );
-  for(auto it = std::upper_bound( cache_.begin(), cache_.end(), key, OrderByKey{} ); it != cache_.end(); ++it)
+  BUT_ASSERT( std::is_sorted( cache_.begin(), cache_.end(), CacheOrderByKey{} ) );
+  for(auto it = std::upper_bound( cache_.begin(), cache_.end(), key, CacheOrderByKey{} ); it != cache_.end(); ++it)
     ++it->index_;
 }
 
 
 void LogKeyIndexCache::updateAfterPruneUpTo(LogATE::Log::Key const& key)
 {
-  BUT_ASSERT( std::is_sorted( cache_.begin(), cache_.end(), OrderByKey{} ) );
-  const auto cacheLb = std::lower_bound( cache_.begin(), cache_.end(), key, OrderByKey{} );
+  BUT_ASSERT( std::is_sorted( cache_.begin(), cache_.end(), CacheOrderByKey{} ) );
+  const auto cacheLb = std::lower_bound( cache_.begin(), cache_.end(), key, CacheOrderByKey{} );
   if( cacheLb == cache_.end() )
   {
     cache_.clear();
@@ -57,7 +57,7 @@ size_t LogKeyIndexCache::addToCacheAtTheEnd(LogATE::Log::Key&& key)
   {
     const auto pos = static_cast<size_t>( std::distance( data_->begin(), it ) );
     cache_.push_back( Entry{ std::move(key), pos } );
-    BUT_ASSERT( std::is_sorted( cache_.begin(), cache_.end(), OrderByKey{} ) );
+    BUT_ASSERT( std::is_sorted( cache_.begin(), cache_.end(), CacheOrderByKey{} ) );
     return pos;
   }
 
@@ -66,7 +66,7 @@ size_t LogKeyIndexCache::addToCacheAtTheEnd(LogATE::Log::Key&& key)
   const auto lastIt = data_->find(last.key_);
   const auto pos = static_cast<size_t>( std::distance( lastIt, it ) ) + last.index_;
   cache_.push_back( Entry{ std::move(key), pos } );
-  BUT_ASSERT( std::is_sorted( cache_.begin(), cache_.end(), OrderByKey{} ) );
+  BUT_ASSERT( std::is_sorted( cache_.begin(), cache_.end(), CacheOrderByKey{} ) );
   return pos;
 }
 
@@ -81,7 +81,7 @@ size_t LogKeyIndexCache::addToCacheLeftOf(const std::vector<Entry>::const_iterat
   const auto nextKnownIt = data_->find(it->key_);
   const auto pos = it->index_ - static_cast<size_t>( std::distance( keyIt, nextKnownIt ) );
   cache_.insert( it, Entry{ std::move(key), pos } );
-  BUT_ASSERT( std::is_sorted( cache_.begin(), cache_.end(), OrderByKey{} ) );
+  BUT_ASSERT( std::is_sorted( cache_.begin(), cache_.end(), CacheOrderByKey{} ) );
   return pos;
 }
 
