@@ -20,6 +20,7 @@ using CursATE::Curses::makeForm;
 using CursATE::Curses::KeyShortcuts;
 using CursATE::Curses::Field::Button;
 using CursATE::Screen::detail::id2key;
+using CursATE::Screen::detail::key2id;
 
 namespace CursATE::Screen
 {
@@ -200,7 +201,7 @@ void LogList::centerAroundLog(LogATE::Tree::NodeShPtr node, LogATE::Log::Key con
 {
   {
     auto win = filterWindows_.window(node);
-    win->selectNearest( Curses::DataSource::Id{key.str()} );
+    win->selectNearest( key2id(key) );
   }
   for(auto c: node->children())
     centerAroundLog(c, key);
@@ -222,7 +223,7 @@ void LogList::processSearch(const Search::Direction dir)
     displayError({"no matching element found"});
     return;
   }
-  currentWindow_->select( Curses::DataSource::Id{ret->str()} );
+  currentWindow_->select( key2id(*ret) );
 }
 
 
@@ -285,7 +286,7 @@ void LogList::processSearchAgain(const Search::Direction dir)
     displayError({"no matching element found"});
     return;
   }
-  currentWindow_->select( Curses::DataSource::Id{ret->str()} );
+  currentWindow_->select( key2id(*ret) );
 }
 
 }
