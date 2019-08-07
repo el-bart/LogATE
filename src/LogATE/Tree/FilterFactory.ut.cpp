@@ -376,7 +376,7 @@ TEST_CASE_FIXTURE(Fixture, "constructing From filter")
 
   SUBCASE("valid")
   {
-    CHECK( ff_.build( type, name_, Opts{{"Edge", "42"}} )->type().value_ == type.name_ );
+    CHECK( ff_.build( type, name_, Opts{{"Edge", "xxx/42"}} )->type().value_ == type.name_ );
   }
 
   SUBCASE("missing argument")
@@ -386,12 +386,12 @@ TEST_CASE_FIXTURE(Fixture, "constructing From filter")
 
   SUBCASE("unknown argument")
   {
-    CHECK_THROWS_AS( ff_.build( type, name_, Opts{{"Edge", "42"}, {"foo", "bar"}} ), FilterFactory::UnknownOption );
+    CHECK_THROWS_AS( ff_.build( type, name_, Opts{{"Edge", "xxx/42"}, {"foo", "bar"}} ), FilterFactory::UnknownOption );
   }
 
   SUBCASE("invalid argument")
   {
-    CHECK_THROWS( ff_.build( type, name_, Opts{{"Edge", "43-not-a-number"}} ) );
+    CHECK_THROWS( ff_.build( type, name_, Opts{{"Edge", "xxx/43-not-a-number"}} ) );
   }
 }
 
@@ -402,7 +402,7 @@ TEST_CASE_FIXTURE(Fixture, "constructing To filter")
 
   SUBCASE("valid")
   {
-    CHECK( ff_.build( type, name_, Opts{{"Edge", "42"}} )->type().value_ == type.name_ );
+    CHECK( ff_.build( type, name_, Opts{{"Edge", "xxx/42"}} )->type().value_ == type.name_ );
   }
 
   SUBCASE("missing argument")
@@ -412,12 +412,12 @@ TEST_CASE_FIXTURE(Fixture, "constructing To filter")
 
   SUBCASE("unknown argument")
   {
-    CHECK_THROWS_AS( ff_.build( type, name_, Opts{{"Edge", "42"}, {"foo", "bar"}} ), FilterFactory::UnknownOption );
+    CHECK_THROWS_AS( ff_.build( type, name_, Opts{{"Edge", "xxx/42"}, {"foo", "bar"}} ), FilterFactory::UnknownOption );
   }
 
   SUBCASE("invalid argument")
   {
-    CHECK_THROWS( ff_.build( type, name_, Opts{{"Edge", "43-not-a-number"}} ) );
+    CHECK_THROWS( ff_.build( type, name_, Opts{{"Edge", "xxx/43-not-a-number"}} ) );
   }
 }
 
