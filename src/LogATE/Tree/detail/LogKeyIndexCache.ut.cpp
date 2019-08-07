@@ -55,8 +55,30 @@ TEST_CASE_FIXTURE(Fixture, "empty node returns 0")
 TEST_CASE_FIXTURE(Fixture, "non-empty node but w/o given element returns 0")
 {
   fillWithData();
-  CHECK( index( makeKey(666) ) == 0u );
-  CHECK( liic_.size() == 0u );
+
+  SUBCASE("element is off on the right")
+  {
+    CHECK( index( makeKey(666) ) == 0u );
+    CHECK( liic_.size() == 0u );
+  }
+  SUBCASE("element is off on the left")
+  {
+    CHECK( index( makeKey(0, "aaa") ) == 0u );
+    CHECK( liic_.size() == 0u );
+  }
+  SUBCASE("element is off to the left, but was cached")
+  {
+    CHECK( index( makeKey(1, "bar") ) == 0 );
+    CHECK( liic_.size() == 1u );
+    CHECK( index( makeKey(4, "bar") ) == 1 );
+    CHECK( liic_.size() == 2u );
+    pruneUpTo( makeKey(4, "bar") );
+    CHECK( liic_.size() == 1u );
+    CHECK( index( makeKey(1, "bar") ) == 0 );
+    CHECK( liic_.size() == 1u );
+    CHECK( index( makeKey(4, "bar") ) == 0 );
+    CHECK( liic_.size() == 1u );
+  }
 }
 
 

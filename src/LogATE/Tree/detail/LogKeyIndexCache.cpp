@@ -75,6 +75,9 @@ size_t LogKeyIndexCache::addToCacheLeftOf(const std::vector<Entry>::const_iterat
 {
   BUT_ASSERT( it != cache_.end() );
   const auto keyIt = data_->find(key);
+  if( keyIt == data_->end() )
+    return 0;
+
   const auto nextKnownIt = data_->find(it->key_);
   const auto pos = it->index_ - static_cast<size_t>( std::distance( keyIt, nextKnownIt ) );
   cache_.insert( it, Entry{ std::move(key), pos } );
