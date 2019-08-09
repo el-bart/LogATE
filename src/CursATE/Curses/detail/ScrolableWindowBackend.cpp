@@ -311,6 +311,8 @@ void ScrolableWindowBackend::trimBufferToFitNewSize()
 void ScrolableWindowBackend::trimFromEnd()
 {
   BUT_ASSERT( not buffer_.empty() );
+  BUT_ASSERT( currentSelection_ );
+  BUT_ASSERT( buffer_.find(*currentSelection_) != end(buffer_) );
   while( buffer_.size() > rows() && buffer_.rbegin()->first != *currentSelection_)
   {
     buffer_.erase( buffer_.rbegin()->first );
@@ -322,6 +324,8 @@ void ScrolableWindowBackend::trimFromEnd()
 void ScrolableWindowBackend::trimFromBegin()
 {
   BUT_ASSERT( not buffer_.empty() );
+  BUT_ASSERT( currentSelection_ );
+  BUT_ASSERT( buffer_.find(*currentSelection_) != end(buffer_) );
   while( buffer_.size() > rows() && buffer_.begin()->first != *currentSelection_)
   {
     buffer_.erase( buffer_.begin() );
