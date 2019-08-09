@@ -226,7 +226,7 @@ auto randomData()
   std::vector<LogATE::Log> out;
   const auto alphabet = {0,1,2,3,4,5,6,7,8,9};
   auto counter = 0u;
-  for(auto i: alphabet)
+  for(auto i: {0,1,2})
     for(auto j: alphabet)
       for(auto k: alphabet)
           out.push_back( Fixture::makeLog( counter++, std::to_string(i) + std::to_string(j) + std::to_string(k) ) );
