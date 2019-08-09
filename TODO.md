@@ -17,10 +17,8 @@
 * save given logs to a file
   - as JSONs
   - as human-readable lines
-* make sort-field configurable (if field does not exist use SN)
 * `Filter::Grep` should support empty path, as a mean of defining "any path"
 * make `Net::TcpServer` use `Path` as a parameter, instead of a hardcoded value.
-* limit number of writers to `Logs`, until it is lock-free (having too may writers drops 10-20x in I/O performance)
 
 
 ## UI
@@ -48,6 +46,7 @@
 * add logs-per-second into a status bar.
 * add split between runnig threads and queue length (just for readability).
 * nodes removal should be done in a sepratate thread (thread pool) to avoid stalls in UI when removing of huge collections.
+* adde screen with a preview of a background jobs and their progress.
 
 
 ## misc
