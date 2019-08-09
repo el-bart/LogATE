@@ -3,12 +3,23 @@
 namespace CursATE
 {
 
+namespace
+{
+auto threadsCount()
+{
+  const auto possible = std::max( std::thread::hardware_concurrency() / 2u, 1u );
+  const auto preferred = std::min(possible, 2u);
+  return preferred;
+}
+
+}
+
 Main::Main(const LogATE::Net::Port port):
   server_{workers_, port},
   logList_{ workers_, [&] { return server_.errors(); } },
   root_{ logList_.root() }
 {
-  const auto threads = std::max( std::thread::hardware_concurrency() / 2, 1u );
+  const auto threads = threadsCount();
   for(auto i=0u; i<threads; ++i)
     dataPumpThreads_.emplace_back( [&] { this->dataPumpLoop(); } );
 }
