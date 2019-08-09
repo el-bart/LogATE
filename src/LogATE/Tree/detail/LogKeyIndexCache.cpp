@@ -96,6 +96,7 @@ size_t LogKeyIndexCache::addToCacheLeftOf(const std::vector<Entry>::const_iterat
 
   const auto nextKnownIt = data_->find(it->key_);
   const auto pos = it->index_ - static_cast<size_t>( std::distance( keyIt, nextKnownIt ) );
+  // TODO: do not cache entries that are close to already existing ones - it does not pay off.
   cache_.insert( it, Entry{ std::move(key), pos } );
   BUT_ASSERT( std::is_sorted( cache_.begin(), cache_.end(), CacheOrderByKey{} ) );
   return pos;
@@ -123,6 +124,7 @@ size_t LogKeyIndexCache::addToCacheBetween(std::vector<Entry>::const_iterator lo
     ++lowIt;
     if( lowIt->key() == key )
     {
+      // TODO: do not cache entries that are close to already existing ones - it does not pay off.
       cache_.insert( high, Entry{ std::move(key), lowIndex } );
       BUT_ASSERT( std::is_sorted( cache_.begin(), cache_.end(), CacheOrderByKey{} ) );
       return lowIndex;
@@ -132,6 +134,7 @@ size_t LogKeyIndexCache::addToCacheBetween(std::vector<Entry>::const_iterator lo
     --highIt;
     if( highIt->key() == key )
     {
+      // TODO: do not cache entries that are close to already existing ones - it does not pay off.
       cache_.insert( high, Entry{ std::move(key), highIndex } );
       BUT_ASSERT( std::is_sorted( cache_.begin(), cache_.end(), CacheOrderByKey{} ) );
       return highIndex;
