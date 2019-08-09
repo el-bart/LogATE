@@ -33,6 +33,13 @@ void LogKeyIndexCache::updateAfterInsertion(LogATE::Log::Key const& key)
   BUT_ASSERT( std::is_sorted( cache_.begin(), cache_.end(), CacheOrderByKey{} ) );
   for(auto it = std::upper_bound( cache_.begin(), cache_.end(), key, CacheOrderByKey{} ); it != cache_.end(); ++it)
     ++it->index_;
+
+  ++insertionCounter_;
+  if( insertionCounter_ >= insertEveryNth_ )
+  {
+    insertionCounter_ = 0;
+    index(key);
+  }
 }
 
 

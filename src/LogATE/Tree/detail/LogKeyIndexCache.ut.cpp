@@ -264,5 +264,34 @@ TEST_CASE_FIXTURE(Fixture, "random scenarios - big data sets")
   }
 }
 
+
+TEST_CASE_FIXTURE(Fixture, "auto-caching every Nth added element")
+{
+  LogATE::Tree::detail::LogKeyIndexCache liic{&data_, 3};
+  CHECK( liic.size() == 0u );
+  auto ins = [&](auto const& log) {
+    data_.insert(log);
+    liic.updateAfterInsertion( log.key() );
+  };
+
+  ins( makeLog(42, "aaa") );
+  CHECK( liic.size() == 0u );
+
+  ins( makeLog(43, "bbb") );
+  CHECK( liic.size() == 0u );
+
+  ins( makeLog(44, "ccc") );
+  CHECK( liic.size() == 1u );
+
+  ins( makeLog(45, "ddd") );
+  CHECK( liic.size() == 1u );
+
+  ins( makeLog(46, "eee") );
+  CHECK( liic.size() == 1u );
+
+  ins( makeLog(47, "fff") );
+  CHECK( liic.size() == 2u );
+}
+
 }
 }

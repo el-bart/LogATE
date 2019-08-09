@@ -12,8 +12,9 @@ class LogKeyIndexCache final
 public:
   using Data = std::set<Log, OrderByKey>;
 
-  explicit LogKeyIndexCache(Data const* data):
-    data_{data}
+  explicit LogKeyIndexCache(Data const* data, const size_t insertEveryNth = 100'000):
+    data_{data},
+    insertEveryNth_{insertEveryNth}
   {
     BUT_ASSERT(data_);
   }
@@ -42,6 +43,8 @@ private:
   };
 
   Data const* data_;
+  size_t insertEveryNth_;
+  size_t insertionCounter_{0};
   std::vector<Entry> cache_;
 };
 
