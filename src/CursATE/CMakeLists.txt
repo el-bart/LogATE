@@ -29,6 +29,7 @@ add_library(CursATEimpl
   Screen/detail/id2key.cpp
   Screen/detail/splitIntoLines.cpp
   Main.cpp
+  extractConfig.cpp
 )
 target_include_directories(CursATEimpl PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(CursATEimpl

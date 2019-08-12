@@ -14,8 +14,8 @@ auto threadsCount()
 
 }
 
-Main::Main(const LogATE::Net::Port port):
-  server_{workers_, port, LogATE::Net::TcpServer::JsonParsingMode::ParseToEndOfJson},
+Main::Main(Config const& config):
+  server_{workers_, config.port_, config.jsonParsingMode_},
   logList_{ workers_, [&] { return server_.errors(); } },
   root_{ logList_.root() }
 {

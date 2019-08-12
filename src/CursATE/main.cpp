@@ -1,14 +1,15 @@
 #include "CursATE/Main.hpp"
+#include "CursATE/extractConfig.hpp"
 #include <iostream>
 
 using LogATE::Net::Port;
 
 
-int main()
+int main(int argc, char** argv)
 {
   try
   {
-    CursATE::Main main{Port{4242}};
+    CursATE::Main main{ CursATE::extractConfig(argc, argv) };
     main.run();
   }
   catch(std::exception const& ex)

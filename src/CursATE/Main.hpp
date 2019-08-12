@@ -1,9 +1,9 @@
 #pragma once
-#include "LogATE/Net/Port.hpp"
 #include "LogATE/Net/TcpServer.hpp"
 #include "LogATE/Tree/Node.hpp"
 #include "CursATE/Curses/Init.hpp"
 #include "CursATE/Screen/LogList.hpp"
+#include "CursATE/Config.hpp"
 #include <But/Threading/JoiningThread.hpp>
 #include <atomic>
 
@@ -14,7 +14,7 @@ namespace CursATE
 class Main final
 {
 public:
-  explicit Main(LogATE::Net::Port port);
+  explicit Main(Config const& config);
   ~Main();
 
   Main(Main const&) = delete;
