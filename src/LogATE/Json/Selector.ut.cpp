@@ -2,6 +2,9 @@
 #include "LogATE/Json/Selector.hpp"
 
 using LogATE::Json::Selector;
+using LogATE::Json::NewLineSplit;
+using UnexpectedCharacter = LogATE::Json::UnexpectedCharacter;
+using UnexpectedEndOfStream = LogATE::Json::UnexpectedEndOfStream;
 
 //#define PARSER_DETECTS_ELABORATE_ERRORS
 
@@ -18,7 +21,14 @@ struct Fixture
       s_.update(c);
   }
 
+  void updateNls(std::string const& in)
+  {
+    for(auto c: in)
+      nls_.update(c);
+  }
+
   Selector s_;
+  NewLineSplit nls_;
 };
 
 
@@ -39,9 +49,9 @@ TEST_CASE_FIXTURE(Fixture, "initial state is empty")
 #ifdef PARSER_DETECTS_ELABORATE_ERRORS
 TEST_CASE_FIXTURE(Fixture, "cannot start with an unknown character")
 {
-  CHECK_THROWS_AS( s_.update('x'), Selector::UnexpectedCharacter );
-  CHECK_THROWS_AS( s_.update('q'), Selector::UnexpectedCharacter );
-  CHECK_THROWS_AS( s_.update('!'), Selector::UnexpectedCharacter );
+  CHECK_THROWS_AS( s_.update('x'), UnexpectedCharacter );
+  CHECK_THROWS_AS( s_.update('q'), UnexpectedCharacter );
+  CHECK_THROWS_AS( s_.update('!'), UnexpectedCharacter );
 }
 #endif
 
@@ -112,7 +122,7 @@ TEST_CASE_FIXTURE(Fixture, "parsing boolean true value")
 TEST_CASE_FIXTURE(Fixture, "parsing invalid boolean true value")
 {
   update(R"(tr)");
-  CHECK_THROWS_AS( s_.update('X'), Selector::InvalidBoolean );
+  CHECK_THROWS_AS( s_.update('X'), InvalidBoolean );
 }
 #endif
 
@@ -129,7 +139,7 @@ TEST_CASE_FIXTURE(Fixture, "parsing boolean false value")
 TEST_CASE_FIXTURE(Fixture, "parsing invalid boolean false value")
 {
   update(R"(fal)");
-  CHECK_THROWS_AS( s_.update('X'), Selector::InvalidBoolean );
+  CHECK_THROWS_AS( s_.update('X'), InvalidBoolean );
 }
 #endif
 
@@ -146,9 +156,9 @@ TEST_CASE_FIXTURE(Fixture, "parsing null")
 TEST_CASE_FIXTURE(Fixture, "parsing invalid null")
 {
   update(R"(nu)");
-  CHECK_THROWS_AS( s_.update('X'), Selector::InvalidNull );
+  CHECK_THROWS_AS( s_.update('X'), InvalidNull );
   s_.update('l');
-  CHECK_THROWS_AS( s_.update('X'), Selector::InvalidNull );
+  CHECK_THROWS_AS( s_.update('X'), InvalidNull );
 }
 #endif
 
@@ -175,7 +185,7 @@ TEST_CASE_FIXTURE(Fixture, "end of stream")
   {
     update(R"("xx)");
     CHECK( not s_.jsonComplete() );
-    CHECK_THROWS_AS( s_.eos(), Selector::UnexpectedEndOfStream );
+    CHECK_THROWS_AS( s_.eos(), UnexpectedEndOfStream );
   }
 }
 
@@ -269,7 +279,7 @@ TEST_CASE_FIXTURE(Fixture, "parsing invalid object throws")
   SUBCASE("missing end bracket")
   {
     update("{");
-    CHECK_THROWS_AS( s_.eos(), Selector::UnexpectedEndOfStream );
+    CHECK_THROWS_AS( s_.eos(), UnexpectedEndOfStream );
     CHECK( not s_.jsonComplete() );
     CHECK( s_.str() == "{" );
   }
@@ -277,21 +287,21 @@ TEST_CASE_FIXTURE(Fixture, "parsing invalid object throws")
   SUBCASE("key must be a string")
   {
     update("{ ");
-    CHECK_THROWS_AS( s_.update('4'), Selector::UnexpectedCharacter );
+    CHECK_THROWS_AS( s_.update('4'), UnexpectedCharacter );
     CHECK( not s_.jsonComplete() );
     CHECK( s_.str() == "{" );
   }
   SUBCASE("collon is a must")
   {
     update(R"({ "foo" )");
-    CHECK_THROWS_AS( s_.update('4'), Selector::UnexpectedCharacter );
+    CHECK_THROWS_AS( s_.update('4'), UnexpectedCharacter );
     CHECK( not s_.jsonComplete() );
     CHECK( s_.str() == R"({"foo")" );
   }
   SUBCASE("object must be key-value")
   {
     update(R"({ "foo" )");
-    CHECK_THROWS_AS( s_.update('}'), Selector::UnexpectedCharacter );
+    CHECK_THROWS_AS( s_.update('}'), UnexpectedCharacter );
     CHECK( not s_.jsonComplete() );
     CHECK( s_.str() == R"({"foo")" );
   }
@@ -357,7 +367,7 @@ TEST_CASE_FIXTURE(Fixture, "parsing invalid array throws")
   SUBCASE("missing array closing")
   {
     update(" [ ");
-    CHECK_THROWS_AS( s_.eos(), Selector::UnexpectedEndOfStream );
+    CHECK_THROWS_AS( s_.eos(), UnexpectedEndOfStream );
     CHECK( not s_.jsonComplete() );
     CHECK( s_.str() == R"([)" );
   }
@@ -365,7 +375,7 @@ TEST_CASE_FIXTURE(Fixture, "parsing invalid array throws")
   {
     update(" [ false , ");
 #ifdef PARSER_DETECTS_ELABORATE_ERRORS
-    CHECK_THROWS_AS( s_.update('x'), Selector::UnexpectedCharacter );
+    CHECK_THROWS_AS( s_.update('x'), UnexpectedCharacter );
 #endif
     CHECK( not s_.jsonComplete() );
     CHECK( s_.str() == R"([false,)" );
@@ -386,6 +396,72 @@ TEST_CASE_FIXTURE(Fixture, "parsing nested elements")
     update(R"( [ 42, { "raspberry": 3.14 }, { "true": false } ] )");
     CHECK( s_.jsonComplete() );
     CHECK( s_.str() == R"([42,{"raspberry":3.14},{"true":false}])" );
+  }
+}
+
+
+TEST_CASE_FIXTURE(Fixture, "NLS detects JSON object correctly, in a single line")
+{
+  SUBCASE("nested objects")
+  {
+    updateNls(R"( { "narf" : { "foo" : "bar" } } )");
+    CHECK( nls_.jsonComplete() );
+    CHECK( nls_.str() == R"({"narf":{"foo":"bar"}})" );
+  }
+  SUBCASE("array of objects")
+  {
+    updateNls(R"( [ 42, { "raspberry": 3.14 }, { "true": false } ] )");
+    CHECK( nls_.jsonComplete() );
+    CHECK( nls_.str() == R"([42,{"raspberry":3.14},{"true":false}])" );
+  }
+}
+
+
+TEST_CASE_FIXTURE(Fixture, "NLS can handle multiple JSONs in a single line")
+{
+  SUBCASE("nested objects")
+  {
+    updateNls(R"( { "narf" : { "foo" : "bar" } } )");
+    CHECK( nls_.jsonComplete() );
+    CHECK( nls_.str() == R"({"narf":{"foo":"bar"}})" );
+    nls_.reset();
+    updateNls(R"( { "answer": 42 } )");
+    CHECK( nls_.jsonComplete() );
+    CHECK( nls_.str() == R"({"answer":42})" );
+  }
+  SUBCASE("array of objects")
+  {
+    updateNls(R"( [ 42, { "raspberry": 3.14 }, { "true": false } ] )");
+    CHECK( nls_.jsonComplete() );
+    CHECK( nls_.str() == R"([42,{"raspberry":3.14},{"true":false}])" );
+    nls_.reset();
+
+    updateNls(R"( [ 41, 43])");
+    CHECK( nls_.jsonComplete() );
+    CHECK( nls_.str() == R"([41,43])" );
+  }
+}
+
+
+TEST_CASE_FIXTURE(Fixture, "NLS mode will break JSON on new line")
+{
+  const auto nl = std::string{"\n"};
+  SUBCASE("new line is not a JSON")
+  {
+    updateNls(nl+nl);
+    CHECK( nls_.jsonComplete() == false );
+  }
+  SUBCASE("breaking in the middle of an object")
+  {
+    updateNls(R"({ "foo":  )" + nl);
+    CHECK( nls_.jsonComplete() == true );
+    CHECK( nls_.str() == R"({"foo":)" );
+  }
+  SUBCASE("breaking in the middle of an string")
+  {
+    updateNls(R"({ "foo": "oops)" + nl);
+    CHECK( nls_.jsonComplete() == true );
+    CHECK( nls_.str() == R"({"foo":"oops)" );
   }
 }
 

@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.0)
 project(LogATE)
 
 add_library(LogATE
-  Json/Selector.cpp
   Log.cpp
   Net/Socket.cpp
   Net/SocketDescriptorPair.cpp
