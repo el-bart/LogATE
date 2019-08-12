@@ -69,7 +69,7 @@ void TcpServer::workerLoop()
     }
     catch(...)
     {
-      ++errors_;
+      ++*errors_;
       // what can we do aside from disconnection? :/
     }
   }
@@ -143,18 +143,26 @@ void TcpServer::queueJsonsForParsing(std::vector<std::string>& jsons)
   if( not waitForQueueSizeLowEnough() )
     return;
 
-  workers_->enqueue( [queue = queue_, c = std::move(tmp), quit = quit_, keyPath = keyPath_] {
+  workers_->enqueue( [queue = queue_, c = std::move(tmp), quit = quit_, keyPath = keyPath_, errors = errors_] {
     for(auto&& str: std::move(c))
     {
-      if(*quit)
-        return;
-      auto log = AnnotatedLog{ std::move(str), keyPath };   // TODO: sequence number should be preserved from original input...
-      auto opt = But::Optional<AnnotatedLog>{ std::move(log) };
-      Queue::lock_type lock{*queue};
-      while( not queue->waitForSizeBelow(750'000, lock, std::chrono::seconds{1}) )
+      try
+      {
         if(*quit)
           return;
-      queue->push( std::move(opt) );
+        auto log = AnnotatedLog{ std::move(str), keyPath };   // TODO: sequence number should be preserved from original input...
+        auto opt = But::Optional<AnnotatedLog>{ std::move(log) };
+        Queue::lock_type lock{*queue};
+        while( not queue->waitForSizeBelow(750'000, lock, std::chrono::seconds{1}) )
+          if(*quit)
+            return;
+        queue->push( std::move(opt) );
+      }
+      catch(...)
+      {
+        ++*errors;
+        // incorrect JSON may get accepted by a selector - this will detect this has happened
+      }
     }
   } );
 }
@@ -183,7 +191,7 @@ bool TcpServer::processInputData(Selector& selector,
     catch(...)
     {
       selector.reset();
-      ++errors_;
+      ++*errors_;
       // ignore any parse erorrs. if stream is disconnected, this will be detected next time loop condition is checked.
     }
   }

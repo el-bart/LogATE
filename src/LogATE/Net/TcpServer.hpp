@@ -32,7 +32,7 @@ public:
 
   But::Optional<AnnotatedLog> readNextLog() override;
   void interrupt() override;
-  size_t errors() const override { return errors_; }
+  size_t errors() const override { return *errors_; }
 
 private:
   using Clock = std::chrono::steady_clock;
@@ -49,7 +49,7 @@ private:
   bool processInputIfReady(std::vector<std::string>& inputJsons, Clock::time_point deadline);
 
   const JsonParsingMode jsonParsingMode_;
-  std::atomic<size_t> errors_{0};
+  But::NotNullShared<std::atomic<size_t>> errors_{ But::makeSharedNN<std::atomic<size_t>>(0) };
   But::NotNullShared<std::atomic<bool>> quit_{ But::makeSharedNN<std::atomic<bool>>(false) };
   std::chrono::milliseconds bulkPackageTimeout_;
   const Tree::Path keyPath_{ Tree::Path::parse(".But::PreciseDT") };    // TODO: temporary hardcode...

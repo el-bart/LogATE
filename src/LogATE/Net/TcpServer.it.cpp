@@ -154,5 +154,33 @@ TEST_CASE_FIXTURE(Fixture, "server can be stopped even when client is in a middl
   s.interrupt();
 }
 
+
+TEST_CASE_FIXTURE(Fixture, "server recovers from an error in one of the JSONs")
+{
+  TcpServer s{workers_, port_, parseMode_, serverTimeout_};
+  TcpRawClient c{host_, port_};
+
+  c.write( log1_.dump() );
+  c.write( "{{}}" );
+  c.write( log2_.dump() );
+
+  {
+    const auto log = s.readNextLog();
+    REQUIRE( static_cast<bool>(log) );
+    CHECK( log->json() == log1_ );
+  }
+
+  {
+    const auto log = s.readNextLog();
+    REQUIRE( static_cast<bool>(log) );
+    CHECK( log->json() == log2_ );
+  }
+
+  CHECK( s.errors() == 1 );
+}
+
+
+// TODO: test hard break on a new line mode
+
 }
 }
