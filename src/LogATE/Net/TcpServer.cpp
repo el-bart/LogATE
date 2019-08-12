@@ -1,4 +1,5 @@
 #include "LogATE/Net/TcpServer.hpp"
+#include "LogATE/Json/Selector.hpp"
 #include <chrono>
 
 namespace LogATE::Net
@@ -6,7 +7,9 @@ namespace LogATE::Net
 
 TcpServer::TcpServer(Utils::WorkerThreadsShPtr workers,
                      const Port port,
+                     const JsonParsingMode jsonParsingMode,
                      std::chrono::milliseconds bulkPackageTimeout):
+  jsonParsingMode_{jsonParsingMode},
   bulkPackageTimeout_{bulkPackageTimeout},
   workers_{ std::move(workers) },
   server_{port},
@@ -53,7 +56,16 @@ void TcpServer::workerLoop()
       auto client = server_.accept();
       if(not client)
         continue;
-      processClient(*client);
+
+      switch(jsonParsingMode_)
+      {
+        case JsonParsingMode::ParseToEndOfJson:
+             processClient<Json::Selector>(*client);
+             break;
+        case JsonParsingMode::HardBreakOnNewLine:
+             processClient<Json::NewLineSplit>(*client);
+             break;
+      }
     }
     catch(...)
     {
@@ -64,9 +76,10 @@ void TcpServer::workerLoop()
 }
 
 
+template<typename Selector>
 void TcpServer::processClient(Socket& socket)
 {
-  selector_.reset();
+  Selector selector;
   std::vector<std::string> inputJsons;
   auto deadline = Clock::now() + bulkPackageTimeout_;
   while(not *quit_)
@@ -88,7 +101,7 @@ void TcpServer::processClient(Socket& socket)
            sendOutRemainingLogs( std::move(inputJsons) );
            return;
     }
-    if( processInputData(inputJsons, ret.second, deadline) )
+    if( processInputData(selector, inputJsons, ret.second, deadline) )
       deadline += bulkPackageTimeout_;
   }
 }
@@ -147,25 +160,29 @@ void TcpServer::queueJsonsForParsing(std::vector<std::string>& jsons)
 }
 
 
-bool TcpServer::processInputData(std::vector<std::string>& inputJsons, std::string_view const& str, const Clock::time_point deadline)
+template<typename Selector>
+bool TcpServer::processInputData(Selector& selector,
+                                 std::vector<std::string>& inputJsons,
+                                 std::string_view const& str,
+                                 const Clock::time_point deadline)
 {
   auto dataSent = false;
   for(auto c: str)
   {
     try
     {
-      selector_.update(c);
-      if( not selector_.jsonComplete() )
+      selector.update(c);
+      if( not selector.jsonComplete() )
         continue;
-      inputJsons.push_back( std::string{ selector_.str() } );
-      selector_.reset();
+      inputJsons.push_back( std::string{ selector.str() } );
+      selector.reset();
 
       if( processInputIfReady(inputJsons, deadline) )
         dataSent = true;
     }
     catch(...)
     {
-      selector_.reset();
+      selector.reset();
       ++errors_;
       // ignore any parse erorrs. if stream is disconnected, this will be detected next time loop condition is checked.
     }

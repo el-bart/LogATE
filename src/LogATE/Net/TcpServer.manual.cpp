@@ -18,7 +18,8 @@ void signalHandler(int sig)
 int main()
 {
   const auto workers = But::makeSharedNN<LogATE::Utils::WorkerThreads>();
-  auto server = std::make_shared<LogATE::Net::TcpServer>(workers, LogATE::Net::Port{6666});
+  const auto parseMode = LogATE::Net::TcpServer::JsonParsingMode::ParseToEndOfJson;
+  auto server = std::make_shared<LogATE::Net::TcpServer>(workers, LogATE::Net::Port{6666}, parseMode);
   g_serverPtr = server;
   for(auto sig: {SIGTERM, SIGHUP, SIGINT})
     if( signal(sig, signalHandler) == SIG_ERR )

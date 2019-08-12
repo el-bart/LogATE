@@ -13,7 +13,8 @@ int main()
 {
   const auto port = LogATE::Net::Port{6666};
   const auto workers = But::makeSharedNN<LogATE::Utils::WorkerThreads>();
-  LogATE::Net::TcpServer server{workers, port};
+  const auto parseMode = LogATE::Net::TcpServer::JsonParsingMode::ParseToEndOfJson;
+  LogATE::Net::TcpServer server{workers, port, parseMode};
   LogATE::Net::TcpRawClient client{"127.0.0.1", port};
   const auto N = 1'000'000u;
 
