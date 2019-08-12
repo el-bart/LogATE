@@ -20,6 +20,7 @@
 * `Filter::Grep` should support empty path, as a mean of defining "any path"
 * make `Net::TcpServer` use `Path` as a parameter, instead of a hardcoded value.
 * add parallel processing of filters data (now it is possible, since we no longer need to write at the end only, to preserve global order!)
+* add an pre-parser option to JSON, to force-finish parsing uppon a new line.
 
 
 ## UI
