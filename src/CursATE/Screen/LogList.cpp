@@ -27,14 +27,6 @@ namespace CursATE::Screen
 
 namespace
 {
-auto makePrinter()
-{
-  // TODO: temporary hardcode
-  OrderedPrettyPrint::SilentTags silent{{"But::PreciseDT", "Priority", "ComponentId", "UniqueId", "string"}};
-  OrderedPrettyPrint::PriorityTags prio{{"But::PreciseDT", "Priority", "ComponentId", "UniqueId", "But::ThreadNo", "string"}};
-  return OrderedPrettyPrint{ std::move(silent), std::move(prio) };
-}
-
 std::function<std::string()> threadsStats(LogATE::Utils::WorkerThreadsShPtr const& workers)
 {
   auto wp = std::weak_ptr<LogATE::Utils::WorkerThreads>{ workers.underlyingPointer() };
@@ -47,10 +39,12 @@ std::function<std::string()> threadsStats(LogATE::Utils::WorkerThreadsShPtr cons
 }
 }
 
-LogList::LogList(LogATE::Utils::WorkerThreadsShPtr workers, std::function<size_t()> inputErrors):
+LogList::LogList(LogATE::Utils::WorkerThreadsShPtr workers,
+                 std::function<size_t()> inputErrors,
+                 std::function<std::string(LogATE::Log const&)> log2str):
   search_{workers},
   filterFactory_{workers},
-  filterWindows_{ makePrinter(), std::move(inputErrors), threadsStats(workers) },
+  filterWindows_{ std::move(log2str), std::move(inputErrors), threadsStats(workers) },
   root_{ filterFactory_.build( FilterFactory::Type{"AcceptAll"}, FilterFactory::Name{"all logs"}, FilterFactory::Options{} ) },
   currentNode_{root_},
   currentWindow_{ filterWindows_.window(currentNode_) }

@@ -26,6 +26,7 @@ public:
 
   TcpServer(Utils::WorkerThreadsShPtr workers,
             Port port,
+            Tree::Path keyPath,
             JsonParsingMode jsonParsingMode,
             std::chrono::milliseconds bulkPackageTimeout = std::chrono::milliseconds{500});
   ~TcpServer();
@@ -52,7 +53,7 @@ private:
   But::NotNullShared<std::atomic<size_t>> errors_{ But::makeSharedNN<std::atomic<size_t>>(0) };
   But::NotNullShared<std::atomic<bool>> quit_{ But::makeSharedNN<std::atomic<bool>>(false) };
   std::chrono::milliseconds bulkPackageTimeout_;
-  const Tree::Path keyPath_{ Tree::Path::parse(".But::PreciseDT") };    // TODO: temporary hardcode...
+  const Tree::Path keyPath_;
   But::NotNullShared<Queue> queue_{ But::makeSharedNN<Queue>() };
   Utils::WorkerThreadsShPtr workers_;
   detail::TcpServerImpl server_;

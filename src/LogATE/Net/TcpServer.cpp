@@ -7,10 +7,12 @@ namespace LogATE::Net
 
 TcpServer::TcpServer(Utils::WorkerThreadsShPtr workers,
                      const Port port,
+                     Tree::Path keyPath,
                      const JsonParsingMode jsonParsingMode,
                      std::chrono::milliseconds bulkPackageTimeout):
   jsonParsingMode_{jsonParsingMode},
   bulkPackageTimeout_{bulkPackageTimeout},
+  keyPath_{keyPath},
   workers_{ std::move(workers) },
   server_{port},
   workerThread_{ [this]{ this->workerLoop(); } }

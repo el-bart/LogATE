@@ -1,4 +1,5 @@
 #include "CursATE/Main.hpp"
+#include "LogATE/Printers/OrderedPrettyPrint.hpp"
 
 namespace CursATE
 {
@@ -12,11 +13,15 @@ auto threadsCount()
   return preferred;
 }
 
+auto makePrinter(Config const& config)
+{
+  return LogATE::Printers::OrderedPrettyPrint{config.silentTags_, config.priorityTags_};
+}
 }
 
 Main::Main(Config const& config):
-  server_{workers_, config.port_, config.jsonParsingMode_},
-  logList_{ workers_, [&] { return server_.errors(); } },
+  server_{workers_, config.port_, config.keyPath_, config.jsonParsingMode_},
+  logList_{ workers_, [&] { return server_.errors(); }, makePrinter(config) },
   root_{ logList_.root() }
 {
   const auto threads = threadsCount();
