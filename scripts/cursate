@@ -1,3 +1,8 @@
 #!/bin/bash -ex
 TAG=$(docker image ls | grep '^cursate\>' | head -1 | awk '{ print $2 }')
-exec docker run -it --rm -p 4242:4242 "cursate:$TAG"
+exec docker run -it --rm -p 4242:4242 "cursate:$TAG" \
+       --port 4242 \
+       --parse-by-line \
+       --key-path ".But::PreciseDT" \
+       --silent-tags '["But::PreciseDT", "Priority", "ComponentId", "UniqueId", "string"]' \
+       --priority-tags '["But::PreciseDT", "Priority", "ComponentId", "UniqueId", "But::ThreadNo", "string"]'
