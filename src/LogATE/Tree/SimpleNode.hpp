@@ -9,7 +9,7 @@ class SimpleNode: public Node
 public:
   bool insert(AnnotatedLog const& log) override final;
   Children children() const override final;
-  bool remove(NodeShPtr node) override final;
+  std::shared_ptr<Node> remove(NodeShPtr node) override final;
 
 protected:
   SimpleNode(Utils::WorkerThreadsShPtr workers, Type type, Name name, TrimFields trimFields):

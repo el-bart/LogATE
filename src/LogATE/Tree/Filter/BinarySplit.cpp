@@ -27,7 +27,7 @@ BinarySplit::Children BinarySplit::children() const
 }
 
 
-bool BinarySplit::remove(NodeShPtr node)
+std::shared_ptr<Node> BinarySplit::remove(NodeShPtr node)
 {
   BUT_THROW(ExplicitNodeRemoveNotSupported, "while trying to remove node: " << node->name().value_);
 }

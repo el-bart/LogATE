@@ -16,7 +16,7 @@ public:
 
   bool insert(AnnotatedLog const& log) override;
   Children children() const override;
-  bool remove(NodeShPtr node) override;
+  std::shared_ptr<Node> remove(NodeShPtr node) override;
 
   static auto nonMatchingChildName() { return Name{"<unmatched>"}; }
 

@@ -38,7 +38,7 @@ public:
 
   virtual Children children() const = 0;
   NodeShPtr add(NodePtr node);
-  virtual bool remove(NodeShPtr node) = 0;
+  virtual std::shared_ptr<Node> remove(NodeShPtr node) = 0;
 
   auto const& name() const { return name_; }
   auto const& type() const { return type_; }

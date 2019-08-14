@@ -61,7 +61,7 @@ Explode::Children Explode::children() const
 }
 
 
-bool Explode::remove(NodeShPtr node)
+std::shared_ptr<Node> Explode::remove(NodeShPtr node)
 {
   BUT_THROW(ExplicitNodeRemoveNotSupported, "while trying to remove node: " << node->name().value_);
 }

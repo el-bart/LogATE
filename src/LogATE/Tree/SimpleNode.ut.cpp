@@ -122,15 +122,15 @@ TEST_CASE_FIXTURE(Fixture, "cascading log through children works")
   SUBCASE("removal of existing child works")
   {
     const auto node = f2_.children()[0];
-    CHECK( f2_.remove(node) == true );
+    CHECK( f2_.remove(node).get() == node.get() );
     CHECK( f2_.children().size() == 1 );
   }
 
   SUBCASE("double-removal of a child does not do anything")
   {
     const auto node = f2_.children()[0];
-    CHECK( f2_.remove(node) == true );
-    CHECK( f2_.remove(node) == false );
+    CHECK( f2_.remove(node).get() == node.get() );
+    CHECK( f2_.remove(node).get() == nullptr );
     CHECK( f2_.children().size() == 1 );
   }
 }

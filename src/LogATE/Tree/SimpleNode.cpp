@@ -20,16 +20,17 @@ SimpleNode::Children SimpleNode::children() const
 }
 
 
-bool SimpleNode::remove(NodeShPtr node)
+std::shared_ptr<Node> SimpleNode::remove(NodeShPtr node)
 {
   const Lock lock{mutex_};
   for(auto it=begin(children_); it!=end(children_); ++it)
     if( it->get() == node.get() )
     {
+      auto ptr = *it;
       children_.erase(it);
-      return true;
+      return ptr.underlyingPointer();
     }
-  return false;
+  return {};
 }
 
 
