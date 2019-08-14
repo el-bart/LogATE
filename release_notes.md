@@ -1,6 +1,7 @@
 # release notes
 
 ## dev
+* fixed off-by-one bug when doing reverse search (previous element was never checked).
 * fixed annoying bug when a canceled search resulted with a "not found" error dialog.
 * all logs are now sorted by `key path` (user-defined JSON path to a date-time field, that is used as a sort criteria).
 * usual PAS' hardcodes are now exposed as command line options.

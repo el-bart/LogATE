@@ -106,6 +106,10 @@ struct SearchQuery
 };
 
 
+template<typename It>
+auto nextIt(It it) { return ++it; }
+
+
 auto extractLogs(LogATE::Tree::NodeShPtr node, LogATE::Log::Key const& currentSelection, const Search::Direction dir)
 {
   using Out = std::vector<Log>;
@@ -113,8 +117,14 @@ auto extractLogs(LogATE::Tree::NodeShPtr node, LogATE::Log::Key const& currentSe
   const auto it = ll->find(currentSelection);
   switch(dir)
   {
-    case Search::Direction::Forward:  return Out{it, ll->end()};
-    case Search::Direction::Backward: return Out{ LogATE::Tree::Logs::const_reverse_iterator{it}, ll->rend() };
+    case Search::Direction::Forward:
+         if( it == ll->end() )
+           return Out{};
+         return Out{ nextIt(it), ll->end()};
+    case Search::Direction::Backward:
+         if( it == ll->begin() )
+           return Out{};
+         return Out{ LogATE::Tree::Logs::const_reverse_iterator{it}, ll->rend() };
   }
   BUT_ASSERT(!"invalid search direction");
   throw std::logic_error{"unknown value for Search::Direction"};

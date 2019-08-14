@@ -230,49 +230,6 @@ void LogList::processSearch(const Search::Direction dir)
 }
 
 
-namespace
-{
-template<typename It>
-auto nextIt(It it) { return ++it; }
-template<typename It>
-auto prevIt(It it) { return --it; }
-
-auto nextKey(LogATE::Tree::NodeShPtr node, LogATE::Log::Key const& now)
-{
-  const auto ll = node->logs().withLock();
-  const auto it = ll->find(now);
-  if( it == ll->end() )
-    return now;
-  const auto next = nextIt(it);
-  if( next == ll->end() )
-    return now;
-  return next->key();
-}
-
-auto prevKey(LogATE::Tree::NodeShPtr node, LogATE::Log::Key const& now)
-{
-  const auto ll = node->logs().withLock();
-  const auto it = ll->find(now);
-  if( it == ll->end() )
-    return now;
-  if( it == ll->begin() )
-    return it->key();
-  const auto prev = prevIt(it);
-  return prev->key();
-}
-
-auto moveKey(LogATE::Tree::NodeShPtr node, LogATE::Log::Key const& now, const Search::Direction dir)
-{
-  switch(dir)
-  {
-    case Search::Direction::Forward:  return nextKey( std::move(node), now );
-    case Search::Direction::Backward: return prevKey( std::move(node), now );
-  }
-  BUT_ASSERT(!"unkonw value of Search::Direction");
-  throw std::logic_error{"unkonw value of Search::Direction when findinf adjisent iterator"};
-}
-}
-
 void LogList::processSearchAgain(const Search::Direction dir)
 {
   currentWindow_->forceNextRefresh();
@@ -282,8 +239,7 @@ void LogList::processSearchAgain(const Search::Direction dir)
     displayError({"window is empty"});
     return;
   }
-  const auto start = moveKey( currentNode_, id2key(*selected), dir );
-  const auto ret = search_.processAgain( currentNode_, start, dir );
+  const auto ret = search_.processAgain( currentNode_, id2key(*selected), dir );
   processSearchResult(ret);
 }
 
