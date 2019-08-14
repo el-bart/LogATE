@@ -307,7 +307,10 @@ But::Optional<std::tuple<std::string, LogATE::Net::Port, std::string>> hostPortD
                           {'p', "Port"},
                           {'f', "Format"},
                           {'o', "ok"},
-                          {'q', "quit"}
+                          {ctrl('o'), "ok"},
+                          {'q', "quit"},
+                          {'e', "quit"},
+                          {ctrl('e'), "quit"}
                         },
                         Input{"Host", "127.0.0.1"},
                         Input{"Port", "6666"},

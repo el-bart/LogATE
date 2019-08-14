@@ -111,7 +111,9 @@ But::Optional<std::string> selectFilter()
                                   {'t', names[4]},
                                   {'a', names[5]},
                                   {'c', "cancel"},
-                                  {'q', "cancel"}
+                                  {'q', "cancel"},
+                                  {'e', "cancel"},
+                                  {ctrl('e'), "cancel"}
                                 },
                     Button{names[0]},
                     Button{names[1]},
@@ -162,7 +164,9 @@ std::unique_ptr<LogATE::Tree::Node> createGrepCommon(detail::LogEntryDataSource 
                                   {'t', "Trim"},
                                   {'o', "ok"},
                                   {ctrl('o'), "ok"},
-                                  {'q', "quit"}
+                                  {'q', "quit"},
+                                  {'e', "quit"},
+                                  {ctrl('e'), "quit"}
                                 },
                     Input{ "Name", namePrefix + " " + ds.id2path(id).str() },
                     Input{ "Path", ds.id2path(id).str() },
@@ -221,7 +225,9 @@ std::unique_ptr<LogATE::Tree::Node> createExplode(detail::LogEntryDataSource con
                                   {'p', "Path"},
                                   {'o', "ok"},
                                   {ctrl('o'), "ok"},
-                                  {'q', "quit"}
+                                  {'q', "quit"},
+                                  {'e', "quit"},
+                                  {ctrl('e'), "quit"}
                                 },
                     Input{ "Name", "explode " + ds.id2path(id).str() },
                     Input{ "Path", ds.id2path(id).str() },
@@ -251,11 +257,13 @@ std::unique_ptr<LogATE::Tree::Node> createFrom(FilterFactory& ff, Curses::DataSo
 {
   auto form = Form{ KeyShortcuts{
                                   {'n', "Name"},
-                                  {'e', "Edge"},
+                                  {'p', "Edge"},
                                   {'s', "Edge"},
                                   {'o', "ok"},
                                   {ctrl('o'), "ok"},
-                                  {'q', "quit"}
+                                  {'q', "quit"},
+                                  {'e', "quit"},
+                                  {ctrl('e'), "quit"}
                                 },
                     Input{ "Name", "from " + id.value_ },
                     Input{ "Edge", id.value_ },
@@ -285,11 +293,13 @@ std::unique_ptr<LogATE::Tree::Node> createTo(FilterFactory& ff, Curses::DataSour
 {
   auto form = Form{ KeyShortcuts{
                                   {'n', "Name"},
-                                  {'e', "Edge"},
+                                  {'p', "Edge"},
                                   {'s', "Edge"},
                                   {'o', "ok"},
                                   {ctrl('o'), "ok"},
-                                  {'q', "quit"}
+                                  {'q', "quit"},
+                                  {'e', "quit"},
+                                  {ctrl('e'), "quit"}
                                 },
                     Input{ "Name", "to " + id.value_ },
                     Input{ "Edge", id.value_ },
@@ -322,7 +332,9 @@ std::unique_ptr<LogATE::Tree::Node> createAcceptAll(FilterFactory& ff)
                                   {'t', "Trim"},
                                   {'o', "ok"},
                                   {ctrl('o'), "ok"},
-                                  {'q', "quit"}
+                                  {'q', "quit"},
+                                  {'e', "quit"},
+                                  {ctrl('e'), "quit"}
                                 },
                     Input{ "Name", "accept all" },
                     Input{ "Trim", "" },

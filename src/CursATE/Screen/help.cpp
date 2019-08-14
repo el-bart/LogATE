@@ -49,7 +49,8 @@ auto options()
       "  ?            - open search key/value window - backward search",
       "  n            - repeat last search forward (select Next match)",
       "  N            - repeat last search backward",
-      "  p            - Pipe logs to a given host:port as JSON or human-readable text"
+      "  p            - Pipe logs to a given host:port as JSON or human-readable text",
+      "  home/end     - move to first/last log in a given view",
       "",
       "",
       "### filter tree window",
@@ -62,9 +63,16 @@ auto options()
       "  enter        - alias for 'f' key"
       "",
       "",
-      "### input forms",
+      "### forms/dialogs",
+      "  ^o/o         - Ok (confirm)",
+      "  ^e/e         - Exit (cancel/abort)",
+      "",
+      "",
+      "### input form fiends",
       "  ^DEL         - delete all characters from current position, to the EOL",
-      "  ^BACKSPACE   - delete all characters from current position to the beging of the line"
+      "  ^BACKSPACE   - delete all characters from current position to the beging of the line",
+      "  home/end     - move to first/last position in the input field",
+      "  ^home/^end   - move to first/last field of form"
     };
   return out;
 }
