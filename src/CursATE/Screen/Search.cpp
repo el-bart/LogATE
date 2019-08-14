@@ -79,7 +79,7 @@ struct SearchQuery
     for(auto& log: logs_)
     {
       if(monitor_->abort_)
-        return Search::Result::notFound();
+        return Search::Result::canceled();
 
       auto found = false;
       switch(mode)
