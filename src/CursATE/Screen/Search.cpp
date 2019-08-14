@@ -149,7 +149,7 @@ Search::Result Search::triggerSearch(LogATE::Tree::NodeShPtr node,
     return ret.get();
   ProgressBar pb{monitor};
   if( not pb.process() )
-    return Result::notFound();
+    return Result::canceled();
   return ret.get();
 }
 
