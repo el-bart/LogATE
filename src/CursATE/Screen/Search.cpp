@@ -2,12 +2,14 @@
 #include "CursATE/Screen/ProgressBar.hpp"
 #include "CursATE/Screen/help.hpp"
 #include "CursATE/Curses/Form.hpp"
+#include "CursATE/Curses/ctrl.hpp"
 #include "LogATE/Utils/matchesLog.hpp"
 
 using LogATE::Log;
 using LogATE::Utils::matchesAnyKey;
 using LogATE::Utils::matchesAnyValue;
 using LogATE::Utils::matchesAnyKeyValue;
+using CursATE::Curses::ctrl;
 
 
 namespace CursATE::Screen
@@ -37,10 +39,13 @@ bool Search::updateSearchPattern()
 {
   auto form = Curses::makeForm(
         Curses::KeyShortcuts{
-          {'o', "search"},
           {'s', "search"},
+          {'o', "search"},
+          {ctrl('o'), "search"},
           {'c', "cancel"},
-          {'q', "cancel"}
+          {'q', "cancel"},
+          {'e', "cancel"},
+          {ctrl('e'), "cancel"}
         },
         Curses::Field::Input{"key", keyQuery_},
         Curses::Field::Input{"value", valueQuery_},
