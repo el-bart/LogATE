@@ -5,6 +5,15 @@
 namespace LogATE::Net
 {
 
+auto pathCheck(Tree::Path keyPath)
+{
+  if( keyPath.empty() )
+    BUT_THROW(TcpServer::InvalidKeyPath, "key path cannot be empty");
+  if( not keyPath.absolute() )
+    BUT_THROW(TcpServer::InvalidKeyPath, "key path must be absolute: " << keyPath.str() );
+  return keyPath;
+}
+
 TcpServer::TcpServer(Utils::WorkerThreadsShPtr workers,
                      const Port port,
                      Tree::Path keyPath,
@@ -12,7 +21,7 @@ TcpServer::TcpServer(Utils::WorkerThreadsShPtr workers,
                      std::chrono::milliseconds bulkPackageTimeout):
   jsonParsingMode_{jsonParsingMode},
   bulkPackageTimeout_{bulkPackageTimeout},
-  keyPath_{keyPath},
+  keyPath_{ pathCheck(std::move(keyPath)) },
   workers_{ std::move(workers) },
   server_{port},
   workerThread_{ [this]{ this->workerLoop(); } }

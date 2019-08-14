@@ -18,6 +18,8 @@ namespace LogATE::Net
 class TcpServer final: public Server
 {
 public:
+  BUT_DEFINE_EXCEPTION(InvalidKeyPath, But::Exception, "invalid key path");
+
   enum class JsonParsingMode
   {
     ParseToEndOfJson,

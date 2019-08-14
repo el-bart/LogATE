@@ -6,6 +6,7 @@
 #include "But/Optional.hpp"
 
 using LogATE::Log;
+using LogATE::Tree::Path;
 using LogATE::Net::Port;
 using LogATE::Net::TcpServer;
 using LogATE::Net::TcpClient;
@@ -178,6 +179,21 @@ TEST_CASE_FIXTURE(Fixture, "server recovers from an error in one of the JSONs")
   }
 
   CHECK( s.errors() == 1 );
+}
+
+
+TEST_CASE_FIXTURE(Fixture, "client fails to connect to a closed socket")
+{
+  SUBCASE("non-asbolute path")
+  {
+    const auto path = Path{};
+    CHECK_THROWS_AS( (TcpServer{workers_, port_, path, parseMode_, serverTimeout_}), TcpServer::InvalidKeyPath );
+  }
+  SUBCASE("empty path")
+  {
+    const auto path = Path::parse("non.absolute");
+    CHECK_THROWS_AS( (TcpServer{workers_, port_, path, parseMode_, serverTimeout_}), TcpServer::InvalidKeyPath );
+  }
 }
 
 
