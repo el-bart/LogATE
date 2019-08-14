@@ -4,7 +4,6 @@
 
 * saving filter tree
 * loading filter tree
-* sorting?
 * maybe adding a child to Explode maybe should mean adding to all subnodes? how to do this? factory?
 * search inside a given node set via regex (string is already implemented)
 * add support for arrays in all the places in the code
@@ -18,17 +17,13 @@
   - as JSONs
   - as human-readable lines
 * `Filter::Grep` should support empty path, as a mean of defining "any path"
-* make `Net::TcpServer` use `Path` as a parameter, instead of a hardcoded value.
 * add parallel processing of filters data (now it is possible, since we no longer need to write at the end only, to preserve global order!)
-* add an pre-parser option to JSON, to force-finish parsing uppon a new line.
 
 
 ## UI
 
 * key shortcuts for tabs switching fast (small 'm'arks and big 'Marks'?)
 * colored highlighting of searched elements
-* runtime edition of silent tags
-* runtime edition of priority tags
 * export logs from a given filter to a file
 * make deleting root node possible, if there is just one child - then it will pivot root element with its child (useful for dropping non-interesting logs)
 * embed version tag (if present) and commit hash into a binary, so that it can be displayed on request
@@ -44,7 +39,7 @@
 * key shortcut to goto a given log entry, but on a different log-list (i.e. should pop-up filter tree screen and when navigating to a given one, select a given log there).
 * 'r' to refresh screen view (in case of filter tree preview)
 * `follow mode` - add a hey to auto-refresh screen upon new logs arrival (i.e. keep view always at the end).
-* `^o` shortcut for confirming windows? just to minimize number of key strokes required to get filter up and running...
+* `^o` / `^enter` shortcut for confirming windows? just to minimize number of key strokes required to get filter up and running...
 * add logs-per-second into a status bar.
 * add split between runnig threads and queue length (just for readability).
 * nodes removal should be done in a sepratate thread (thread pool) to avoid stalls in UI when removing of huge collections.
