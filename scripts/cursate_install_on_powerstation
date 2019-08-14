@@ -1,0 +1,12 @@
+#!/bin/bash -ex
+if [ $# -ne 1 ]
+then
+  echo "$0 <powerstation_name>" >&2
+  exit 2
+fi
+HOST=$1
+shift 1
+
+cd ~/data/cursate
+scp cursate "$HOST:/usr/local/bin/"
+pv CursATE.tar.gz | "$HOST" docker load
