@@ -161,6 +161,7 @@ std::unique_ptr<LogATE::Tree::Node> createGrepCommon(detail::LogEntryDataSource 
                                   {'s', "Search"},
                                   {'t', "Trim"},
                                   {'o', "ok"},
+                                  {ctrl('o'), "ok"},
                                   {'q', "quit"}
                                 },
                     Input{ "Name", namePrefix + " " + ds.id2path(id).str() },
@@ -219,6 +220,7 @@ std::unique_ptr<LogATE::Tree::Node> createExplode(detail::LogEntryDataSource con
                                   {'n', "Name"},
                                   {'p', "Path"},
                                   {'o', "ok"},
+                                  {ctrl('o'), "ok"},
                                   {'q', "quit"}
                                 },
                     Input{ "Name", "explode " + ds.id2path(id).str() },
@@ -252,6 +254,7 @@ std::unique_ptr<LogATE::Tree::Node> createFrom(FilterFactory& ff, Curses::DataSo
                                   {'e', "Edge"},
                                   {'s', "Edge"},
                                   {'o', "ok"},
+                                  {ctrl('o'), "ok"},
                                   {'q', "quit"}
                                 },
                     Input{ "Name", "from " + id.value_ },
@@ -285,6 +288,7 @@ std::unique_ptr<LogATE::Tree::Node> createTo(FilterFactory& ff, Curses::DataSour
                                   {'e', "Edge"},
                                   {'s', "Edge"},
                                   {'o', "ok"},
+                                  {ctrl('o'), "ok"},
                                   {'q', "quit"}
                                 },
                     Input{ "Name", "to " + id.value_ },
@@ -317,6 +321,7 @@ std::unique_ptr<LogATE::Tree::Node> createAcceptAll(FilterFactory& ff)
                                   {'n', "Name"},
                                   {'t', "Trim"},
                                   {'o', "ok"},
+                                  {ctrl('o'), "ok"},
                                   {'q', "quit"}
                                 },
                     Input{ "Name", "accept all" },
