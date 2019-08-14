@@ -1,6 +1,7 @@
 # release notes
 
 ## dev
+* fixed annoying bug when a canceled search resulted with a "not found" error dialog.
 * all logs are now sorted by `key path` (user-defined JSON path to a date-time field, that is used as a sort criteria).
 * usual PAS' hardcodes are now exposed as command line options.
 * added more shortcuts to forms (see `h` / help for details).

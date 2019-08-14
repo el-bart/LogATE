@@ -14,6 +14,23 @@ public:
     Backward
   };
 
+  struct Result
+  {
+    enum class Status
+    {
+      Canceled,
+      Found,
+      NotFound
+    };
+
+    static Result canceled() { return { Status::Canceled, {} }; }
+    static Result notFound() { return { Status::NotFound, {} }; }
+    static Result found(LogATE::Log::Key key) { return { Status::Found, std::move(key) }; }
+
+    Status status_{Status::Canceled};
+    But::Optional<LogATE::Log::Key> key_;
+  };
+
   explicit Search(LogATE::Utils::WorkerThreadsShPtr workers):
     workers_{ std::move(workers) }
   { }
@@ -23,12 +40,12 @@ public:
   Search(Search&&) = delete;
   Search& operator=(Search&&) = delete;
 
-  But::Optional<LogATE::Log::Key> process(LogATE::Tree::NodeShPtr node, LogATE::Log::Key const& currentSelection, Direction dir);
-  But::Optional<LogATE::Log::Key> processAgain(LogATE::Tree::NodeShPtr node, LogATE::Log::Key const& currentSelection, Direction dir);
+  Result process(LogATE::Tree::NodeShPtr node, LogATE::Log::Key const& currentSelection, Direction dir);
+  Result processAgain(LogATE::Tree::NodeShPtr node, LogATE::Log::Key const& currentSelection, Direction dir);
 
 private:
   bool updateSearchPattern();
-  But::Optional<LogATE::Log::Key> triggerSearch(LogATE::Tree::NodeShPtr node, LogATE::Log::Key const& currentSelection, Direction dir);
+  Result triggerSearch(LogATE::Tree::NodeShPtr node, LogATE::Log::Key const& currentSelection, Direction dir);
 
   LogATE::Utils::WorkerThreadsShPtr workers_;
   std::string keyQuery_;

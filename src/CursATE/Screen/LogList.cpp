@@ -226,12 +226,7 @@ void LogList::processSearch(const Search::Direction dir)
     return;
   }
   const auto ret = search_.process( currentNode_, id2key(*selected), dir );
-  if(not ret)
-  {
-    displayError({"no matching element found"});
-    return;
-  }
-  currentWindow_->select( key2id(*ret) );
+  processSearchResult(ret);
 }
 
 
@@ -289,12 +284,26 @@ void LogList::processSearchAgain(const Search::Direction dir)
   }
   const auto start = moveKey( currentNode_, id2key(*selected), dir );
   const auto ret = search_.processAgain( currentNode_, start, dir );
-  if(not ret)
+  processSearchResult(ret);
+}
+
+
+void LogList::processSearchResult(Search::Result const& result)
+{
+  switch(result.status_)
   {
-    displayError({"no matching element found"});
-    return;
+    case Search::Result::Status::Canceled:
+         return;
+    case Search::Result::Status::NotFound:
+         displayError({"no matching element found"});
+         return;
+    case Search::Result::Status::Found:
+         BUT_ASSERT(result.key_);
+         currentWindow_->select( key2id(*result.key_) );
+         return;
   }
-  currentWindow_->select( key2id(*ret) );
+  BUT_ASSERT(!"code never reaches here");
+  throw std::logic_error("code never reaches here");
 }
 
 

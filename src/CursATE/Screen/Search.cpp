@@ -15,22 +15,22 @@ using CursATE::Curses::ctrl;
 namespace CursATE::Screen
 {
 
-But::Optional<LogATE::Log::Key> Search::process(LogATE::Tree::NodeShPtr node,
-                                                      LogATE::Log::Key const& currentSelection,
-                                                      const Direction dir)
+Search::Result Search::process(LogATE::Tree::NodeShPtr node,
+                               LogATE::Log::Key const& currentSelection,
+                               const Direction dir)
 {
   if( not updateSearchPattern() )
-    return {};
+    return Result::canceled();
   return triggerSearch(node, currentSelection, dir);
 }
 
 
-But::Optional<LogATE::Log::Key> Search::processAgain(LogATE::Tree::NodeShPtr node,
-                                                           LogATE::Log::Key const& currentSelection,
-                                                           const Direction dir)
+Search::Result Search::processAgain(LogATE::Tree::NodeShPtr node,
+                                    LogATE::Log::Key const& currentSelection,
+                                    const Direction dir)
 {
   if( keyQuery_.empty() && valueQuery_.empty() )
-    return {};
+    return Result::canceled();
   return triggerSearch(node, currentSelection, dir);
 }
 
@@ -54,7 +54,7 @@ bool Search::updateSearchPattern()
       );
   auto ret = form.process();
 
-  if( ret[3] == "true" )            // cancel
+  if( ret[2] != "true" )            // cancel
     return false;
 
   BUT_ASSERT( ret[2] == "true" );   // search
@@ -71,7 +71,7 @@ namespace
 {
 struct SearchQuery
 {
-  But::Optional<LogATE::Log::Key> operator()() const
+  Search::Result operator()() const
   {
     BUT_ASSERT( not key_.empty() || not value_.empty() );
     BUT_ASSERT( logs_.size() == monitor_->totalSize_ );
@@ -79,7 +79,7 @@ struct SearchQuery
     for(auto& log: logs_)
     {
       if(monitor_->abort_)
-        return {};
+        return Search::Result::notFound();
 
       auto found = false;
       switch(mode)
@@ -91,12 +91,12 @@ struct SearchQuery
       if(found)
       {
         monitor_->done_ = true;
-        return log.key();
+        return Search::Result::found( log.key() );
       }
       ++monitor_->processed_;
     }
     monitor_->done_ = true;
-    return {};
+    return Search::Result::notFound();
   }
 
   std::string key_;
@@ -136,11 +136,12 @@ bool hasResultEarly(ProgressBar::Monitor const& monitor)
 }
 
 
-But::Optional<LogATE::Log::Key> Search::triggerSearch(LogATE::Tree::NodeShPtr node,
-                                                      LogATE::Log::Key const& currentSelection,
-                                                      const Direction dir)
+Search::Result Search::triggerSearch(LogATE::Tree::NodeShPtr node,
+                                     LogATE::Log::Key const& currentSelection,
+                                     const Direction dir)
 {
   auto logs = extractLogs(node, currentSelection, dir);
+  // TODO: make this chunked search, to avoid long blocking hangs during startup...
   const auto monitor = But::makeSharedNN<ProgressBar::Monitor>( logs.size() );
   auto query = SearchQuery{keyQuery_, valueQuery_, std::move(logs), monitor};
   auto ret = workers_->enqueue( [q=std::move(query)] { return q(); } );
@@ -148,7 +149,7 @@ But::Optional<LogATE::Log::Key> Search::triggerSearch(LogATE::Tree::NodeShPtr no
     return ret.get();
   ProgressBar pb{monitor};
   if( not pb.process() )
-    return {};
+    return Result::notFound();
   return ret.get();
 }
 

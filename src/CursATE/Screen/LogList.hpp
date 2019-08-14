@@ -35,6 +35,7 @@ private:
   void centerAroundLog(LogATE::Tree::NodeShPtr node, LogATE::Log::Key const& key);
   void processSearch(Search::Direction dir);
   void processSearchAgain(Search::Direction dir);
+  void processSearchResult(Search::Result const& result);
   void pipeLogsToHost();
 
   std::atomic<bool> quit_{false};
