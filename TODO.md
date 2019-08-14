@@ -34,7 +34,6 @@
   - histogram (with and without buckets)
   - data over time
   - log and/or normal scale
-* tags for log-entries and log-lists (i.e. to switch fast between log locations and log screens).
 * home/end for forms (eg. filter selection).
 * key shortcut to goto a given log entry, but on a different log-list (i.e. should pop-up filter tree screen and when navigating to a given one, select a given log there).
 * 'r' to refresh screen view (in case of filter tree preview)
@@ -42,7 +41,6 @@
 * `^o` / `^enter` shortcut for confirming windows? just to minimize number of key strokes required to get filter up and running...
 * add logs-per-second into a status bar.
 * add split between runnig threads and queue length (just for readability).
-* nodes removal should be done in a sepratate thread (thread pool) to avoid stalls in UI when removing of huge collections.
 * adde screen with a preview of a background jobs and their progress.
 
 

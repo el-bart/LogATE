@@ -42,9 +42,10 @@ std::function<std::string()> threadsStats(LogATE::Utils::WorkerThreadsShPtr cons
 LogList::LogList(LogATE::Utils::WorkerThreadsShPtr workers,
                  std::function<size_t()> inputErrors,
                  std::function<std::string(LogATE::Log const&)> log2str):
-  search_{workers},
-  filterFactory_{workers},
-  filterWindows_{ std::move(log2str), std::move(inputErrors), threadsStats(workers) },
+  workers_{ std::move(workers) },
+  search_{workers_},
+  filterFactory_{workers_},
+  filterWindows_{ std::move(log2str), std::move(inputErrors), threadsStats(workers_) },
   root_{ filterFactory_.build( FilterFactory::Type{"AcceptAll"}, FilterFactory::Name{"all logs"}, FilterFactory::Options{} ) },
   currentNode_{root_},
   currentWindow_{ filterWindows_.window(currentNode_) }
@@ -132,7 +133,7 @@ void LogList::processQuitProgram()
 
 void LogList::processFilterTree()
 {
-  FilterTree ft{root_};
+  FilterTree ft{workers_, root_};
   currentNode_ = ft.selectNext(currentNode_);
   currentWindow_ = filterWindows_.window(currentNode_);
   currentWindow_->forceNextRefresh();

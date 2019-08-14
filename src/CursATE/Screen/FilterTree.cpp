@@ -25,7 +25,8 @@ using CursATE::Curses::Column;
 namespace CursATE::Screen
 {
 
-FilterTree::FilterTree(LogATE::Tree::NodeShPtr root):
+FilterTree::FilterTree(LogATE::Utils::WorkerThreadsShPtr workers, LogATE::Tree::NodeShPtr root):
+  workers_{ std::move(workers) },
   root_{ std::move(root) }
 { }
 
@@ -131,7 +132,9 @@ bool FilterTree::deleteNode(LogATE::Tree::NodeShPtr const& selected)
     auto parent = findParent(root_, selected);
     if(not parent)
       return false;
-    return parent->remove(selected);
+    auto ptr = parent->remove(selected);
+    workers_->enqueue( [p=std::move(ptr)]()mutable { p.reset(); } );
+    return true;
   }
   catch(std::exception const& ex)
   {

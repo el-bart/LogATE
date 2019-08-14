@@ -8,7 +8,7 @@ namespace CursATE::Screen
 class FilterTree final
 {
 public:
-  FilterTree(LogATE::Tree::NodeShPtr root);
+  FilterTree(LogATE::Utils::WorkerThreadsShPtr workers, LogATE::Tree::NodeShPtr root);
 
   FilterTree(FilterTree const&) = delete;
   FilterTree& operator=(FilterTree const&) = delete;
@@ -20,6 +20,7 @@ public:
 private:
   bool deleteNode(LogATE::Tree::NodeShPtr const& selected);
 
+  LogATE::Utils::WorkerThreadsShPtr workers_;
   LogATE::Tree::NodeShPtr root_;
 };
 

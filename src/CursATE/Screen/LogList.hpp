@@ -37,6 +37,7 @@ private:
   void processSearchAgain(Search::Direction dir);
 
   std::atomic<bool> quit_{false};
+  LogATE::Utils::WorkerThreadsShPtr workers_;
   Search search_;
   LogATE::Tree::FilterFactory filterFactory_;
   detail::FilterWindows filterWindows_;
