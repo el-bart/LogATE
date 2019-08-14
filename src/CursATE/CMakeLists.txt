@@ -33,6 +33,7 @@ add_library(CursATEimpl
 )
 target_include_directories(CursATEimpl PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(CursATEimpl
+  boost_program_options
   ncurses
   LogATE
 )
