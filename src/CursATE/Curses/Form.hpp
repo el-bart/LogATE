@@ -217,8 +217,9 @@ private:
     {
       input.value_.insert(input.cursorPosition_, 1, ch);
       ++input.cursorPosition_;
+      return Change::Update;
     }
-    return Change::Update;
+    return tryProcessingAsShortcut(ch);
   }
 
   Change action(Field::Radio& radio, const unsigned row)
