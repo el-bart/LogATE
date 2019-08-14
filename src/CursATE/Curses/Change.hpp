@@ -8,6 +8,8 @@ enum class Change
   Update,
   Next,
   Previous,
+  First,
+  Last,
   Exit
 };
 

@@ -49,6 +49,8 @@ struct Form final
         case Change::Update: break;
         case Change::Next: selected_ = (selected_+1) % size(); break;
         case Change::Previous: selected_ = (selected_ == 0) ? size()-1u : selected_-1; break;
+        case Change::First: selected_ = 0; break;
+        case Change::Last: selected_ = size()-1u; break;
         case Change::Exit: return prepareResult();
       }
     }
@@ -129,6 +131,10 @@ private:
     {
       case KEY_UP: return Change::Previous;
       case KEY_DOWN: return Change::Next;
+      case KEY_HOME:
+      case ctrl(KEY_HOME): return Change::First;
+      case KEY_END:
+      case ctrl(KEY_END): return Change::Last;
       case ' ':
       case 10:
       case KEY_ENTER: button.clicked_ = true; return Change::Exit;
@@ -179,6 +185,8 @@ private:
       case KEY_HOME:
            input.cursorPosition_ = 0;
            break;
+      case ctrl(KEY_HOME): return Change::First;
+      case ctrl(KEY_END): return Change::Last;
       case KEY_BACKSPACE:
            if( input.cursorPosition_ == 0 )
               break;
@@ -225,6 +233,10 @@ private:
       case KEY_ENTER: return Change::Next;
       case KEY_RIGHT: radio.selection_ = (radio.selection_ + 1) % radio.values_.size(); break;
       case KEY_LEFT:  radio.selection_ = (radio.selection_ == 0) ? radio.values_.size()-1u : radio.selection_-1; break;
+      case KEY_HOME:
+      case ctrl(KEY_HOME): return Change::First;
+      case KEY_END:
+      case ctrl(KEY_END): return Change::Last;
       case escapeKey: return Change::Exit;
     }
     return tryProcessingAsShortcut(ch);
