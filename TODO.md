@@ -13,9 +13,6 @@
 * make `Tree::Logs` lock-free so that processing can be done in a way more parallel mode than it is being done now...
   - maybe logs could be in a lock-free balanced tree?
   - versioned tree would be needed to provide a steady view of a dynamic structure!
-* writing given logs to a remote location (host:port)
-  - as JSONs
-  - as human-readable lines
 * `Filter::Grep` should support empty path, as a mean of defining "any path"
 * add parallel processing of filters data (now it is possible, since we no longer need to write at the end only, to preserve global order!)
 
@@ -24,7 +21,6 @@
 
 * key shortcuts for tabs switching fast (small 'm'arks and big 'Marks'?)
 * colored highlighting of searched elements
-* export logs from a given filter to a remote location (host:port)
 * make deleting root node possible, if there is just one child - then it will pivot root element with its child (useful for dropping non-interesting logs)
 * embed version tag (if present) and commit hash into a binary, so that it can be displayed on request
 * generic mechanism for searching inside whole data source (usefull for different small-volume windows, i.e. non-log-lists)

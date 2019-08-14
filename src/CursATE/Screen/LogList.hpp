@@ -2,7 +2,7 @@
 #include "CursATE/Screen/detail/FilterWindows.hpp"
 #include "CursATE/Screen/Search.hpp"
 #include "LogATE/Tree/FilterFactory.hpp"
-#include <But/Optional.hpp>
+#include "LogATE/Net/Port.hpp"
 #include <atomic>
 
 namespace CursATE::Screen
@@ -35,9 +35,11 @@ private:
   void centerAroundLog(LogATE::Tree::NodeShPtr node, LogATE::Log::Key const& key);
   void processSearch(Search::Direction dir);
   void processSearchAgain(Search::Direction dir);
+  void pipeLogsToHost();
 
   std::atomic<bool> quit_{false};
   LogATE::Utils::WorkerThreadsShPtr workers_;
+  std::function<std::string(LogATE::Log const&)> log2str_;
   Search search_;
   LogATE::Tree::FilterFactory filterFactory_;
   detail::FilterWindows filterWindows_;

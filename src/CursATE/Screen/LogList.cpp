@@ -6,10 +6,18 @@
 #include "CursATE/Screen/detail/id2key.hpp"
 #include "CursATE/Curses/CursorVisibility.hpp"
 #include "CursATE/Curses/Form.hpp"
+#include "CursATE/Curses/Field/Button.hpp"
+#include "CursATE/Curses/Field/Input.hpp"
+#include "CursATE/Curses/Field/Radio.hpp"
 #include "CursATE/Curses/getChar.hpp"
 #include "CursATE/Curses/ctrl.hpp"
 #include "LogATE/Printers/OrderedPrettyPrint.hpp"
+#include "LogATE/Net/TcpClient.hpp"
+#include "LogATE/Net/TcpRawClient.hpp"
 #include <But/assert.hpp>
+#include <But/Optional.hpp>
+#include <boost/lexical_cast.hpp>
+#include <tuple>
 
 using LogATE::Printers::OrderedPrettyPrint;
 using LogATE::Tree::FilterFactory;
@@ -19,6 +27,8 @@ using CursATE::Curses::ctrl;
 using CursATE::Curses::makeForm;
 using CursATE::Curses::KeyShortcuts;
 using CursATE::Curses::Field::Button;
+using CursATE::Curses::Field::Input;
+using CursATE::Curses::Field::Radio;
 using CursATE::Screen::detail::id2key;
 using CursATE::Screen::detail::key2id;
 
@@ -43,9 +53,10 @@ LogList::LogList(LogATE::Utils::WorkerThreadsShPtr workers,
                  std::function<size_t()> inputErrors,
                  std::function<std::string(LogATE::Log const&)> log2str):
   workers_{ std::move(workers) },
+  log2str_{ std::move(log2str) },
   search_{workers_},
   filterFactory_{workers_},
-  filterWindows_{ std::move(log2str), std::move(inputErrors), threadsStats(workers_) },
+  filterWindows_{ log2str_, std::move(inputErrors), threadsStats(workers_) },
   root_{ filterFactory_.build( FilterFactory::Type{"AcceptAll"}, FilterFactory::Name{"all logs"}, FilterFactory::Options{} ) },
   currentNode_{root_},
   currentWindow_{ filterWindows_.window(currentNode_) }
@@ -104,6 +115,8 @@ void LogList::reactOnKey(const int ch)
 
     case 'h':
     case KEY_F(1): help(); break;
+
+    case 'p': pipeLogsToHost(); break;
 
     // TODO: searching by regex?
     // TODO: moving to a log with a given ID?
@@ -282,6 +295,89 @@ void LogList::processSearchAgain(const Search::Direction dir)
     return;
   }
   currentWindow_->select( key2id(*ret) );
+}
+
+
+namespace
+{
+But::Optional<std::tuple<std::string, LogATE::Net::Port, std::string>> hostPortDialog()
+{
+  auto form = makeForm( KeyShortcuts{
+                          {'h', "Host"},
+                          {'p', "Port"},
+                          {'f', "Format"},
+                          {'o', "ok"},
+                          {'q', "quit"}
+                        },
+                        Input{"Host", "127.0.0.1"},
+                        Input{"Port", "6666"},
+                        Radio{"Format", {"text", "json"}},
+                        Button{"ok"},
+                        Button{"quit"} );
+  const auto ret = form.process();
+  if( ret[3] == "false" )
+    return {};
+  auto host = std::string{ret[0]};
+  auto port = LogATE::Net::Port{ boost::lexical_cast<uint16_t>(ret[1]) };
+  auto format = std::string{ret[2]};
+  return std::make_tuple( std::move(host), port, std::move(format) );
+}
+
+
+auto copyLogs(LogATE::Tree::NodeWeakPtr weakNode)
+{
+  std::deque<LogATE::Log> logs;
+  auto node = weakNode.lock();
+  if(not node)
+    return logs;
+  const auto ll = node->logs().withLock();
+  for(auto it=ll->begin(); it!=ll->end(); ++it)
+    logs.push_back(*it);
+  return logs;
+}
+
+
+template<typename Formatter>
+void streamLogs(LogATE::Tree::NodeWeakPtr weakNode, std::string const& host, const LogATE::Net::Port port, Formatter formatter)
+{
+  LogATE::Net::TcpRawClient sink{host, port};
+  const auto logs = copyLogs(weakNode);
+  for(auto& log: logs)
+  {
+    sink.write( formatter(log) );
+    sink.write("\n");
+  }
+}
+}
+
+
+void LogList::pipeLogsToHost()
+{
+  try
+  {
+    currentWindow_->forceNextRefresh();
+    const auto hp = hostPortDialog();
+    if(not hp)
+      return;
+    auto wp = LogATE::Tree::NodeWeakPtr{ currentNode_.underlyingPointer() };
+
+    if( std::get<2>(*hp) == "json" )
+    {
+      streamLogs( wp, std::get<0>(*hp), std::get<1>(*hp), [](auto& log) { return log.str(); } );
+      return;
+    }
+    if( std::get<2>(*hp) == "text" )
+    {
+      streamLogs( wp, std::get<0>(*hp), std::get<1>(*hp), log2str_ );
+      return;
+    }
+    BUT_ASSERT(!"unknown sink found - update the code...");
+    throw std::logic_error{"unknown sink found - update the code..."};
+  }
+  catch(std::exception const& ex)
+  {
+    displayError(ex);
+  }
 }
 
 }
