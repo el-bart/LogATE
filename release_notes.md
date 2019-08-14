@@ -1,6 +1,11 @@
 # release notes
 
 ## dev
+* all logs are now sorted by `key path` (user-defined JSON path to a date-time field, that is used as a sort criteria).
+* usual PAS' hardcodes are now exposed as command line options.
+* added more shortcuts to forms (see `h` / help for details).
+* helper script for starting CursATE in a PAS-aware mode.
+* sending logs as JSON/text to a given `host:port`.
 * using raw sockets reading for speed.
 * input parsing is now parallel, which makes it all > 4x faster on 8 core CPU.
 * escape key support has been added, alongside with `q` shortcut.
