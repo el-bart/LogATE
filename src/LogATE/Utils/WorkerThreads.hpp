@@ -17,7 +17,7 @@ public:
   auto enqueue(F&& f)
   {
     ++nonProcessed_;
-    return pool_.run( [this, ff=std::forward<F>(f)] {
+    return pool_.run( [this, ff=std::forward<F>(f)]()mutable {
                                                       const auto guard = But::makeGuard( [&]{ --this->nonProcessed_; } );
                                                       return ff();
                                                     } );
