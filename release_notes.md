@@ -3,6 +3,10 @@
 ## dev
 
 
+## v0.2.1
+* added missing `boost::porgram_options` library to a runtime image.
+
+
 ## v0.2.0
 sorting by key, more key-shortcuts, command line options, saving JSON/text of a given view and vastly improved input parsing.
 
