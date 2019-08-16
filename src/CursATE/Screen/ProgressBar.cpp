@@ -41,7 +41,7 @@ void printProgress(Window& win, const ScreenPosition uasp, ProgressBar::Monitor 
   const auto done = monitor.processed_.load();
   const auto progress = static_cast<double>(done) / monitor.totalSize_;
   mvwprintw(win.get(), uasp.row_.value_+0, uasp.column_.value_, "progress: %s", detail::formatAsPercentage(progress).c_str());
-  mvwprintw(win.get(), uasp.row_.value_+1, uasp.column_.value_, "done: %lu / %lu", done, monitor.totalSize_);
+  mvwprintw(win.get(), uasp.row_.value_+1, uasp.column_.value_, "done: %lu / %lu", done, monitor.totalSize_.load());
   mvwprintw(win.get(), uasp.row_.value_+2, uasp.column_.value_, "press 'q' to abort search");
 }
 }

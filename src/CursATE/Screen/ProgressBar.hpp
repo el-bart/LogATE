@@ -13,7 +13,7 @@ public:
   {
     explicit Monitor(uint64_t totalSize): totalSize_{totalSize} { }
 
-    const uint64_t totalSize_;
+    std::atomic<uint64_t> totalSize_;
     std::atomic<uint64_t> processed_{0};
     std::atomic<bool> abort_{false};
     std::atomic<bool> done_{false};

@@ -2,10 +2,12 @@
 
 ## dev
 * improved creation of new sub-filters, by passing copying data to a separate thread.
+* decreased memory usage when searching.
+* searches are now started immediately, regardless of a log window size.
 
 
 ## v0.2.1
-* added missing `boost::porgram_options` library to a runtime image.
+* added missing `boost::program_options` library to a runtime image.
 
 
 ## v0.2.0
@@ -23,7 +25,7 @@ sorting by key, more key-shortcuts, command line options, saving JSON/text of a 
 * escape key support has been added, alongside with `q` shortcut.
 * input form now allow usage of ^DEL and ^BACKSPACE to erase until EOL and begin of line respectively.
 * status bar now contains info about background threads and how many of them are still processing sth.
-* `Filter::BinarySplit` implemented - it is essentially the `Filter::Grep`, that stores both maching and unmatching logs, split into two groups.
+* `Filter::BinarySplit` implemented - it is essentially the `Filter::Grep`, that stores both matching and non-matching logs, split into two groups.
 * `Filter::Explode` no longer trims explode field in the root node view - only in children.
 
 
@@ -33,7 +35,7 @@ first release of PoC.
 * `Filter::Explode` "exploding" logs based on a given field value.
 * `Filter::Grep` to search for selecting a given key/value configurations.
 * auto-hiding columns used selection, so that logs are not cluttered with repeated, identical values.
-* searching elements in a given node, byt key/value text.
+* searching elements in a given node, by key/value text.
 * priority columns for displaying (for now values are hardcoded).
 * display number of errors from networking stack.
 * display stats: number of lines, location in file (floating point % + line number).

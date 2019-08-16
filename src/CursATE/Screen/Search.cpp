@@ -69,14 +69,93 @@ bool Search::updateSearchPattern()
 
 namespace
 {
+template<typename It>
+auto nextIt(It it) { return ++it; }
+
+
+template<typename Out, typename It>
+auto copyN(It begin, It end, const size_t chunk)
+{
+  Out out;
+  out.reserve(chunk);
+  auto done = size_t{0};
+  for(auto it=begin; it!=end && done!=chunk; ++it, ++done)
+    out.push_back(*it);
+  return out;
+}
+
+
+auto extractLogs(LogATE::Tree::NodeShPtr node, LogATE::Log::Key const& currentSelection, const Search::Direction dir, const size_t chunk)
+{
+  using Out = std::vector<Log>;
+  const auto ll = node->clogs()->withLock();
+  const auto it = ll->find(currentSelection);
+  switch(dir)
+  {
+    case Search::Direction::Forward:
+         if( it == ll->end() )
+           return Out{};
+         return copyN<Out>( nextIt(it), ll->end(), chunk );
+    case Search::Direction::Backward:
+         if( it == ll->begin() )
+           return Out{};
+         return copyN<Out>( LogATE::Tree::Logs::const_reverse_iterator{it}, ll->rend(), chunk );
+  }
+  BUT_ASSERT(!"invalid search direction");
+  throw std::logic_error{"unknown value for Search::Direction"};
+}
+
+
 struct SearchQuery
 {
   Search::Result operator()() const
   {
     BUT_ASSERT( not key_.empty() || not value_.empty() );
-    BUT_ASSERT( logs_.size() == monitor_->totalSize_ );
     const auto mode = (key_.empty()?0x00:0x10) | (value_.empty()?0x00:0x1);
-    for(auto& log: logs_)
+    const auto chunkSize = 10'000u;
+    auto startPoint = initialStartingPoint_;
+
+    while(true)
+    {
+      const auto nodeTmp = node_.lock();
+      if(not nodeTmp)
+        break;
+      const auto node = LogATE::Tree::NodeShPtr{nodeTmp};
+      updateProgress(node, dir_);
+      const auto logs = extractLogs(node, startPoint, dir_, chunkSize);
+      const auto ret = searchInLogsChunk(logs, mode);
+      if(ret)
+        return *ret;
+      if( logs.size() < chunkSize )
+        break;
+      startPoint = logs.back().key();
+    }
+
+    monitor_->done_ = true;
+    return Search::Result::notFound();
+  }
+
+  void updateProgress(LogATE::Tree::NodeShPtr const& node, const Search::Direction dir) const
+  {
+    const auto ll = node->clogs()->withLock();
+    const auto size = ll->size();
+    const auto startIndex = ll->index(initialStartingPoint_);
+    BUT_ASSERT( startIndex < size );
+    switch(dir)
+    {
+      case Search::Direction::Forward:
+           monitor_->totalSize_ = size - startIndex;
+           return;
+      case Search::Direction::Backward:
+           monitor_->totalSize_ = startIndex;
+           return;
+    }
+    BUT_ASSERT(!"code never reaches here");
+  }
+
+  But::Optional<Search::Result> searchInLogsChunk(std::vector<Log> const& logs, const int mode) const
+  {
+    for(auto& log: logs)
     {
       if(monitor_->abort_)
         return Search::Result::canceled();
@@ -95,40 +174,16 @@ struct SearchQuery
       }
       ++monitor_->processed_;
     }
-    monitor_->done_ = true;
-    return Search::Result::notFound();
+    return {};
   }
 
   std::string key_;
   std::string value_;
-  std::vector<Log> logs_;
+  LogATE::Log::Key initialStartingPoint_;
+  LogATE::Tree::NodeWeakPtr node_;
+  Search::Direction dir_;
   ProgressBar::MonitorShPtr monitor_;
 };
-
-
-template<typename It>
-auto nextIt(It it) { return ++it; }
-
-
-auto extractLogs(LogATE::Tree::NodeShPtr node, LogATE::Log::Key const& currentSelection, const Search::Direction dir)
-{
-  using Out = std::vector<Log>;
-  const auto ll = node->clogs()->withLock();
-  const auto it = ll->find(currentSelection);
-  switch(dir)
-  {
-    case Search::Direction::Forward:
-         if( it == ll->end() )
-           return Out{};
-         return Out{ nextIt(it), ll->end()};
-    case Search::Direction::Backward:
-         if( it == ll->begin() )
-           return Out{};
-         return Out{ LogATE::Tree::Logs::const_reverse_iterator{it}, ll->rend() };
-  }
-  BUT_ASSERT(!"invalid search direction");
-  throw std::logic_error{"unknown value for Search::Direction"};
-}
 
 
 bool hasResultEarly(ProgressBar::Monitor const& monitor)
@@ -150,10 +205,8 @@ Search::Result Search::triggerSearch(LogATE::Tree::NodeShPtr node,
                                      LogATE::Log::Key const& currentSelection,
                                      const Direction dir)
 {
-  auto logs = extractLogs(node, currentSelection, dir);
-  // TODO: make this chunked search, to avoid long blocking hangs during startup...
-  const auto monitor = But::makeSharedNN<ProgressBar::Monitor>( logs.size() );
-  auto query = SearchQuery{keyQuery_, valueQuery_, std::move(logs), monitor};
+  const auto monitor = But::makeSharedNN<ProgressBar::Monitor>( node->clogs()->withLock()->size() );
+  auto query = SearchQuery{keyQuery_, valueQuery_, currentSelection, node.underlyingPointer(), dir, monitor};
   auto ret = workers_->enqueue( [q=std::move(query)] { return q(); } );
   if( hasResultEarly(*monitor) )
     return ret.get();

@@ -35,7 +35,6 @@
 * add logs-per-second into a status bar.
 * add split between runnig threads and queue length (just for readability).
 * adde screen with a preview of a background jobs and their progress.
-* searching should not need to copy all logs at start - this makes a huge lag on big log sets...
 
 
 ## misc
