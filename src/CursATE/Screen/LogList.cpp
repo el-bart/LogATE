@@ -160,7 +160,7 @@ void LogList::processLogEntry()
   if(not id)
     return;
   const auto key = id2key(*id);
-  auto logs = currentNode_->logs().withLock()->from(key, 1);
+  auto logs = currentNode_->clogs()->withLock()->from(key, 1);
   if( logs.empty() )
     return;
   BUT_ASSERT( logs.size() == 1u );
@@ -298,7 +298,7 @@ auto copyLogs(LogATE::Tree::NodeWeakPtr weakNode)
   auto node = weakNode.lock();
   if(not node)
     return logs;
-  const auto ll = node->logs().withLock();
+  const auto ll = node->clogs()->withLock();
   for(auto it=ll->begin(); it!=ll->end(); ++it)
     logs.push_back(*it);
   return logs;

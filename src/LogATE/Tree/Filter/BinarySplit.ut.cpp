@@ -43,7 +43,7 @@ struct Fixture
     const auto children = bs.children();
     REQUIRE( children.size() == 2 );
     for(auto i=0; i<2; ++i)
-      out[i] = allSns( children[i]->logs() );
+      out[i] = allSns( *children[i]->clogs() );
     return out;
   }
   auto extractLogs() const { return extractLogs(bs_); }
@@ -97,7 +97,7 @@ TEST_CASE_FIXTURE(Fixture, "all logs are kept in master node")
   bs_.insert(log2_);
   bs_.insert(log3_);
   bs_.insert(log4_);
-  CHECK( bs_.logs().withLock()->size() == 4 );
+  CHECK( bs_.clogs()->withLock()->size() == 4 );
 }
 
 

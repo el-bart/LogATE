@@ -38,7 +38,7 @@ using SnPair = std::pair<SequenceNumber, SequenceNumber>;
 
 But::Optional<SnPair> nodeMinMaxId(NodeShPtr ptr)
 {
-  const auto ll = ptr->logs().withLock();
+  const auto ll = ptr->clogs()->withLock();
   if( ll->empty() )
     return {};
   return std::make_pair( ll->first().sequenceNumber(), ll->last().sequenceNumber() );

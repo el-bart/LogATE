@@ -32,7 +32,7 @@ private:
 
 struct Fixture
 {
-  auto allSns(Node const& n) const { return LogATE::allSns( n.logs() ); }
+  auto allSns(Node const& n) const { return LogATE::allSns( *n.clogs() ); }
   auto allSns() const { return allSns(f2_); }
 
   LogATE::Utils::WorkerThreadsShPtr workers_{ But::makeSharedNN<LogATE::Utils::WorkerThreads>() };

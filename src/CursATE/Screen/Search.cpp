@@ -113,7 +113,7 @@ auto nextIt(It it) { return ++it; }
 auto extractLogs(LogATE::Tree::NodeShPtr node, LogATE::Log::Key const& currentSelection, const Search::Direction dir)
 {
   using Out = std::vector<Log>;
-  const auto ll = node->logs().withLock();
+  const auto ll = node->clogs()->withLock();
   const auto it = ll->find(currentSelection);
   switch(dir)
   {

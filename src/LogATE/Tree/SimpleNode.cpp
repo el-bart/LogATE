@@ -7,7 +7,7 @@ bool SimpleNode::insert(AnnotatedLog const& log)
 {
   if( not matches(log) )
     return false;
-  logs().withLock()->insert( log.log() );
+  logs()->withLock()->insert( log.log() );
   insertToChildren(log);
   return true;
 }
@@ -64,7 +64,7 @@ void insertToChild(NodeShPtr const& child, AnnotatedLog const& log)
 
 void SimpleNode::insertToChildren(AnnotatedLog const& log)
 {
-  for(auto c: children_)
+  for(auto& c: children_)
     insertToChild(c, log);
 }
 
@@ -81,7 +81,8 @@ auto copyAll(Logs const& logs)
 
 void SimpleNode::passAllLogsToChild(NodeShPtr child)
 {
-  workers_->enqueue( [logs=copyAll(logs_), ptr=NodeWeakPtr{child.underlyingPointer()}] {
+  workers_->enqueue( [logsPtr=logs(), ptr=NodeWeakPtr{child.underlyingPointer()}] {
+      const auto logs = copyAll(*logsPtr);
       for(auto const& log: logs)
       {
         auto sp = ptr.lock();   // weak pointer is crucial here, to avoid cyclic dependencies (node does keep thread pool!)

@@ -11,7 +11,7 @@ namespace
 {
 auto data(LogATE::Tree::NodeShPtr const& node, size_t before, LogDataSource::Id id, size_t after)
 {
-  const auto& ll = node->logs().withLock();
+  const auto& ll = node->clogs()->withLock();
   auto pre = ll->to( id2key(id), before+1 );
   auto post = ll->from( id2key(id), after+1 );
   return std::make_pair( std::move(pre), std::move(post) );
@@ -27,7 +27,7 @@ size_t LogDataSource::index(Id const& id) const
   const auto node = node_.lock();
   if(not node)
     return 0;
-  return node->logs().withLock()->index( id2key(id) );
+  return node->clogs()->withLock()->index( id2key(id) );
 }
 
 size_t LogDataSource::size() const
@@ -35,7 +35,7 @@ size_t LogDataSource::size() const
   const auto node = node_.lock();
   if(not node)
     return 0;
-  return node->logs().withLock()->size();
+  return node->clogs()->withLock()->size();
 }
 
 
@@ -44,7 +44,7 @@ But::Optional<LogDataSource::Id> LogDataSource::nearestTo(Id const& id) const
   auto node = node_.lock();
   if(not node)
     return {};
-  auto ll = node->logs().withLock();
+  auto ll = node->clogs()->withLock();
   if( ll->empty() )
     return {};
 
@@ -61,7 +61,7 @@ But::Optional<LogDataSource::Id> LogDataSource::first() const
   const auto node = node_.lock();
   if(not node)
     return {};
-  const auto& ll = node->logs().withLock();
+  const auto& ll = node->clogs()->withLock();
   if( ll->empty() )
     return {};
   return key2id( ll->first().key() );
@@ -72,7 +72,7 @@ But::Optional<LogDataSource::Id> LogDataSource::last() const
   const auto node = node_.lock();
   if(not node)
     return {};
-  const auto& ll = node->logs().withLock();
+  const auto& ll = node->clogs()->withLock();
   if( ll->empty() )
     return {};
   return key2id( ll->last().key() );

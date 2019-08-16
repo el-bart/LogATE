@@ -24,7 +24,7 @@ Explode::Explode(Utils::WorkerThreadsShPtr workers, Name name, Path path):
 
 bool Explode::insert(AnnotatedLog const& log)
 {
-  logs().withLock()->insert( log.log() );
+  logs()->withLock()->insert( log.log() );
   auto values = Utils::allNodeValues(log, path_);
   if( values.empty() )
   {

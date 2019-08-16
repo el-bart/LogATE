@@ -26,7 +26,7 @@ struct Fixture
   {
     std::map<Node::Name, std::vector<SequenceNumber>> out;
     for(auto node: e.children())
-      out[ node->name() ] = allSns( node->logs() );
+      out[ node->name() ] = allSns( *node->clogs() );
     return out;
   }
 

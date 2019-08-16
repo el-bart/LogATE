@@ -3,6 +3,7 @@
 #include "LogATE/Tree/Logs.hpp"
 #include "LogATE/Tree/Path.hpp"
 #include "LogATE/Utils/WorkerThreads.hpp"
+#include <But/NotNull.hpp>
 #include <But/Exception.hpp>
 #include <But/Mpl/FreeOperators.hpp>
 #include <string>
@@ -45,8 +46,8 @@ public:
 
   TrimFields trimFields() const;
 
-  Logs& logs()             { return logs_; }
-  Logs const& logs() const { return logs_; }
+  But::NotNullShared<const Logs> logs() const { return logs_; }
+  auto clogs() const { return logs(); }
 
   void pruneUpTo(Log::Key const& key);
 
@@ -58,9 +59,9 @@ protected:
       trimFields_{ std::move(trimFields) }
   { }
 
+  auto logs() { return logs_; }
   void trimAdditionalFields(TrimFields const& other);
 
-  Logs logs_;
   Utils::WorkerThreadsShPtr workers_;
 
 private:
@@ -68,6 +69,8 @@ private:
 
   const Type type_;
   const Name name_;
+
+  But::NotNullShared<Logs> logs_{ But::makeSharedNN<Logs>() };
 
   mutable std::mutex trimFieldsMutex_;
   TrimFields trimFields_;

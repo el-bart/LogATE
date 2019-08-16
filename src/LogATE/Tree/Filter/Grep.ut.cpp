@@ -18,9 +18,9 @@ struct Fixture
   auto testMatch(Path const& path, std::string const& re, Log const& log) const
   {
     Grep g{workers_, Grep::Name{"foo"}, path, re, compare_, case_, search_, trim_};
-    REQUIRE( g.logs().withLock()->empty() );
+    REQUIRE( g.clogs()->withLock()->empty() );
     g.insert( AnnotatedLog{log} );
-    return g.logs().withLock()->size();
+    return g.clogs()->withLock()->size();
   }
 
   auto testMatch(Path const& path, std::string const& re) const
