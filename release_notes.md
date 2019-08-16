@@ -1,6 +1,7 @@
 # release notes
 
 ## dev
+* improved creation of new sub-filters, by passing copying data to a separate thread.
 
 
 ## v0.2.1
