@@ -4,7 +4,6 @@
 
 * saving filter tree
 * loading filter tree
-* maybe adding a child to Explode maybe should mean adding to all subnodes? how to do this? factory?
 * search inside a given node set via regex (string is already implemented)
 * add support for arrays in all the places in the code
   - think about nice syntax for Path support of arrays (`jq` as an inspiration?)
@@ -33,7 +32,6 @@
 * key shortcut to goto a given log entry, but on a different log-list (i.e. should pop-up filter tree screen and when navigating to a given one, select a given log there).
 * 'r' to refresh screen view (in case of filter tree preview)
 * `follow mode` - add a hey to auto-refresh screen upon new logs arrival (i.e. keep view always at the end).
-* `^o` / `^enter` shortcut for confirming windows? just to minimize number of key strokes required to get filter up and running...
 * add logs-per-second into a status bar.
 * add split between runnig threads and queue length (just for readability).
 * adde screen with a preview of a background jobs and their progress.
