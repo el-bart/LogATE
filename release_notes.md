@@ -1,6 +1,11 @@
 # release notes
 
 ## dev
+
+
+## v0.2.0
+sorting by key, more key-shortcuts, command line options, saving JSON/text of a given view and vastly improved input parsing.
+
 * fixed off-by-one bug when doing reverse search (previous element was never checked).
 * fixed annoying bug when a canceled search resulted with a "not found" error dialog.
 * all logs are now sorted by `key path` (user-defined JSON path to a date-time field, that is used as a sort criteria).
