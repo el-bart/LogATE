@@ -6,4 +6,5 @@
 namespace CursATE::Curses
 {
 But::Optional<int> getChar(std::chrono::milliseconds timeout);
+int getChar();
 }

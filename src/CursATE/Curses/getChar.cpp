@@ -15,4 +15,11 @@ But::Optional<int> getChar(const std::chrono::milliseconds tout)
   return ch;
 }
 
+
+int getChar()
+{
+  timeout(-1);
+  return getch();
+}
+
 }
