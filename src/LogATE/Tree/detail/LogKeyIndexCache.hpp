@@ -12,9 +12,10 @@ class LogKeyIndexCache final
 public:
   using Data = std::set<Log, OrderByKey>;
 
-  explicit LogKeyIndexCache(Data const* data, const size_t insertEveryNth = 100'000):
+  explicit LogKeyIndexCache(Data const* data, const size_t insertEveryNth = 100'000, const size_t cacheIfDistanceAbove = 6'000):
     data_{data},
-    insertEveryNth_{insertEveryNth}
+    insertEveryNth_{insertEveryNth},
+    cacheIfDistanceAbove_{cacheIfDistanceAbove}
   {
     BUT_ASSERT(data_);
   }
@@ -35,6 +36,8 @@ private:
   size_t addToCacheLeftOf(std::vector<Entry>::const_iterator it, LogATE::Log::Key&& key);
   size_t addToCacheBetween(std::vector<Entry>::const_iterator low, std::vector<Entry>::const_iterator high, LogATE::Log::Key&& key);
 
+  size_t cacheIfNoEntryCloseEnough(std::vector<Entry>::const_iterator it, LogATE::Log::Key&& key, size_t pos);
+
   struct CacheOrderByKey final
   {
     auto operator()(LogKeyIndexCache::Entry const& lhs, LogKeyIndexCache::Entry const& rhs) const { return lhs.key_ < rhs.key_; }
@@ -45,6 +48,7 @@ private:
   Data const* data_;
   size_t insertEveryNth_;
   size_t insertionCounter_{0};
+  size_t cacheIfDistanceAbove_;
   std::vector<Entry> cache_;
 };
 

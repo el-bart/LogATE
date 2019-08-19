@@ -41,7 +41,7 @@ struct Fixture
   auto index(LogATE::Log::Key const& key) { return liic_.index(key); }
 
   LogATE::Tree::detail::LogKeyIndexCache::Data data_;
-  LogATE::Tree::detail::LogKeyIndexCache liic_{&data_};
+  LogATE::Tree::detail::LogKeyIndexCache liic_{&data_, 100'000, 0};
 };
 
 
@@ -267,7 +267,7 @@ TEST_CASE_FIXTURE(Fixture, "random scenarios - big data sets")
 
 TEST_CASE_FIXTURE(Fixture, "auto-caching every Nth added element")
 {
-  LogATE::Tree::detail::LogKeyIndexCache liic{&data_, 3};
+  LogATE::Tree::detail::LogKeyIndexCache liic{&data_, 3, 0};
   CHECK( liic.size() == 0u );
   auto ins = [&](auto const& log) {
     data_.insert(log);
@@ -291,6 +291,155 @@ TEST_CASE_FIXTURE(Fixture, "auto-caching every Nth added element")
 
   ins( makeLog(47, "fff") );
   CHECK( liic.size() == 2u );
+}
+
+
+TEST_CASE_FIXTURE(Fixture, "prevent caching entries that are close to already existing ones")
+{
+  LogATE::Tree::detail::LogKeyIndexCache liic{&data_, 1000, 2};
+
+  data_.insert( makeLog(42, "aa") );  // 0
+  data_.insert( makeLog(43, "bb") );  // 1
+  data_.insert( makeLog(44, "cc") );  // 2
+  data_.insert( makeLog(45, "dd") );  // 3
+  data_.insert( makeLog(46, "ee") );  // 4 <-- you are here...  #1
+  data_.insert( makeLog(47, "ff") );  // 5
+  data_.insert( makeLog(48, "gg") );  // 6
+  data_.insert( makeLog(49, "hh") );  // 7
+  data_.insert( makeLog(50, "ii") );  // 8
+  data_.insert( makeLog(51, "jj") );  // 9
+  data_.insert( makeLog(52, "kk") );  // 10 <-- ...and here     #2
+  data_.insert( makeLog(53, "ll") );  // 11
+  data_.insert( makeLog(54, "mm") );  // 12
+  data_.insert( makeLog(55, "nn") );  // 13
+  data_.insert( makeLog(56, "oo") );  // 14
+
+  REQUIRE( liic.size() == 0u );
+
+  CHECK( liic.index( makeKey(46, "ee") ) == 4 );
+  CHECK( liic.size() == 1u );
+  CHECK( liic.index( makeKey(52, "kk") ) == 10 );
+  CHECK( liic.size() == 2u );
+
+  SUBCASE("at the begining")
+  {
+    CHECK( liic.index( makeKey(42, "aa") ) == 0 );
+    CHECK( liic.size() == 3u );
+  }
+  SUBCASE("far before #1")
+  {
+    CHECK( liic.index( makeKey(43, "bb") ) == 1 );
+    CHECK( liic.size() == 3u );
+  }
+  SUBCASE("close before #1")
+  {
+    CHECK( liic.index( makeKey(44, "cc") ) == 2 );
+    CHECK( liic.size() == 2u );
+    CHECK( liic.index( makeKey(45, "dd") ) == 3 );
+    CHECK( liic.size() == 2u );
+  }
+  SUBCASE("close after #1")
+  {
+    CHECK( liic.index( makeKey(47, "ff") ) == 5 );
+    CHECK( liic.size() == 2u );
+    CHECK( liic.index( makeKey(48, "gg") ) == 6 );
+    CHECK( liic.size() == 2u );
+  }
+
+  SUBCASE("in between #1 and #2")
+  {
+    CHECK( liic.index( makeKey(49, "hh") ) == 7 );
+    CHECK( liic.size() == 3u );
+  }
+
+  SUBCASE("close before #2")
+  {
+    CHECK( liic.index( makeKey(50, "ii") ) == 8 );
+    CHECK( liic.size() == 2u );
+    CHECK( liic.index( makeKey(51, "jj") ) == 9 );
+    CHECK( liic.size() == 2u );
+  }
+  SUBCASE("close after #2")
+  {
+    CHECK( liic.index( makeKey(53, "ll") ) == 11 );
+    CHECK( liic.size() == 2u );
+    CHECK( liic.index( makeKey(54, "mm") ) == 12 );
+    CHECK( liic.size() == 2u );
+  }
+  SUBCASE("far after #2")
+  {
+    CHECK( liic.index( makeKey(55, "nn") ) == 13 );
+    CHECK( liic.size() == 3u );
+  }
+  SUBCASE("at the end")
+  {
+    CHECK( liic.index( makeKey(56, "oo") ) == 14 );
+    CHECK( liic.size() == 3u );
+  }
+}
+
+
+TEST_CASE_FIXTURE(Fixture, "prevent caching entries that are close to already existing ones at the edge of the set")
+{
+  LogATE::Tree::detail::LogKeyIndexCache liic{&data_, 1000, 2};
+
+  data_.insert( makeLog(42, "aa") );  // 0
+  data_.insert( makeLog(43, "bb") );  // 1
+  data_.insert( makeLog(44, "cc") );  // 2
+  data_.insert( makeLog(45, "dd") );  // 3
+  data_.insert( makeLog(46, "ee") );  // 4
+
+  REQUIRE( liic.size() == 0u );
+
+  SUBCASE("begining cached")
+  {
+    CHECK( liic.index( makeKey(42, "aa") ) == 0 );
+    CHECK( liic.size() == 1u );
+    CHECK( liic.index( makeKey(43, "bb") ) == 1 );
+    CHECK( liic.size() == 1u );
+  }
+  SUBCASE("next after begining cached")
+  {
+    CHECK( liic.index( makeKey(43, "bb") ) == 1 );
+    CHECK( liic.size() == 1u );
+    CHECK( liic.index( makeKey(42, "aa") ) == 0 );
+    CHECK( liic.size() == 1u );
+  }
+  SUBCASE("end cached")
+  {
+    CHECK( liic.index( makeKey(46, "ee") ) == 4 );
+    CHECK( liic.size() == 1u );
+    CHECK( liic.index( makeKey(45, "dd") ) == 3 );
+    CHECK( liic.size() == 1u );
+  }
+  SUBCASE("one before end cached")
+  {
+    CHECK( liic.index( makeKey(45, "dd") ) == 3 );
+    CHECK( liic.size() == 1u );
+    CHECK( liic.index( makeKey(46, "ee") ) == 4 );
+    CHECK( liic.size() == 1u );
+  }
+}
+
+
+TEST_CASE_FIXTURE(Fixture, "caching prevention mechanism is disabled when distance set to zero")
+{
+  LogATE::Tree::detail::LogKeyIndexCache liic{&data_, 1000, 0};
+
+  data_.insert( makeLog(42, "aa") );  // 0
+  data_.insert( makeLog(43, "bb") );  // 1
+  data_.insert( makeLog(44, "cc") );  // 2
+
+  REQUIRE( liic.size() == 0u );
+
+  CHECK( liic.index( makeKey(42, "aa") ) == 0 );
+  CHECK( liic.size() == 1u );
+
+  CHECK( liic.index( makeKey(43, "bb") ) == 1 );
+  CHECK( liic.size() == 2u );
+
+  CHECK( liic.index( makeKey(44, "cc") ) == 2 );
+  CHECK( liic.size() == 3u );
 }
 
 }

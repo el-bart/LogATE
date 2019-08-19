@@ -10,6 +10,8 @@ namespace
 {
 template<typename It>
 auto prevIt(It it) { return --it; }
+template<typename It>
+auto nextIt(It it) { return ++it; }
 }
 
 size_t LogKeyIndexCache::index(LogATE::Log::Key key)
@@ -81,9 +83,7 @@ size_t LogKeyIndexCache::addToCacheAtTheEnd(LogATE::Log::Key&& key)
   const auto& last = cache_.back();
   const auto lastIt = data_->find(last.key_);
   const auto pos = static_cast<size_t>( std::distance( lastIt, it ) ) + last.index_;
-  cache_.push_back( Entry{ std::move(key), pos } );
-  BUT_ASSERT( std::is_sorted( cache_.begin(), cache_.end(), CacheOrderByKey{} ) );
-  return pos;
+  return cacheIfNoEntryCloseEnough(cache_.end(), std::move(key), pos);
 }
 
 
@@ -96,10 +96,7 @@ size_t LogKeyIndexCache::addToCacheLeftOf(const std::vector<Entry>::const_iterat
 
   const auto nextKnownIt = data_->find(it->key_);
   const auto pos = it->index_ - static_cast<size_t>( std::distance( keyIt, nextKnownIt ) );
-  // TODO: do not cache entries that are close to already existing ones - it does not pay off.
-  cache_.insert( it, Entry{ std::move(key), pos } );
-  BUT_ASSERT( std::is_sorted( cache_.begin(), cache_.end(), CacheOrderByKey{} ) );
-  return pos;
+  return cacheIfNoEntryCloseEnough(it, std::move(key), pos);
 }
 
 
@@ -123,23 +120,89 @@ size_t LogKeyIndexCache::addToCacheBetween(std::vector<Entry>::const_iterator lo
     ++lowIndex;
     ++lowIt;
     if( lowIt->key() == key )
-    {
-      // TODO: do not cache entries that are close to already existing ones - it does not pay off.
-      cache_.insert( high, Entry{ std::move(key), lowIndex } );
-      BUT_ASSERT( std::is_sorted( cache_.begin(), cache_.end(), CacheOrderByKey{} ) );
-      return lowIndex;
-    }
+      return cacheIfNoEntryCloseEnough(high, std::move(key), lowIndex);
 
     --highIndex;
     --highIt;
     if( highIt->key() == key )
-    {
-      // TODO: do not cache entries that are close to already existing ones - it does not pay off.
-      cache_.insert( high, Entry{ std::move(key), highIndex } );
-      BUT_ASSERT( std::is_sorted( cache_.begin(), cache_.end(), CacheOrderByKey{} ) );
-      return highIndex;
-    }
+      return cacheIfNoEntryCloseEnough(high, std::move(key), highIndex);
   }
+}
+
+
+namespace
+{
+template<typename It>
+auto absDiff(const It it, const size_t pos)
+{
+  if( it->index_ < pos )
+    return pos - it->index_;
+  return it->index_ - pos;
+}
+
+template<typename It>
+auto absDiffInThreshold(const size_t threshold, const It it, const size_t pos)
+{
+  const auto diff = absDiff(it, pos);
+  return diff <= threshold;
+}
+
+template<typename It>
+auto hasEntryCloseEnoughLeft(const size_t threshold, const It begin, const It it, const It end, const size_t pos)
+{
+  (void)end;
+  if(begin==it)
+    return false;
+  const auto prev = prevIt(it);
+  return absDiffInThreshold(threshold, prev, pos);
+}
+
+template<typename It>
+auto hasEntryCloseEnoughRight(const size_t threshold, const It begin, const It it, const It end, const size_t pos)
+{
+  (void)begin;
+  if(end==it)
+    return false;
+  const auto next = nextIt(it);
+  if(next==end)
+    return false;
+  return absDiffInThreshold(threshold, next, pos);
+}
+
+template<typename It>
+auto hasEntryCloseEnoughHere(const size_t threshold, const It begin, const It it, const It end, const size_t pos)
+{
+  (void)begin;
+  if(end==it)
+    return false;
+  return absDiffInThreshold(threshold, it, pos);
+}
+
+template<typename It>
+auto hasEntryCloseEnough(const size_t threshold, const It begin, const It it, const It end, const size_t pos)
+{
+  if(begin==end)
+    return false;
+
+  if( hasEntryCloseEnoughHere(threshold, begin, it, end, pos) )
+    return true;
+  if( hasEntryCloseEnoughLeft(threshold, begin, it, end, pos) )
+    return true;
+  if( hasEntryCloseEnoughRight(threshold, begin, it, end, pos) )
+    return true;
+
+  return false;
+}
+}
+
+
+size_t LogKeyIndexCache::cacheIfNoEntryCloseEnough(const std::vector<Entry>::const_iterator it, LogATE::Log::Key&& key, const size_t pos)
+{
+  if( hasEntryCloseEnough( cacheIfDistanceAbove_, cache_.cbegin(), it, cache_.cend(), pos) )
+    return pos;
+  cache_.insert( it, Entry{ std::move(key), pos } );
+  BUT_ASSERT( std::is_sorted( cache_.begin(), cache_.end(), CacheOrderByKey{} ) );
+  return pos;
 }
 
 }

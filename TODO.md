@@ -15,7 +15,6 @@
   - versioned tree would be needed to provide a steady view of a dynamic structure!
 * `Filter::Grep` should support empty path, as a mean of defining "any path"
 * add parallel processing of filters data (now it is possible, since we no longer need to write at the end only, to preserve global order!)
-* limit caching of Logs::index(), when there as an already cached nodes nearby (eg. up to 1-10k positions away).
 
 
 ## UI
