@@ -19,7 +19,7 @@ void Marks::prune()
   while( it!=end(data_) )
   {
     auto tmp = it++;
-    if( not tmp->second.window_.lock() )
+    if( not tmp->second.node_.lock() )
       data_.erase(tmp);
   }
 }
