@@ -19,7 +19,9 @@ But::Optional<int> getChar(const std::chrono::milliseconds tout)
 int getChar()
 {
   timeout(-1);
-  return getch();
+  const auto ch = getch();
+  BUT_ASSERT(ch != ERR);
+  return ch;
 }
 
 }
