@@ -8,12 +8,14 @@
 * add support for arrays in all the places in the code
   - think about nice syntax for Path support of arrays (`jq` as an inspiration?)
 * filter that saves all logs after spotting a given pattern (grep-like); add option to save N logs before as well.
+  - useful for dynamic content sellection (eg. "find first experiment and then split into x/y/z filters")
 * disk/RAM auto-switching backend for `Tree::Logs`, so that it's possible to process more logs than there is RAM in computer.
 * make `Tree::Logs` lock-free so that processing can be done in a way more parallel mode than it is being done now...
   - maybe logs could be in a lock-free balanced tree?
   - versioned tree would be needed to provide a steady view of a dynamic structure!
 * `Filter::Grep` should support empty path, as a mean of defining "any path"
 * add parallel processing of filters data (now it is possible, since we no longer need to write at the end only, to preserve global order!)
+* limit caching of Logs::index(), when there as an already cached nodes nearby (eg. up to 1-10k positions away).
 
 
 ## UI
@@ -23,18 +25,15 @@
 * make deleting root node possible, if there is just one child - then it will pivot root element with its child (useful for dropping non-interesting logs)
 * embed version tag (if present) and commit hash into a binary, so that it can be displayed on request
 * generic mechanism for searching inside whole data source (usefull for different small-volume windows, i.e. non-log-lists)
-* how about a scripting language, allowing interactive searching and tree building? eg. 'search for pattern X, once found do this, start that, etc...'?
-  - if adding nodes to dynamically managed ones would be possible, it would be good to allow creation of a ready-to-process structure (i.e. auto-splitting into elements).
 * add option to plot:
   - histogram (with and without buckets)
   - data over time
   - log and/or normal scale
-* key shortcut to goto a given log entry, but on a different log-list (i.e. should pop-up filter tree screen and when navigating to a given one, select a given log there).
 * 'r' to refresh screen view (in case of filter tree preview)
 * `follow mode` - add a hey to auto-refresh screen upon new logs arrival (i.e. keep view always at the end).
 * add logs-per-second into a status bar.
 * add split between runnig threads and queue length (just for readability).
-* adde screen with a preview of a background jobs and their progress.
+* add screen with a preview of a background jobs and their progress.
 
 
 ## misc
