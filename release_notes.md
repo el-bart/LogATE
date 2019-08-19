@@ -1,6 +1,7 @@
 # release notes
 
 ## dev
+* added (book)marks - mark created with `m<key>` combination makes reference that can then be recalled with `\`<key>` (on current view) and `~<key>` on original window mark was put.
 * improved creation of new sub-filters, by passing copying data to a separate thread.
 * decreased memory usage when searching.
 * searches are now started immediately, regardless of a log window size.

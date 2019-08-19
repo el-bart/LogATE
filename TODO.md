@@ -20,7 +20,6 @@
 
 ## UI
 
-* key shortcuts for tabs switching fast (small 'm'arks and big 'Marks'?)
 * colored highlighting of searched elements
 * make deleting root node possible, if there is just one child - then it will pivot root element with its child (useful for dropping non-interesting logs)
 * embed version tag (if present) and commit hash into a binary, so that it can be displayed on request

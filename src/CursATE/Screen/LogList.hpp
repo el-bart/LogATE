@@ -1,8 +1,10 @@
 #pragma once
 #include "CursATE/Screen/detail/FilterWindows.hpp"
+#include "CursATE/Screen/detail/Marks.hpp"
 #include "CursATE/Screen/Search.hpp"
 #include "LogATE/Tree/FilterFactory.hpp"
 #include "LogATE/Net/Port.hpp"
+#include <But/Exception.hpp>
 #include <atomic>
 
 namespace CursATE::Screen
@@ -11,6 +13,8 @@ namespace CursATE::Screen
 class LogList final
 {
 public:
+  BUT_DEFINE_EXCEPTION(InvalidMark, ::But::Exception, "invalid mark");
+
   LogList(LogATE::Utils::WorkerThreadsShPtr workers,
           std::function<size_t()> inputErrors,
           std::function<std::string(LogATE::Log const&)> log2str);
@@ -37,6 +41,9 @@ private:
   void processSearchAgain(Search::Direction dir);
   void processSearchResult(Search::Result const& result);
   void pipeLogsToHost();
+  void createMark();
+  void gotoMarkLocal();
+  void gotoMarkAbsolute();
 
   std::atomic<bool> quit_{false};
   LogATE::Utils::WorkerThreadsShPtr workers_;
@@ -44,6 +51,7 @@ private:
   Search search_;
   LogATE::Tree::FilterFactory filterFactory_;
   detail::FilterWindows filterWindows_;
+  detail::Marks marks_;
   const LogATE::Tree::NodeShPtr root_;
   LogATE::Tree::NodeShPtr currentNode_;
   But::NotNullShared<Curses::ScrolableWindow> currentWindow_;

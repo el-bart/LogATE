@@ -17,6 +17,7 @@
 #include <But/assert.hpp>
 #include <But/Optional.hpp>
 #include <boost/lexical_cast.hpp>
+#include <cctype>
 #include <tuple>
 
 using LogATE::Printers::OrderedPrettyPrint;
@@ -68,10 +69,17 @@ void LogList::run()
   const CursorVisibilityGuard cvg(CursorVisibility::Invisible);
   do
   {
-    currentWindow_->refresh();
-    const auto ch = Curses::getChar( std::chrono::milliseconds{300} );
-    if(ch)
-      reactOnKey(*ch);
+    try
+    {
+      currentWindow_->refresh();
+      const auto ch = Curses::getChar( std::chrono::milliseconds{300} );
+      if(ch)
+        reactOnKey(*ch);
+    }
+    catch(std::exception const& ex)
+    {
+      displayError(ex);
+    }
   }
   while(not quit_);
 }
@@ -102,6 +110,10 @@ void LogList::reactOnKey(const int ch)
 
     case 'j': centerAllChildrenAroundCurrentLog(); break;
     case 'J': centerAllNodesAroundCurrentLog(); break;
+
+    case 'm': createMark(); break;
+    case '`': gotoMarkLocal(); break;
+    case '~': gotoMarkAbsolute(); break;
 
     case 't': processFilterTree(); break;
     case 10:
@@ -321,31 +333,94 @@ void streamLogs(LogATE::Tree::NodeWeakPtr weakNode, std::string const& host, con
 
 void LogList::pipeLogsToHost()
 {
-  try
-  {
-    currentWindow_->forceNextRefresh();
-    const auto hp = hostPortDialog();
-    if(not hp)
-      return;
-    auto wp = LogATE::Tree::NodeWeakPtr{ currentNode_.underlyingPointer() };
+  currentWindow_->forceNextRefresh();
+  const auto hp = hostPortDialog();
+  if(not hp)
+    return;
+  auto wp = LogATE::Tree::NodeWeakPtr{ currentNode_.underlyingPointer() };
 
-    if( std::get<2>(*hp) == "json" )
-    {
-      streamLogs( wp, std::get<0>(*hp), std::get<1>(*hp), [](auto& log) { return log.str(); } );
-      return;
-    }
-    if( std::get<2>(*hp) == "text" )
-    {
-      streamLogs( wp, std::get<0>(*hp), std::get<1>(*hp), log2str_ );
-      return;
-    }
-    BUT_ASSERT(!"unknown sink found - update the code...");
-    throw std::logic_error{"unknown sink found - update the code..."};
-  }
-  catch(std::exception const& ex)
+  if( std::get<2>(*hp) == "json" )
   {
-    displayError(ex);
+    streamLogs( wp, std::get<0>(*hp), std::get<1>(*hp), [](auto& log) { return log.str(); } );
+    return;
   }
+  if( std::get<2>(*hp) == "text" )
+  {
+    streamLogs( wp, std::get<0>(*hp), std::get<1>(*hp), log2str_ );
+    return;
+  }
+  BUT_ASSERT(!"unknown sink found - update the code...");
+  throw std::logic_error{"unknown sink found - update the code..."};
+}
+
+
+namespace
+{
+auto getMarkKey()
+{
+  const auto ch = Curses::getChar();
+  if( not isprint(ch) )
+    BUT_THROW(LogList::InvalidMark, "mark must be a printable character, instead got code=" << int{ch});
+  return ch;
+}
+
+auto currentLog(Curses::ScrolableWindow const& win, LogATE::Tree::NodeShPtr const& node)
+{
+  const auto sel = win.currentSelection();
+  if(not sel)
+    BUT_THROW(LogList::InvalidMark, "empty view - cannot create a mark");
+  const auto key = id2key(*sel);
+  const auto& ll = node->clogs()->withLock();
+  const auto it = ll->find(key);
+  if( it == ll->end() )
+    BUT_THROW(LogList::InvalidMark, "log no longer available (background prune?): " << key2id(key).value_);
+  return *it;
+}
+}
+
+
+void LogList::createMark()
+{
+  const auto log = currentLog(*currentWindow_, currentNode_);
+  const auto ch = getMarkKey();
+  marks_.insert( ch, detail::Marks::Entry{log.key(), currentNode_} );
+  marks_.prune();
+}
+
+
+namespace
+{
+auto getMarkEntry(detail::Marks const& marks, const char ch)
+{
+  auto e = marks.find(ch);
+  if(not e)
+    BUT_THROW(LogList::InvalidMark, "no mark registered for character '" << char(ch) << "' (code=" << ch << ")");
+  return std::move(*e);
+}
+}
+
+
+void LogList::gotoMarkLocal()
+{
+  const auto ch = getMarkKey();
+  const auto e = getMarkEntry(marks_, ch);
+  const auto id = key2id(e.key_);
+  currentWindow_->selectNearest(id);
+}
+
+
+void LogList::gotoMarkAbsolute()
+{
+  const auto ch = getMarkKey();
+  const auto e = getMarkEntry(marks_, ch);
+  const auto nodeSh = e.node_.lock();
+  if(not nodeSh)
+    BUT_THROW(LogList::InvalidMark, "node for mark '" << char(ch) << "' (code=" << ch << ") no longer exists");
+  const auto node = LogATE::Tree::NodeShPtr{nodeSh};
+  auto win = filterWindows_.window(node);
+  win->selectNearest( key2id(e.key_) );
+  currentWindow_ = win;
+  currentNode_ = node;
 }
 
 }
