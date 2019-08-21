@@ -33,6 +33,29 @@ TEST_CASE_FIXTURE(Fixture, "0 threads is auto-mapped to 1 thread")
 }
 
 
+TEST_CASE_FIXTURE(Fixture, "return value is respected")
+{
+  SUBCASE("return value")
+  {
+    auto ret = wt_.enqueueBatch( [] { return 42; } );
+    CHECK( ret.get() == 42 );
+  }
+  SUBCASE("return exception")
+  {
+    auto ret = wt_.enqueueBatch( [] { throw std::string{"foo-bar"}; } );
+    try
+    {
+      ret.get();
+      FAIL("exception has not been propagated");
+    }
+    catch(std::string const& str)
+    {
+      CHECK( str == "foo-bar" );
+    }
+  }
+}
+
+
 TEST_CASE_FIXTURE(Fixture, "parallel processing does not break the queue")
 {
   WorkerThreads wt{10};
