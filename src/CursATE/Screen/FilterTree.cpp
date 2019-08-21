@@ -133,7 +133,7 @@ bool FilterTree::deleteNode(LogATE::Tree::NodeShPtr const& selected)
     if(not parent)
       return false;
     auto ptr = parent->remove(selected);
-    workers_->enqueue( [p=std::move(ptr)]()mutable { p.reset(); } );
+    workers_->enqueueBatch( [p=std::move(ptr)]()mutable { p.reset(); } );
     return true;
   }
   catch(std::exception const& ex)

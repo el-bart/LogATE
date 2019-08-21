@@ -81,7 +81,7 @@ auto copyAll(Logs const& logs)
 
 void SimpleNode::passAllLogsToChild(NodeShPtr child)
 {
-  workers_->enqueue( [logsPtr=logs(), ptr=NodeWeakPtr{child.underlyingPointer()}] {
+  workers_->enqueueBatch( [logsPtr=logs(), ptr=NodeWeakPtr{child.underlyingPointer()}] {
       const auto logs = copyAll(*logsPtr);
       for(auto const& log: logs)
       {

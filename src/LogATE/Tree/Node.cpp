@@ -21,7 +21,7 @@ void Node::pruneUpTo(Log::Key const& key)
 {
   logs()->withLock()->pruneUpTo(key);
   for(auto child: children())
-    workers_->enqueue( [child,key] { child->pruneUpTo(key); } );
+    workers_->enqueueBatch( [child,key] { child->pruneUpTo(key); } );
 }
 
 

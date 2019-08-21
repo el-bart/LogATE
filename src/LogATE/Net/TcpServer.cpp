@@ -154,7 +154,7 @@ void TcpServer::queueJsonsForParsing(std::vector<std::string>& jsons)
   if( not waitForQueueSizeLowEnough() )
     return;
 
-  workers_->enqueue( [queue = queue_, c = std::move(tmp), quit = quit_, keyPath = keyPath_, errors = errors_] {
+  workers_->enqueueBatch( [queue = queue_, c = std::move(tmp), quit = quit_, keyPath = keyPath_, errors = errors_] {
     for(auto&& str: std::move(c))
     {
       try

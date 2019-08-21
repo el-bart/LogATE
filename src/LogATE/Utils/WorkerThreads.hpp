@@ -14,7 +14,7 @@ public:
   WorkerThreads(): WorkerThreads{ std::max(1u, std::thread::hardware_concurrency()) } { }
 
   template<typename F>
-  auto enqueue(F&& f)
+  auto enqueueBatch(F&& f)
   {
     ++nonProcessed_;
     return pool_.run( [this, ff=std::forward<F>(f)]()mutable {

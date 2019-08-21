@@ -16,7 +16,7 @@ void WorkerThreads::waitForAll()
 
     BUT_ASSERT( done.size() == threads() );
     for(auto i=0u; i<threads(); ++i)
-      enqueue( [&, i, waitAll] { done[i]->set(); waitAll->wait(); } );
+      enqueueBatch( [&, i, waitAll] { done[i]->set(); waitAll->wait(); } );
 
     for(auto& e: done)
       e->wait();

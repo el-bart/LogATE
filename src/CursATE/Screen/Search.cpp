@@ -207,7 +207,7 @@ Search::Result Search::triggerSearch(LogATE::Tree::NodeShPtr node,
 {
   const auto monitor = But::makeSharedNN<ProgressBar::Monitor>( node->clogs()->withLock()->size() );
   auto query = SearchQuery{keyQuery_, valueQuery_, currentSelection, node.underlyingPointer(), dir, monitor};
-  auto ret = workers_->enqueue( [q=std::move(query)] { return q(); } );
+  auto ret = workers_->enqueueBatch( [q=std::move(query)] { return q(); } );
   if( hasResultEarly(*monitor) )
     return ret.get();
   ProgressBar pb{monitor};
