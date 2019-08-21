@@ -1,4 +1,6 @@
 #pragma once
+#include "LogATE/Tree/NodeName.hpp"
+#include "LogATE/Tree/NodeType.hpp"
 #include <But/Threading/ThreadPool.hpp>
 #include <But/Threading/Policy/Std.hpp>
 #include <But/NotNull.hpp>
@@ -17,6 +19,28 @@ public:
   template<typename F>
   auto enqueueBatch(F&& f)
   {
+    ++nonProcessed_;
+    return pool_.run( [this, ff=std::forward<F>(f)]()mutable {
+                                                      const auto guard = But::makeGuard( [&]{ --this->nonProcessed_; } );
+                                                      return ff();
+                                                    } );
+  }
+
+  template<typename F>
+  auto enqueueUi(F&& f)
+  {
+    ++nonProcessed_;
+    return pool_.run( [this, ff=std::forward<F>(f)]()mutable {
+                                                      const auto guard = But::makeGuard( [&]{ --this->nonProcessed_; } );
+                                                      return ff();
+                                                    } );
+  }
+
+  template<typename F>
+  auto enqueueFilter(Tree::NodeType const& type, Tree::NodeName const& name, F&& f)
+  {
+    (void)type;
+    (void)name;
     ++nonProcessed_;
     return pool_.run( [this, ff=std::forward<F>(f)]()mutable {
                                                       const auto guard = But::makeGuard( [&]{ --this->nonProcessed_; } );
