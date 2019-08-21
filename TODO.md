@@ -32,6 +32,7 @@
 * add logs-per-second into a status bar.
 * add split between runnig threads and queue length (just for readability).
 * add screen with a preview of a background jobs and their progress.
+* background addition of nodes should add multiple smaller jobs, so that there is no freeze when bg lobs locks logs when copying.
 
 
 ## misc
