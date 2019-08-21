@@ -11,7 +11,8 @@ namespace LogATE::Utils
 class WorkerThreads
 {
 public:
-  WorkerThreads(): WorkerThreads{ std::max(1u, std::thread::hardware_concurrency()) } { }
+  WorkerThreads(): WorkerThreads{ std::thread::hardware_concurrency() } { }
+  explicit WorkerThreads(const size_t threads): pool_{ But::Threading::ThreadsCount{ std::max<size_t>(1, threads) } } { }
 
   template<typename F>
   auto enqueueBatch(F&& f)
@@ -30,10 +31,6 @@ public:
   auto running() const { return nonProcessed_.load(); }
 
 private:
-  explicit WorkerThreads(const size_t threads):
-    pool_{ But::Threading::ThreadsCount{threads} }
-  { }
-
   std::atomic<uint64_t> nonProcessed_{0};   // TODO: workaround until WorkerPool::enqueued() can be queried for size
   But::Threading::ThreadPool<But::Threading::Policy::Std> pool_;
 };
