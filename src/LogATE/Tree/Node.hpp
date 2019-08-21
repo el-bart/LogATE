@@ -1,11 +1,12 @@
 #pragma once
 #include "LogATE/Log.hpp"
 #include "LogATE/Tree/Logs.hpp"
+#include "LogATE/Tree/Type.hpp"
+#include "LogATE/Tree/Name.hpp"
 #include "LogATE/Tree/Path.hpp"
 #include "LogATE/Utils/WorkerThreads.hpp"
 #include <But/NotNull.hpp>
 #include <But/Exception.hpp>
-#include <But/Mpl/FreeOperators.hpp>
 #include <string>
 #include <vector>
 
@@ -23,8 +24,8 @@ class Node
 public:
   BUT_DEFINE_EXCEPTION(Error, But::Exception, "log node error");
 
-  struct Type final { std::string value_; };
-  struct Name final { std::string value_; };
+  using Type = Type;
+  using Name = Name;
   using TrimFields = std::vector<Path>;
   using Children = std::vector<NodeShPtr>;
 
@@ -75,9 +76,5 @@ private:
   mutable std::mutex trimFieldsMutex_;
   TrimFields trimFields_;
 };
-
-
-BUT_MPL_FREE_OPERATORS_COMPARE(Node::Name, .value_)
-BUT_MPL_FREE_OPERATORS_COMPARE(Node::Type, .value_)
 
 }
