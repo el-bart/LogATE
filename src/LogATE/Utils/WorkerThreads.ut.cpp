@@ -1,6 +1,9 @@
 #include "LogATE/Utils/WorkerThreads.hpp"
 #include <doctest/doctest.h>
 #include <But/Threading/Event.hpp>
+#include <set>
+#include <mutex>
+#include <thread>
 
 using LogATE::Utils::WorkerThreads;
 //using LogATE::Tree::Node;
@@ -47,6 +50,24 @@ TEST_CASE_FIXTURE(Fixture, "parallel processing does not break the queue")
     e->set();
   wt.waitForAll();
   CHECK( counter.load() == 1000u );
+}
+
+
+TEST_CASE_FIXTURE(Fixture, "all threads are used, if enough tasks are provided")
+{
+  WorkerThreads wt{3};
+  But::Threading::Event event;
+  std::atomic<unsigned> waiting{0};
+  std::atomic<unsigned> ready{0};
+  for(auto i=0u; i<wt.threads(); ++i)
+    wt.enqueueBatch( [&] { ++waiting; event.wait(); ++ready; } );
+
+  while( waiting.load() != wt.threads() )
+    std::this_thread::yield();
+  CHECK( ready.load() == 0u );
+  event.set();
+  wt.waitForAll();
+  CHECK( ready.load() == wt.threads() );
 }
 
 }
