@@ -1,8 +1,8 @@
 #pragma once
 #include "LogATE/Log.hpp"
 #include "LogATE/Tree/Logs.hpp"
-#include "LogATE/Tree/Type.hpp"
-#include "LogATE/Tree/Name.hpp"
+#include "LogATE/Tree/NodeType.hpp"
+#include "LogATE/Tree/NodeName.hpp"
 #include "LogATE/Tree/Path.hpp"
 #include "LogATE/Utils/WorkerThreads.hpp"
 #include <But/NotNull.hpp>
@@ -24,8 +24,8 @@ class Node
 public:
   BUT_DEFINE_EXCEPTION(Error, But::Exception, "log node error");
 
-  using Type = Type;
-  using Name = Name;
+  using Type = NodeType;
+  using Name = NodeName;
   using TrimFields = std::vector<Path>;
   using Children = std::vector<NodeShPtr>;
 
