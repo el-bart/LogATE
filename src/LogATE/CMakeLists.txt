@@ -66,6 +66,7 @@ if(LOGATE_ENABLE_TESTS)
     Tree/FilterFactory.ut.cpp
     Tree/detail/LogKeyIndexCache.ut.cpp
     Utils/PrintableStringConverter.ut.cpp
+    Utils/WorkerThreads.ut.cpp
     Utils/matchesLog.ut.cpp
     Utils/string2key.ut.cpp
     Utils/trimFields.ut.cpp
