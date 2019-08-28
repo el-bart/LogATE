@@ -40,6 +40,12 @@ TEST_CASE_FIXTURE(Fixture, "return value is respected")
     auto ret = wt_.enqueueBatch( [] { return 42; } );
     CHECK( ret.get() == 42 );
   }
+  SUBCASE("return void value")
+  {
+    auto ret = wt_.enqueueBatch( []{} );
+    REQUIRE( ( std::is_same<void, decltype(ret.get())>::value ) );
+    ret.get();
+  }
   SUBCASE("return exception")
   {
     auto ret = wt_.enqueueBatch( [] { throw std::string{"foo-bar"}; } );

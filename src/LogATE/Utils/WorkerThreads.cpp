@@ -4,6 +4,24 @@
 namespace LogATE::Utils
 {
 
+
+WorkerThreads::~WorkerThreads()
+{
+  try
+  {
+    quit_ = true;
+    // unblock all threads, if needed
+    Queue::lock_type lock{q_};
+    for(size_t i=0; i<threads(); ++i)
+      q_.push( TaskPtr{} );
+  }
+  catch(...)
+  {
+    BUT_ASSERT(!"failed to stop thread - givin up...");
+    abort();
+  }
+}
+
 void WorkerThreads::waitForAll()
 {
   while(true)
@@ -24,6 +42,44 @@ void WorkerThreads::waitForAll()
     waitAll->set();
     if(not hasMoreTasks)
       return;
+  }
+}
+
+
+void WorkerThreads::enqueueTask(TaskPtr task)
+{
+  const Queue::lock_type lock{q_};
+  q_.push( std::move(task) );
+}
+
+
+namespace
+{
+template<typename Q>
+auto getTask(Q& q)
+{
+  typename Q::lock_type lock{q};
+  q.waitForNonEmpty(lock);
+  auto cmd = std::move( q.top() );
+  q.pop();
+  return cmd;
+}
+}
+
+void WorkerThreads::processingLoop() noexcept
+{
+  while(not quit_)
+  {
+    try
+    {
+      auto cmd = getTask(q_);
+      if(cmd)
+        cmd->run();
+    }
+    catch(...)
+    {
+      BUT_ASSERT(!"unexpected exception from processing thread - this should never happen");
+    }
   }
 }
 
