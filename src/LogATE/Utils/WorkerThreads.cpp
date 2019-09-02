@@ -11,9 +11,9 @@ WorkerThreads::~WorkerThreads()
   {
     quit_ = true;
     // unblock all threads, if needed
-    Queue::lock_type lock{q_};
+    detail::Queue::lock_type lock{*q_};
     for(size_t i=0; i<threads(); ++i)
-      q_.push( TaskPtr{} );
+      q_->enqueueUi( TaskPtr{} );
   }
   catch(...)
   {
@@ -38,7 +38,7 @@ void WorkerThreads::waitForAll()
 
     for(auto& e: done)
       e->wait();
-    const auto hasMoreTasks = nonProcessed_ > threads();
+    const auto hasMoreTasks = running() > threads();
     waitAll->set();
     if(not hasMoreTasks)
       return;
@@ -48,8 +48,8 @@ void WorkerThreads::waitForAll()
 
 void WorkerThreads::enqueueTask(TaskPtr task)
 {
-  const Queue::lock_type lock{q_};
-  q_.push( std::move(task) );
+  const detail::Queue::lock_type lock{*q_};
+  q_->enqueueBatch( std::move(task) );
 }
 
 
@@ -60,9 +60,7 @@ auto getTask(Q& q)
 {
   typename Q::lock_type lock{q};
   q.waitForNonEmpty(lock);
-  auto cmd = std::move( q.top() );
-  q.pop();
-  return cmd;
+  return q.dequeue();
 }
 }
 
@@ -72,7 +70,7 @@ void WorkerThreads::processingLoop() noexcept
   {
     try
     {
-      auto cmd = getTask(q_);
+      auto cmd = getTask(*q_);
       if(cmd)
         cmd->run();
     }
