@@ -22,7 +22,7 @@ namespace CursATE::Curses
 BUT_DEFINE_EXCEPTION(ScreenTooSmall, Exception, "screen too small");
 BUT_DEFINE_EXCEPTION(ShortcutToUnknownField, Exception, "shortcut to unknown field");
 
-using KeyShortcuts = std::map<char, std::string>; // key -> label/name
+using KeyShortcuts = std::map<int, std::string>; // key -> label/name
 
 template<typename ...Fields>
 struct Form final
@@ -57,7 +57,7 @@ struct Form final
   }
 
 private:
-  using KeyShortcutsCompiled = std::map<char, unsigned>; // key -> filed number
+  using KeyShortcutsCompiled = std::map<int, unsigned>; // key -> filed number
 
   static ScreenSize formWinSize()
   {
