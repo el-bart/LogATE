@@ -32,6 +32,7 @@
 * add logs-per-second into a status bar.
 * add split between runnig threads and queue length (just for readability).
 * add screen with a preview of a background jobs and their progress.
+* replace all `switch`es for keys with `map`s of `key_name` to action.
 
 
 ## misc
