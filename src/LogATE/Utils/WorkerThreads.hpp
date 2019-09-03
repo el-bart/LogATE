@@ -58,8 +58,9 @@ public:
   void waitForAll();
 
   auto threads() const { return threads_.size(); }
-  //auto tasks() const { return pool_.enqueued();  };   // TODO: after BUT upgrade
-  auto running() const { return q_->withLock()->size(); }
+  auto running() const { return running_.load(); }
+  auto queued() const { return q_->withLock()->size(); }
+  auto tasks() const { return running() + queued(); }
 
 private:
   using TaskPtr = std::unique_ptr<detail::TaskBase>;
@@ -79,6 +80,7 @@ private:
   void processingLoop() noexcept;
 
   But::NotNullUnique<detail::Queue> q_{ But::makeUniqueNN<detail::Queue>() };
+  std::atomic<unsigned> running_{0};
   std::atomic<bool> quit_{false};
   std::vector<But::Threading::JoiningThread<std::thread>> threads_;
 };

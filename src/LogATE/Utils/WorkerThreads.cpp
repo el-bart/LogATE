@@ -26,18 +26,18 @@ void WorkerThreads::waitForAll()
 {
   while(true)
   {
-    std::vector<But::NotNullShared<But::Threading::Event>> done;
-    done.reserve( threads() );
-    for(auto i=0u; i<threads(); ++i)
-      done.push_back( But::makeSharedNN<But::Threading::Event>() );
     auto waitAll = But::makeSharedNN<But::Threading::Event>();
-
-    BUT_ASSERT( done.size() == threads() );
+    std::vector<But::NotNullShared<But::Threading::Event>> blocked;
+    blocked.reserve( threads() );
     for(auto i=0u; i<threads(); ++i)
-      enqueueBatch( [doneMark=done[i], waitAll] { doneMark->set(); waitAll->wait(); } );
+    {
+      auto blocker = But::makeSharedNN<But::Threading::Event>();
+      blocked.push_back(blocker);
+      enqueueBatch( [blocker, waitAll] { blocker->set(); waitAll->wait(); } );
+    }
 
-    for(auto& e: done)
-      e->wait();
+    for(auto& b: blocked)
+      b->wait();
     const auto hasMoreTasks = running() > threads();
     waitAll->set();
     if(not hasMoreTasks)
@@ -56,11 +56,12 @@ void WorkerThreads::enqueueTask(TaskPtr task)
 namespace
 {
 template<typename Q>
-auto getTask(Q& q)
+auto getTask(Q& q, std::atomic<unsigned>& running)
 {
   typename Q::lock_type lock{q};
   q.waitForNonEmpty(lock);
-  return q.dequeue();
+  ++running;
+  return std::make_pair( q.dequeue(), But::makeGuard( [&] { --running; } ) );
 }
 }
 
@@ -70,7 +71,7 @@ void WorkerThreads::processingLoop() noexcept
   {
     try
     {
-      auto cmd = getTask(*q_);
+      auto [ cmd, incGuard ] = getTask(*q_, running_);
       if(cmd)
         cmd->run();
     }

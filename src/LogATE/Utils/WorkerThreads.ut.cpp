@@ -178,5 +178,71 @@ TEST_CASE_FIXTURE(Fixture, "rescheduling is done when new tasks arrive with high
     CHECK( execOrder[i] == expectedOrder[i] );
 }
 
+
+TEST_CASE_FIXTURE(Fixture, "counters split into running and queued")
+{
+  WorkerThreads wt{2};
+  CHECK( wt.running() == 0u );
+  CHECK( wt.queued() == 0u );
+  CHECK( wt.tasks() == 0u );
+
+  But::Threading::Event blocker[4];
+  But::Threading::Event isStarted[4];
+  But::Threading::Event isFinished[4];
+
+  wt.enqueueBatch( [&] { isStarted[0].set(); blocker[0].wait(); isFinished[0].set(); } );
+  isStarted[0].wait();
+  CHECK( wt.running() == 1u );
+  CHECK( wt.queued() == 0u );
+  CHECK( wt.tasks() == 1u );
+
+  wt.enqueueBatch( [&] { isStarted[1].set(); blocker[1].wait(); isFinished[1].set(); } );
+  isStarted[1].wait();
+  CHECK( wt.running() == 2u );
+  CHECK( wt.queued() == 0u );
+  CHECK( wt.tasks() == 2u );
+
+  wt.enqueueBatch( [&] { isStarted[2].set(); blocker[2].wait(); isFinished[2].set(); } );
+  CHECK( wt.running() == 2u );
+  CHECK( wt.queued() == 1u );
+  CHECK( wt.tasks() == 3u );
+
+  wt.enqueueBatch( [&] { isStarted[3].set(); blocker[3].wait(); isFinished[3].set(); } );
+  CHECK( wt.running() == 2u );
+  CHECK( wt.queued() == 2u );
+  CHECK( wt.tasks() == 4u );
+
+  blocker[1].set();
+  isFinished[1].wait();
+  isStarted[2].wait();
+  CHECK( wt.running() == 2u );
+  CHECK( wt.queued() == 1u );
+  CHECK( wt.tasks() == 3u );
+
+  blocker[2].set();
+  isFinished[2].wait();
+  isStarted[3].wait();
+  CHECK( wt.running() == 2u );
+  CHECK( wt.queued() == 0u );
+  CHECK( wt.tasks() == 2u );
+
+  blocker[3].set();
+  isFinished[3].wait();
+  isStarted[0].wait();
+  while( wt.running() != 1u )
+    std::this_thread::yield();
+  CHECK( wt.running() == 1u );
+  CHECK( wt.queued() == 0u );
+  CHECK( wt.tasks() == 1u );
+
+  blocker[0].set();
+  isFinished[0].wait();
+  while( wt.running() != 0u )
+    std::this_thread::yield();
+  CHECK( wt.running() == 0u );
+  CHECK( wt.queued() == 0u );
+  CHECK( wt.tasks() == 0u );
+}
+
 }
 }
