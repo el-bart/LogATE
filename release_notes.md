@@ -1,6 +1,7 @@
 # release notes
 
 ## dev
+* fixed problem with some key shortcuts on forms.
 * caching index positions is now disabled for entries that already have a cached entry close enough (tm).
 * added (book)marks - mark created with `m<key>` combination makes reference that can then be recalled with `\`<key>` (on current view) and `~<key>` on original window mark was put.
 * improved creation of new sub-filters, by passing copying data to a separate thread.
