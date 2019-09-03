@@ -18,7 +18,9 @@ struct Fixture
   auto addBlocker(WorkerThreads& wt)
   {
     auto event = But::makeSharedNN<But::Threading::Event>();
-    wt.enqueueBatch( [=] { event->wait( std::chrono::minutes{1} ); } );
+    auto isStarted = But::makeSharedNN<But::Threading::Event>();
+    wt.enqueueBatch( [=] { isStarted->set(); event->wait( std::chrono::minutes{1} ); } );
+    isStarted->wait();
     return event;
   }
 
@@ -104,7 +106,7 @@ TEST_CASE_FIXTURE(Fixture, "all threads are used, if enough tasks are provided")
 TEST_CASE_FIXTURE(Fixture, "queues have proper priorities")
 {
   auto event = addBlocker(wt_);
-  auto guard = [=] { event->set(); };
+  auto guard = [event] { event->set(); };
 
   const auto type = LogATE::Tree::NodeType{"some type"};
   const auto name1 = LogATE::Tree::NodeName{"some name #1"};
@@ -152,12 +154,14 @@ TEST_CASE_FIXTURE(Fixture, "rescheduling is done when new tasks arrive with high
 
   REQUIRE( wt_.threads() == 1u );
   std::vector<std::string> execOrder;
-  wt_.enqueueBatch(              [&execOrder,event] { execOrder.push_back( std::to_string(0) + "/batch" ); event->wait(); } );
-  wt_.enqueueBatch(              [&execOrder] { execOrder.push_back( std::to_string(1) + "/batch" ); } );
-  wt_.enqueueFilter( type, name, [&execOrder] { execOrder.push_back( std::to_string(2) + "/filter" ); } );
-  wt_.enqueueUi(                 [&execOrder] { execOrder.push_back( std::to_string(3) + "/ui" ); } );
-  wt_.enqueueFilter( type, name, [&execOrder] { execOrder.push_back( std::to_string(4) + "/filter" ); } );
-  wt_.enqueueUi(                 [&execOrder] { execOrder.push_back( std::to_string(5) + "/ui" ); } );
+  auto started = But::makeSharedNN<But::Threading::Event>();
+  wt_.enqueueBatch( [&execOrder,started,event] { started->set(); execOrder.push_back( "0/batch" ); event->wait(); } );
+  started->wait();
+  wt_.enqueueBatch(              [&execOrder] { execOrder.push_back( "1/batch" ); } );
+  wt_.enqueueFilter( type, name, [&execOrder] { execOrder.push_back( "2/filter" ); } );
+  wt_.enqueueUi(                 [&execOrder] { execOrder.push_back( "3/ui" ); } );
+  wt_.enqueueFilter( type, name, [&execOrder] { execOrder.push_back( "4/filter" ); } );
+  wt_.enqueueUi(                 [&execOrder] { execOrder.push_back( "5/ui" ); } );
 
   event->set();
   wt_.waitForAll();
