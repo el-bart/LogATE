@@ -44,8 +44,8 @@ std::function<std::string()> threadsStats(LogATE::Utils::WorkerThreadsShPtr cons
   return [wp] {
     auto w = wp.lock();
     if(not w)
-      return std::string{"T:0/0"};
-    return "T:" + std::to_string( w->running() ) + "/" + std::to_string( w->threads() );
+      return std::string{"Q:0 T:0/0"};
+    return "Q:" + std::to_string( w->queued() ) + " T:" + std::to_string( w->running() ) + "/" + std::to_string( w->threads() );
   };
 }
 }

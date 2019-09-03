@@ -30,7 +30,6 @@
 * 'r' to refresh screen view (in case of filter tree preview)
 * `follow mode` - add a hey to auto-refresh screen upon new logs arrival (i.e. keep view always at the end).
 * add logs-per-second into a status bar.
-* add split between runnig threads and queue length (just for readability).
 * add screen with a preview of a background jobs and their progress.
 * background addition of nodes should add multiple smaller jobs, so that there is no freeze when bg lobs locks logs when copying.
 * replace all `switch`es for keys with `map`s of `key_name` to action.

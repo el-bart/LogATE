@@ -1,6 +1,8 @@
 # release notes
 
 ## dev
+* UI now ewports tasks being processed and queue size as separate numbers (for readability).
+* worker threads now have priority queue for: UI, filters and batch processing.
 * fixed problem with some key shortcuts on forms.
 * caching index positions is now disabled for entries that already have a cached entry close enough (tm).
 * added (book)marks - mark created with `m<key>` combination makes reference that can then be recalled with `\`<key>` (on current view) and `~<key>` on original window mark was put.
