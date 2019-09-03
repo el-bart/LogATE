@@ -32,7 +32,7 @@ struct Queue: But::Threading::BasicLockable<Queue>,
   void waitForNonEmpty(lock_type& lock)
   {
     if( not empty() )
-    return;
+      return;
     newElement_.wait( lock, [this] { return not this->empty(); } );
   }
 
@@ -47,9 +47,22 @@ struct Queue: But::Threading::BasicLockable<Queue>,
     return dequeue(batch_);
   }
 
-  void enqueueUi(value_type e) { ui_.push( std::move(e) ); }
-  void enqueueBatch(value_type e) { batch_.push( std::move(e) ); }
-  void enqueueFilter(value_type e, Tree::NodeType const& type, Tree::NodeName const& name) { getQueue(type, name).push( std::move(e) ); }
+  void enqueueUi(value_type e)
+  {
+    ui_.push( std::move(e) );
+    newElement_.notify_all();
+  }
+  void enqueueBatch(value_type e)
+  {
+    batch_.push( std::move(e) );
+    newElement_.notify_all();
+  }
+  void enqueueFilter(value_type e, Tree::NodeType const& type, Tree::NodeName const& name)
+  {
+    auto& q = getQueue(type, name);
+    q.push( std::move(e) );
+    newElement_.notify_all();
+  }
 
 private:
   struct Entry
