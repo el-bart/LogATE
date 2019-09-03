@@ -21,6 +21,7 @@ struct Queue: But::Threading::BasicLockable<Queue>,
 
   auto size() const
   {
+    BUT_ASSERT( locked() );
     auto total = ui_.size() + batch_.size();
     for(auto& q: filters_)
       total += q.queue_.size();
@@ -31,6 +32,7 @@ struct Queue: But::Threading::BasicLockable<Queue>,
 
   void waitForNonEmpty(lock_type& lock)
   {
+    BUT_ASSERT( locked() );
     if( not empty() )
       return;
     newElement_.wait( lock, [this] { return not this->empty(); } );
@@ -38,6 +40,7 @@ struct Queue: But::Threading::BasicLockable<Queue>,
 
   value_type dequeue()
   {
+    BUT_ASSERT( locked() );
     BUT_ASSERT( not empty() );
     if( not ui_.empty() )
       return dequeue(ui_);
@@ -49,16 +52,19 @@ struct Queue: But::Threading::BasicLockable<Queue>,
 
   void enqueueUi(value_type e)
   {
+    BUT_ASSERT( locked() );
     ui_.push( std::move(e) );
     newElement_.notify_all();
   }
   void enqueueBatch(value_type e)
   {
+    BUT_ASSERT( locked() );
     batch_.push( std::move(e) );
     newElement_.notify_all();
   }
   void enqueueFilter(value_type e, Tree::NodeType const& type, Tree::NodeName const& name)
   {
+    BUT_ASSERT( locked() );
     auto& q = getQueue(type, name);
     q.push( std::move(e) );
     newElement_.notify_all();
