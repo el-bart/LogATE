@@ -144,7 +144,7 @@ TEST_CASE_FIXTURE(Fixture, "queues have proper priorities")
 
 TEST_CASE_FIXTURE(Fixture, "rescheduling is done when new tasks arrive with higher priority")
 {
-  auto event = addBlocker(wt_);
+  auto event = But::makeSharedNN<But::Threading::Event>();
   auto guard = [=] { event->set(); };
 
   const auto type = LogATE::Tree::NodeType{"some type"};
