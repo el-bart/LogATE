@@ -38,7 +38,7 @@ void WorkerThreads::waitForAll()
 
     for(auto& b: blocked)
       b->wait();
-    const auto hasMoreTasks = running() > threads();
+    const auto hasMoreTasks = queued() > 0u;
     waitAll->set();
     if(not hasMoreTasks)
       return;
