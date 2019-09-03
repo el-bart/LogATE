@@ -35,7 +35,7 @@ public:
   auto enqueueBatch(F&& f)
   {
     auto tp = makeTask( std::forward<F>(f) );
-    q_->enqueueBatch( std::move(tp.first) );
+    q_->withLock()->enqueueBatch( std::move(tp.first) );
     return std::move( tp.second );
   }
 
@@ -43,7 +43,7 @@ public:
   auto enqueueUi(F&& f)
   {
     auto tp = makeTask( std::forward<F>(f) );
-    q_->enqueueUi( std::move(tp.first) );
+    q_->withLock()->enqueueUi( std::move(tp.first) );
     return std::move( tp.second );
   }
 
@@ -51,7 +51,7 @@ public:
   auto enqueueFilter(Tree::NodeType const& type, Tree::NodeName const& name, F&& f)
   {
     auto tp = makeTask( std::forward<F>(f) );
-    q_->enqueueFilter( std::move(tp.first), type, name );
+    q_->withLock()->enqueueFilter( std::move(tp.first), type, name );
     return std::move( tp.second );
   }
 
