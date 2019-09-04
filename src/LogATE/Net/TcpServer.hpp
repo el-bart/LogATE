@@ -50,16 +50,18 @@ private:
   template<typename Selector>
   bool processInputData(Selector& selector, std::vector<std::string>& inputJsons, std::string_view const& str, Clock::time_point deadline);
   bool processInputIfReady(std::vector<std::string>& inputJsons, Clock::time_point deadline);
+  void processOneClient(LogATE::Net::Socket client);
+  void cleanupDeadThreads();
 
   const JsonParsingMode jsonParsingMode_;
+  const std::chrono::milliseconds bulkPackageTimeout_;
+  const Tree::Path keyPath_;
   But::NotNullShared<std::atomic<size_t>> errors_{ But::makeSharedNN<std::atomic<size_t>>(0) };
   But::NotNullShared<std::atomic<bool>> quit_{ But::makeSharedNN<std::atomic<bool>>(false) };
-  std::chrono::milliseconds bulkPackageTimeout_;
-  const Tree::Path keyPath_;
   But::NotNullShared<Queue> queue_{ But::makeSharedNN<Queue>() };
   Utils::WorkerThreadsShPtr workers_;
   detail::TcpServerImpl server_;
-  std::string buffer_;
+  std::vector<But::Threading::JoiningThread<std::thread>> clientThreads_;
   But::Threading::JoiningThread<std::thread> workerThread_;
 };
 

@@ -38,8 +38,6 @@ TcpServer::TcpServer(Utils::WorkerThreadsShPtr workers,
 TcpServer::~TcpServer()
 {
   interrupt();
-  if( workerThread_.joinable() )
-    workerThread_.join();
 }
 
 
@@ -70,20 +68,12 @@ void TcpServer::workerLoop()
   {
     try
     {
-      buffer_.resize(1*1024*1024);
       auto client = server_.accept();
       if(not client)
         continue;
 
-      switch(jsonParsingMode_)
-      {
-        case JsonParsingMode::ParseToEndOfJson:
-             processClient<Json::Selector>(*client);
-             break;
-        case JsonParsingMode::HardBreakOnNewLine:
-             processClient<Json::NewLineSplit>(*client);
-             break;
-      }
+      clientThreads_.emplace_back(&TcpServer::processOneClient, this, std::move(*client) );
+      cleanupDeadThreads();
     }
     catch(...)
     {
@@ -97,12 +87,15 @@ void TcpServer::workerLoop()
 template<typename Selector>
 void TcpServer::processClient(Socket& socket)
 {
+  std::string buffer;
+  buffer.resize(1*1024*1024);
+
   Selector selector;
   std::vector<std::string> inputJsons;
   auto deadline = Clock::now() + bulkPackageTimeout_;
   while(not *quit_)
   {
-    const auto ret = socket.readSome(buffer_, bulkPackageTimeout_);
+    const auto ret = socket.readSome(buffer, bulkPackageTimeout_);
     switch(ret.first)
     {
       case Socket::Reason::Ok:
@@ -232,6 +225,34 @@ bool TcpServer::processInputIfReady(std::vector<std::string>& inputJsons, const 
     return false;
   queueJsonsForParsing(inputJsons);
   return true;
+}
+
+
+void TcpServer::processOneClient(LogATE::Net::Socket client)
+{
+  try
+  {
+    switch(jsonParsingMode_)
+    {
+      case JsonParsingMode::ParseToEndOfJson:
+           processClient<Json::Selector>(client);
+           break;
+      case JsonParsingMode::HardBreakOnNewLine:
+           processClient<Json::NewLineSplit>(client);
+           break;
+    }
+  }
+  catch(...)
+  {
+    ++*errors_;
+    // what can we do aside from disconnection? :/
+  }
+}
+
+
+void TcpServer::cleanupDeadThreads()
+{
+    // TODO...
 }
 
 }
