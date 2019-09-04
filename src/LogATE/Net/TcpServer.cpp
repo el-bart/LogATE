@@ -134,13 +134,10 @@ void TcpServer::sendOutRemainingLogs(std::vector<std::string>&& jsons)
 
 bool TcpServer::waitForQueueSizeLowEnough()
 {
-  const auto maxRunning = std::min( 2u*workers_->threads(), 10lu ); // TODO: limitation can be lifted when locking contingention is solved
-  while( workers_->tasks() >= maxRunning )
-  {
+  Queue::lock_type lock{*queue_};
+  while( not queue_->waitForSizeBelow(750'000, lock, std::chrono::seconds{1}) )
     if(*quit_)
       return false;
-    std::this_thread::sleep_for(std::chrono::milliseconds{100});
-  }
   return true;
 }
 
@@ -164,9 +161,6 @@ void TcpServer::queueJsonsForParsing(std::vector<std::string>& jsons)
         auto log = AnnotatedLog{ std::move(str), keyPath };   // TODO: sequence number should be preserved from original input...
         auto opt = But::Optional<AnnotatedLog>{ std::move(log) };
         Queue::lock_type lock{*queue};
-        while( not queue->waitForSizeBelow(750'000, lock, std::chrono::seconds{1}) )
-          if(*quit)
-            return;
         queue->push( std::move(opt) );
       }
       catch(...)
