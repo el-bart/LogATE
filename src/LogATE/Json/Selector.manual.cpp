@@ -27,7 +27,12 @@ int main()
     if( signal(sig, handleSigPipe) == SIG_ERR )
       throw std::runtime_error{"oops..."};
 
+#if 1
   LogATE::Json::Selector s;
+#else
+  LogATE::Json::NewLineSplit s;
+#endif
+
   std::string buf;
   buf.resize(10*1024*1024);
   while(not g_end)
