@@ -88,12 +88,12 @@ if(LOGATE_ENABLE_TESTS)
     target_link_libraries(${app} LogATE)
     add_test(NAME run_${app}
              COMMAND ${CMAKE_CURRENT_BINARY_DIR}/${app}
+                     --order-by=rand
                      --success=true
                      --force-colors=true
-                     --order-by=rand
                      --duration=true
-                     --reporters=xml
-                     --out=${CMAKE_CURRENT_BINARY_DIR}/${app}_report.xml
+                     #--reporters=xml
+                     #--out=${CMAKE_CURRENT_BINARY_DIR}/${app}_report.xml
             )
     list(APPEND TEST_TARGETS ${app})
   endforeach()
