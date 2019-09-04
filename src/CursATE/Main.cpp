@@ -8,8 +8,8 @@ namespace
 {
 auto threadsCount()
 {
-  const auto possible = std::max( std::thread::hardware_concurrency() / 2u, 1u );
-  const auto preferred = std::min(possible, 2u);
+  const auto threads = std::max( std::thread::hardware_concurrency(), 1u );
+  const auto preferred = std::max(threads/2u, 1u);
   return preferred;
 }
 
