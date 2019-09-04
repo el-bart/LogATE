@@ -33,13 +33,13 @@ public:
             std::chrono::milliseconds bulkPackageTimeout = std::chrono::milliseconds{500});
   ~TcpServer();
 
-  But::Optional<AnnotatedLog> readNextLog() override;
+  std::vector<AnnotatedLog> readNextLogs() override;
   void interrupt() override;
   size_t errors() const override { return *errors_; }
 
 private:
   using Clock = std::chrono::steady_clock;
-  using Queue = But::Threading::Fifo<But::Optional<AnnotatedLog>>;
+  using Queue = But::Threading::Fifo<std::vector<AnnotatedLog>>;
 
   void workerLoop();
   template<typename Selector>

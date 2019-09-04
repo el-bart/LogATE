@@ -5,6 +5,13 @@
 namespace LogATE::Net
 {
 
+namespace
+{
+constexpr auto g_jsonChunkSize = 1'000u;
+constexpr auto g_maxElementsInQueue = 500u;
+}
+
+
 auto pathCheck(Tree::Path keyPath)
 {
   if( keyPath.empty() )
@@ -36,13 +43,13 @@ TcpServer::~TcpServer()
 }
 
 
-But::Optional<AnnotatedLog> TcpServer::readNextLog()
+std::vector<AnnotatedLog> TcpServer::readNextLogs()
 {
   Queue::lock_type lock{*queue_};
   queue_->waitForNonEmpty(lock);
-  auto v = std::move( queue_->top() );
+  auto logs = std::move( queue_->top() );
   queue_->pop();
-  return v;
+  return logs;
 }
 
 
@@ -52,7 +59,7 @@ void TcpServer::interrupt()
   server_.interrupt();
   {
     Queue::lock_type lock{*queue_};
-    queue_->push( But::Optional<AnnotatedLog>{} );
+    queue_->push( Queue::value_type{} );
   }
 }
 
@@ -118,24 +125,46 @@ void TcpServer::processClient(Socket& socket)
 }
 
 
+namespace
+{
+auto parseToAnnotatedLogs(std::vector<std::string>&& jsons, Tree::Path const& keyPath, std::atomic<uint64_t>& errors)
+{
+  std::vector<AnnotatedLog> out;
+  out.reserve( jsons.size() );
+  for(auto& str: jsons)
+  {
+    try
+    {
+      auto log = AnnotatedLog{ std::move(str), keyPath };
+      out.push_back( std::move(log) );
+    }
+    catch(...)
+    {
+      // incorrect JSON may get accepted by a selector - this will detect this has happened
+      ++errors;
+    }
+  }
+  return out;
+}
+}
+
+
 void TcpServer::sendOutRemainingLogs(std::vector<std::string>&& jsons)
 {
-  for(auto&& str: std::move(jsons))
-  {
-    if(*quit_)
-      return;
-    auto log = AnnotatedLog{ std::move(str), keyPath_ };
-    auto opt = But::Optional<AnnotatedLog>{ std::move(log) };
-    Queue::lock_type lock{*queue_};
-    queue_->push( std::move(opt) );
-  }
+  if(*quit_)
+    return;
+  if( jsons.empty() )
+    return;
+  auto logs = parseToAnnotatedLogs( std::move(jsons), keyPath_, *errors_ );
+  Queue::lock_type lock{*queue_};
+  queue_->push( std::move(logs) );
 }
 
 
 bool TcpServer::waitForQueueSizeLowEnough()
 {
   Queue::lock_type lock{*queue_};
-  while( not queue_->waitForSizeBelow(750'000, lock, std::chrono::seconds{1}) )
+  while( not queue_->waitForSizeBelow(g_maxElementsInQueue, lock, std::chrono::seconds{1}) )
     if(*quit_)
       return false;
   return true;
@@ -151,25 +180,15 @@ void TcpServer::queueJsonsForParsing(std::vector<std::string>& jsons)
   if( not waitForQueueSizeLowEnough() )
     return;
 
-  workers_->enqueueBatch( [queue = queue_, c = std::move(tmp), quit = quit_, keyPath = keyPath_, errors = errors_] {
-    for(auto&& str: std::move(c))
-    {
-      try
-      {
-        if(*quit)
-          return;
-        auto log = AnnotatedLog{ std::move(str), keyPath };   // TODO: sequence number should be preserved from original input...
-        auto opt = But::Optional<AnnotatedLog>{ std::move(log) };
-        Queue::lock_type lock{*queue};
-        queue->push( std::move(opt) );
-      }
-      catch(...)
-      {
-        ++*errors;
-        // incorrect JSON may get accepted by a selector - this will detect this has happened
-      }
-    }
-  } );
+  workers_->enqueueBatch( [queue = queue_, c = std::move(tmp), quit = quit_, keyPath = keyPath_, errors = errors_] () mutable {
+      if(*quit)
+        return;
+      if( c.empty() )
+        return;
+      auto logs = parseToAnnotatedLogs( std::move(c), keyPath, *errors );
+      Queue::lock_type lock{*queue};
+      queue->push( std::move(logs) );
+    } );
 }
 
 
@@ -206,7 +225,7 @@ bool TcpServer::processInputData(Selector& selector,
 
 bool TcpServer::processInputIfReady(std::vector<std::string>& inputJsons, const Clock::time_point deadline)
 {
-  if( inputJsons.size() < 1'000 && Clock::now() < deadline )
+  if( inputJsons.size() < g_jsonChunkSize && Clock::now() < deadline )
     return false;
 
   if( not waitForQueueSizeLowEnough() )

@@ -28,9 +28,10 @@ int main()
 
   while(true)
   {
-    const auto log = server->readNextLog();
-    if(not log)
+    const auto logs = server->readNextLogs();
+    if( logs.empty() )
       break;
-    std::cout << log->log().sequenceNumber().value_ << ": " << log->json() << std::endl;
+    for(auto& log: logs)
+      std::cout << log.log().sequenceNumber().value_ << ": " << log.json() << std::endl;
   }
 }

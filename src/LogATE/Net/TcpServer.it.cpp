@@ -45,10 +45,10 @@ TEST_CASE_FIXTURE(Fixture, "server can handle one client")
   CHECK( s.errors() == 0 );
 
   c.write(log1_);
-  const auto log = s.readNextLog();
+  const auto logs = s.readNextLogs();
   CHECK( s.errors() == 0 );
-  REQUIRE(log);
-  CHECK( log->json() == log1_ );
+  REQUIRE( logs.size() == 1u );
+  CHECK( logs[0].json() == log1_ );
 }
 
 
@@ -60,10 +60,10 @@ TEST_CASE_FIXTURE(Fixture, "server can handle one client and multiple messages")
   for(auto const& json: {log1_, log2_})
   {
     c.write(json);
-    const auto log = s.readNextLog();
+    const auto logs = s.readNextLogs();
     CHECK( s.errors() == 0 );
-    REQUIRE( static_cast<bool>(log) );
-    CHECK( log->json() == json );
+    REQUIRE( logs.size() == 1u );
+    CHECK( logs[0].json() == json );
   }
 }
 
@@ -77,10 +77,10 @@ TEST_CASE_FIXTURE(Fixture, "server does not disconnect on parse errors")
   rc.write("}}}\n");
   rc.write( log1_.dump() );
 
-  const auto log = s.readNextLog();
+  const auto logs = s.readNextLogs();
   CHECK( s.errors() == 3 );
-  REQUIRE(log);
-  CHECK( log->json() == log1_ );
+  REQUIRE( logs.size() == 1u );
+  CHECK( logs[0].json() == log1_ );
 }
 
 
@@ -95,10 +95,10 @@ TEST_CASE_FIXTURE(Fixture, "server can handle json spread through multiple lines
                                        })"};
   rc.write(jsonStr);
 
-  const auto log = s.readNextLog();
+  const auto logs = s.readNextLogs();
   CHECK( s.errors() == 0 );
-  REQUIRE(log);
-  CHECK( log->json() == nlohmann::json::parse(jsonStr) );
+  REQUIRE( logs.size() == 1u );
+  CHECK( logs[0].json() == nlohmann::json::parse(jsonStr) );
 }
 
 
@@ -112,12 +112,14 @@ TEST_CASE_FIXTURE(Fixture, "server can handle jsons attached to next other")
   for(auto i=0; i<count; ++i)
     rc.write(jsonStr);
 
-  for(auto i=0; i<count; ++i)
+  for(auto i=0; i<count;)
   {
-    const auto log = s.readNextLog();
+    const auto logs = s.readNextLogs();
+    i += logs.size();
     CHECK( s.errors() == 0 );
-    REQUIRE(log);
-    CHECK( log->json() == nlohmann::json::parse(jsonStr) );
+    REQUIRE( not logs.empty() );
+    for(auto& log: logs)
+      CHECK( log.json() == nlohmann::json::parse(jsonStr) );
   }
 }
 
@@ -130,10 +132,10 @@ TEST_CASE_FIXTURE(Fixture, "server gets back to accepting connections once curre
   {
     TcpClient c{host_, port_};
     c.write(log1_);
-    const auto log = s.readNextLog();
+    const auto logs = s.readNextLogs();
     CHECK( s.errors() == 0 );   // disconnection is not an error
-    REQUIRE(log);
-    CHECK( log->json() == log1_ );
+    REQUIRE( logs.size() == 1u );
+    CHECK( logs[0].json() == log1_ );
   }
 }
 
@@ -165,19 +167,19 @@ TEST_CASE_FIXTURE(Fixture, "server recovers from an error in one of the JSONs")
   c.write( log1_.dump() );
   c.write( "{{}}" );
   c.write( log2_.dump() );
+  std::vector<LogATE::AnnotatedLog> out;
 
+  do
   {
-    const auto log = s.readNextLog();
-    REQUIRE( static_cast<bool>(log) );
-    CHECK( log->json() == log1_ );
+    const auto logs = s.readNextLogs();
+    REQUIRE( not logs.empty() );
+    for(auto& log: logs)
+      out.push_back(log);
   }
+  while( out.size() < 2u );
 
-  {
-    const auto log = s.readNextLog();
-    REQUIRE( static_cast<bool>(log) );
-    CHECK( log->json() == log2_ );
-  }
-
+  CHECK( out[0].json() == log1_ );
+  CHECK( out[1].json() == log2_ );
   CHECK( s.errors() == 1 );
 }
 

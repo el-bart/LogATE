@@ -56,10 +56,9 @@ void Main::dataPumpLoop()
   while(not quit_)
     try
     {
-      auto opt = server_.readNextLog();
-      if(not opt)
-        continue;
-      root_->insert( std::move(*opt) );
+      auto logs = server_.readNextLogs();
+      for(auto&& log: std::move(logs))
+        root_->insert( std::move(log) );
     }
     catch(...)
     {

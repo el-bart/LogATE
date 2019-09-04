@@ -79,9 +79,9 @@ int main()
 
   const auto printDelay = std::chrono::seconds{1};
   auto deadline = Clock::now();
-  for(auto i=0u; i<N; ++i)
+  for(auto i=0u; i<N;)
   {
-    server.readNextLog();
+    i += server.readNextLogs().size();
     const auto now = Clock::now();
     if( now > deadline )
     {
