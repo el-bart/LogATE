@@ -92,7 +92,9 @@ if(LOGATE_ENABLE_TESTS)
                      --force-colors=true
                      --order-by=rand
                      --reporters=console
-                     #--gtest_output=xml:${CMAKE_CURRENT_BINARY_DIR}/${app}_report.xml
+                     --duration=true
+                     --reporters=xml
+                     --out=${CMAKE_CURRENT_BINARY_DIR}/${app}_report.xml
             )
     list(APPEND TEST_TARGETS ${app})
   endforeach()
