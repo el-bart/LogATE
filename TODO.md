@@ -42,4 +42,3 @@
   - why does it require special TERM via screen?
   - why does it require special TERM via PuTTY?
   - how does mc solve this?
-* after adding escape and confirm key shortcuts to forms right arrow closes the window.

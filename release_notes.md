@@ -1,6 +1,7 @@
 # release notes
 
 ## dev
+* multiple input streams are now handled in parallel.
 * UI now ewports tasks being processed and queue size as separate numbers (for readability).
 * worker threads now have priority queue for: UI, filters and batch processing.
 * fixed problem with some key shortcuts on forms.
