@@ -48,7 +48,7 @@ fi
 
 time timeout -k 30 $((1*60)) \
   cmake $TCC $SAN "-DLOGATE_ENABLE_TESTS=true" "-DCMAKE_BUILD_TYPE=$TYPE" -G Ninja "$SRC_DIR"
-time timeout -k 30 $((30*60)) \
+time timeout -k 30 $((20*60)) \
   ninja all
-time timeout -k 30 $((10*60)) \
+time timeout -k 30 $((5*60)) \
   ctest -V
