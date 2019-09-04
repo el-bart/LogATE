@@ -91,7 +91,6 @@ if(LOGATE_ENABLE_TESTS)
                      --success=true
                      --force-colors=true
                      --order-by=rand
-                     --reporters=console
                      --duration=true
                      --reporters=xml
                      --out=${CMAKE_CURRENT_BINARY_DIR}/${app}_report.xml
