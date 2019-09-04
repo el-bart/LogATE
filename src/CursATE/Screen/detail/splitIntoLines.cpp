@@ -11,9 +11,6 @@ namespace CursATE::Screen::detail
 namespace
 {
 auto isEscape(const char c) { return c == '\\'; }
-auto isCr(const char c) { return c == 'n'; }
-auto isLf(const char c) { return c == 'r'; }
-auto isEolChar(const char c) { return isCr(c) || isLf(c); }
 
 auto hasEscaped(char const c, const std::string::const_iterator begin, const std::string::const_iterator end)
 {
@@ -27,7 +24,6 @@ auto hasEscaped(char const c, const std::string::const_iterator begin, const std
 }
 auto hasEscapedCr(const std::string::const_iterator begin, const std::string::const_iterator end)  { return hasEscaped('n', begin, end); }
 auto hasEscapedLf(const std::string::const_iterator begin, const std::string::const_iterator end)  { return hasEscaped('r', begin, end); }
-auto hasEscapedTab(const std::string::const_iterator begin, const std::string::const_iterator end) { return hasEscaped('t', begin, end); }
 
 auto findEndOfEscapeSequence(const std::string::const_iterator begin, const std::string::const_iterator end)
 {
