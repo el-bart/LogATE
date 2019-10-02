@@ -38,7 +38,7 @@ do
     shift
 done
 
-if nc -z locahost "${PORT}"
+if nc -z localhost "${PORT}"
 then
     echo "Conflict detected on port ${PORT}, try again or use --port option."
     exit 1
