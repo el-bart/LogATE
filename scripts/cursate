@@ -51,6 +51,14 @@ function cleanup()
     wait
 }
 
+function streamFile()
+{
+    case "${1}" in
+        *.gz) pigz -dc "${1}" ;;
+        *) cat "${1}" ;;
+    esac
+}
+
 function sendFileWhenReady()
 {
     while ! nc -w1 -z localhost "${PORT}"
@@ -58,16 +66,11 @@ function sendFileWhenReady()
         [ "${RUN}" == 0 ] && return
     done
 
+    local f
     for f in "$@"
     do
         [ "${RUN}" == 0 ] && return
-
-        if [ "${f%%.gz}" != "${f}" ]
-        then
-            pigz -d -c "${f}" | nc localhost "${PORT}"
-        else
-            cat "${f}" | nc localhost "${PORT}"
-        fi
+        streamFile "${f}" | nc localhost "${PORT}"
     done
 }
 
