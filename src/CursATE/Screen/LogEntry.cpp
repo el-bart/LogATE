@@ -325,6 +325,13 @@ std::unique_ptr<LogATE::Tree::Node> createTo(FilterFactory& ff, Curses::DataSour
 }
 
 
+auto toJsonArray(std::string const& oneValue)
+{
+  auto array = nlohmann::json::array();
+  array.push_back(oneValue);
+  return array;
+}
+
 std::unique_ptr<LogATE::Tree::Node> createAcceptAll(FilterFactory& ff)
 {
   auto form = Form{ KeyShortcuts{
@@ -350,7 +357,7 @@ std::unique_ptr<LogATE::Tree::Node> createAcceptAll(FilterFactory& ff)
         return {};
       FilterFactory::Options opts{};
       if( not ret[1].empty() )
-        opts["Trim"] = ret[1];
+        opts["Trim"] = toJsonArray(ret[1]);
       auto ptr = ff.build( FilterFactory::Type{"AcceptAll"}, FilterFactory::Name{ret[0]}, std::move(opts) );
       return std::move(ptr).underlyingPointer();
     }

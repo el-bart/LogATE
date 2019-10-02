@@ -48,17 +48,33 @@ std::function<std::string()> threadsStats(LogATE::Utils::WorkerThreadsShPtr cons
     return "Q:" + std::to_string( w->queued() ) + " T:" + std::to_string( w->running() ) + "/" + std::to_string( w->threads() );
   };
 }
+
+auto toString(LogATE::Tree::Node::TrimFields const& trimFields)
+{
+  auto out = nlohmann::json::array();
+  for(auto& tf: trimFields)
+    out.push_back( tf.str() );
+  return out.dump();
+}
+
+auto rootNodeOptions(LogATE::Tree::Node::TrimFields const& trimFields)
+{
+  FilterFactory::Options opts;
+  opts["Trim"] = toString(trimFields);
+  return opts;
+}
 }
 
 LogList::LogList(LogATE::Utils::WorkerThreadsShPtr workers,
                  std::function<size_t()> inputErrors,
-                 std::function<std::string(LogATE::Log const&)> log2str):
+                 std::function<std::string(LogATE::Log const&)> log2str,
+                 LogATE::Tree::Node::TrimFields const& trimFields):
   workers_{ std::move(workers) },
   log2str_{ std::move(log2str) },
   search_{workers_},
   filterFactory_{workers_},
   filterWindows_{ log2str_, std::move(inputErrors), threadsStats(workers_) },
-  root_{ filterFactory_.build( FilterFactory::Type{"AcceptAll"}, FilterFactory::Name{"all logs"}, FilterFactory::Options{} ) },
+  root_{ filterFactory_.build( FilterFactory::Type{"AcceptAll"}, FilterFactory::Name{"all logs"}, rootNodeOptions(trimFields)) },
   currentNode_{root_},
   currentWindow_{ filterWindows_.window(currentNode_) }
 { }

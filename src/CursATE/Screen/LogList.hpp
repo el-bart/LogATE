@@ -17,7 +17,8 @@ public:
 
   LogList(LogATE::Utils::WorkerThreadsShPtr workers,
           std::function<size_t()> inputErrors,
-          std::function<std::string(LogATE::Log const&)> log2str);
+          std::function<std::string(LogATE::Log const&)> log2str,
+          LogATE::Tree::Node::TrimFields const& trimFields);
 
   LogList(LogList const&) = delete;
   LogList& operator=(LogList const&) = delete;

@@ -32,11 +32,21 @@ TEST_CASE_FIXTURE(Fixture, "constructing AcceptAll filter")
 
   SUBCASE("optional field trimming")
   {
-    const auto ptr = ff_.build( type, name_, Opts{{"Trim", ".foo.bar"}} );
+    const auto ptr = ff_.build( type, name_, Opts{{"Trim", "[\".foo.bar\"]"}} );
     CHECK( ptr->type().value_ == type.name_ );
     const auto tf = ptr->trimFields();
     REQUIRE( tf.size() == 1 );
     CHECK( tf[0] == Path::parse(".foo.bar") );
+  }
+
+  SUBCASE("field trimming works for multiple elements")
+  {
+    const auto ptr = ff_.build( type, name_, Opts{{"Trim", "[\".foo.bar\", \".some.other.value\"]"}} );
+    CHECK( ptr->type().value_ == type.name_ );
+    const auto tf = ptr->trimFields();
+    REQUIRE( tf.size() == 2 );
+    CHECK( tf[0] == Path::parse(".foo.bar") );
+    CHECK( tf[1] == Path::parse(".some.other.value") );
   }
 
   SUBCASE("unknown argument")
@@ -46,7 +56,7 @@ TEST_CASE_FIXTURE(Fixture, "constructing AcceptAll filter")
 
   SUBCASE("invalid argument")
   {
-    CHECK_THROWS( ff_.build( type, name_, Opts{{"Trim", "..invalid.path"}} ) );
+    CHECK_THROWS( ff_.build( type, name_, Opts{{"Trim", "[\"..invalid.path\"]"}} ) );
   }
 }
 

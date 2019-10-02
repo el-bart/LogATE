@@ -1,5 +1,6 @@
 #pragma once
 #include "LogATE/Net/TcpServer.hpp"
+#include "LogATE/Tree/Node.hpp"
 #include "LogATE/Printers/OrderedPrettyPrint.hpp"
 
 
@@ -13,6 +14,7 @@ struct Config final
   LogATE::Tree::Path keyPath_;
   LogATE::Printers::OrderedPrettyPrint::SilentTags silentTags_;
   LogATE::Printers::OrderedPrettyPrint::PriorityTags priorityTags_;
+  LogATE::Tree::Node::TrimFields trimFields_;
 };
 
 }

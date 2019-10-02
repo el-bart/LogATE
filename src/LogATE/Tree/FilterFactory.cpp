@@ -30,14 +30,18 @@ auto extractPath(std::string const& type, FilterFactory::Options& options, std::
   return Path::parse(str);
 }
 
-auto extractTrimField(std::string const& type, FilterFactory::Options& options, std::string const& name)
+auto extractTrimFields(std::string const& type, FilterFactory::Options& options, std::string const& name)
 {
   (void)type;
   Node::TrimFields tf;
   auto it = options.find(name);
   if( it == end(options) )
     return tf;
-  tf.push_back( Path::parse(it->second) );
+  const auto array = nlohmann::json::parse(it->second);
+  if( not array.is_array() )
+    BUT_THROW(FilterFactory::InvalidValue, "'" << type << "' filter's 'Trim' option expects JSON array");
+  for(auto& e: array)
+    tf.push_back( Path::parse( e.get<std::string>() ) );
   options.erase(it);
   return tf;
 }
@@ -45,7 +49,7 @@ auto extractTrimField(std::string const& type, FilterFactory::Options& options, 
 std::unique_ptr<Node> buildAcceptAll(Utils::WorkerThreadsShPtr workers, FilterFactory::Name name, FilterFactory::Options options)
 {
   const auto type = std::string{"AcceptAll"};
-  auto tf = extractTrimField(type, options, "Trim");
+  auto tf = extractTrimFields(type, options, "Trim");
   if( not options.empty() )
     BUT_THROW(FilterFactory::UnknownOption, "filter " << name.value_ << "; unknown option: " << options.begin()->first);
   return std::make_unique<Filter::AcceptAll>( std::move(workers), std::move(name), std::move(tf) );
