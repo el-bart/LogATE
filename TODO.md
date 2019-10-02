@@ -15,6 +15,8 @@
   - versioned tree would be needed to provide a steady view of a dynamic structure!
 * `Filter::Grep` should support empty path, as a mean of defining "any path"
 * add parallel processing of filters data (now it is possible, since we no longer need to write at the end only, to preserve global order!)
+* make `FilterFactory` use JSON as input for options. this will be both more readable and easier to integrate with filter configuration from files.
+* add filter option to spit out its configuration as JSON (useful for writing down configs).
 
 
 ## UI
