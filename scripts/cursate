@@ -1,8 +1,88 @@
-#!/bin/bash -ex
-TAG=$(docker image ls | grep '^cursate\>' | head -1 | awk '{ print $2 }')
-exec docker run -it --rm --network=host "cursate:$TAG" \
-       --port 4242 \
+#!/bin/bash
+
+function print_usage()
+{
+    cat <<EOF
+Utility wrapper for cursate
+
+Usage:
+$0 [options] list of files
+
+Options:
+    --port|-p   make cursate listen on specific port
+    --tag|-t    use specific docker tag for cursate
+    --help|-h   this message
+EOF
+}
+
+PORT=$(( $$ % 30000 + 1024 ))
+TAG="$(docker image ls | grep '^cursate\>' | head -1 | awk '{ print $2 }')"
+RUN=1
+
+while [ "${1##-}" != "${1}" ]
+do
+    case "${1}" in
+        --port|-p)
+            PORT="${2}"
+            shift
+        ;;
+        --tag|-t)
+            TAG="${2}"
+            shift
+        ;;
+        --help|-h)
+            print_usage
+            exit 1
+        ;;
+    esac
+    shift
+done
+
+if nc -z localhost "${PORT}"
+then
+    echo "Conflict detected on port ${PORT}, try again or use --port option."
+    exit 1
+fi
+
+
+function cleanup()
+{
+    RUN=0
+    wait
+}
+
+function streamFile()
+{
+    case "${1}" in
+        *.gz) pigz -dc "${1}" ;;
+        *) cat "${1}" ;;
+    esac
+}
+
+function sendFileWhenReady()
+{
+    while ! nc -w1 -z localhost "${PORT}"
+    do
+        [ "${RUN}" == 0 ] && return
+    done
+
+    local f
+    for f in "$@"
+    do
+        [ "${RUN}" == 0 ] && return
+        streamFile "${f}" | nc localhost "${PORT}"
+    done
+}
+
+trap cleanup EXIT
+sendFileWhenReady "${@}" &
+
+echo "Cursate is going to listen on ${PORT}"
+echo "Running cursate:${TAG}"
+
+exec docker run -it --rm --network=host "cursate:${TAG}" \
+       --port "${PORT}" \
        --parse-by-line \
        --key-path ".But::PreciseDT" \
-       --silent-tags '["But::PreciseDT", "Priority", "ComponentId", "UniqueId", "string"]' \
+       --silent-tags '["But::PreciseDT", "Priority", "ComponentId", "UniqueId", "string", "But::ThreadNo"]' \
        --priority-tags '["But::PreciseDT", "Priority", "ComponentId", "UniqueId", "But::ThreadNo", "string"]'
