@@ -84,5 +84,6 @@ exec docker run -it --rm --network=host "cursate:${TAG}" \
        --port "${PORT}" \
        --parse-by-line \
        --key-path ".But::PreciseDT" \
-       --silent-tags '["But::PreciseDT", "Priority", "ComponentId", "UniqueId", "string", "But::ThreadNo"]' \
-       --priority-tags '["But::PreciseDT", "Priority", "ComponentId", "UniqueId", "But::ThreadNo", "string"]'
+       --silent-tags   '["But::PreciseDT", "Priority", "ComponentId", "UniqueId", "But::ThreadNo", "string"]' \
+       --priority-tags '["But::PreciseDT", "Priority", "ComponentId", "UniqueId", "But::ThreadNo", "string"]' \
+       --trim-fields '[".container_id"]'
