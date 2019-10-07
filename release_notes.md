@@ -1,11 +1,12 @@
 # release notes
 
 ## dev
-* adding child nodes to parents adds all elements using multiple threads now.
+* added `follow mode` to log list window (with `F` key) - it auto-focuses on last log in the window.
+* adding child nodes to parents adds all elements using multiple threads now (see status bar for overall progress).
 * fixed bug with preserving button states between form iterations.
 * multiple input streams are now handled in parallel.
-* UI now ewports tasks being processed and queue size as separate numbers (for readability).
-* worker threads now have priority queue for: UI, filters and batch processing.
+* UI now reports tasks being processed and queue size as separate numbers (for readability).
+* worker threads now have priority queue for: UI, filters and batch processing (in that order).
 * fixed problem with some key shortcuts on forms.
 * caching index positions is now disabled for entries that already have a cached entry close enough (tm).
 * added (book)marks - mark created with `m<key>` combination makes reference that can then be recalled with `\`<key>` (on current view) and `~<key>` on original window mark was put.
@@ -15,6 +16,7 @@
 
 
 ## v0.2.1
+minor bugfix
 * added missing `boost::program_options` library to a runtime image.
 
 

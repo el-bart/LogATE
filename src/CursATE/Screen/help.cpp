@@ -43,6 +43,7 @@ auto options()
       "  j            - Jump (center) all child filters to current log (or closest one, if not present directly)",
       "  J            - the same as 'j', but affecting all filters, globally",
       "  f            - go to log view (Filter creation is possible there)",
+      "  F            - enable 'follow mode' (keeps focus on last log in the window); any other key disables it",
       "  t            - open filter Tree window",
       "  enter        - alias for 't' key",
       "  /            - open search key/value window - forward search",

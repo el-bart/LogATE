@@ -30,7 +30,6 @@
   - data over time
   - log and/or normal scale
 * 'r' to refresh screen view (in case of filter tree preview)
-* `follow mode` - add a hey to auto-refresh screen upon new logs arrival (i.e. keep view always at the end).
 * add logs-per-second into a status bar.
 * add screen with a preview of a background jobs and their progress.
 * replace all `switch`es for keys with `map`s of `key_name` to action.

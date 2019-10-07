@@ -87,6 +87,8 @@ void LogList::run()
   {
     try
     {
+      if(followMode_)
+        currentWindow_->selectLast();
       currentWindow_->refresh();
       const auto ch = Curses::getChar( std::chrono::milliseconds{300} );
       if(ch)
@@ -103,6 +105,8 @@ void LogList::run()
 
 void LogList::reactOnKey(const int ch)
 {
+  followMode_ = false;  // any key disables 'follow mode'
+
   switch(ch)
   {
     case 'q': processQuitProgram(); break;
@@ -135,6 +139,8 @@ void LogList::reactOnKey(const int ch)
     case 10:
     case KEY_ENTER:
     case 'f': processLogEntry(); break;
+
+    case 'F': followMode_ = true; break;
 
     case '/': processSearch(Search::Direction::Forward); break;
     case 'n': processSearchAgain(Search::Direction::Forward); break;

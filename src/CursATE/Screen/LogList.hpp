@@ -56,6 +56,7 @@ private:
   const LogATE::Tree::NodeShPtr root_;
   LogATE::Tree::NodeShPtr currentNode_;
   But::NotNullShared<Curses::ScrolableWindow> currentWindow_;
+  bool followMode_{false};
 };
 
 }
