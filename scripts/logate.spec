@@ -1,4 +1,4 @@
-Summary: Cursate log analysis tool
+Summary: CursATE log analysis tool
 Name: pas-cursate
 Version: %{getenv:VERSION}
 Release: %{getenv:RELEASE}
@@ -8,6 +8,7 @@ Group: NGS
 Requires: /usr/bin/docker
 Requires: bash
 Requires: pigz pv
+Requires: nc
 
 %description
 Cursate allows human friendly processing for PAS logs.
@@ -44,7 +45,7 @@ docker save cursate:%{package_tag} | pigz > "${RPM_BUILD_ROOT}/opt/qiagen/cursat
 %post
 
 pigz -d -c /opt/qiagen/cursate/packages/cursate.tar.gz | docker load
-
+rm /opt/qiagen/cursate/packages/cursate.tar.gz
 
 %postun
 
