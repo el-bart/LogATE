@@ -33,7 +33,7 @@ private:
 
   const Path path_;
   const NodeShPtr nonMatchingChild_;
-  mutable std::mutex mutex_;
+  mutable std::mutex mutex_;    // NOTE: R/W locks from C++14 does not improve things at all here...
   std::unordered_map<Node::Name, NodeShPtr, NodeNameHash> children_;
 };
 
