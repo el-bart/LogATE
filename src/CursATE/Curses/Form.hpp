@@ -39,6 +39,8 @@ struct Form final
 
   Result process()
   {
+    uncheckAllButtons();
+
     selected_ = 0;
     while(true)
     {
@@ -58,6 +60,16 @@ struct Form final
 
 private:
   using KeyShortcutsCompiled = std::map<int, unsigned>; // key -> filed number
+
+  void uncheckAllButtons()
+  {
+    auto clear = [&](auto& e) { this->clearButtonState(e); };
+    detail::TupleForEach<0, size()>::visit(fields_, clear);
+  }
+
+  void clearButtonState(Field::Button& button) { button.clicked_ = false; }
+  void clearButtonState(Field::Input&) { }
+  void clearButtonState(Field::Radio&) { }
 
   static ScreenSize formWinSize()
   {
