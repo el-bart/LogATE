@@ -357,7 +357,7 @@ std::unique_ptr<LogATE::Tree::Node> createAcceptAll(FilterFactory& ff)
         return {};
       FilterFactory::Options opts{};
       if( not ret[1].empty() )
-        opts["Trim"] = toJsonArray(ret[1]);
+        opts["Trim"] = toJsonArray(ret[1]).dump();
       auto ptr = ff.build( FilterFactory::Type{"AcceptAll"}, FilterFactory::Name{ret[0]}, std::move(opts) );
       return std::move(ptr).underlyingPointer();
     }
