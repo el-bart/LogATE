@@ -46,3 +46,4 @@
   - why does it require special TERM via screen?
   - why does it require special TERM via PuTTY?
   - how does mc solve this?
+* status of LogList does not refresh correctly, when tasks queue size decrease by rows of magnitude.
