@@ -1,6 +1,7 @@
 # release notes
 
 ## dev
+* adding child nodes to parents adds all elements using multiple threads now.
 * fixed bug with preserving button states between form iterations.
 * multiple input streams are now handled in parallel.
 * UI now ewports tasks being processed and queue size as separate numbers (for readability).

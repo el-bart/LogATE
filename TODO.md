@@ -33,7 +33,6 @@
 * `follow mode` - add a hey to auto-refresh screen upon new logs arrival (i.e. keep view always at the end).
 * add logs-per-second into a status bar.
 * add screen with a preview of a background jobs and their progress.
-* background addition of nodes should add multiple smaller jobs, so that there is no freeze when bg lobs locks logs when copying.
 * replace all `switch`es for keys with `map`s of `key_name` to action.
 * add option to prune logs until a given one (to ease analysis of stuff that hasbeen pulled in, though is not really needed).
 * ^home/^end and home/end -> reverse meaning of these and add `g`/`G` for easy home/end of the list.
