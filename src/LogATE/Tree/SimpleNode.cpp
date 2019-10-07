@@ -48,7 +48,7 @@ NodeShPtr SimpleNode::addImpl(NodePtr node)
 
 namespace
 {
-void insertToChild(NodeShPtr const& child, AnnotatedLog const& log)
+inline void insertToChild(NodeShPtr const& child, AnnotatedLog const& log)
 {
   try
   {
@@ -71,26 +71,65 @@ void SimpleNode::insertToChildren(AnnotatedLog const& log)
 
 namespace
 {
-auto copyAll(Logs const& logs)
+void insertChunk(NodeWeakPtr weakNode, std::vector<Log> chunk)
 {
-  const auto& locked = logs.withLock();
-  return std::vector<Log>{ locked->begin(), locked->end() };
+  const auto sp = weakNode.lock();  // weak pointer is crucial here, to avoid cyclic dependencies (node does keep thread pool!)
+  if(not sp)
+    return;
+  for(auto&& log: std::move(chunk))
+    insertToChild(NodeShPtr{sp}, AnnotatedLog{log});
+}
 
+
+But::Optional<Log::Key> getFirstKey(But::NotNullShared<Logs> const& logs)
+{
+  const auto ll = logs->withLock();
+  if( ll->empty() )
+    return {};
+  return ll->first().key();
+}
+
+
+using WorkersWeakPtr = std::weak_ptr<Utils::WorkerThreads>;
+
+void enqueueInsertionOfAllChunks(NodeWeakPtr weakNode, WorkersWeakPtr weakWorkers, But::NotNullShared<Logs> logs)
+{
+  const auto lastKeyOpt = getFirstKey(logs);
+  if(not lastKeyOpt)
+    return;
+  auto lastKey = *lastKeyOpt;
+  constexpr auto chunkSize = 100'000;
+
+  auto done = false;
+  while(not done)
+  {
+    auto workers = weakWorkers.lock();
+    if(not workers)
+      return;
+
+    auto chunk = logs->withLock()->from(lastKey, chunkSize);
+    if( chunk.empty() )
+      return;
+    if( chunk.size() == 1 )
+      done = true;
+
+    lastKey = chunk.back().key();
+    // TODO: enqueueFilter()
+    workers->enqueueBatch( [weakNode, logs=std::move(chunk)] { insertChunk(weakNode, std::move(logs)); } );
+  }
 }
 }
+
 
 void SimpleNode::passAllLogsToChild(NodeShPtr child)
 {
-  workers_->enqueueBatch( [logsPtr=logs(), ptr=NodeWeakPtr{child.underlyingPointer()}] {
-      const auto logs = copyAll(*logsPtr);
-      for(auto const& log: logs)
-      {
-        auto sp = ptr.lock();   // weak pointer is crucial here, to avoid cyclic dependencies (node does keep thread pool!)
-        if(not sp)
-          return;
-        insertToChild(NodeShPtr{sp}, AnnotatedLog{log});
-      }
-    } );
+  // TODO: enqueueFilter()
+  workers_->enqueueBatch( [logsPtr=logs(),
+                           node=NodeWeakPtr{child.underlyingPointer()},
+                           workers=WorkersWeakPtr{workers_.underlyingPointer()}]
+                          {
+                            enqueueInsertionOfAllChunks(node, workers, logsPtr);
+                          } );
 }
 
 }
