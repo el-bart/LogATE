@@ -106,6 +106,9 @@ void enqueueInsertionOfAllChunks(NodeWeakPtr weakNode, WorkersWeakPtr weakWorker
     auto workers = weakWorkers.lock();
     if(not workers)
       return;
+    const auto sp = weakNode.lock();
+    if(not sp)
+      return;
 
     auto chunk = logs->withLock()->from(lastKey, chunkSize);
     if( chunk.empty() )
@@ -114,8 +117,7 @@ void enqueueInsertionOfAllChunks(NodeWeakPtr weakNode, WorkersWeakPtr weakWorker
       done = true;
 
     lastKey = chunk.back().key();
-    // TODO: enqueueFilter()
-    workers->enqueueBatch( [weakNode, logs=std::move(chunk)] { insertChunk(weakNode, std::move(logs)); } );
+    workers->enqueueFilter( sp->type(), sp->name(), [weakNode, logs=std::move(chunk)] { insertChunk(weakNode, std::move(logs)); } );
   }
 }
 }
@@ -123,8 +125,8 @@ void enqueueInsertionOfAllChunks(NodeWeakPtr weakNode, WorkersWeakPtr weakWorker
 
 void SimpleNode::passAllLogsToChild(NodeShPtr child)
 {
-  // TODO: enqueueFilter()
-  workers_->enqueueBatch( [logsPtr=logs(),
+  workers_->enqueueFilter( type(), name(),
+                          [logsPtr=logs(),
                            node=NodeWeakPtr{child.underlyingPointer()},
                            workers=WorkersWeakPtr{workers_.underlyingPointer()}]
                           {
