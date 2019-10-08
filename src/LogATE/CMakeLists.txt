@@ -14,6 +14,7 @@ add_library(LogATE
   Tree/Node.cpp
   Tree/Logs.cpp
   Tree/Path.cpp
+  Tree/Search.cpp
   Tree/SimpleNode.cpp
   Tree/Filter/AcceptAll.cpp
   Tree/Filter/Explode.cpp
@@ -59,6 +60,7 @@ if(LOGATE_ENABLE_TESTS)
     Tree/Logs.ut.cpp
     Tree/Node.ut.cpp
     Tree/Path.ut.cpp
+    Tree/Search.ut.cpp
     Tree/SimpleNode.ut.cpp
     Tree/Filter/Explode.ut.cpp
     Tree/Filter/Grep.ut.cpp
