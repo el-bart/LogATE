@@ -98,7 +98,7 @@ void enqueueInsertionOfAllChunks(NodeWeakPtr weakNode, WorkersWeakPtr weakWorker
   if(not lastKeyOpt)
     return;
   auto lastKey = *lastKeyOpt;
-  constexpr auto chunkSize = 100'000;
+  constexpr auto chunkSize = 10'000;
 
   auto done = false;
   while(not done)
