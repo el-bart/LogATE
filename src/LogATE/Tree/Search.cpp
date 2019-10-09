@@ -53,11 +53,42 @@ struct SharedState: But::Threading::BasicLockable<SharedState>,
 };
 
 
+auto canStopEarly(But::Optional<Log::Key> const& keyNow, const Search::Direction dir, SharedState const& state)
+{
+  if( state.cancel_->load() )
+    return true;
+
+  if(not keyNow)
+    return false;
+
+  const auto keyFound = state.withLock()->keyFound_;
+  if(not keyFound)
+    return false;
+
+  switch(dir)
+  {
+    case Search::Direction::Forward:
+         if( *keyFound <= *keyNow )
+           return true;
+         break;
+    case Search::Direction::Backward:
+         if( *keyNow <= *keyFound )
+           return true;
+         break;
+  }
+  return false;
+}
+
+
 struct ForwardSearchJob
 {
   void operator()()
   {
     const auto taskGuard = But::makeGuard( [s=state_] { ++s->doneTasks_; } );
+    BUT_ASSERT( not chunk_.empty() );
+    if( canStopEarly(chunk_.front().key(), Search::Direction::Forward, *state_) )
+      return;
+
     for(auto& e: chunk_)
     {
       try
@@ -100,6 +131,10 @@ struct BackwardSearchJob
   void operator()()
   {
     const auto taskGuard = But::makeGuard( [s=state_] { ++s->doneTasks_; } );
+    BUT_ASSERT( not chunk_.empty() );
+    if( canStopEarly(chunk_.back().key(), Search::Direction::Backward, *state_) )
+      return;
+
     for(auto it=chunk_.rbegin(); it!=chunk_.rend(); ++it)
     {
       try
@@ -165,7 +200,11 @@ Search::Result Search::search(const LogsPtr logs, const Log::Key startPoint, con
   But::Optional<Log::Key> keyNow = startPoint;
   while(keyNow)
   {
+    if( canStopEarly(keyNow, dir, *state) )
+      break;
     auto chunk = getChunk(logs, *keyNow, dir, chunkSize_);
+    if( chunk.empty() )
+      break;
     keyNow = lastKey(chunk, dir);
     const auto size = chunk.size();
     switch(dir)
@@ -176,10 +215,7 @@ Search::Result Search::search(const LogsPtr logs, const Log::Key startPoint, con
     ++state->totalTasks_;
     result.requiredCompares_ += size;
     if(size < chunkSize_)
-    {
-      keyNow.reset();
       break;
-    }
   }
 
   workers_->enqueueUi( SetSearchResult{ state, std::move(promise) } );
