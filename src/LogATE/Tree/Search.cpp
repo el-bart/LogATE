@@ -201,6 +201,7 @@ struct SetSearchResult
 };
 
 
+// TODO: make tasks creation run in a background as well, as it can take quite a time for a bigger log sets...
 //void 
 }
 
