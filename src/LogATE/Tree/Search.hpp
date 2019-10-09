@@ -15,7 +15,8 @@ struct Search
   {
     std::future<But::Optional<Log::Key>> value_;
     But::NotNullShared<std::atomic<bool>> cancel_;
-    uint64_t requiredCompares_{0};
+    But::NotNullShared<std::atomic<uint64_t>> requiredCompares_;
+    But::NotNullShared<std::atomic<uint64_t>> comparesDone_;
   };
 
   enum class Direction

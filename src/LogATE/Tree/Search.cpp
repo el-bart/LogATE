@@ -44,9 +44,17 @@ But::Optional<Log::Key> lastKey(std::vector<Log> const& logs, const Search::Dire
 struct SharedState: But::Threading::BasicLockable<SharedState>,
                     But::Threading::LockProxyProvider<SharedState>
 {
-  explicit SharedState(But::NotNullShared<std::atomic<bool>> cancel): cancel_{ std::move(cancel) } { }
+  explicit SharedState(But::NotNullShared<std::atomic<bool>> cancel,
+                       But::NotNullShared<std::atomic<uint64_t>> requiredCompares,
+                       But::NotNullShared<std::atomic<uint64_t>> comparesDone):
+    cancel_{ std::move(cancel) },
+    requiredCompares_{ std::move(requiredCompares) },
+    comparesDone_{ std::move(comparesDone) }
+  { }
 
   But::NotNullShared<std::atomic<bool>> cancel_;
+  But::NotNullShared<std::atomic<uint64_t>> requiredCompares_;
+  But::NotNullShared<std::atomic<uint64_t>> comparesDone_;
   But::Optional<Log::Key> keyFound_{};
   std::atomic<uint64_t> totalTasks_{0};
   std::atomic<uint64_t> doneTasks_{0};
@@ -94,15 +102,17 @@ struct ForwardSearchJob
       try
       {
         if(*state_->cancel_)
-          return;
+          break;
         if( not query_(e) )
           continue;
         reportFinding( e.key() );
-        return;
+        break;
       }
       catch(...)
       { }
     }
+
+    *state_->comparesDone_ += chunk_.size();
   }
 
   void reportFinding(Log::Key const& key)
@@ -140,15 +150,17 @@ struct BackwardSearchJob
       try
       {
         if(*state_->cancel_)
-          return;
+          break;
         if( not query_(*it) )
           continue;
         reportFinding( it->key() );
-        return;
+        break;
       }
       catch(...)
       { }
     }
+
+    *state_->comparesDone_ += chunk_.size();
   }
 
   void reportFinding(Log::Key const& key)
@@ -187,6 +199,9 @@ struct SetSearchResult
   But::NotNullShared<SharedState> state_;
   But::NotNullShared<std::promise<But::Optional<Log::Key>>> promise_;
 };
+
+
+//void 
 }
 
 
@@ -194,8 +209,10 @@ Search::Result Search::search(const LogsPtr logs, const Log::Key startPoint, con
 {
   auto cancel = But::makeSharedNN<std::atomic<bool>>(false);
   auto promise = But::makeSharedNN<std::promise<But::Optional<Log::Key>>>();
-  Search::Result result{ promise->get_future(), cancel };
-  auto state = But::makeSharedNN<SharedState>(cancel);
+  auto requiredCompares = But::makeSharedNN<std::atomic<uint64_t>>(0);
+  auto comparesDone = But::makeSharedNN<std::atomic<uint64_t>>(0);
+  Search::Result result{ promise->get_future(), cancel, requiredCompares, comparesDone };
+  auto state = But::makeSharedNN<SharedState>(cancel, requiredCompares, comparesDone);
 
   But::Optional<Log::Key> keyNow = startPoint;
   while(keyNow)
@@ -213,7 +230,7 @@ Search::Result Search::search(const LogsPtr logs, const Log::Key startPoint, con
       case Search::Direction::Backward: workers_->enqueueUi( BackwardSearchJob{ q, state, std::move(chunk) } ); break;
     }
     ++state->totalTasks_;
-    result.requiredCompares_ += size;
+    *state->requiredCompares_ += size;
     if(size < chunkSize_)
       break;
   }
