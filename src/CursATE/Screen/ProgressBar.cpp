@@ -38,10 +38,11 @@ auto screenSize(const unsigned delta)
 
 void printProgress(Window& win, const ScreenPosition uasp, ProgressBar::Monitor const& monitor)
 {
-  const auto done = monitor.processed_.load();
-  const auto progress = static_cast<double>(done) / monitor.totalSize_;
+  const auto processed = monitor.processed();
+  const auto totalSize = monitor.totalSize();
+  const auto progress = totalSize ? ( static_cast<double>(processed) / totalSize ) : 0.0;
   mvwprintw(win.get(), uasp.row_.value_+0, uasp.column_.value_, "progress: %s", detail::formatAsPercentage(progress).c_str());
-  mvwprintw(win.get(), uasp.row_.value_+1, uasp.column_.value_, "done: %lu / %lu", done, monitor.totalSize_.load());
+  mvwprintw(win.get(), uasp.row_.value_+1, uasp.column_.value_, "done: %lu / %lu", processed, totalSize);
   mvwprintw(win.get(), uasp.row_.value_+2, uasp.column_.value_, "press 'q' to abort search");
 }
 }
@@ -49,7 +50,7 @@ void printProgress(Window& win, const ScreenPosition uasp, ProgressBar::Monitor 
 
 bool ProgressBar::process()
 {
-  if( monitor_->abort_ )
+  if( monitor_->aborted() )
     return false;
 
   Window win{ ScreenPosition{Row{g_delta}, Column{g_delta}}, screenSize(g_delta), Window::Boxed::True };
@@ -59,9 +60,9 @@ bool ProgressBar::process()
     printProgress(win, uasp, *monitor_);
     win.refresh();
     waitForKey();
-    if(monitor_->abort_)
+    if( monitor_->aborted() )
       return false;
-    if(monitor_->done_)
+    if( monitor_->done() )
       return true;
   }
 }
@@ -73,7 +74,7 @@ void ProgressBar::waitForKey()
   if(not ch)
     return;
   if(*ch == 'q')
-    monitor_->abort_ = true;
+    monitor->abort();
 }
 
 }

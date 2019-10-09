@@ -9,26 +9,30 @@ namespace CursATE::Screen
 class ProgressBar final
 {
 public:
-  struct Monitor final
+  struct Monitor
   {
-    explicit Monitor(uint64_t totalSize): totalSize_{totalSize} { }
+    Monitor() = default;
 
-    std::atomic<uint64_t> totalSize_;
-    std::atomic<uint64_t> processed_{0};
-    std::atomic<bool> abort_{false};
-    std::atomic<bool> done_{false};
+    Monitor(Monitor&) = default;
+    Monitor& operator=(Monitor&) = default;
+
+    Monitor(Monitor&&) = default;
+    Monitor& operator=(Monitor&&) = default;
+
+    virtual ~Monitor() = default;
+
+    virtual uint64_t totalSize() const = 0;
+    virtual uint64_t processed() const = 0;
+    virtual bool done() const = 0;
+    virtual bool aborted() const = 0;
+    virtual void abort() = 0;
   };
   using MonitorShPtr = But::NotNullShared<Monitor>;
 
   BUT_DEFINE_EXCEPTION(WindowTooSmall, But::Exception, "window too small");
   BUT_DEFINE_EXCEPTION(InvalidInput, But::Exception, "invalid input");
 
-  explicit ProgressBar(MonitorShPtr monitor):
-    monitor_{ std::move(monitor) }
-  {
-    if( monitor_->totalSize_ == 0 )
-      BUT_THROW(InvalidInput, "total size cannot be 0");
-  }
+  explicit ProgressBar(MonitorShPtr monitor): monitor_{ std::move(monitor) } { }
 
   ProgressBar(ProgressBar const&) = delete;
   ProgressBar& operator=(ProgressBar const&) = delete;
