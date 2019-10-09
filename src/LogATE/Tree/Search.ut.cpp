@@ -59,22 +59,22 @@ struct LookForAnswer
 
 TEST_CASE_FIXTURE(Fixture, "searching within one block")
 {
-  const auto data = populate({1,2,3,4,5});
+  const auto data = populate({1,2,3,4});
   SUBCASE("forward")
   {
-    auto result = s_.search( logs_, data[0].key(), forward_, LookForAnswer{4} );
+    auto result = s_.search( logs_, data[0].key(), forward_, LookForAnswer{3} );
     REQUIRE( waitFor(result) );
     const auto opt = result.value_.get();
     REQUIRE(opt);
-    CHECK( *opt == data[3].key() );
+    CHECK( *opt == data[2].key() );
   }
   SUBCASE("backward")
   {
-    auto result = s_.search( logs_, data[4].key(), backward_, LookForAnswer{4} );
+    auto result = s_.search( logs_, data[3].key(), backward_, LookForAnswer{2} );
     REQUIRE( waitFor(result) );
     const auto opt = result.value_.get();
     REQUIRE(opt);
-    CHECK( *opt == data[3].key() );
+    CHECK( *opt == data[1].key() );
   }
 }
 
@@ -284,6 +284,29 @@ TEST_CASE_FIXTURE(Fixture, "searching empty set does not return anything")
     REQUIRE( waitFor(result) );
     const auto opt = result.value_.get();
     REQUIRE(not opt);
+  }
+}
+
+
+TEST_CASE_FIXTURE(Fixture, "required compares count is reasonable") // though not exact
+{
+  SUBCASE("empty set")
+  {
+    const auto data = populate({});
+    auto result = s_.search( logs_, LogATE::makeKey(42), forward_, LookForAnswer{3} );
+    CHECK( result.requiredCompares_ == data.size() );
+  }
+  SUBCASE("less than one block")
+  {
+    const auto data = populate({1,2,3,4});
+    auto result = s_.search( logs_, data[0].key(), forward_, LookForAnswer{3} );
+    CHECK( result.requiredCompares_ == data.size() );
+  }
+  SUBCASE("multiple blocks")
+  {
+    const auto data = populate({1,2,3,4,5, 6,7,8,9,10});
+    auto result = s_.search( logs_, data[0].key(), forward_, LookForAnswer{3} );
+    CHECK( result.requiredCompares_ >= data.size() );
   }
 }
 

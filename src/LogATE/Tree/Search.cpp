@@ -174,6 +174,7 @@ Search::Result Search::search(const LogsPtr logs, const Log::Key startPoint, con
       case Search::Direction::Backward: workers_->enqueueUi( BackwardSearchJob{ q, state, std::move(chunk) } ); break;
     }
     ++state->totalTasks_;
+    result.requiredCompares_ += size;
     if(size < chunkSize_)
     {
       keyNow.reset();
