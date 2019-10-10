@@ -1,6 +1,7 @@
 # release notes
 
 ## dev
+* searching in logs is now done in parallel, with all threads possible.
 * added `follow mode` to log list window (with `F` key) - it auto-focuses on last log in the window.
 * adding child nodes to parents adds all elements using multiple threads now (see status bar for overall progress).
 * fixed bug with preserving button states between form iterations.
