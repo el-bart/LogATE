@@ -101,7 +101,7 @@ struct ForwardSearchJob
     {
       try
       {
-        if(*state_->cancel_)
+        if( state_->cancel_->load() )
           break;
         if( not query_(e) )
           continue;
@@ -149,7 +149,7 @@ struct BackwardSearchJob
     {
       try
       {
-        if(*state_->cancel_)
+        if( state_->cancel_->load() )
           break;
         if( not query_(*it) )
           continue;

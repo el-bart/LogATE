@@ -154,11 +154,11 @@ auto translate(LogATE::Tree::Search::Result&& res)
 {
   BUT_ASSERT( res.value_.wait_for( std::chrono::seconds{0} ) == std::future_status::ready );
   auto opt = res.value_.get();
-  if(opt)
-    return Search::Result::found( std::move(*opt) );
-  if(res.cancel_)
+  if( res.cancel_->load() )
     return Search::Result::canceled();
-  return Search::Result::notFound();
+  if(not opt)
+    return Search::Result::notFound();
+  return Search::Result::found( std::move(*opt) );
 }
 
 
