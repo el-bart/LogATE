@@ -4,12 +4,14 @@
 #include "CursATE/Curses/Form.hpp"
 #include "CursATE/Curses/ctrl.hpp"
 #include "LogATE/Utils/matchesLog.hpp"
+#include "LogATE/Tree/Search.hpp"
 
 using LogATE::Log;
 using LogATE::Utils::matchesAnyKey;
 using LogATE::Utils::matchesAnyValue;
 using LogATE::Utils::matchesAnyKeyValue;
 using CursATE::Curses::ctrl;
+using TreeSearch = LogATE::Tree::Search;
 
 
 namespace CursATE::Screen
@@ -69,121 +71,18 @@ bool Search::updateSearchPattern()
 
 namespace
 {
-template<typename It>
-auto nextIt(It it) { return ++it; }
-
-
-template<typename Out, typename It>
-auto copyN(It begin, It end, const size_t chunk)
+std::function<bool(LogATE::Log const&)> buildQuery(std::string const& key, std::string const& value)
 {
-  Out out;
-  out.reserve(chunk);
-  auto done = size_t{0};
-  for(auto it=begin; it!=end && done!=chunk; ++it, ++done)
-    out.push_back(*it);
-  return out;
+  const auto mode = (key.empty()?0x00:0x10) | (value.empty()?0x00:0x1);
+  switch(mode)
+  {
+    case 0x10: return [key]       (LogATE::Log const& log) { return matchesAnyKey(log, key); };
+    case 0x01: return [value]     (LogATE::Log const& log) { return matchesAnyValue(log, value); };
+    case 0x11: return [key, value](LogATE::Log const& log) { return matchesAnyKeyValue(log, key, value); };
+  }
+  BUT_ASSERT(!"unknown mode");
+  throw std::logic_error{"unknown mode"};
 }
-
-
-auto extractLogs(LogATE::Tree::NodeShPtr node, LogATE::Log::Key const& currentSelection, const Search::Direction dir, const size_t chunk)
-{
-  using Out = std::vector<Log>;
-  const auto ll = node->clogs()->withLock();
-  const auto it = ll->find(currentSelection);
-  switch(dir)
-  {
-    case Search::Direction::Forward:
-         if( it == ll->end() )
-           return Out{};
-         return copyN<Out>( nextIt(it), ll->end(), chunk );
-    case Search::Direction::Backward:
-         if( it == ll->begin() )
-           return Out{};
-         return copyN<Out>( LogATE::Tree::Logs::const_reverse_iterator{it}, ll->rend(), chunk );
-  }
-  BUT_ASSERT(!"invalid search direction");
-  throw std::logic_error{"unknown value for Search::Direction"};
-}
-
-
-struct SearchQuery
-{
-  Search::Result operator()() const
-  {
-    BUT_ASSERT( not key_.empty() || not value_.empty() );
-    const auto mode = (key_.empty()?0x00:0x10) | (value_.empty()?0x00:0x1);
-    const auto chunkSize = 10'000u;
-    auto startPoint = initialStartingPoint_;
-
-    while(true)
-    {
-      const auto nodeTmp = node_.lock();
-      if(not nodeTmp)
-        break;
-      const auto node = LogATE::Tree::NodeShPtr{nodeTmp};
-      updateProgress(node, dir_);
-      const auto logs = extractLogs(node, startPoint, dir_, chunkSize);
-      const auto ret = searchInLogsChunk(logs, mode);
-      if(ret)
-        return *ret;
-      if( logs.size() < chunkSize )
-        break;
-      startPoint = logs.back().key();
-    }
-
-    monitor_->done_ = true;
-    return Search::Result::notFound();
-  }
-
-  void updateProgress(LogATE::Tree::NodeShPtr const& node, const Search::Direction dir) const
-  {
-    const auto ll = node->clogs()->withLock();
-    const auto size = ll->size();
-    const auto startIndex = ll->index(initialStartingPoint_);
-    BUT_ASSERT( startIndex < size );
-    switch(dir)
-    {
-      case Search::Direction::Forward:
-           monitor_->totalSize_ = size - startIndex;
-           return;
-      case Search::Direction::Backward:
-           monitor_->totalSize_ = startIndex;
-           return;
-    }
-    BUT_ASSERT(!"code never reaches here");
-  }
-
-  But::Optional<Search::Result> searchInLogsChunk(std::vector<Log> const& logs, const int mode) const
-  {
-    for(auto& log: logs)
-    {
-      if(monitor_->abort_)
-        return Search::Result::canceled();
-
-      auto found = false;
-      switch(mode)
-      {
-        case 0x10: found = matchesAnyKey(log, key_); break;
-        case 0x01: found = matchesAnyValue(log, value_); break;
-        case 0x11: found = matchesAnyKeyValue(log, key_, value_); break;
-      }
-      if(found)
-      {
-        monitor_->done_ = true;
-        return Search::Result::found( log.key() );
-      }
-      ++monitor_->processed_;
-    }
-    return {};
-  }
-
-  std::string key_;
-  std::string value_;
-  LogATE::Log::Key initialStartingPoint_;
-  LogATE::Tree::NodeWeakPtr node_;
-  Search::Direction dir_;
-  ProgressBar::MonitorShPtr monitor_;
-};
 
 
 bool hasResultEarly(ProgressBar::Monitor const& monitor)
@@ -192,11 +91,74 @@ bool hasResultEarly(ProgressBar::Monitor const& monitor)
   const auto timeout = std::chrono::milliseconds{300};
   const auto deadline = Clock::now() + timeout;
   while( Clock::now() < deadline )
-    if(monitor.done_)
+    if( monitor.done() )
       return true;
     else
       std::this_thread::yield();
   return false;
+}
+
+
+struct SearchProgressMonitor: ProgressBar::Monitor
+{
+  explicit SearchProgressMonitor(LogATE::Tree::Search::Result& result): result_{&result} { }
+
+  uint64_t totalSize() const override
+  {
+    BUT_ASSERT(result_);
+    return result_->requiredCompares_->load();
+  }
+
+  uint64_t processed() const override
+  {
+    BUT_ASSERT(result_);
+    return result_->comparesDone_->load();
+  }
+
+  bool done() const override
+  {
+    BUT_ASSERT(result_);
+    return result_->value_.wait_for( std::chrono::seconds{0} ) == std::future_status::ready;
+  }
+
+  bool aborted() const override
+  {
+    BUT_ASSERT(result_);
+    return result_->cancel_->load();
+  }
+
+  void abort() override
+  {
+    BUT_ASSERT(result_);
+    *result_->cancel_ = true;
+  }
+
+private:
+  LogATE::Tree::Search::Result* result_{nullptr};
+};
+
+
+auto dir2dir(const Search::Direction dir)
+{
+  switch(dir)
+  {
+    case Search::Direction::Forward:  return LogATE::Tree::Search::Direction::Forward;
+    case Search::Direction::Backward: return LogATE::Tree::Search::Direction::Backward;
+  }
+  BUT_ASSERT(!"missing case in Direcion enum");
+  throw std::logic_error{"missing case in Direcion enum"};
+}
+
+
+auto translate(LogATE::Tree::Search::Result&& res)
+{
+  BUT_ASSERT( res.value_.wait_for( std::chrono::seconds{0} ) == std::future_status::ready );
+  auto opt = res.value_.get();
+  if(opt)
+    return Search::Result::found( std::move(*opt) );
+  if(res.cancel_)
+    return Search::Result::canceled();
+  return Search::Result::notFound();
 }
 }
 
@@ -205,15 +167,16 @@ Search::Result Search::triggerSearch(LogATE::Tree::NodeShPtr node,
                                      LogATE::Log::Key const& currentSelection,
                                      const Direction dir)
 {
-  const auto monitor = But::makeSharedNN<ProgressBar::Monitor>( node->clogs()->withLock()->size() );
-  auto query = SearchQuery{keyQuery_, valueQuery_, currentSelection, node.underlyingPointer(), dir, monitor};
-  auto ret = workers_->enqueueBatch( [q=std::move(query)] { return q(); } );
+  LogATE::Tree::Search engine{workers_};
+  const auto query = buildQuery(keyQuery_, valueQuery_);
+  auto result = engine.search( node->clogs(), currentSelection, dir2dir(dir), query );
+  const auto monitor = But::makeSharedNN<SearchProgressMonitor>(result);
   if( hasResultEarly(*monitor) )
-    return ret.get();
+    return translate( std::move(result) );
   ProgressBar pb{monitor};
   if( not pb.process() )
     return Result::canceled();
-  return ret.get();
+  return translate( std::move(result) );
 }
 
 }

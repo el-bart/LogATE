@@ -74,7 +74,7 @@ void ProgressBar::waitForKey()
   if(not ch)
     return;
   if(*ch == 'q')
-    monitor->abort();
+    monitor_->abort();
 }
 
 }
