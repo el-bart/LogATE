@@ -201,8 +201,67 @@ struct SetSearchResult
 };
 
 
-// TODO: make tasks creation run in a background as well, as it can take quite a time for a bigger log sets...
-//void 
+size_t estimatedComparesCount(Search::LogsPtr const& logs, const Search::Direction dir, Log::Key const& startPoint)
+{
+  const auto ll = logs->withLock();
+  const auto it = ll->lower_bound(startPoint);
+  if( it == ll->end() )
+    return 0;
+  const auto index = ll->index( it->key() );
+  const auto size = ll->size();
+  BUT_ASSERT( size > index );
+
+  switch(dir)
+  {
+    case Search::Direction::Forward: return size - index;
+    case Search::Direction::Backward: return index;
+  }
+  BUT_ASSERT(!"unknown search direction");
+  return 0;
+}
+
+
+void enqueueAllChunks(const std::weak_ptr<Utils::WorkerThreads> workersWeakPtr,
+                      const Search::LogsPtr logs,
+                      const Log::Key startPoint,
+                      const Search::Direction dir,
+                      const Search::Query q,
+                      const But::NotNullShared<SharedState> state,
+                      const uint64_t chunkSize,
+                      const But::NotNullShared<std::promise<But::Optional<Log::Key>>> promise)
+{
+  auto workers = workersWeakPtr.lock();
+  if(not workers)
+    return;
+
+  *state->requiredCompares_ = estimatedComparesCount(logs, dir, startPoint);
+  uint64_t requiredCompares = 0;
+
+  But::Optional<Log::Key> keyNow = startPoint;
+  while(keyNow)
+  {
+    if( canStopEarly(keyNow, dir, *state) )
+      break;
+    auto chunk = getChunk(logs, *keyNow, dir, chunkSize);
+    if( chunk.empty() )
+      break;
+    keyNow = lastKey(chunk, dir);
+    const auto size = chunk.size();
+    switch(dir)
+    {
+      case Search::Direction::Forward:  workers->enqueueUi( ForwardSearchJob{  q, state, std::move(chunk) } ); break;
+      case Search::Direction::Backward: workers->enqueueUi( BackwardSearchJob{ q, state, std::move(chunk) } ); break;
+    }
+    ++state->totalTasks_;
+    requiredCompares += size;
+    if(size < chunkSize)
+      break;
+  }
+
+  *state->requiredCompares_ = requiredCompares;
+
+  workers->enqueueUi( SetSearchResult{state, promise} );
+}
 }
 
 
@@ -214,29 +273,8 @@ Search::Result Search::search(const LogsPtr logs, const Log::Key startPoint, con
   auto comparesDone = But::makeSharedNN<std::atomic<uint64_t>>(0);
   Search::Result result{ promise->get_future(), cancel, requiredCompares, comparesDone };
   auto state = But::makeSharedNN<SharedState>(cancel, requiredCompares, comparesDone);
-
-  But::Optional<Log::Key> keyNow = startPoint;
-  while(keyNow)
-  {
-    if( canStopEarly(keyNow, dir, *state) )
-      break;
-    auto chunk = getChunk(logs, *keyNow, dir, chunkSize_);
-    if( chunk.empty() )
-      break;
-    keyNow = lastKey(chunk, dir);
-    const auto size = chunk.size();
-    switch(dir)
-    {
-      case Search::Direction::Forward:  workers_->enqueueUi( ForwardSearchJob{  q, state, std::move(chunk) } ); break;
-      case Search::Direction::Backward: workers_->enqueueUi( BackwardSearchJob{ q, state, std::move(chunk) } ); break;
-    }
-    ++state->totalTasks_;
-    *state->requiredCompares_ += size;
-    if(size < chunkSize_)
-      break;
-  }
-
-  workers_->enqueueUi( SetSearchResult{ state, std::move(promise) } );
+  auto wwp = std::weak_ptr<Utils::WorkerThreads>{ workers_.underlyingPointer() };
+  workers_->enqueueUi( [=, size=chunkSize_] { enqueueAllChunks(wwp, logs, startPoint, dir, q, state, size, promise); } );
   return result;
 }
 
