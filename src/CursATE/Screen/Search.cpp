@@ -160,6 +160,32 @@ auto translate(LogATE::Tree::Search::Result&& res)
     return Search::Result::canceled();
   return Search::Result::notFound();
 }
+
+
+But::Optional<LogATE::Log::Key> advanceByOne(LogATE::Tree::Logs const& logs,
+                                             LogATE::Log::Key const& currentSelection,
+                                             const Search::Direction dir)
+{
+  switch(dir)
+  {
+    case Search::Direction::Forward:
+         {
+           const auto data = logs.withLock()->from(currentSelection, 2);
+           if( data.size() < 2u )
+             return {};
+           return data.back().key();
+         }
+    case Search::Direction::Backward:
+         {
+           const auto data = logs.withLock()->to(currentSelection, 2);
+           if( data.size() < 2u )
+             return {};
+           return data.front().key();
+         }
+  }
+  BUT_ASSERT(!"unknown search direction");
+  throw std::logic_error{"unknown search direction"};
+}
 }
 
 
@@ -168,8 +194,11 @@ Search::Result Search::triggerSearch(LogATE::Tree::NodeShPtr node,
                                      const Direction dir)
 {
   LogATE::Tree::Search engine{workers_};
-  const auto query = buildQuery(keyQuery_, valueQuery_);
-  auto result = engine.search( node->clogs(), currentSelection, dir2dir(dir), query );
+  auto query = buildQuery(keyQuery_, valueQuery_);
+  auto startPoint = advanceByOne( *node->clogs(), currentSelection, dir );
+  if(not startPoint)
+    return Result::notFound();
+  auto result = engine.search( node->clogs(), std::move(*startPoint), dir2dir(dir), std::move(query) );
   const auto monitor = But::makeSharedNN<SearchProgressMonitor>(result);
   if( hasResultEarly(*monitor) )
     return translate( std::move(result) );
