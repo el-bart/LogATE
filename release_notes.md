@@ -1,6 +1,8 @@
 # release notes
 
 ## dev
+* `cursate` startup script improvements.
+* RPM package building code.
 
 
 ## v1.0.0
