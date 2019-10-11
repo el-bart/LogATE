@@ -16,7 +16,7 @@ EOF
 }
 
 PORT=$(( $$ % 30000 + 1024 ))
-TAG="$(docker image ls | grep '^cursate\>' | head -1 | awk '{ print $2 }')"
+TAG="$(docker image ls | grep '^cursate\>' | head -n 1 | awk '{ print $2 }')"
 RUN=1
 
 while [ "${1##-}" != "${1}" ]
@@ -38,7 +38,18 @@ do
     shift
 done
 
-if nc -z localhost "${PORT}"
+if nc -h |& grep -q '\-z'
+then
+    function is_port_listening {
+        nc -z localhost "${@}"
+    }
+else
+    function is_port_listening {
+        nc --recv-only -i 0.01 localhost "${@}" |& grep -q 'Idle'
+    }
+fi
+
+if is_port_listening "${PORT}"
 then
     echo "Conflict detected on port ${PORT}, try again or use --port option."
     exit 1
@@ -61,9 +72,10 @@ function streamFile()
 
 function sendFileWhenReady()
 {
-    while ! nc -w1 -z localhost "${PORT}"
+    while ! is_port_listening "${PORT}"
     do
         [ "${RUN}" == 0 ] && return
+        sleep 1
     done
 
     local f
@@ -84,6 +96,6 @@ exec docker run -it --rm --network=host "cursate:${TAG}" \
        --port "${PORT}" \
        --parse-by-line \
        --key-path ".But::PreciseDT" \
-       --silent-tags   '["But::PreciseDT", "Priority", "ComponentId", "UniqueId", "But::ThreadNo", "string"]' \
-       --priority-tags '["But::PreciseDT", "Priority", "ComponentId", "UniqueId", "But::ThreadNo", "string"]' \
-       --trim-fields '[".container_id"]'
+       --silent-tags   '["But::PreciseDT", "Priority", "ComponentId", "UniqueId", "But::ThreadNo", "string", "log", "message"]' \
+       --priority-tags '["But::PreciseDT", "Priority", "UniqueId", "But::ThreadNo", "ComponentId", "container_name", "string", "log", "message"]' \
+       --trim-fields '[".container_id", ".ComponentId.SubsystemId", ".source"]'
