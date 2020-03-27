@@ -34,6 +34,7 @@
 * replace all `switch`es for keys with `map`s of `key_name` to action.
 * add option to prune logs until a given one (to ease analysis of stuff that hasbeen pulled in, though is not really needed).
 * ^home/^end and home/end -> reverse meaning of these and add `g`/`G` for easy home/end of the list.
+* when moving to a bookmark, do not center view, when element is already in a visible set.
 
 
 ## misc
