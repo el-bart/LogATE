@@ -1,10 +1,11 @@
-sudo: required
-language: c++
+os: linux
+dist: debian
+language: cpp
 services:
     - docker
 env:
     global:
-    matrix:
+    jobs:
         - SCRIPT="build_clang6_Debug_address"
         - SCRIPT="build_clang6_Debug_thread"
         - SCRIPT="build_clang6_Debug_undefined"
