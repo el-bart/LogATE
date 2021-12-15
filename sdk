@@ -13,5 +13,5 @@ exec docker run \
        -it \
        --rm \
        --network=host \
-       "baszerr/logate-sdk" \
+       "logate-sdk" \
        "$@"
