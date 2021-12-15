@@ -1,15 +1,24 @@
-#FROM baszerr/but-sdk:v1.2.0
-FROM baszerr/but-sdk:latest
-RUN apt-get update
-RUN apt-get upgrade -y
+FROM debian:buster
+RUN apt-get update && apt-get dist-upgrade -y
 
-RUN apt-get install -y git wget
-RUN apt-get install -y gdb
-RUN apt-get install -y valgrind
-RUN apt-get install -y kcachegrind
-
-RUN apt-get install -y libncurses-dev
-RUN apt-get install -y libpoco-dev
+RUN apt-get update && apt-get install -y \
+    cmake \
+    ninja-build
+RUN apt-get update && apt-get install -y \
+    g++ \
+    clang \
+    llvm
+RUN apt-get update && apt-get install -y \
+    libboost-all-dev \
+    libncurses-dev \
+    libpoco-dev \
+    nlohmann-json3-dev
+RUN apt-get update && apt-get install -y \
+    gdb \
+    git \
+    kcachegrind \
+    valgrind \
+    wget
 
 ENV DOCTEST_VER=2.3.4
 RUN cd /usr/src/ && \
@@ -25,7 +34,7 @@ RUN cd /usr/src/ && \
 #    cmake -G Ninja -DCMAKE_BUILD_TYPE=Release .. && \
 #    ninja && \
 #    ninja install
-RUN apt-get install unzip
+RUN apt-get update && apt-get install unzip
 RUN cd /usr/src/ && \
     wget -O "but-master.zip" "https://codeload.github.com/el-bart/but/zip/master" && \
     unzip "but-master.zip" && \
