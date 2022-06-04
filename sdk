@@ -6,17 +6,13 @@ IMAGE="logate-sdk"
 docker build -t "$IMAGE" docker/sdk/
 
 mkdir -p "$BUILD_DIR"
-xhost "+si:localuser:$USER"
 exec docker run \
+       -it \
+       --rm \
+       --port 4242:4242 \
        -u "$(id -u):$(id -g)" \
-       -e DISPLAY="$DISPLAY" \
-       -v /tmp/.X11-unix:/tmp/.X11-unix:ro \
-       -e QT_X11_NO_MITSHM=1 \
        -v "$DIR:/mnt/prj" \
        -w "/mnt/prj/$BUILD_DIR" \
        --cap-add SYS_PTRACE \
-       -it \
-       --rm \
-       --network=host \
        "$IMAGE" \
        "$@"
