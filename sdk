@@ -1,11 +1,11 @@
 #!/bin/bash -ex
 DIR=$(dirname "$(readlink -e "$0")")
-DEFAULT_BUILD_DIR="build/clang/Debug/address"
+BUILD_DIR="${BUILD_DIR:-build/clang/Debug/address}"
 IMAGE="logate-sdk"
 
 docker build -t "$IMAGE" docker/sdk/
 
-mkdir -p "$DEFAULT_BUILD_DIR"
+mkdir -p "$BUILD_DIR"
 xhost "+si:localuser:$USER"
 exec docker run \
        -u "$(id -u):$(id -g)" \
@@ -13,7 +13,7 @@ exec docker run \
        -v /tmp/.X11-unix:/tmp/.X11-unix:ro \
        -e QT_X11_NO_MITSHM=1 \
        -v "$DIR:/mnt/prj" \
-       -w "/mnt/prj/$DEFAULT_BUILD_DIR" \
+       -w "/mnt/prj/$BUILD_DIR" \
        --cap-add SYS_PTRACE \
        -it \
        --rm \
