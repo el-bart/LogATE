@@ -9,7 +9,7 @@ mkdir -p "$BUILD_DIR"
 exec docker run \
        -it \
        --rm \
-       --port 4242:4242 \
+       --publish 4242:4242 \
        -u "$(id -u):$(id -g)" \
        -v "$DIR:/mnt/prj" \
        -w "/mnt/prj/$BUILD_DIR" \
