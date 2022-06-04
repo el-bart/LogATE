@@ -1,0 +1,46 @@
+#!/bin/bash
+set -eu -o pipefail
+app=$(basename "$0")
+out_dir="build/docker_image"
+img_name="cursate"
+
+cd "$(dirname "$(readlink -e "$0")")"
+
+echo "$app: building dockerized SDK"
+time ./sdk true
+
+echo "$app: building CursATE binary"
+time ./sdk /mnt/prj/ci/build_gcc8_Release_none
+
+echo "$app: building CursATE docker image"
+mkdir -p "$out_dir"
+cp -rv docker/runtime/* "$out_dir/"
+cp -v build/gcc8/Release/none/src/CursATE/CursATE "$out_dir/"
+time docker build -t "$img_name" "$out_dir/"
+
+cat <<EOF
+$app: all done! :-)
+in order to run CursATE in port 4242, do this:
+
+docker run -it --rm -p 4242:4242 '$img_name' \\
+       --port 4242 \\
+       --parse-by-line \\
+       --key-path ".But::PreciseDT" \\
+       --silent-tags   '["But::PreciseDT", "Priority", "UniqueId", "But::ThreadNo", "message"]' \\
+       --priority-tags '["But::PreciseDT", "Priority", "UniqueId", "But::ThreadNo", "message"]' \\
+       --trim-fields '[".container_id", ".source"]'
+
+where:
+ * 'priority-tags' defines which tags should be displayed as first.
+ * 'silent-tags' defines which tags' names should not be despayed.
+ * 'key-path' defines which field is a timestamp (used for sorting logs by time).
+ * 'trim-fields' defines which field are to be hidden on main view (can be seen when entering log entry)
+note that while 'priority-tags' and 'silent-tags' are usually the same, it's not strictly required.
+
+CursATE reads logs via TCP socket - port 4242. in order to send logs run:
+
+cat my_logs.json | ncat localhost 4242
+
+you can pipe from more then one stream at a time. your CursATE view will be refreshed live, when
+new logs are received.
+EOF
