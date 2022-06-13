@@ -17,7 +17,7 @@ do
     do
       ((++runs))
       echo "$app: #$runs BUILD WITH SDK $sdk MODE $mode SANITIZER $san"
-      time ./sdk "$sdk" ./ci/build "$sdk" "$mode" "$san" || failed+=("$sdk")
+      time ./sdk /mnt/prj/ci/build "$sdk" "$mode" "$san" || failed+=("$sdk")
     done
   done
 done

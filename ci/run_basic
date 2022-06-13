@@ -16,7 +16,7 @@ do
     ((++runs))
     san=$([ "$mode" = "Debug" ] && echo "address" || echo "none")
     echo "$app: #$runs BUILD WITH SDK $sdk MODE $mode SANITIZER $san"
-    time ./sdk "$sdk" ./ci/build "$sdk" "$mode" "$san" || failed+=("$sdk/$mode/$san")
+    time ./sdk /mnt/prj/ci/build "$sdk" "$mode" "$san" || failed+=("$sdk/$mode/$san")
   done
 done
 
