@@ -1,0 +1,50 @@
+#!/bin/bash
+set -eu -o pipefail
+app=$(basename "$0")
+app_dir=$(dirname "$(readlink -e "$0")")
+root_dir="$app_dir/.."
+src_dir="$root_dir/src"
+build_dir="$root_dir/build"
+
+if [ "$#" -ne 3 ]
+then
+  echo "$app <toolchain> <mode> <sanitizer>" >&2
+  echo "$app {gcc|clang} {Debug|Release|Profile|Relwithdebinfo} {none|address|thread|undefined}" >&2
+  exit 2
+fi
+toolchain=$1
+mode=$2
+sanitizer=$3
+shift 3
+
+env
+echo "$app: `nproc` CPUs available"
+free -m
+
+cmake_flags=()
+cmake_flags+=("-DCMAKE_TOOLCHAIN_FILE=$src_dir/cmake/toolchains/${toolchain}.cmake")
+if [ "$sanitizer" != "none" ]
+then
+  cmake_flags+=("-DLOGATE_SANITIZE=$sanitizer")
+  cmake_flags+=("-DLOGATE_ENABLE_PIC=true")
+fi
+cmake_flags+=("-DCMAKE_BUILD_TYPE=$mode")
+cmake_flags+=("-DLOGATE_ENABLE_TESTS=ON")
+cmake_flags+=(-G "Ninja")
+out_dir="$build_dir/$toolchain/$mode/$sanitizer"
+mkdir -p "$out_dir"
+cd "$out_dir"
+
+echo "$app: configuring cmake"
+time timeout 5m \
+  cmake "${cmake_flags[@]}" "$root_dir"
+
+echo "$app: building"
+time timeout 30m \
+  ninja # all			
+
+echo "$app: running automated tests"
+time timeout 5m \
+  ctest -V
+
+echo "$app: all tests passed!"
