@@ -39,10 +39,6 @@
 
 ## misc
 
-* move SDK and runtime to Debian:11
-* add support for newer gcc
-* add support for newer clang
-
 
 ## issues
 * ncurses vs. `$TERM` settings:
