@@ -39,6 +39,6 @@ RUN cd /usr/src/ && \
     wget -O "but-master.zip" "https://codeload.github.com/el-bart/but/zip/master" && \
     unzip "but-master.zip" && \
     cd "but-master/build" && \
-    cmake -G Ninja -DCMAKE_BUILD_TYPE=Release .. && \
+    cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../src/cmake/toolchains/gcc10.cmake .. && \
     ninja && \
     ninja install
