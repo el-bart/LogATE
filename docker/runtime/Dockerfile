@@ -1,4 +1,4 @@
-FROM debian:buster
+FROM debian:11
 RUN apt-get update
 RUN apt-get dist-upgrade -y
 

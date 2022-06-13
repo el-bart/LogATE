@@ -1,13 +1,12 @@
-FROM debian:buster
+FROM debian:11
 RUN apt-get update && apt-get dist-upgrade -y
 
 RUN apt-get update && apt-get install -y \
     cmake \
     ninja-build
 RUN apt-get update && apt-get install -y \
-    g++ \
-    clang \
-    llvm
+    g++-10 \
+    clang-11
 RUN apt-get update && apt-get install -y \
     libboost-all-dev \
     libncurses-dev \
@@ -26,6 +25,7 @@ RUN cd /usr/src/ && \
     tar xzvf "${DOCTEST_VER}.tar.gz" && \
     cp -rv "doctest-${DOCTEST_VER}/doctest" /usr/local/include
 
+# TODO: next BUT release, when available
 #ENV BUT_VER=1.2.0
 #RUN cd /usr/src/ && \
 #    wget "https://github.com/el-bart/but/archive/v${BUT_VER}.tar.gz" && \
