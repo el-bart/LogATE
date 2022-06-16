@@ -48,9 +48,18 @@ auto getKey(nlohmann::json const& json, Tree::Path const& keyPath, const Sequenc
   auto* node = &json;
   BUT_ASSERT( keyPath.absolute() );
   BUT_ASSERT( not keyPath.empty() );
-  for(auto pit=keyPath.begin()+1; pit!=keyPath.end(); ++pit)
   {
-    auto it = node->find(*pit);
+    // TODO[array]: support for arrays shall be added over time for keys as well...
+    for(auto& e: keyPath.data())
+    {
+      BUT_ASSERT( not e.isArray() );
+      if( e.isArray() )
+        throw std::logic_error{"arrays in key path are not supported atm"};
+    }
+  }
+  for(auto pit=keyPath.begin(); pit!=keyPath.end(); ++pit)
+  {
+    auto it = node->find( pit->name() );    // TODO[array]: ok only for non-array elements!
     if( it == node->end() )
       return Log::Key{"<< key not found >>", sn};
     node = &*it;
