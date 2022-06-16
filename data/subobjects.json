@@ -1,1 +1,14 @@
-{"LOG_NUMBER": 0, "date": 1655386602.8124978, "uname": "posix.uname_result(sysname='Linux', nodename='necropolis', release='5.10.0-15-amd64', version='#1 SMP Debian 5.10.120-1 (2022-06-09)', machine='x86_64')", "misc": {"answer": 42, "periodic": 0}, "periodic": 0, "env": {"user": "el-bart", "home": "/home/el-bart"}}
+{
+  "LOG_NUMBER": 0,
+  "date": 1655386602.8124979,
+  "uname": "posix.uname_result(sysname='Linux', nodename='necropolis', release='5.10.0-15-amd64', version='#1 SMP Debian 5.10.120-1 (2022-06-09)', machine='x86_64')",
+  "misc": {
+    "answer": 42,
+    "periodic": 0
+  },
+  "periodic": 0,
+  "env": {
+    "user": "el-bart",
+    "home": "/home/el-bart"
+  }
+}

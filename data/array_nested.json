@@ -1,1 +1,32 @@
-{"LOG_NUMBER":0,"date":1655386603.8134978,"periodic":1,"samples":[{"name":"lucky","values":[13,69]},{"name":"answer","values":[41,42,43]},{"name":"area","values":[51]},{"name":"empty","values":[]}]}
+{
+  "LOG_NUMBER": 0,
+  "date": 1655386603.8134978,
+  "periodic": 1,
+  "samples": [
+    {
+      "name": "lucky",
+      "values": [
+        13,
+        69
+      ]
+    },
+    {
+      "name": "answer",
+      "values": [
+        41,
+        42,
+        43
+      ]
+    },
+    {
+      "name": "area",
+      "values": [
+        51
+      ]
+    },
+    {
+      "name": "empty",
+      "values": []
+    }
+  ]
+}

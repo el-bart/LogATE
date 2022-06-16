@@ -1,1 +1,10 @@
-{"LOG_NUMBER":0,"date":1655386606.8134978,"periodic":1,"samples":[13,42,51]}
+{
+  "LOG_NUMBER": 0,
+  "date": 1655386606.8134978,
+  "periodic": 1,
+  "samples": [
+    13,
+    42,
+    51
+  ]
+}
