@@ -32,6 +32,7 @@ struct Path final
     }
     bool operator!=(Entry const& rhs) const { return not ( *this == rhs ); }
 
+    std::string str() const;
     auto& name() const { return name_; }
     auto isArray() const { return isArray_; }
     auto hasIndex() const { BUT_ASSERT( isArray() ); return hasIndex_; }
