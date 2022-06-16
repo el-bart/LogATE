@@ -27,7 +27,11 @@ std::string OrderedPrettyPrint::operator()(LogATE::Log const& in) const
   std::stringstream ss;
   const auto snDigits = detail::maxDigits( SequenceNumber::lastIssued().value_ );
   ss << std::setw(snDigits) << std::setfill('0') << in.sequenceNumber().value_ << std::setw(0) << " ";
-  constructString(ss, in.json());
+  const auto & value = in.json();
+  if( value.is_array() )
+    constructArray(ss, value);
+  else
+    constructString(ss, value);
   return ss.str();
 }
 
@@ -52,9 +56,10 @@ void OrderedPrettyPrint::printNode(std::stringstream& ss, std::string const& key
   if( value.is_number_integer() ) { ss << value.get<int64_t>(); return; }
   if( value.is_number_float() )   { ss << normalFloat( value.get<double>() ); return; }
   if( value.is_boolean() )        { ss << ( value.get<bool>() ? "true" : "false" ); return; }
-  if( value.is_object() )         { ss << "{ "; constructString(ss, value); ss << " }"; return; }
+  if( value.is_object() )         { constructObject(ss, value); return; }
+  if( value.is_array() )          { constructArray(ss, value); return; }
 
-  throw std::logic_error{"unsupported value type"};
+  throw std::logic_error{"OrderedPrettyPrint::printNode(): unsupported value type"};
 }
 
 
@@ -94,6 +99,22 @@ void OrderedPrettyPrint::constructString(std::stringstream& ss, nlohmann::json c
     BUT_ASSERT( it != end(in) );
     printNode(ss, it.key(), it.value());
   }
+}
+
+void OrderedPrettyPrint::constructObject(std::stringstream& ss, nlohmann::json const& in) const
+{
+  BUT_ASSERT( in.is_object() );
+  ss << "{ ";
+  constructString(ss, in);
+  ss << " }";
+}
+
+void OrderedPrettyPrint::constructArray(std::stringstream& ss, nlohmann::json const& in) const
+{
+  BUT_ASSERT( in.is_array() );
+  ss << "[ ";
+  constructString(ss, in);
+  ss << " ]";
 }
 
 bool OrderedPrettyPrint::isSilent(std::string const& tag) const

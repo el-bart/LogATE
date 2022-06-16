@@ -32,6 +32,8 @@ public:
 private:
   void printNode(std::stringstream& ss, std::string const& key, nlohmann::json const& value) const;
   void constructString(std::stringstream& ss, nlohmann::json const& in) const;
+  void constructObject(std::stringstream& ss, nlohmann::json const& in) const;
+  void constructArray(std::stringstream& ss, nlohmann::json const& in) const;
   bool isSilent(std::string const& tag) const;
 
   const Utils::PrintableStringConverter printable_{};
