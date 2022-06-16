@@ -7,7 +7,7 @@
 using LogATE::Tree::Path;
 
 
-// TODO: arrays are ignored for now (i.e. nothing is searched inside them) - this should change
+// TODO[array]: arrays are ignored for now (i.e. nothing is searched inside them) - this should change
 // TODO: there are a lot of searches, recursion and comparisons. there is a need for a fundamental change in an
 //       underlying data structure, so that searches can be performed significantly faster with lesser (no?) allocations.
 
@@ -17,7 +17,7 @@ namespace LogATE::Utils
 namespace
 {
 
-using PathIter = std::vector<std::string>::const_iterator;
+using PathIter = Path::Data::const_iterator;
 
 nlohmann::json getNodeByPath(nlohmann::json const& n, PathIter pathBegin, PathIter pathEnd)
 {
@@ -51,14 +51,14 @@ bool hasMatchingKey(nlohmann::json const& node, F const& cmp)
 template<typename F>
 auto matchesAbsoluteKey(AnnotatedLog const& log, Path const& path, F const& cmp)
 {
-  const auto n = getNodeByPath(log, path.begin()+1, path.end());
+  const auto n = getNodeByPath(log, path.begin(), path.end());
   return hasMatchingKey(n, cmp);
 }
 
 template<typename F, typename ToStr>
 auto matchesAbsoluteValue(AnnotatedLog const& log, Path const& path, F const& cmp, ToStr const& toStr)
 {
-  const auto n = getNodeByPath(log, path.begin()+1, path.end());
+  const auto n = getNodeByPath(log, path.begin(), path.end());
   const auto str = toStr(n);
   if(not str)
     return false;
