@@ -52,6 +52,7 @@ TEST_CASE_FIXTURE(Fixture, "directly converting to pretty print")
   }
   SUBCASE("nested structures")
   {
+    CHECK( "00013 answer={ expected={ } }" == opp_( makeLog(13, R"({"answer":{ "expected":{} }})") ) );
     CHECK( "00013 answer={ expected=42 }" == opp_( makeLog(13, R"({"answer":{ "expected":42 }})") ) );
     CHECK( "00013 narf={ fran={ xxx=42 } }" == opp_( makeLog(13, R"({"narf": { "fran": { "xxx":42 } } })") ) );
   }
@@ -147,19 +148,19 @@ TEST_CASE_FIXTURE(Fixture, "converting arrays")
   {
     CHECK( "00013 [ ]" == opp_( makeLog(13, R"([])") ) );
     CHECK( "00013 [ 1 ]" == opp_( makeLog(13, R"([1])") ) );
-    CHECK( "00013 [ 1, 2, 3 ]" == opp_( makeLog(13, R"([1,2,3])") ) );
+    CHECK( "00013 [ 1 2 3 ]" == opp_( makeLog(13, R"([1,2,3])") ) );
   }
   SUBCASE("member element")
   {
     CHECK( "00013 foo=[ ]" == opp_( makeLog(13, R"({ "foo": [] })") ) );
     CHECK( "00013 foo=[ 1 ]" == opp_( makeLog(13, R"({ "foo": [1] })") ) );
-    CHECK( "00013 foo=[ 1, 2, 3 ]" == opp_( makeLog(13, R"({ "foo": [1, 2, 3] })") ) );
+    CHECK( "00013 foo=[ 1 2 3 ]" == opp_( makeLog(13, R"({ "foo": [1, 2, 3] })") ) );
   }
   SUBCASE("nested element")
   {
-    CHECK( "00013 foo=[ ]" == opp_( makeLog(13, R"({ "foo": [ { "bar": [ 1,2] }, { "narf": [42,13] } ] })") ) );
+    CHECK( "00013 foo=[ { bar=[ 1 2 ] } { narf=[ 42 13 ] } ]" == opp_( makeLog(13, R"({ "foo": [ { "bar": [ 1,2] }, { "narf": [42,13] } ] })") ) );
     CHECK( "00013 foo=[ 1 ]" == opp_( makeLog(13, R"({ "foo": [1] })") ) );
-    CHECK( "00013 foo=[ 1, 2, 3 ]" == opp_( makeLog(13, R"({ "foo": [1, 2, 3] })") ) );
+    CHECK( "00013 foo=[ 1 2 3 ]" == opp_( makeLog(13, R"({ "foo": [1, 2, 3] })") ) );
   }
 }
 
