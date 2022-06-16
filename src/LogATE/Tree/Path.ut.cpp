@@ -100,6 +100,7 @@ TEST_CASE("parsing each entry")
     REQUIRE( e.isArray() == true );
     REQUIRE( e.hasIndex() == true );
     CHECK( e.index() == 42 );
+    CHECK( e.str() == "foo[42]" );
 
   }
   SUBCASE("array element index with spaces")
