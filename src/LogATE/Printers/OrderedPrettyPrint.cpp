@@ -52,10 +52,9 @@ void OrderedPrettyPrint::printNode(std::stringstream& ss, std::string const& key
   if( value.is_number_integer() ) { ss << value.get<int64_t>(); return; }
   if( value.is_number_float() )   { ss << normalFloat( value.get<double>() ); return; }
   if( value.is_boolean() )        { ss << ( value.get<bool>() ? "true" : "false" ); return; }
+  if( value.is_object() )         { ss << "{ "; constructString(ss, value); ss << " }"; return; }
 
-  ss << "{ ";
-  constructString(ss, value);
-  ss << " }";
+  throw std::logic_error{"unsupported value type"};
 }
 
 
