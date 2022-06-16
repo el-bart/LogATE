@@ -21,6 +21,7 @@ using PathIter = Path::Data::const_iterator;
 
 nlohmann::json getNodeByPath(nlohmann::json const& n, PathIter pathBegin, PathIter pathEnd)
 {
+  // TODO[array]: add array processing here
   auto ptr = &n;
   for(auto it=pathBegin; it!=pathEnd; ++it)
   {
