@@ -44,6 +44,19 @@ inline std::ostream& printVector(std::ostream& os, std::vector<T> const& c)
 namespace Tree
 {
 
+inline std::ostream& operator<<(std::ostream& os, Tree::Path::Entry const& entry)
+{
+  os << entry.name();
+  if( entry.isArray() )
+  {
+    os << '[';
+    if( entry.hasIndex() )
+      os << entry.index();
+    os << ']';
+  }
+  return os;
+}
+
 inline std::ostream& operator<<(std::ostream& os, Tree::Path const& path)
 {
   return LogATE::printVector(os, path.data());
