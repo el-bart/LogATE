@@ -9,45 +9,56 @@ namespace
 TEST_SUITE("Tree::Path")
 {
 
-TEST_CASE("isRoot() works")
+TEST_CASE("absolute path is detected correctly")
 {
-  CHECK( Path{{}}.absolute() == false );
-  CHECK( Path{{"."}}.absolute() == true );
-  CHECK( Path{{".", "foo", "bar"}}.absolute() == true );
-  CHECK( Path{{"oops", ".", "foo", "bar"}}.absolute() == false );
-  CHECK( Path{{"foo", "bar"}}.absolute() == false );
+  CHECK( Path::parse("").absolute() == false );
+  CHECK( Path::parse(".").absolute() == true );
+  CHECK( Path::parse(".foo.bar").absolute() == true );
+  CHECK( Path::parse("oops.foo.bar").absolute() == false );
+  CHECK( Path::parse("foo.bar").absolute() == false );
+  CHECK( Path::parse("foo[].bar[42]").absolute() == false );
+}
+
+
+Path::Data refPath(std::vector<std::string> in)
+{
+  Path::Data d;
+  for(auto& e: in)
+    d.emplace_back( Path::Entry{ std::move(e) } );
+  return d;
 }
 
 
 TEST_CASE("parsing from string")
 {
-  CHECK( Path{} == Path::parse("") );
-  CHECK( Path{{}} == Path::parse("") );
-  CHECK( Path{{"."}} == Path::parse(".") );
-  CHECK( Path{{"."}} == Path::parse(".") );
-  CHECK( Path{{"foo"}} == Path::parse("foo") );
-  CHECK( Path{{"foo", "bar"}} == Path::parse("foo.bar") );
-  CHECK( Path{{".", "foo", "bar"}} == Path::parse(".foo.bar") );
-  CHECK( Path{{"space is ok", "bar"}} == Path::parse("space is ok.bar") );
+  CHECK( refPath({}) == Path::parse("").data() );
+  CHECK( refPath({"."}) == Path::parse(".").data() );
+  CHECK( refPath({"."}) == Path::parse(".").data() );
+  CHECK( refPath({"foo"}) == Path::parse("foo").data() );
+  CHECK( refPath({"foo", "bar"}) == Path::parse("foo.bar").data() );
+  CHECK( refPath({"foo", "bar"}) == Path::parse(".foo.bar").data() );   // the leading dot is just for marking path as absolute
+  CHECK( refPath({"space is ok", "bar"}) == Path::parse("space is ok.bar").data() );
 
+  CHECK_THROWS_AS( Path::parse(".[42]"),     Path::EmptyNodeInPath );
   CHECK_THROWS_AS( Path::parse(".."),        Path::EmptyNodeInPath );
   CHECK_THROWS_AS( Path::parse(".foo.bar."), Path::EmptyNodeInPath );
   CHECK_THROWS_AS( Path::parse("foo..bar"),  Path::EmptyNodeInPath );
   CHECK_THROWS_AS( Path::parse("foo...bar"), Path::EmptyNodeInPath );
   CHECK_THROWS_AS( Path::parse("..foo.bar"), Path::EmptyNodeInPath );
   CHECK_THROWS_AS( Path::parse("foo.bar.."), Path::EmptyNodeInPath );
+  CHECK_THROWS_AS( Path::parse("foo[.bar"),  Path::EmptyNodeInPath );
+  CHECK_THROWS_AS( Path::parse("foo].bar"),  Path::EmptyNodeInPath );
 }
 
 
 TEST_CASE("converting to string")
 {
-  CHECK( Path{}.str() == "" );
-  CHECK( Path{{}}.str() == "" );
-  CHECK( Path{{"."}}.str() == "." );
-  CHECK( Path{{"foo"}}.str() == "foo" );
-  CHECK( Path{{"foo", "bar"}}.str() == "foo.bar" );
-  CHECK( Path{{".", "foo", "bar"}}.str() == ".foo.bar" );
-  CHECK( Path{{"space is ok", "bar"}}.str() == "space is ok.bar" );
+  CHECK( Path::parse("").str() == "" );
+  CHECK( Path::parse(".").str() == "." );
+  CHECK( Path::parse("foo").str() == "foo" );
+  CHECK( Path::parse("foo.bar").str() == "foo.bar" );
+  CHECK( Path::parse(".foo.bar").str() == ".foo.bar" );
+  CHECK( Path::parse("space is ok.bar").str() == "space is ok.bar" );
 }
 
 
@@ -129,7 +140,7 @@ TEST_CASE("parsing each entry")
   }
 }
 
-// TODO: arrays handling
+// TODO: arrays handling - "[42]" should also be fine, in case first node is addressed, but 'foo.[42].bar" should be an error, since name is missing in the following ones
 
 }
 }

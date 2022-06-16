@@ -6,7 +6,7 @@
 namespace LogATE::Tree
 {
 
-Path::Entry::Entry(std::string&& str)
+Path::Entry::Entry(std::string str)
 {
   if( str.empty() )
     BUT_THROW(EmptyNode, "node name cannot be empty");
@@ -61,21 +61,21 @@ Path Path::parse(std::string const& str)
   if( str.empty() )
     return Path{};
   if( str == "." )
-    return Path{{"."}};
+    return Path{{}, true};
+
   if( str.find("..") != std::string::npos )
     BUT_THROW(EmptyNodeInPath, str);
   if( str.back() == '.' )
     BUT_THROW(EmptyNodeInPath, str);
 
-  Path::Data d;
-  if( str[0]== '.' )
-    d.push_back(".");
+  const auto isAbsolute = ( str[0] == '.' );
+  Path::Data data;
 
   boost::char_separator<char> sep(".");
   boost::tokenizer<boost::char_separator<char>> tokens{str, sep};
   for(auto it=tokens.begin(); it!=tokens.end(); ++it)
-    d.push_back(*it);
-  return Path{d};
+    data.push_back( Entry{*it} );
+  return Path{data, isAbsolute};
 }
 
 
@@ -87,9 +87,8 @@ std::string Path::str() const
   auto separator = "";
   for(auto& e: value_)
   {
-    ss << separator << e;
-    if( e != "." )
-      separator = ".";
+    ss << separator << e.str();
+    separator = ".";
   }
   return ss.str();
 }
