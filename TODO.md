@@ -39,6 +39,8 @@
 
 ## misc
 
+* port tests from doctest to catch2
+
 
 ## issues
 * ncurses vs. `$TERM` settings:
