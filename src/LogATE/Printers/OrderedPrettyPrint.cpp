@@ -28,10 +28,13 @@ std::string OrderedPrettyPrint::operator()(LogATE::Log const& in) const
   const auto snDigits = detail::maxDigits( SequenceNumber::lastIssued().value_ );
   ss << std::setw(snDigits) << std::setfill('0') << in.sequenceNumber().value_ << std::setw(0) << " ";
   const auto & value = in.json();
-  if( value.is_array() )
-    constructArray(ss, value);
+  if( value.is_object() )
+  {
+    auto printBrace = false;
+    constructObject(ss, value, printBrace);
+  }
   else
-    constructString(ss, value);
+    printNode(ss, value);
   return ss.str();
 }
 
@@ -47,19 +50,18 @@ auto normalFloat(double in)
 }
 }
 
+void OrderedPrettyPrint::printNode(std::stringstream& ss, nlohmann::json const& in) const
+{
+  if( in.is_object() ) { constructObject(ss, in); return; }
+  if( in.is_array() )  { constructArray(ss, in); return; }
+  constructValue(ss, in);
+}
+
 void OrderedPrettyPrint::printNode(std::stringstream& ss, std::string const& key, nlohmann::json const& value) const
 {
   if( not isSilent(key) )
     ss << printable_(key) << "=";
-
-  if( value.is_string() )         { ss << printable_( value.get<std::string>() ); return; }
-  if( value.is_number_integer() ) { ss << value.get<int64_t>(); return; }
-  if( value.is_number_float() )   { ss << normalFloat( value.get<double>() ); return; }
-  if( value.is_boolean() )        { ss << ( value.get<bool>() ? "true" : "false" ); return; }
-  if( value.is_object() )         { constructObject(ss, value); return; }
-  if( value.is_array() )          { constructArray(ss, value); return; }
-
-  throw std::logic_error{"OrderedPrettyPrint::printNode(): unsupported value type"};
+  printNode(ss, value);
 }
 
 
@@ -87,33 +89,51 @@ auto prioritizedIteratorsVector(std::vector<std::string> const& priorityTags, nl
 }
 }
 
-void OrderedPrettyPrint::constructString(std::stringstream& ss, nlohmann::json const& in) const
+void OrderedPrettyPrint::constructValue(std::stringstream& ss, nlohmann::json const& in) const
 {
-  auto printSpace = false;
+  if( in.is_string() )         { ss << printable_( in.get<std::string>() ); return; }
+  if( in.is_number_integer() ) { ss << in.get<int64_t>(); return; }
+  if( in.is_number_float() )   { ss << normalFloat( in.get<double>() ); return; }
+  if( in.is_boolean() )        { ss << ( in.get<bool>() ? "true" : "false" ); return; }
+
+  throw std::logic_error{"OrderedPrettyPrint::constructValue(): unsupported value type"};
+}
+
+void OrderedPrettyPrint::constructObject(std::stringstream& ss, nlohmann::json const& in, bool printBrace) const
+{
+  BUT_ASSERT( in.is_object() );
+  auto addSpace = false;
+  if(printBrace)
+  {
+    ss << "{";
+    addSpace = true;
+  }
+
   for(auto it: prioritizedIteratorsVector(priorityTags_.tags_, in))
   {
-    if(printSpace)
+    if(addSpace)
       ss << ' ';
     else
-      printSpace = true;
+      addSpace = true;
     BUT_ASSERT( it != end(in) );
     printNode(ss, it.key(), it.value());
   }
-}
 
-void OrderedPrettyPrint::constructObject(std::stringstream& ss, nlohmann::json const& in) const
-{
-  BUT_ASSERT( in.is_object() );
-  ss << "{ ";
-  constructString(ss, in);
-  ss << " }";
+  if(printBrace)
+    ss << " }";
 }
 
 void OrderedPrettyPrint::constructArray(std::stringstream& ss, nlohmann::json const& in) const
 {
   BUT_ASSERT( in.is_array() );
-  ss << "[ ";
-  constructString(ss, in);
+  ss << "[";
+
+  for(auto& e: in)
+  {
+    ss << ' ';
+    printNode(ss, e);
+  }
+
   ss << " ]";
 }
 
