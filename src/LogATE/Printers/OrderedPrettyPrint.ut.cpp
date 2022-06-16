@@ -139,5 +139,29 @@ TEST_CASE_FIXTURE(Fixture, "non-printable characters are converted")
   CHECK( "00013 xx\\x01\\t=x\\r\\x03xx" == opp_(log) );
 }
 
+
+TEST_CASE_FIXTURE(Fixture, "converting arrays")
+{
+  const OrderedPrettyPrint opp_{};
+  SUBCASE("root element")
+  {
+    CHECK( "00013 [ ]" == opp_( makeLog(13, R"([])") ) );
+    CHECK( "00013 [ 1 ]" == opp_( makeLog(13, R"([1])") ) );
+    CHECK( "00013 [ 1, 2, 3 ]" == opp_( makeLog(13, R"([1,2,3])") ) );
+  }
+  SUBCASE("member element")
+  {
+    CHECK( "00013 foo=[ ]" == opp_( makeLog(13, R"({ "foo": [] })") ) );
+    CHECK( "00013 foo=[ 1 ]" == opp_( makeLog(13, R"({ "foo": [1] })") ) );
+    CHECK( "00013 foo=[ 1, 2, 3 ]" == opp_( makeLog(13, R"({ "foo": [1, 2, 3] })") ) );
+  }
+  SUBCASE("nested element")
+  {
+    CHECK( "00013 foo=[ ]" == opp_( makeLog(13, R"({ "foo": [ { "bar": [ 1,2] }, { "narf": [42,13] } ] })") ) );
+    CHECK( "00013 foo=[ 1 ]" == opp_( makeLog(13, R"({ "foo": [1] })") ) );
+    CHECK( "00013 foo=[ 1, 2, 3 ]" == opp_( makeLog(13, R"({ "foo": [1, 2, 3] })") ) );
+  }
+}
+
 }
 }
