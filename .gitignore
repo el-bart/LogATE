@@ -3,3 +3,4 @@ CMakeLists.txt.user
 .*.swo
 *.pyc
 *.orig
+tags
