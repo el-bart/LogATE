@@ -64,9 +64,9 @@ Path Path::parse(std::string const& str)
     return Path{{}, true};
 
   if( str.find("..") != std::string::npos )
-    BUT_THROW(EmptyNodeInPath, str);
+    BUT_THROW(Entry::EmptyNode, str);
   if( str.back() == '.' )
-    BUT_THROW(EmptyNodeInPath, str);
+    BUT_THROW(Entry::EmptyNode, str);
 
   const auto isAbsolute = ( str[0] == '.' );
   Path::Data data;
@@ -79,11 +79,35 @@ Path Path::parse(std::string const& str)
 }
 
 
+Path Path::build(std::vector<std::string> nodes)
+{
+  if( nodes.empty() )
+    return Path{};
+
+  auto it = nodes.begin();
+  auto isAbsolute = false;
+  Data out;
+  if( *it == "." )
+  {
+    isAbsolute = true;
+    ++it;
+    out.reserve( nodes.size() -1u );
+  }
+  else
+    out.reserve( nodes.size() );
+  for(; it != nodes.end(); ++it)
+    out.emplace_back( std::move(*it) );
+  return Path{ std::move(out), isAbsolute };
+}
+
+
 std::string Path::str() const
 {
-  if( empty() )
-    return "";
   std::stringstream ss;
+  if( absolute() )
+    ss << ".";
+  if( empty() )
+    return ss.str();
   auto separator = "";
   for(auto& e: value_)
   {

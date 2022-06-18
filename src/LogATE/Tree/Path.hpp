@@ -9,8 +9,6 @@ namespace LogATE::Tree
 
 struct Path final
 {
-  BUT_DEFINE_EXCEPTION(EmptyNodeInPath, But::Exception, "empty node in path");
-
   struct Entry
   {
     BUT_DEFINE_EXCEPTION(EmptyNode, But::Exception, "empty node");
@@ -49,8 +47,12 @@ struct Path final
   using Data = std::vector<Entry>;
 
   static Path parse(std::string const& str);
+  static Path build(std::vector<std::string> nodes);
 
   Path() = default;
+  explicit Path(std::vector<std::string> nodes):
+    Path{ build( std::move(nodes) ) }
+  { }
 
   Path(Path const&) = default;
   Path& operator=(Path const&) = default;
@@ -64,6 +66,7 @@ struct Path final
   auto begin() const { return value_.begin(); }
   auto end() const { return value_.end(); }
   auto const& data() const { return value_; }
+  auto& last() const { BUT_ASSERT( not empty() ); return value_.back(); }
 
 private:
   Path(Data value, bool isAbsolute):

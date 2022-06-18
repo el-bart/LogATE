@@ -20,34 +20,25 @@ TEST_CASE("absolute path is detected correctly")
 }
 
 
-Path::Data refPath(std::vector<std::string> in)
-{
-  Path::Data d;
-  for(auto& e: in)
-    d.emplace_back( Path::Entry{ std::move(e) } );
-  return d;
-}
-
-
 TEST_CASE("parsing from string")
 {
-  CHECK( refPath({}) == Path::parse("").data() );
-  CHECK( refPath({"."}) == Path::parse(".").data() );
-  CHECK( refPath({"."}) == Path::parse(".").data() );
-  CHECK( refPath({"foo"}) == Path::parse("foo").data() );
-  CHECK( refPath({"foo", "bar"}) == Path::parse("foo.bar").data() );
-  CHECK( refPath({"foo", "bar"}) == Path::parse(".foo.bar").data() );   // the leading dot is just for marking path as absolute
-  CHECK( refPath({"space is ok", "bar"}) == Path::parse("space is ok.bar").data() );
+  CHECK( Path{{}} == Path::parse("") );
+  CHECK( Path{{"."}} == Path::parse(".") );
+  CHECK( Path{{"."}} == Path::parse(".") );
+  CHECK( Path{{"foo"}} == Path::parse("foo") );
+  CHECK( Path{{"foo", "bar"}} == Path::parse("foo.bar") );
+  CHECK( Path{{".", "foo", "bar"}} == Path::parse(".foo.bar") );
+  CHECK( Path{{"space is ok", "bar"}} == Path::parse("space is ok.bar") );
 
-  CHECK_THROWS_AS( Path::parse(".[42]"),     Path::EmptyNodeInPath );
-  CHECK_THROWS_AS( Path::parse(".."),        Path::EmptyNodeInPath );
-  CHECK_THROWS_AS( Path::parse(".foo.bar."), Path::EmptyNodeInPath );
-  CHECK_THROWS_AS( Path::parse("foo..bar"),  Path::EmptyNodeInPath );
-  CHECK_THROWS_AS( Path::parse("foo...bar"), Path::EmptyNodeInPath );
-  CHECK_THROWS_AS( Path::parse("..foo.bar"), Path::EmptyNodeInPath );
-  CHECK_THROWS_AS( Path::parse("foo.bar.."), Path::EmptyNodeInPath );
-  CHECK_THROWS_AS( Path::parse("foo[.bar"),  Path::EmptyNodeInPath );
-  CHECK_THROWS_AS( Path::parse("foo].bar"),  Path::EmptyNodeInPath );
+  CHECK_THROWS_AS( Path::parse(".[42]"),     Path::Entry::InvalidArray );
+  CHECK_THROWS_AS( Path::parse(".."),        Path::Entry::EmptyNode );
+  CHECK_THROWS_AS( Path::parse(".foo.bar."), Path::Entry::EmptyNode );
+  CHECK_THROWS_AS( Path::parse("foo..bar"),  Path::Entry::EmptyNode );
+  CHECK_THROWS_AS( Path::parse("foo...bar"), Path::Entry::EmptyNode );
+  CHECK_THROWS_AS( Path::parse("..foo.bar"), Path::Entry::EmptyNode );
+  CHECK_THROWS_AS( Path::parse("foo.bar.."), Path::Entry::EmptyNode );
+  CHECK_THROWS_AS( Path::parse("foo[.bar"),  Path::Entry::InvalidArray );
+  CHECK_THROWS_AS( Path::parse("foo].bar"),  Path::Entry::InvalidArray );
 }
 
 
@@ -139,6 +130,8 @@ TEST_CASE("parsing each entry")
     }
   }
 }
+
+// TODO: add tests for Path::build() and Path(vector<string) convenience wrappers
 
 // TODO: arrays handling - "[42]" should also be fine, in case first node is addressed, but 'foo.[42].bar" should be an error, since name is missing in the following ones
 
