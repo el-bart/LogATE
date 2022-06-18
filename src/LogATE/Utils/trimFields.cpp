@@ -9,74 +9,55 @@ namespace LogATE::Utils
 
 namespace
 {
-struct PathDecomposition
-{
-  explicit PathDecomposition(Path const& p):
-    begin_{ p.begin() },
-    end_{ p.begin() }
-  {
-    BUT_ASSERT( not p.empty() );
-    std::advance(end_, p.data().size()-1);
-    finalNode_ = &*end_;
-  }
-
-  std::vector<std::string>::const_iterator begin_;
-  std::vector<std::string>::const_iterator end_;
-  std::string const* finalNode_{nullptr};
-};
-
-template<typename It>
-void trimFrom(nlohmann::json& json, It beginPath, It endPath, std::string const& finalNode)
+void trimFrom(nlohmann::json& json, Path const& path)
 {
   auto n = &json;
-  for(auto it=beginPath; it!=endPath; ++it)
+  auto parent = n;
+  for(auto& e: path)
   {
     if( n->is_null() )
       return;
-    const auto next = n->find(*it);
+    const auto next = n->find( e.name() );  // TODO[array]: add handling of arrays here
     if( next == n->end() )
       return;
+    parent = n;
     n = &*next;
   }
-  if( n->is_object() )
-    n->erase(finalNode);
+  if( parent->is_object() )
+    parent->erase( path.last().name() );
+  // TODO[array]: add handling of arrays here
 }
 
 
-void trimAbsolute(nlohmann::json& json, PathDecomposition const& pd)
+void trimOneAbsolute(nlohmann::json& json, Path const& path)
 {
-  BUT_ASSERT( pd.begin_ != pd.end_ );
-  trimFrom(json, pd.begin_+1, pd.end_, *pd.finalNode_);
+  trimFrom(json, path);
 }
 
-template<typename It>
-void trimRelative(nlohmann::json& json, It beginPath, It endPath, std::string const& finalNode)
+
+void trimOneRelative(nlohmann::json& json, Path const& path)
 {
   if( json.is_null() )
     return;
-  trimFrom(json, beginPath, endPath, finalNode);
+  trimFrom(json, path);
   if( not json.is_object() && not json.is_array() )
     return;
   for(auto& e: json)
-    trimRelative(e, beginPath, endPath, finalNode);
+    trimOneRelative(e, path);
 }
 
-void trimRelative(nlohmann::json& json, PathDecomposition const& pd)
-{
-  trimRelative(json, pd.begin_, pd.end_, *pd.finalNode_);
-}
 
 void trimOneField(nlohmann::json& json, Path const& path)
 {
   if( path.empty() )
     return;
-  const auto pd = PathDecomposition{path};
   if( path.absolute() )
-    trimAbsolute(json, pd);
+    trimOneAbsolute(json, path);
   else
-    trimRelative(json, pd);
+    trimOneRelative(json, path);
 }
 }
+
 
 Log trimFields(Log const& in, Node::TrimFields const& tf)
 {
