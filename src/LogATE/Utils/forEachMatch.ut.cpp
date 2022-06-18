@@ -55,9 +55,38 @@ struct Fixture
 };
 
 
-TEST_CASE_FIXTURE(Fixture, "foo bar")
+TEST_CASE_FIXTURE(Fixture, "absolute path")
 {
-  FAIL("AAA");          
+  // TODO
+}
+
+
+TEST_CASE_FIXTURE(Fixture, "absolute path with arrays")
+{
+  // TODO
+}
+
+
+TEST_CASE_FIXTURE(Fixture, "absolute path with wildcard arrays")
+{
+  // TODO
+}
+
+
+TEST_CASE_FIXTURE(Fixture, "relative path")
+{
+  // TODO
+}
+
+
+TEST_CASE_FIXTURE(Fixture, "relative path with arrays")
+{
+  // TODO
+}
+
+
+TEST_CASE_FIXTURE(Fixture, "relative path with wildcard arrays")
+{
   // TODO
 }
 
