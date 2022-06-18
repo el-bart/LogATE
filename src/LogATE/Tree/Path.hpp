@@ -53,6 +53,10 @@ struct Path final
   explicit Path(std::vector<std::string> nodes):
     Path{ build( std::move(nodes) ) }
   { }
+  Path(Data value, bool isAbsolute):
+    value_{ std::move(value) },
+    isAbsolute_{ isAbsolute }
+  { }
 
   Path(Path const&) = default;
   Path& operator=(Path const&) = default;
@@ -69,11 +73,6 @@ struct Path final
   auto& last() const { BUT_ASSERT( not empty() ); return value_.back(); }
 
 private:
-  Path(Data value, bool isAbsolute):
-    value_{ std::move(value) },
-    isAbsolute_{ isAbsolute }
-  { }
-
   Data value_;
   bool isAbsolute_{false};
 };
