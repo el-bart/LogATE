@@ -41,7 +41,7 @@ time timeout 5m \
 
 echo "$app: building"
 time timeout 30m \
-  ninja # all			
+  ninja all
 
 echo "$app: running automated tests"
 time timeout 5m \

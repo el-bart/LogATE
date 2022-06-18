@@ -1,18 +1,16 @@
 #!/bin/bash -ex
 DIR=$(dirname "$(readlink -e "$0")")
-BUILD_DIR="${BUILD_DIR:-build/clang/Debug/address}"
 IMAGE="logate-sdk"
 
 docker build -t "$IMAGE" docker/sdk/
 
-mkdir -p "$BUILD_DIR"
 exec docker run \
        -it \
        --rm \
        --network host \
        -u "$(id -u):$(id -g)" \
        -v "$DIR:/mnt/prj" \
-       -w "/mnt/prj/$BUILD_DIR" \
+       -w "/mnt/prj/" \
        --cap-add SYS_PTRACE \
        "$IMAGE" \
        "$@"
