@@ -25,7 +25,7 @@ nlohmann::json getNodeByPath(nlohmann::json const& n, PathIter pathBegin, PathIt
   auto ptr = &n;
   for(auto it=pathBegin; it!=pathEnd; ++it)
   {
-    const auto p = ptr->find(*it);
+    const auto p = ptr->find( it->name() ); // TODO[array]: will not work for wildcards, or elements of arrays...
     if( p == ptr->end() )
       return {};
     ptr = &*p;
