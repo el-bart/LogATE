@@ -24,7 +24,6 @@ TEST_CASE("parsing from string")
 {
   CHECK( Path{{}} == Path::parse("") );
   CHECK( Path{{"."}} == Path::parse(".") );
-  CHECK( Path{{"."}} == Path::parse(".") );
   CHECK( Path{{"foo"}} == Path::parse("foo") );
   CHECK( Path{{"foo", "bar"}} == Path::parse("foo.bar") );
   CHECK( Path{{".", "foo", "bar"}} == Path::parse(".foo.bar") );
@@ -50,6 +49,16 @@ TEST_CASE("converting to string")
   CHECK( Path::parse("foo.bar").str() == "foo.bar" );
   CHECK( Path::parse(".foo.bar").str() == ".foo.bar" );
   CHECK( Path::parse("space is ok.bar").str() == "space is ok.bar" );
+}
+
+
+TEST_CASE("building from vector of strings")
+{
+  CHECK( Path::build({}) == Path::parse("") );
+  CHECK( Path::build({"."}) == Path::parse(".") );
+  CHECK( Path::build({"foo"}) == Path::parse("foo") );
+  CHECK( Path::build({".", "foo"}) == Path::parse(".foo") );
+  CHECK( Path::build({"foo", "bar"}) == Path::parse("foo.bar") );
 }
 
 
@@ -130,8 +139,6 @@ TEST_CASE("parsing each entry")
     }
   }
 }
-
-// TODO: add tests for Path::build() and Path(vector<string) convenience wrappers
 
 // TODO: arrays handling - "[42]" should also be fine, in case first node is addressed, but 'foo.[42].bar" should be an error, since name is missing in the following ones
 
