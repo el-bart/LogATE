@@ -41,7 +41,6 @@ struct Path final
     bool isArray_{false};
     bool hasIndex_{false};
     uint64_t index_{0};
-    std::string str_;
   };
 
   using Data = std::vector<Entry>;
