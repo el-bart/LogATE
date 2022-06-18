@@ -177,7 +177,29 @@ TEST_CASE_FIXTURE(Fixture, "relative path with wildcard arrays")
 
 TEST_CASE_FIXTURE(Fixture, "check end of processing after returning false from functor")
 {
-  // TODO: based on wildcard...
+  SUBCASE("absolute path")
+  {
+    rec_.stopAfter_ = 1;
+    CHECK( forEachMatch(big_, Path::parse(".one"), rec_) == false );
+    REQUIRE( rec_.values_.size() == 1u );
+    CHECK( rec_.values_[0] == &big_["one"] );
+  }
+  SUBCASE("multiple hits - stop after 1st hit")
+  {
+    rec_.stopAfter_ = 1;
+    CHECK( forEachMatch(big_, Path::parse("PING"), rec_) == false );
+    REQUIRE( rec_.values_.size() == 1u );
+    CHECK( rec_.values_[0] == &big_["one"]["PING"] );
+  }
+  SUBCASE("multiple hits - stop after 2nd hit")
+  {
+    rec_.stopAfter_ = 1;
+    CHECK( forEachMatch(big_, Path::parse("PING"), rec_) == false );
+    REQUIRE( rec_.values_.size() == 2u );
+    CHECK( rec_.values_[0] == &big_["one"]["PING"] );
+    CHECK( rec_.values_[1] == &big_["two"]["PING"] );
+  }
+  // TODO: based on array wildcards, too
 }
 
 }
