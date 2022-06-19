@@ -39,17 +39,6 @@ nlohmann::json getNodeByPath(AnnotatedLog const& log, PathIter pathBegin, PathIt
   return getNodeByPath(log.json(), pathBegin, pathEnd);
 }
 
-template<typename F>
-bool hasMatchingKey(nlohmann::json const& node, F const& cmp)
-{
-  if( not node.is_object() )
-    return false;
-  for(auto it=node.begin(); it!=node.end(); ++it)
-    if( cmp( it.key() ) )
-      return true;
-  return false;
-}
-
 template<typename F, typename ToStr>
 auto matchesAbsoluteValue(AnnotatedLog const& log, Path const& path, F const& cmp, ToStr const& toStr)
 {
@@ -58,14 +47,6 @@ auto matchesAbsoluteValue(AnnotatedLog const& log, Path const& path, F const& cm
   if(not str)
     return false;
   return cmp(*str);
-}
-
-
-template<typename F>
-bool matchesRelativeKeyDirect(nlohmann::json const& log, Path const& path, F const& cmp)
-{
-  const auto n = getNodeByPath(log, path.begin(), path.end());
-  return hasMatchingKey(n, cmp);
 }
 
 
@@ -104,12 +85,6 @@ bool matchesValueImpl(AnnotatedLog const& log, Path const& path, F const& cmp, T
     return matchesAbsoluteValue(log, path, cmp, toStr);
   return matchesRelativeValue(log, path, cmp, toStr);
 }
-
-struct RegexCompare
-{
-  bool operator()(std::string const& str) const { return std::regex_search(str, *re_); }
-  std::regex const* re_{nullptr};
-};
 
 }
 
