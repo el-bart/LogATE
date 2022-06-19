@@ -31,7 +31,7 @@ bool Explode::insert(AnnotatedLog const& log)
     nonMatchingChild_->insert(log);
     return true;
   }
-  for(auto value: values)
+  for(auto& value: values)
     nodeFor( Name{value} )->insert(log);
   return true;
 }
