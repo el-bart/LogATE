@@ -133,6 +133,8 @@ TEST_CASE_FIXTURE(Fixture, "value comparison of absolute path with regexs")
   CHECK( testMatch( Path{{".", "foo"}},                "b.*r" ) == false );
   CHECK( testMatch( Path{{".", "no", "such", "node"}}, "a.*c" ) == false );
   CHECK( testMatch( Path{{"."}},                       "a.*c" ) == false );
+  CHECK( testMatch( Path{{".", "array[0]", "one"}},    "1"    ) == true  );
+  CHECK( testMatch( Path{{".", "array[1]", "one"}},    "1"    ) == false );
 }
 
 
