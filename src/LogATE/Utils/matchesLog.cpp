@@ -215,55 +215,64 @@ struct StringSearch
   bool operator()(std::string const& str) const { return str.find(*query_) != std::string::npos; }
   std::string const* query_{nullptr};
 };
+
+
+auto logMayContain(Log const& log, std::string const& str)
+{
+  return log.str().find(str) != std::string::npos;
+}
+
+auto logMayContain(Log const& log, std::string const& str1, std::string const& str2)
+{
+  return logMayContain(log, str1) && logMayContain(log, str2);
+}
 }
 
 
 bool matchesAnyKey(Log const& log, std::string const& str)
 {
-  // TODO[array]: forEachMatch()
-  if( log.str().find(str) == std::string::npos )
+  if( not logMayContain(log, str) )
     return false;
-  return matchesAnyKey( AnnotatedLog{log}, str );
+  return matchesAnyKeyRecursive(log.json(), StringSearch{&str});
 }
 
 
 bool matchesAnyKey(AnnotatedLog const& log, std::string const& str)
 {
-  // TODO[array]: forEachMatch()
+  if( not logMayContain(log.log(), str) )
+    return false;
   return matchesAnyKeyRecursive(log.json(), StringSearch{&str});
 }
 
 
 bool matchesAnyValue(Log const& log, std::string const& str)
 {
-  // TODO[array]: forEachMatch()
-  if( log.str().find(str) == std::string::npos )
+  if( not logMayContain(log, str) )
     return false;
-  return matchesAnyValue( AnnotatedLog{log}, str );
+  return matchesAnyValueRecursive(log.json(), StringSearch{&str}, LogATE::Utils::value2str);
 }
 
 
 bool matchesAnyValue(AnnotatedLog const& log, std::string const& str)
 {
-  // TODO[array]: forEachMatch()
+  if( not logMayContain(log.log(), str) )
+    return false;
   return matchesAnyValueRecursive(log.json(), StringSearch{&str}, LogATE::Utils::value2str);
 }
 
 
 bool matchesAnyKeyValue(Log const& log, std::string const& key, std::string const& value)
 {
-  // TODO[array]: forEachMatch()
-  if( log.str().find(key) == std::string::npos )
+  if( not logMayContain(log, key, value) )
     return false;
-  if( log.str().find(value) == std::string::npos )
-    return false;
-  return matchesAnyKeyValue( AnnotatedLog{log}, key, value );
+  return matchesAnyKeyValueRecursive(log.json(), StringSearch{&key}, StringSearch{&value}, LogATE::Utils::value2str);
 }
 
 
 bool matchesAnyKeyValue(AnnotatedLog const& log, std::string const& key, std::string const& value)
 {
-  // TODO[array]: forEachMatch()
+  if( not logMayContain(log.log(), key, value) )
+    return false;
   return matchesAnyKeyValueRecursive(log.json(), StringSearch{&key}, StringSearch{&value}, LogATE::Utils::value2str);
 }
 

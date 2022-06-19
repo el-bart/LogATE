@@ -22,7 +22,7 @@ bool matchesAnyKeyValue(AnnotatedLog const& log, std::string const& key, std::st
 
 /// works on key:value pairs only
 std::vector<std::string> allValues(AnnotatedLog const& log, Tree::Path const& path);
-/// works on nested nodes as well (serializes name as its value)
+/// works on both key:value pairs and nested nodes as well (serializes name as its value)
 std::vector<std::string> allNodeValues(AnnotatedLog const& log, Tree::Path const& path);
 
 }
