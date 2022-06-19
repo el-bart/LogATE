@@ -184,6 +184,13 @@ TEST_CASE_FIXTURE(Fixture, "check end of processing after returning false from f
     REQUIRE( rec_.values_.size() == 1u );
     CHECK( rec_.values_[0] == &big_["one"] );
   }
+  SUBCASE("relative path")
+  {
+    rec_.stopAfter_ = 1;
+    CHECK( forEachMatch(big_, Path::parse("one"), rec_) == false );
+    REQUIRE( rec_.values_.size() == 1u );
+    CHECK( rec_.values_[0] == &big_["one"] );
+  }
   SUBCASE("multiple hits - stop after 1st hit")
   {
     rec_.stopAfter_ = 1;
@@ -193,7 +200,7 @@ TEST_CASE_FIXTURE(Fixture, "check end of processing after returning false from f
   }
   SUBCASE("multiple hits - stop after 2nd hit")
   {
-    rec_.stopAfter_ = 1;
+    rec_.stopAfter_ = 2;
     CHECK( forEachMatch(big_, Path::parse("PING"), rec_) == false );
     REQUIRE( rec_.values_.size() == 2u );
     CHECK( rec_.values_[0] == &big_["one"]["PING"] );

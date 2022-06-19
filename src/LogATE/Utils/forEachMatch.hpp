@@ -35,20 +35,18 @@ bool forEachMatchAbsolute(nlohmann::json const& root, Tree::Path const& path, F&
 template<typename F>
 bool forEachMatchRelative(nlohmann::json const& root, Tree::Path const& path, F&& f)
 {
-  // TODO: if
-  //if( not detail::forEachMatchRelative(root, path, f) )
-  //  return false;
-  forEachMatchImpl(root, path, f);
+  if( not forEachMatchImpl(root, path, f) )
+    return false;
 
   if( root.is_object() )
   {
     for(auto& node: root.items())
-    {
-      // TODO: if
-      forEachMatchRelative(node.value(), path, f);
-    }
+      if( not forEachMatchRelative(node.value(), path, f) )
+        return false;
   }
+
   // TODO: arrays
+
   return true;
 }
 
