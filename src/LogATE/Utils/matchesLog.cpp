@@ -50,13 +50,6 @@ bool hasMatchingKey(nlohmann::json const& node, F const& cmp)
   return false;
 }
 
-template<typename F>
-auto matchesAbsoluteKey(AnnotatedLog const& log, Path const& path, F const& cmp)
-{
-  const auto n = getNodeByPath(log, path.begin(), path.end());
-  return hasMatchingKey(n, cmp);
-}
-
 template<typename F, typename ToStr>
 auto matchesAbsoluteValue(AnnotatedLog const& log, Path const& path, F const& cmp, ToStr const& toStr)
 {
@@ -73,36 +66,6 @@ bool matchesRelativeKeyDirect(nlohmann::json const& log, Path const& path, F con
 {
   const auto n = getNodeByPath(log, path.begin(), path.end());
   return hasMatchingKey(n, cmp);
-}
-
-template<typename F>
-bool matchesRelativeKeyRecursive(nlohmann::json const& log, Path const& path, F const& cmp);
-
-template<typename F>
-bool matchesRelativeKeyInDirectChildren(nlohmann::json const& log, Path const& path, F const& cmp)
-{
-  for(auto it=log.begin(); it!=log.end(); ++it)
-    if( matchesRelativeKeyRecursive(*it, path, cmp) )
-      return true;
-  return false;
-}
-
-template<typename F>
-bool matchesRelativeKeyRecursive(nlohmann::json const& log, Path const& path, F const& cmp)
-{
-  if( matchesRelativeKeyDirect(log, path, cmp) )
-    return true;
-  if( log.is_boolean() || log.is_number() || log.is_string() )
-    return false;
-  if( matchesRelativeKeyInDirectChildren(log, path, cmp) )
-    return true;
-  return false;
-}
-
-template<typename F>
-auto matchesRelativeKey(AnnotatedLog const& log, Path const& path, F const& cmp)
-{
-  return matchesRelativeKeyRecursive(log.json(), path, cmp);
 }
 
 
@@ -132,16 +95,6 @@ auto matchesRelativeValue(AnnotatedLog const& log, Path const& path, F const& cm
 }
 
 
-template<typename F>
-bool matchesKeyImpl(AnnotatedLog const& log, Path const& path, F const& cmp)
-{
-  if( path.empty() )
-    return false;
-  if( path.isAbsolute() )
-    return matchesAbsoluteKey(log, path, cmp);
-  return matchesRelativeKey(log, path, cmp);
-}
-
 template<typename F, typename ToStr>
 bool matchesValueImpl(AnnotatedLog const& log, Path const& path, F const& cmp, ToStr const& toStr)
 {
@@ -161,10 +114,27 @@ struct RegexCompare
 }
 
 
+namespace
+{
+struct RegexKeySearch
+{
+  bool operator()(nlohmann::json const& json) const
+  {
+    if( json.is_object() )
+      for(auto& e: json.items())
+          if( std::regex_search(e.key(), *re_) )
+            return false;
+    return true;
+  }
+
+  std::regex const* re_{nullptr};
+};
+}
+
+
 bool matchesKey(AnnotatedLog const& log, Path const& path, std::regex const& re)
 {
-  // TODO[array]: forEachMatch()
-  return matchesKeyImpl(log, path, RegexCompare{&re});
+  return not forEachMatch( log.json(), path, RegexKeySearch{&re} );
 }
 
 

@@ -184,6 +184,8 @@ TEST_CASE_FIXTURE(Fixture, "key comparison of absolute path")
   CHECK( testMatch( Path{{".", "foo"}},                  "ba$"    ) == false );
   CHECK( testMatch( Path{{".", "no", "such", "node"}},   "bar"    ) == false );
   CHECK( testMatch( Path{{"."}},                         "bar"    ) == false );
+  CHECK( testMatch( Path{{".", "array[]"}},              "^on.$"  ) == true );
+  CHECK( testMatch( Path{{".", "array[]"}},              "^XYZ"   ) == false );
 }
 
 
