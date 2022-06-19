@@ -163,6 +163,7 @@ struct RegexCompare
 
 bool matchesKey(AnnotatedLog const& log, Path const& path, std::regex const& re)
 {
+  // TODO[array]: forEachMatch()
   return matchesKeyImpl(log, path, RegexCompare{&re});
 }
 
@@ -274,6 +275,7 @@ struct StringSearch
 
 bool matchesAnyKey(Log const& log, std::string const& str)
 {
+  // TODO[array]: forEachMatch()
   if( log.str().find(str) == std::string::npos )
     return false;
   return matchesAnyKey( AnnotatedLog{log}, str );
@@ -282,12 +284,14 @@ bool matchesAnyKey(Log const& log, std::string const& str)
 
 bool matchesAnyKey(AnnotatedLog const& log, std::string const& str)
 {
+  // TODO[array]: forEachMatch()
   return matchesAnyKeyRecursive(log.json(), StringSearch{&str});
 }
 
 
 bool matchesAnyValue(Log const& log, std::string const& str)
 {
+  // TODO[array]: forEachMatch()
   if( log.str().find(str) == std::string::npos )
     return false;
   return matchesAnyValue( AnnotatedLog{log}, str );
@@ -296,12 +300,14 @@ bool matchesAnyValue(Log const& log, std::string const& str)
 
 bool matchesAnyValue(AnnotatedLog const& log, std::string const& str)
 {
+  // TODO[array]: forEachMatch()
   return matchesAnyValueRecursive(log.json(), StringSearch{&str}, LogATE::Utils::value2str);
 }
 
 
 bool matchesAnyKeyValue(Log const& log, std::string const& key, std::string const& value)
 {
+  // TODO[array]: forEachMatch()
   if( log.str().find(key) == std::string::npos )
     return false;
   if( log.str().find(value) == std::string::npos )
@@ -312,6 +318,7 @@ bool matchesAnyKeyValue(Log const& log, std::string const& key, std::string cons
 
 bool matchesAnyKeyValue(AnnotatedLog const& log, std::string const& key, std::string const& value)
 {
+  // TODO[array]: forEachMatch()
   return matchesAnyKeyValueRecursive(log.json(), StringSearch{&key}, StringSearch{&value}, LogATE::Utils::value2str);
 }
 
@@ -338,6 +345,7 @@ struct GatherAllValues
 
 std::vector<std::string> allValues(AnnotatedLog const& log, Path const& path)
 {
+  // TODO[array]: forEachMatch()
   std::vector<std::string> out;
   matchesValueImpl(log, path, GatherAllValues{&out}, LogATE::Utils::value2str);
   return out;
@@ -358,6 +366,7 @@ But::Optional<std::string> dumpStruct(nlohmann::json const& node)
 
 std::vector<std::string> allNodeValues(AnnotatedLog const& log, Path const& path)
 {
+  // TODO[array]: forEachMatch()
   std::vector<std::string> out;
   matchesValueImpl(log, path, GatherAllValues{&out}, dumpStruct);
   return out;
