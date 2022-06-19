@@ -35,7 +35,6 @@ struct Fixture
   }
 
   Recorder rec_;
-  const nlohmann::json null_{};
   const nlohmann::json big_ =
                             R"({
                                 "one": {
@@ -77,11 +76,21 @@ struct Fixture
                                    51
                                  ]
                                })"_json;
+  const nlohmann::json nested_ =
+                            R"({
+                                "meh": {
+                                  "foo": [
+                                      { "bar": [ 1, 2, 3 ] },
+                                      { "bar": [ 42, 13 ] }
+                                    ]
+                                  }
+                                })"_json;
 };
 
 
 TEST_CASE_FIXTURE(Fixture, "null json")
 {
+  const nlohmann::json null_{};
   CHECK( forEachMatch(null_, Path::parse(".one"), rec_) == true );
   REQUIRE( rec_.values_.size() == 0u );
 }
@@ -120,11 +129,11 @@ TEST_CASE_FIXTURE(Fixture, "absolute path starting with array")
 {
   SUBCASE("direct index")
   {
-    // TODO
+    // TODO[array]
   }
   SUBCASE("wildcard")
   {
-    // TODO
+    // TODO[array]
   }
 }
 
@@ -177,14 +186,18 @@ TEST_CASE_FIXTURE(Fixture, "relative path with arrays")
     CHECK( forEachMatch(big_, Path::parse("foo[42].not.exist"), rec_) == true );
     REQUIRE( rec_.values_.size() == 0u );
   }
-  // TODO[array]: root element can be an array, too.
 }
 
 
 TEST_CASE_FIXTURE(Fixture, "relative path with wildcard arrays")
 {
-  // TODO
-  // TODO[array]: root element can be an array, too.
+  CHECK( forEachMatch(nested_, Path::parse("foo[].bar[]"), rec_) == true );
+  REQUIRE( rec_.values_.size() == 5u );
+  CHECK( rec_.values_[0] == &nested_["meh"]["foo"][0]["bar"][0] );
+  CHECK( rec_.values_[1] == &nested_["meh"]["foo"][0]["bar"][1] );
+  CHECK( rec_.values_[2] == &nested_["meh"]["foo"][0]["bar"][2] );
+  CHECK( rec_.values_[3] == &nested_["meh"]["foo"][1]["bar"][0] );
+  CHECK( rec_.values_[4] == &nested_["meh"]["foo"][1]["bar"][1] );
 }
 
 
