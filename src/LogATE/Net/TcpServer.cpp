@@ -18,6 +18,8 @@ auto pathCheck(Tree::Path keyPath)
     BUT_THROW(TcpServer::InvalidKeyPath, "key path cannot be empty");
   if( not keyPath.isAbsolute() )
     BUT_THROW(TcpServer::InvalidKeyPath, "key path must be absolute: " << keyPath.str() );
+  if( not keyPath.isUnique() )
+    BUT_THROW(TcpServer::InvalidKeyPath, "key path must be unique (no wildcards allowed): " << keyPath.str() );
   return keyPath;
 }
 

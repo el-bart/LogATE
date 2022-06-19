@@ -1,6 +1,7 @@
 # release notes
 
 ## dev
+* path to `key` must now be: non-empty, absolute and unique (i.e. no wildcards allowed).
 * `cursate` startup script improvements.
 * RPM package building code.
 * `build_image` helper script, that build full CursATE docker image, from scratch.

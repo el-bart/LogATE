@@ -184,18 +184,34 @@ TEST_CASE_FIXTURE(Fixture, "server recovers from an error in one of the JSONs")
 }
 
 
-TEST_CASE_FIXTURE(Fixture, "client fails to connect to a closed socket")
+TEST_CASE_FIXTURE(Fixture, "non-unique path is not allowed for keys")
 {
-  SUBCASE("non-asbolute path")
-  {
-    const auto path = Path{};
-    CHECK_THROWS_AS( (TcpServer{workers_, port_, path, parseMode_, serverTimeout_}), TcpServer::InvalidKeyPath );
-  }
   SUBCASE("empty path")
+  {
+    CHECK_THROWS_AS( (TcpServer{workers_, port_, Path{}, parseMode_, serverTimeout_}), TcpServer::InvalidKeyPath );
+    CHECK_THROWS_AS( (TcpServer{workers_, port_, Path::parse("."), parseMode_, serverTimeout_}), TcpServer::InvalidKeyPath );
+  }
+  SUBCASE("non-asbolute path")
   {
     const auto path = Path::parse("non.absolute");
     CHECK_THROWS_AS( (TcpServer{workers_, port_, path, parseMode_, serverTimeout_}), TcpServer::InvalidKeyPath );
   }
+  SUBCASE("non-unique path")
+  {
+    const auto path = Path::parse(".has.wildcards[].in.it");
+    CHECK_THROWS_AS( (TcpServer{workers_, port_, path, parseMode_, serverTimeout_}), TcpServer::InvalidKeyPath );
+  }
+  SUBCASE("empty path makes no sense for a key")
+  {
+    const auto path = Path{};
+    CHECK_THROWS_AS( (TcpServer{workers_, port_, path, parseMode_, serverTimeout_}), TcpServer::InvalidKeyPath );
+  }
+}
+
+
+TEST_CASE_FIXTURE(Fixture, "non-wildcard arrays are allowed")
+{
+  CHECK_NOTHROW( (TcpServer{workers_, port_, Path::parse(".foo[42].bar[13].narf"), parseMode_, serverTimeout_}) );
 }
 
 
