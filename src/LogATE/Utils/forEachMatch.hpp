@@ -63,8 +63,9 @@ bool forEachMatchOne(nlohmann::json const& root, Tree::Path::Data::const_iterato
         return true;
     }
     else
-      if( n->is_array() )
-        return true;
+      if( it+1 != end )     // for last element in path, it does not matter if it's array or not
+        if( n->is_array() )
+          return true;
   }
 
   BUT_ASSERT(n);

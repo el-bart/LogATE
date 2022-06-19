@@ -237,5 +237,35 @@ TEST_CASE_FIXTURE(Fixture, "check end of processing after returning false from f
   }
 }
 
+
+TEST_CASE_FIXTURE(Fixture, "handling arrays as last element in Path")
+{
+  const nlohmann::json in =
+                            R"({
+                                "four": {
+                                  "foo": {
+                                    "bar": "yyy"
+                                  }
+                                },
+                                "five": {
+                                  "foo": [
+                                    { "one": 1 },
+                                    { "two": 2 },
+                                    { "three": 3 }
+                                  ]
+                                }
+                               })"_json;
+  SUBCASE("as direct object")
+  {
+    CHECK( forEachMatch(in, Path::parse("foo"), rec_) == true );
+    REQUIRE( rec_.values_.size() == 2u );
+  }
+  SUBCASE("as child values")
+  {
+    CHECK( forEachMatch(in, Path::parse("foo[]"), rec_) == true );
+    REQUIRE( rec_.values_.size() == 3u );
+  }
+}
+
 }
 }
