@@ -69,6 +69,7 @@ if(LOGATE_ENABLE_TESTS)
     Tree/detail/LogKeyIndexCache.ut.cpp
     Utils/PrintableStringConverter.ut.cpp
     Utils/WorkerThreads.ut.cpp
+    Utils/forEach.ut.cpp
     Utils/forEachMatch.ut.cpp
     Utils/matchesLog.ut.cpp
     Utils/string2key.ut.cpp
