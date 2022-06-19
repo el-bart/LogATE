@@ -9,7 +9,7 @@ namespace detail
 {
 
 template<typename F>
-bool forEachMatchImpl(nlohmann::json const& root, Tree::Path const& path, F&& f)
+bool forEachMatchOne(nlohmann::json const& root, Tree::Path const& path, F&& f)
 {
   auto n = &root;
   for(auto& e: path)
@@ -28,14 +28,14 @@ bool forEachMatchImpl(nlohmann::json const& root, Tree::Path const& path, F&& f)
 template<typename F>
 bool forEachMatchAbsolute(nlohmann::json const& root, Tree::Path const& path, F&& f)
 {
-  return forEachMatchImpl(root, path, f);
+  return forEachMatchOne(root, path, f);
 }
 
 
 template<typename F>
 bool forEachMatchRelative(nlohmann::json const& root, Tree::Path const& path, F&& f)
 {
-  if( not forEachMatchImpl(root, path, f) )
+  if( not forEachMatchOne(root, path, f) )
     return false;
 
   if( root.is_object() )
