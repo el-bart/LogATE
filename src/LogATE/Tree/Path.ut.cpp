@@ -15,8 +15,32 @@ TEST_CASE("absolute path is detected correctly")
   CHECK( Path::parse(".").isAbsolute() == true );
   CHECK( Path::parse(".foo.bar").isAbsolute() == true );
   CHECK( Path::parse("oops.foo.bar").isAbsolute() == false );
-  CHECK( Path::parse("foo.bar").isAbsolute() == false );
   CHECK( Path::parse("foo[].bar[42]").isAbsolute() == false );
+}
+
+
+TEST_CASE("uniqueness of path is detected correctly")
+{
+  SUBCASE("non-absolute paths are not-unique")
+  {
+    CHECK( Path::parse("").isUnique() == false );
+    CHECK( Path::parse("oops.foo.bar").isUnique() == false );
+    CHECK( Path::parse("foo.bar").isUnique() == false );
+    CHECK( Path::parse("foo[].bar[42]").isUnique() == false );
+  }
+  SUBCASE("absolute path w/o wildcards are unique")
+  {
+    CHECK( Path::parse(".").isUnique() == true );
+    CHECK( Path::parse(".foo.bar").isUnique() == true );
+    CHECK( Path::parse(".foo[42].bar").isUnique() == true );
+    CHECK( Path::parse(".foo[42].bar[13]").isUnique() == true );
+  }
+  SUBCASE("absolute path with wildcards are not unique")
+  {
+    //CHECK( Path::parse(".[]").isUnique() == false ); // TODO[array]...
+    CHECK( Path::parse(".foo[].bar").isUnique() == false );
+    CHECK( Path::parse(".foo.bar[]").isUnique() == false );
+  }
 }
 
 

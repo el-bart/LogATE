@@ -117,4 +117,15 @@ std::string Path::str() const
   return ss.str();
 }
 
+
+bool Path::isUnique() const
+{
+  if( not isAbsolute() )
+    return false;
+  for(auto& e: value_)
+    if( e.isArray() && not e.hasIndex() )
+      return false;
+  return true;
+}
+
 }

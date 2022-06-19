@@ -66,6 +66,7 @@ struct Path final
 
   auto empty() const { return value_.empty(); }
   auto isAbsolute() const { return isAbsolute_; }
+  bool isUnique() const;
   auto begin() const { return value_.begin(); }
   auto end() const { return value_.end(); }
   auto const& data() const { return value_; }
