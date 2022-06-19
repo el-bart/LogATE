@@ -9,19 +9,75 @@ namespace detail
 {
 
 template<typename F>
+bool handleEndOfPath(nlohmann::json const& node, F&& f)
+{
+  if( not node.is_null() )
+    return f(node);
+  return true;
+}
+
+
+inline nlohmann::json const* findByName(nlohmann::json const& n, Tree::Path::Entry const& e)
+{
+  auto it = n.find( e.name() );
+  if( it == n.end() )
+    return nullptr;
+  if( it->is_null() )
+    return nullptr;
+  return &*it;
+}
+
+
+template<typename F>
+bool forEachMatchOne(nlohmann::json const& root, Tree::Path::Data::const_iterator begin, Tree::Path::Data::const_iterator end, F&& f)
+{
+  if( begin == end )
+    return handleEndOfPath(root, f);
+
+  auto n = &root;
+  for(auto it=begin; it!=end; ++it)
+  {
+    n = findByName(*n, *it);
+    if( n == nullptr )
+      return true;
+
+    if( it->isArray() )
+    {
+      if( not n->is_array() )
+        return true;
+      if( it->hasIndex() )
+      {
+        if( n->size() <= it->index() )
+          return true;
+        n = &(*n)[ it->index() ];
+      }
+      else
+      {
+        for(auto& elem: *n)
+        {
+          // TODO: if false...
+          forEachMatchOne(elem, it+1, end, f);
+        }
+        return true; // TODO...
+      }
+
+      if( n == nullptr )
+        return true;
+    }
+    else
+      if( n->is_array() )
+        return true;
+  }
+
+  BUT_ASSERT(n);
+  return handleEndOfPath(*n, f);
+}
+
+
+template<typename F>
 bool forEachMatchOne(nlohmann::json const& root, Tree::Path const& path, F&& f)
 {
-  auto n = &root;
-  for(auto& e: path)
-  {
-    auto it = n->find( e.name() ); // TODO: arrays....
-    if( it == n->end() )
-      return true;
-    if( it->is_null() )
-      return true;
-    n = &*it;
-  }
-  return f(*n);
+  return forEachMatchOne(root, path.begin(), path.end(), f);
 }
 
 
@@ -45,7 +101,7 @@ bool forEachMatchRelative(nlohmann::json const& root, Tree::Path const& path, F&
         return false;
   }
 
-  // TODO: arrays
+  // TODO[array]: top-level arrays are to be supported here as well
 
   return true;
 }
