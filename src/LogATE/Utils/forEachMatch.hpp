@@ -93,13 +93,9 @@ bool forEachMatchRelative(nlohmann::json const& root, Tree::Path const& path, F&
     return false;
 
   if( root.is_object() )
-  {
     for(auto& node: root.items())
       if( not forEachMatchRelative(node.value(), path, f) )
         return false;
-  }
-
-  // TODO[array]: top-level arrays are to be supported here as well
 
   return true;
 }
@@ -111,6 +107,9 @@ bool forEachMatchRelative(nlohmann::json const& root, Tree::Path const& path, F&
 template<typename F>
 bool forEachMatch(nlohmann::json const& root, Tree::Path const& path, F&& f)
 {
+  if( root.is_array() )
+    throw std::logic_error{"forEachMatchRelative(): top-level arrays are not supported"};
+
   if( path.empty() )
   {
     if( path.isAbsolute() )

@@ -127,14 +127,9 @@ TEST_CASE_FIXTURE(Fixture, "absolute path")
 
 TEST_CASE_FIXTURE(Fixture, "absolute path starting with array")
 {
-  SUBCASE("direct index")
-  {
-    // TODO[array]
-  }
-  SUBCASE("wildcard")
-  {
-    // TODO[array]
-  }
+  const nlohmann::json topLevelArray = R"([ 1, 2 ])"_json;
+  assert( topLevelArray.is_array() );
+  CHECK_THROWS( forEachMatch(topLevelArray, Path::parse("foo"), rec_) );
 }
 
 
