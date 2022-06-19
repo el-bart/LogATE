@@ -108,47 +108,24 @@ TEST_CASE_FIXTURE(Fixture, "absolute path")
     REQUIRE( rec_.values_.size() == 1u );
     CHECK( rec_.values_[0] == &big_["four"] );
   }
-  SUBCASE("leaf")
-  {
-    CHECK( forEachMatch(big_, Path::parse(".four.foo.bar"), rec_) == true );
-    REQUIRE( rec_.values_.size() == 1u );
-    CHECK( rec_.values_[0] == &big_["four"]["foo"]["bar"] );
-  }
   SUBCASE("non-existing node")
   {
-    CHECK( forEachMatch(big_, Path::parse(".four.does.not.exist"), rec_) == true );
+    CHECK( forEachMatch(big_, Path::parse(".does.not.exist"), rec_) == true );
     REQUIRE( rec_.values_.size() == 0u );
   }
 }
 
 
-TEST_CASE_FIXTURE(Fixture, "absolute path with arrays")
+TEST_CASE_FIXTURE(Fixture, "absolute path starting with array")
 {
-  SUBCASE("node")
+  SUBCASE("direct index")
   {
-    CHECK( forEachMatch(big_, Path::parse(".five.foo[1]"), rec_) == true );
-    REQUIRE( rec_.values_.size() == 1u );
-    CHECK( rec_.values_[0] == &big_["five"]["foo"][1] );
+    // TODO
   }
-  SUBCASE("leaf")
+  SUBCASE("wildcard")
   {
-    CHECK( forEachMatch(big_, Path::parse(".five.foo[1].one"), rec_) == true );
-    REQUIRE( rec_.values_.size() == 1u );
-    CHECK( rec_.values_[0] == &big_["five"]["foo"][1]["one"] );
+    // TODO
   }
-  SUBCASE("non-existing node")
-  {
-    CHECK( forEachMatch(big_, Path::parse(".four.does[42].not.exist"), rec_) == true );
-    REQUIRE( rec_.values_.size() == 0u );
-  }
-  // TODO[array]: root element can be an array, too.
-}
-
-
-TEST_CASE_FIXTURE(Fixture, "absolute path with wildcard arrays")
-{
-  // TODO
-  // TODO[array]: root element can be an array, too.
 }
 
 
@@ -191,9 +168,9 @@ TEST_CASE_FIXTURE(Fixture, "relative path with arrays")
   }
   SUBCASE("leaf")
   {
-    CHECK( forEachMatch(big_, Path::parse("foo[1].one"), rec_) == true );
+    CHECK( forEachMatch(big_, Path::parse("foo[0].one"), rec_) == true );
     REQUIRE( rec_.values_.size() == 1u );
-    CHECK( rec_.values_[0] == &big_["five"]["foo"][1]["one"] );
+    CHECK( rec_.values_[0] == &big_["five"]["foo"][0]["one"] );
   }
   SUBCASE("non-existing node")
   {
@@ -242,7 +219,7 @@ TEST_CASE_FIXTURE(Fixture, "check end of processing after returning false from f
     CHECK( rec_.values_[0] == &big_["one"]["PING"] );
     CHECK( rec_.values_[1] == &big_["two"]["PING"] );
   }
-  // TODO: based on array wildcards, too
+  // TODO[array]: based on array wildcards, too
   // TODO[array]: root element can be an array, too.
 }
 
