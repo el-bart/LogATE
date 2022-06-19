@@ -232,7 +232,14 @@ TEST_CASE_FIXTURE(Fixture, "check end of processing after returning false from f
     CHECK( rec_.values_[0] == &big_["one"]["PING"] );
     CHECK( rec_.values_[1] == &big_["two"]["PING"] );
   }
-  // TODO[array]: based on array wildcards, too
+  SUBCASE("stopping wildcard search in a middle")
+  {
+    rec_.stopAfter_ = 2;
+    CHECK( forEachMatch(nested_, Path::parse("foo[].bar[]"), rec_) == false );
+    REQUIRE( rec_.values_.size() == 2u );
+    CHECK( rec_.values_[0] == &nested_["meh"]["foo"][0]["bar"][0] );
+    CHECK( rec_.values_[1] == &nested_["meh"]["foo"][0]["bar"][1] );
+  }
   // TODO[array]: root element can be an array, too.
 }
 
