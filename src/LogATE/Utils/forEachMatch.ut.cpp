@@ -124,13 +124,31 @@ TEST_CASE_FIXTURE(Fixture, "absolute path")
 
 TEST_CASE_FIXTURE(Fixture, "absolute path with arrays")
 {
-  // TODO
+  SUBCASE("node")
+  {
+    CHECK( forEachMatch(big_, Path::parse(".five.foo[1]"), rec_) == true );
+    REQUIRE( rec_.values_.size() == 1u );
+    CHECK( rec_.values_[0] == &big_["five"]["foo"][1] );
+  }
+  SUBCASE("leaf")
+  {
+    CHECK( forEachMatch(big_, Path::parse(".five.foo[1].one"), rec_) == true );
+    REQUIRE( rec_.values_.size() == 1u );
+    CHECK( rec_.values_[0] == &big_["five"]["foo"][1]["one"] );
+  }
+  SUBCASE("non-existing node")
+  {
+    CHECK( forEachMatch(big_, Path::parse(".four.does[42].not.exist"), rec_) == true );
+    REQUIRE( rec_.values_.size() == 0u );
+  }
+  // TODO[array]: root element can be an array, too.
 }
 
 
 TEST_CASE_FIXTURE(Fixture, "absolute path with wildcard arrays")
 {
   // TODO
+  // TODO[array]: root element can be an array, too.
 }
 
 
@@ -165,13 +183,31 @@ TEST_CASE_FIXTURE(Fixture, "relative path")
 
 TEST_CASE_FIXTURE(Fixture, "relative path with arrays")
 {
-  // TODO
+  SUBCASE("node")
+  {
+    CHECK( forEachMatch(big_, Path::parse("foo[1]"), rec_) == true );
+    REQUIRE( rec_.values_.size() == 1u );
+    CHECK( rec_.values_[0] == &big_["five"]["foo"][1] );
+  }
+  SUBCASE("leaf")
+  {
+    CHECK( forEachMatch(big_, Path::parse("foo[1].one"), rec_) == true );
+    REQUIRE( rec_.values_.size() == 1u );
+    CHECK( rec_.values_[0] == &big_["five"]["foo"][1]["one"] );
+  }
+  SUBCASE("non-existing node")
+  {
+    CHECK( forEachMatch(big_, Path::parse("foo[42].not.exist"), rec_) == true );
+    REQUIRE( rec_.values_.size() == 0u );
+  }
+  // TODO[array]: root element can be an array, too.
 }
 
 
 TEST_CASE_FIXTURE(Fixture, "relative path with wildcard arrays")
 {
   // TODO
+  // TODO[array]: root element can be an array, too.
 }
 
 
@@ -207,6 +243,7 @@ TEST_CASE_FIXTURE(Fixture, "check end of processing after returning false from f
     CHECK( rec_.values_[1] == &big_["two"]["PING"] );
   }
   // TODO: based on array wildcards, too
+  // TODO[array]: root element can be an array, too.
 }
 
 }
