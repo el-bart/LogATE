@@ -1,5 +1,6 @@
 #include "LogATE/Utils/matchesLog.hpp"
 #include "LogATE/Utils/value2str.hpp"
+#include "LogATE/Utils/forEachMatch.hpp"
 #include "But/Optional.hpp"
 #include <string>
 #include <vector>
@@ -166,9 +167,27 @@ bool matchesKey(AnnotatedLog const& log, Path const& path, std::regex const& re)
 }
 
 
+
+namespace
+{
+struct RegexValueSearch
+{
+  bool operator()(nlohmann::json const& json) const
+  {
+    const auto str = value2str(json);
+    if(not str)
+      return true;
+    return not std::regex_search(*str, *re_);
+  }
+
+  std::regex const* re_{nullptr};
+};
+}
+
+
 bool matchesValue(AnnotatedLog const& log, Path const& path, std::regex const& re)
 {
-  return matchesValueImpl(log, path, RegexCompare{&re}, LogATE::Utils::value2str);
+  return not forEachMatch( log.json(), path, RegexValueSearch{&re} );
 }
 
 
