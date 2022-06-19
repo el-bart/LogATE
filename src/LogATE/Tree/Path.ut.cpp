@@ -37,7 +37,6 @@ TEST_CASE("uniqueness of path is detected correctly")
   }
   SUBCASE("absolute path with wildcards are not unique")
   {
-    //CHECK( Path::parse(".[]").isUnique() == false ); // TODO[array]...
     CHECK( Path::parse(".foo[].bar").isUnique() == false );
     CHECK( Path::parse(".foo.bar[]").isUnique() == false );
   }
@@ -53,6 +52,7 @@ TEST_CASE("parsing from string")
   CHECK( Path{{".", "foo", "bar"}} == Path::parse(".foo.bar") );
   CHECK( Path{{"space is ok", "bar"}} == Path::parse("space is ok.bar") );
 
+  CHECK_THROWS_AS( Path::parse(".[]"),       Path::Entry::InvalidArray );
   CHECK_THROWS_AS( Path::parse(".[42]"),     Path::Entry::InvalidArray );
   CHECK_THROWS_AS( Path::parse(".."),        Path::Entry::EmptyNode );
   CHECK_THROWS_AS( Path::parse(".foo.bar."), Path::Entry::EmptyNode );
@@ -163,8 +163,6 @@ TEST_CASE("parsing each entry")
     }
   }
 }
-
-// TODO: arrays handling - "[42]" should also be fine, in case first node is addressed, but 'foo.[42].bar" should be an error, since name is missing in the following ones
 
 }
 }

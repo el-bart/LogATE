@@ -240,7 +240,6 @@ TEST_CASE_FIXTURE(Fixture, "check end of processing after returning false from f
     CHECK( rec_.values_[0] == &nested_["meh"]["foo"][0]["bar"][0] );
     CHECK( rec_.values_[1] == &nested_["meh"]["foo"][0]["bar"][1] );
   }
-  // TODO[array]: root element can be an array, too.
 }
 
 }
