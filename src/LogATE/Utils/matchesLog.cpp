@@ -8,86 +8,12 @@
 using LogATE::Tree::Path;
 
 
-// TODO[array]: arrays are ignored for now (i.e. nothing is searched inside them) - this should change
 // TODO: there are a lot of searches, recursion and comparisons. there is a need for a fundamental change in an
 //       underlying data structure, so that searches can be performed significantly faster with lesser (no?) allocations.
+//       maybe using visitors for getting values could (potentially) help?
 
 namespace LogATE::Utils
 {
-
-namespace
-{
-
-using PathIter = Path::Data::const_iterator;
-
-nlohmann::json getNodeByPath(nlohmann::json const& n, PathIter pathBegin, PathIter pathEnd)
-{
-  // TODO[array]: add array processing here
-  auto ptr = &n;
-  for(auto it=pathBegin; it!=pathEnd; ++it)
-  {
-    const auto p = ptr->find( it->name() ); // TODO[array]: will not work for wildcards, or elements of arrays...
-    if( p == ptr->end() )
-      return {};
-    ptr = &*p;
-  }
-  return *ptr;
-}
-
-nlohmann::json getNodeByPath(AnnotatedLog const& log, PathIter pathBegin, PathIter pathEnd)
-{
-  return getNodeByPath(log.json(), pathBegin, pathEnd);
-}
-
-template<typename F, typename ToStr>
-auto matchesAbsoluteValue(AnnotatedLog const& log, Path const& path, F const& cmp, ToStr const& toStr)
-{
-  const auto n = getNodeByPath(log, path.begin(), path.end());
-  const auto str = toStr(n);
-  if(not str)
-    return false;
-  return cmp(*str);
-}
-
-
-template<typename F, typename ToStr>
-bool matchesRelativeValueRecursive(nlohmann::json const& log, Path const& path, F const& cmp, ToStr const& toStr)
-{
-  if( not log.is_object() && not log.is_array() )
-    return false;
-
-  {
-    const auto n = getNodeByPath(log, path.begin(), path.end());
-    const auto str = toStr(n);
-    if(str && cmp(*str))
-      return true;
-  }
-
-  for(auto it=log.begin(); it!=log.end(); ++it)
-    if( matchesRelativeValueRecursive(*it, path, cmp, toStr) )
-      return true;
-  return false;
-}
-
-template<typename F, typename ToStr>
-auto matchesRelativeValue(AnnotatedLog const& log, Path const& path, F const& cmp, ToStr const& toStr)
-{
-  return matchesRelativeValueRecursive(log.json(), path, cmp, toStr);
-}
-
-
-template<typename F, typename ToStr>
-bool matchesValueImpl(AnnotatedLog const& log, Path const& path, F const& cmp, ToStr const& toStr)
-{
-  if( path.empty() )
-    return false;
-  if( path.isAbsolute() )
-    return matchesAbsoluteValue(log, path, cmp, toStr);
-  return matchesRelativeValue(log, path, cmp, toStr);
-}
-
-}
-
 
 namespace
 {
@@ -281,49 +207,64 @@ namespace
 {
 struct GatherAllValues
 {
-  bool operator()(std::string const& str) const
+  bool operator()(nlohmann::json const& node)
   {
-    BUT_ASSERT(out_ != nullptr);
-    BUT_ASSERT( std::is_sorted( begin(*out_), end(*out_) ) );
-    const auto it = std::lower_bound( begin(*out_), end(*out_), str );
-    if( it != end(*out_) && *it == str )
-      return false;
-    out_->insert(it, str);
-    BUT_ASSERT( std::is_sorted( begin(*out_), end(*out_) ) );
-    return false;
+    add(node);
+    return true;
   }
 
-  std::vector<std::string>* out_{nullptr};
+  void add(nlohmann::json const& node)
+  {
+    if( node.is_null() )
+      return;
+    auto str = node2str(node);
+    BUT_ASSERT( std::is_sorted( begin(out_), end(out_) ) );
+    const auto it = std::lower_bound( begin(out_), end(out_), str );
+    if( it != end(out_) && *it == str )
+      return;
+    out_.insert(it, std::move(str) );
+    BUT_ASSERT( std::is_sorted( begin(out_), end(out_) ) );
+  }
+
+  static std::string node2str(nlohmann::json const& node)
+  {
+    BUT_ASSERT( not node.is_null() );
+    auto tmp = ::LogATE::Utils::value2str(node);
+    if(tmp)
+      return *std::move(tmp);
+    return node.dump();
+  }
+
+  std::vector<std::string> out_;
+};
+
+struct GatherAllLeafs
+{
+  bool operator()(nlohmann::json const& node)
+  {
+    if( node.is_null() || node.is_object() || node.is_array() )
+      return true;
+    return gav_(node);
+  }
+
+  GatherAllValues gav_;
 };
 }
 
+
 std::vector<std::string> allValues(AnnotatedLog const& log, Path const& path)
 {
-  // TODO[array]: forEachMatch()
-  std::vector<std::string> out;
-  matchesValueImpl(log, path, GatherAllValues{&out}, LogATE::Utils::value2str);
-  return out;
+  GatherAllLeafs gal;
+  forEachMatch(log.json(), path, gal);
+  return std::move(gal.gav_.out_);
 }
 
-namespace
-{
-But::Optional<std::string> dumpStruct(nlohmann::json const& node)
-{
-  if( node.is_null() )
-    return {};
-  auto tmp = LogATE::Utils::value2str(node);
-  if(tmp)
-    return tmp;
-  return node.dump();
-}
-}
 
 std::vector<std::string> allNodeValues(AnnotatedLog const& log, Path const& path)
 {
-  // TODO[array]: forEachMatch()
-  std::vector<std::string> out;
-  matchesValueImpl(log, path, GatherAllValues{&out}, dumpStruct);
-  return out;
+  GatherAllValues gav;
+  forEachMatch(log.json(), path, gav);
+  return std::move(gav.out_);
 }
 
 }
