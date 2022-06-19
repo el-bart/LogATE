@@ -104,7 +104,7 @@ Path Path::build(std::vector<std::string> nodes)
 std::string Path::str() const
 {
   std::stringstream ss;
-  if( absolute() )
+  if( isAbsolute() )
     ss << ".";
   if( empty() )
     return ss.str();

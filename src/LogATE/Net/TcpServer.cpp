@@ -16,7 +16,7 @@ auto pathCheck(Tree::Path keyPath)
 {
   if( keyPath.empty() )
     BUT_THROW(TcpServer::InvalidKeyPath, "key path cannot be empty");
-  if( not keyPath.absolute() )
+  if( not keyPath.isAbsolute() )
     BUT_THROW(TcpServer::InvalidKeyPath, "key path must be absolute: " << keyPath.str() );
   return keyPath;
 }

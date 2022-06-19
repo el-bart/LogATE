@@ -11,12 +11,12 @@ TEST_SUITE("Tree::Path")
 
 TEST_CASE("absolute path is detected correctly")
 {
-  CHECK( Path::parse("").absolute() == false );
-  CHECK( Path::parse(".").absolute() == true );
-  CHECK( Path::parse(".foo.bar").absolute() == true );
-  CHECK( Path::parse("oops.foo.bar").absolute() == false );
-  CHECK( Path::parse("foo.bar").absolute() == false );
-  CHECK( Path::parse("foo[].bar[42]").absolute() == false );
+  CHECK( Path::parse("").isAbsolute() == false );
+  CHECK( Path::parse(".").isAbsolute() == true );
+  CHECK( Path::parse(".foo.bar").isAbsolute() == true );
+  CHECK( Path::parse("oops.foo.bar").isAbsolute() == false );
+  CHECK( Path::parse("foo.bar").isAbsolute() == false );
+  CHECK( Path::parse("foo[].bar[42]").isAbsolute() == false );
 }
 
 
@@ -66,7 +66,7 @@ TEST_CASE("creating empty path")
 {
   const auto empty = Path{};
   CHECK( empty.empty() == true );
-  CHECK( empty.absolute() == false );
+  CHECK( empty.isAbsolute() == false );
   CHECK( empty.begin() == empty.end() );
   CHECK( empty.str() == "" );
 }

@@ -59,12 +59,12 @@ bool forEachMatch(nlohmann::json const& root, Tree::Path const& path, F&& f)
 {
   if( path.empty() )
   {
-    if( path.absolute() )
+    if( path.isAbsolute() )
       return f(root);
     return true;
   }
 
-  if( path.absolute() )
+  if( path.isAbsolute() )
     return detail::forEachMatchAbsolute(root, path, f);
   else
     return detail::forEachMatchRelative(root, path, f);

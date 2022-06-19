@@ -46,7 +46,7 @@ namespace
 auto getKey(nlohmann::json const& json, Tree::Path const& keyPath, const SequenceNumber sn)
 {
   auto* node = &json;
-  BUT_ASSERT( keyPath.absolute() );
+  BUT_ASSERT( keyPath.isAbsolute() );
   BUT_ASSERT( not keyPath.empty() );
   {
     // TODO[array]: support for arrays shall be added over time for keys as well...

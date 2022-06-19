@@ -65,7 +65,7 @@ struct Path final
   std::string str() const;
 
   auto empty() const { return value_.empty(); }
-  auto absolute() const { return isAbsolute_; }
+  auto isAbsolute() const { return isAbsolute_; }
   auto begin() const { return value_.begin(); }
   auto end() const { return value_.end(); }
   auto const& data() const { return value_; }
@@ -76,7 +76,7 @@ private:
   bool isAbsolute_{false};
 };
 
-inline bool operator==(Path const& lhs, Path const& rhs) { return lhs.absolute() == rhs.absolute() && lhs.data() == rhs.data(); }
+inline bool operator==(Path const& lhs, Path const& rhs) { return lhs.isAbsolute() == rhs.isAbsolute() && lhs.data() == rhs.data(); }
 inline bool operator!=(Path const& lhs, Path const& rhs) { return not ( lhs == rhs ); }
 
 }

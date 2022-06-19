@@ -51,7 +51,7 @@ void trimOneField(nlohmann::json& json, Path const& path)
 {
   if( path.empty() )
     return;
-  if( path.absolute() )
+  if( path.isAbsolute() )
     trimOneAbsolute(json, path);
   else
     trimOneRelative(json, path);
