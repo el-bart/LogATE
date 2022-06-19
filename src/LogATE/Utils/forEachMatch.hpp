@@ -56,7 +56,7 @@ bool forEachMatchOne(nlohmann::json const& root, Tree::Path::Data::const_iterato
         for(auto& elem: *n)
           if( not forEachMatchOne(elem, it+1, end, f) )
             return false;
-        return true; // TODO...
+        return true;
       }
 
       if( n == nullptr )
