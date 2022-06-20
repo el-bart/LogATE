@@ -94,6 +94,8 @@ void appendTree(nlohmann::json const& log, C& out, Path const& path, PrintableSt
     newPathData.emplace_back( printable( e.key() ) );
     auto value = value2str( e.value() );
     auto text = prefix + printable( e.key() );
+    if( e.value().is_array() )
+      text += "[]";
     if(value)
       text += ": " + printable( *value );
     out.push_back( E{ Path{newPathData, path.isAbsolute()}, std::move(text), optPrintable(printable, value) } );
