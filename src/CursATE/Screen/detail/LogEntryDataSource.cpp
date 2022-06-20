@@ -167,18 +167,18 @@ void appendTreeArray(nlohmann::json const& log, C& out, Path const& path, Printa
 template<typename C>
 void appendTree(nlohmann::json const& log, C& out, Path const& path, PrintableStringConverter const& printable, std::string const& prefix)
 {
+  if( log.is_null() )
+    return;
   if( log.is_object() )
   {
     appendTreeObject(log, out, path, printable, prefix);
     return;
   }
-
   if( log.is_array() )
   {
     appendTreeArray(log, out, path, printable, prefix);
     return;
   }
-
   BUT_ASSERT("top level element has to be an object");
   throw std::logic_error{"top level element has to be an object"};
 }
