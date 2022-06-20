@@ -114,14 +114,20 @@ void appendTreeObject(nlohmann::json const& log, C& out, Path const& path, Print
   for( auto& [k,v]: log.items() )
   {
     std::stringstream ssText;
-    ssText << prefix << printable(k);
-    auto value = value2str(v);  // TODO: optPrintable( v2s() ) ?
+    auto key = printable(k);
+    ssText << prefix << key;
+    if( v.is_array() )
+    {
+      ssText << "[]";
+      key += "[]";
+    }
+    auto value = optPrintable( printable, value2str(v) );
     if(value)
-      ssText << ": " << printable(*value);
+      ssText << ": " << *value;
 
-    auto newPath = extend( path, printable(k) );
+    auto newPath = extend(path, key);
     using E = typename C::value_type;
-    out.push_back( E{ newPath, ssText.str(), optPrintable(printable, value) } );
+    out.push_back( E{newPath, ssText.str(), value} );
 
     if(not value)
       appendTree( v, out, std::move(newPath), printable, indent(prefix) );
@@ -143,13 +149,13 @@ void appendTreeArray(nlohmann::json const& log, C& out, Path const& path, Printa
   {
     std::stringstream ssText;
     ssText << prefix << '[' << index << ']';
-    auto value = value2str(e);  // TODO: optPrintable ?
+    auto value = optPrintable( printable, value2str(e) );
     if(value)
-      ssText << ": " << printable(*value);
+      ssText << ": " << *value;
 
     auto newPath = extend(pathTemplate, printable( path.last().name() ), index);
     using E = typename C::value_type;
-    out.push_back( E{ newPath, ssText.str(), optPrintable(printable, value) } );
+    out.push_back( E{newPath, ssText.str(), value} );
     ++index;
 
     if(not value)
