@@ -3,6 +3,13 @@
 ## dev
 
 
+## v1.1.1
+bugfix for helper script
+
+* fixed `./build_image`, that was not adopted to latest build scripts.
+* updated list of libs for runtime image.
+
+
 ## v1.1.0
 support for arrays in JSON logs.
 minor usability improvements.
