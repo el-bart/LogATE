@@ -13,6 +13,9 @@ minor usability improvements.
 * `cursate` startup script improvements.
 * RPM package building code.
 * `build_image` helper script, that build full CursATE docker image, from scratch.
+* note that `thread` sanitizer will report errors in using `But::Thread::Event::wait()` with timeout. this is TSAN's bug:
+  - [gcc bug report](https://gcc.gnu.org/bugzilla/show_bug.cgi?id=101978)
+  - [clang bug report](https://github.com/google/sanitizers/issues/1259)
 
 
 ## v1.0.0
