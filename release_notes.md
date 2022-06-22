@@ -1,6 +1,12 @@
 # release notes
 
 ## dev
+
+
+## v1.1.0
+support for arrays in JSON logs.
+minor usability improvements.
+
 * wildcard searches (i.e. with any array elements, specified as `my_array[]`) are now possible.
 * added full support for logs with arrays.
 * path to `key` must now be: non-empty, absolute and unique (i.e. no wildcards allowed).
@@ -29,6 +35,7 @@ parallel processing and many usability features.
 
 ## v0.2.1
 minor bugfix
+
 * added missing `boost::program_options` library to a runtime image.
 
 
