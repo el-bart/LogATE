@@ -106,7 +106,7 @@ TEST_CASE_FIXTURE(Fixture, "all threads are used, if enough tasks are provided")
 TEST_CASE_FIXTURE(Fixture, "queues have proper priorities")
 {
   auto event = addBlocker(wt_);
-  auto guard = [event] { event->set(); };
+  auto guard = But::makeGuard( [event] { event->set(); } );
 
   const auto type = LogATE::Tree::NodeType{"some type"};
   const auto name1 = LogATE::Tree::NodeName{"some name #1"};
@@ -147,7 +147,7 @@ TEST_CASE_FIXTURE(Fixture, "queues have proper priorities")
 TEST_CASE_FIXTURE(Fixture, "rescheduling is done when new tasks arrive with higher priority")
 {
   auto event = But::makeSharedNN<But::Threading::Event>();
-  auto guard = [=] { event->set(); };
+  auto guard = But::makeGuard( [event] { event->set(); } );
 
   const auto type = LogATE::Tree::NodeType{"some type"};
   const auto name = LogATE::Tree::NodeName{"some name"};
