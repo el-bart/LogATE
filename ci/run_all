@@ -13,7 +13,14 @@ for sdk in gcc clang
 do
   for mode in Debug Release Profile Relwithdebinfo
   do
-    for san in none address thread undefined
+    sanitizers=(none)
+    if [ "$mode" = "Debug" ]
+    then
+      sanitizers+=(address)
+      sanitizers+=(thread)
+      sanitizers+=(undefined)
+    fi
+    for san in "${sanitizers[@]}"
     do
       ((++runs))
       echo "$app: #$runs BUILD WITH SDK $sdk MODE $mode SANITIZER $san"
