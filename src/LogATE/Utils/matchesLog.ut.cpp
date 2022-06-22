@@ -406,5 +406,46 @@ TEST_CASE_FIXTURE(Fixture, "matches any key=value pairs")
   }
 }
 
+
+TEST_CASE_FIXTURE(Fixture, "example test cases for handling array elements and indexes")
+{
+  const auto log = makeLog(R"({
+                                "four": {
+                                  "foo": [ 77, 88 ]
+                                },
+                                "five": {
+                                  "foo": [
+                                    { "one": 77 },
+                                    { "two": 88 },
+                                    { "three": 99 }
+                                  ]
+                                }
+                              })");
+
+  SUBCASE("match value")
+  {
+    matchFunction = matchesValue;
+    CHECK( testMatch(Path::parse(".four.foo"), "77", log) == false );
+    CHECK( testMatch(Path::parse(".four.foo[]"), "77", log) == true );
+    CHECK( testMatch(Path::parse(".five.foo.one"), "77", log) == false );
+    CHECK( testMatch(Path::parse(".five.foo[].one"), "77", log) == true );
+  }
+  SUBCASE("match key")
+  {
+    matchFunction = matchesKey;
+    CHECK( testMatch(Path::parse(".four.foo"), "1", log) == false );
+    CHECK( testMatch(Path::parse(".four.foo[]"), "1", log) == false );
+    CHECK( testMatch(Path::parse(".five.foo"), "one", log) == false );
+    CHECK( testMatch(Path::parse(".five.foo[]"), "one", log) == true );
+  }
+  SUBCASE("check if key exists in array")
+  {
+    matchFunction = matchesKey;
+    CHECK( testMatch(Path::parse("foo[2]"), "", log) == true );
+    CHECK( testMatch(Path::parse("foo[3]"), "", log) == false );
+  }
+}
+
+
 }
 }
