@@ -1,6 +1,8 @@
 # release notes
 
 ## dev
+* wildcard searches (i.e. with any array elements, specified as `my_array[]`) are now possible.
+* added full support for logs with arrays.
 * path to `key` must now be: non-empty, absolute and unique (i.e. no wildcards allowed).
 * `cursate` startup script improvements.
 * RPM package building code.
