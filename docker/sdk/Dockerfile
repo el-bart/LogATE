@@ -19,11 +19,12 @@ RUN apt-get update && apt-get install -y \
     valgrind \
     wget
 
-ENV DOCTEST_VER=2.3.4
+ENV DOCTEST_VER=2.4.11
 RUN cd /usr/src/ && \
-    wget "https://github.com/onqtam/doctest/archive/${DOCTEST_VER}.tar.gz" && \
-    tar xzvf "${DOCTEST_VER}.tar.gz" && \
-    cp -rv "doctest-${DOCTEST_VER}/doctest" /usr/local/include
+    wget "https://github.com/doctest/doctest/archive/refs/tags/v${DOCTEST_VER}.tar.gz" && \
+    tar xzvf "v${DOCTEST_VER}.tar.gz" && \
+    cp -rv "doctest-${DOCTEST_VER}/doctest" /usr/local/include && \
+    rm "v${DOCTEST_VER}.tar.gz"
 
 # TODO: next BUT release, when available
 #ENV BUT_VER=1.2.0
