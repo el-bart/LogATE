@@ -2,6 +2,11 @@
 
 ## dev
 
+## v1.2.0
+port to debian:12
+
+* using edbian:12 as a base OS for both SDK and runtime
+* upgraded doctest framework
 
 ## v1.1.1
 bugfix for helper script
