@@ -1,12 +1,12 @@
-FROM debian:11
+FROM debian:12
 RUN apt-get update && apt-get dist-upgrade -y
 
 RUN apt-get update && apt-get install -y \
     cmake \
     ninja-build
 RUN apt-get update && apt-get install -y \
-    g++-10 \
-    clang-11
+    g++ \
+    clang
 RUN apt-get update && apt-get install -y \
     libboost-all-dev \
     libncurses-dev \
@@ -39,6 +39,6 @@ RUN cd /usr/src/ && \
     wget -O "but-master.zip" "https://codeload.github.com/el-bart/but/zip/master" && \
     unzip "but-master.zip" && \
     cd "but-master/build" && \
-    cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../src/cmake/toolchains/gcc10.cmake .. && \
+    cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../src/cmake/toolchains/gcc.cmake .. && \
     ninja && \
     ninja install
