@@ -22,11 +22,11 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-noexcept-type") # remove nonhelpful
 message(STATUS "LogATE: enabling LTO")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=gold")
 
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -flto")
-set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} -flto")
+#set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -flto")
+#set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} -flto")
 
-set(CMAKE_CXX_FLAGS_PROFILE "${CMAKE_CXX_FLAGS_PROFILE} -flto")
-set(CMAKE_EXE_LINKER_FLAGS_PROFILE "${CMAKE_EXE_LINKER_FLAGS_PROFILE} -flto")
+#set(CMAKE_CXX_FLAGS_PROFILE "${CMAKE_CXX_FLAGS_PROFILE} -flto")
+#set(CMAKE_EXE_LINKER_FLAGS_PROFILE "${CMAKE_EXE_LINKER_FLAGS_PROFILE} -flto")
 
 # LTO plugin flags for AR and RANLIB are needed for GCC only
 # unfortunately 'archive' flags do not have per-build-type variants...
@@ -50,4 +50,19 @@ if("${LOGATE_ENABLE_COVERAGE}" STREQUAL "yes")
   message(STATUS "LogATE: enabing coverage counting")
   add_compile_options(--coverage)
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")
+endif()
+
+# there's a bug in GCC 12:
+# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=105562
+# if both are true:
+#  - optimizations are enabled
+#  - address sanitizer is on
+# there incorrect "may be used uninitialized" warnings comming up from standard library's internals.
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+  if ("${CMAKE_CXX_COMPILER_VERSION}" MATCHES "^12\\.")
+    if("${CMAKE_BUILD_TYPE}" MATCHES "^Release|Relwithdebinfo|Profile$")
+      message(WARNING "BUT: disabling -Wmaybe-uninitialized for buggy GCC version")
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-maybe-uninitialized")
+    endif()
+  endif()
 endif()
