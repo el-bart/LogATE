@@ -2,6 +2,12 @@
 
 ## dev
 
+## v1.3.0
+BUT update.
+
+* upgraded BUT to v2.0.0
+* fixed build issue with old paths
+
 ## v1.2.0
 port to debian:12
 
