@@ -27,19 +27,13 @@ RUN cd /usr/src/ && \
     rm "v${DOCTEST_VER}.tar.gz"
 
 # TODO: next BUT release, when available
-#ENV BUT_VER=1.2.0
-#RUN cd /usr/src/ && \
-#    wget "https://github.com/el-bart/but/archive/v${BUT_VER}.tar.gz" && \
-#    tar xzvf "v${BUT_VER}.tar.gz" && \
-#    cd "but-${BUT_VER}/build" && \
-#    cmake -G Ninja -DCMAKE_BUILD_TYPE=Release .. && \
-#    ninja && \
-#    ninja install
-RUN apt-get update && apt-get install unzip
+ENV BUT_VER=2.0.0
 RUN cd /usr/src/ && \
-    wget -O "but-master.zip" "https://codeload.github.com/el-bart/but/zip/master" && \
-    unzip "but-master.zip" && \
-    cd "but-master/build" && \
+    wget "https://github.com/el-bart/but/archive/v${BUT_VER}.tar.gz" && \
+    tar xzvf "v${BUT_VER}.tar.gz" && \
+    cd "but-${BUT_VER}/" && \
+    mkdir -p "build" && \
+    cd "build" && \
     cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../src/cmake/toolchains/gcc.cmake .. && \
     ninja && \
     ninja install
