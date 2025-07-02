@@ -1,6 +1,5 @@
 #include "LogATE/Log.hpp"
 #include "LogATE/Utils/value2str.hpp"
-#include "LogATE/Utils/zeroPaddedString.hpp"
 #include <iomanip>
 #include <sstream>
 
