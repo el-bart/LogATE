@@ -11,8 +11,9 @@ add_library(LogATE
   Net/detail/TcpServerImpl.cpp
   Net/epoll.cpp
   Printers/OrderedPrettyPrint.cpp
-  Tree/Node.cpp
+  Tree/KeyExtractor.cpp
   Tree/Logs.cpp
+  Tree/Node.cpp
   Tree/Path.cpp
   Tree/Search.cpp
   Tree/SimpleNode.cpp
@@ -57,6 +58,7 @@ if(LOGATE_ENABLE_TESTS)
     Printers/OrderedPrettyPrint.ut.cpp
     Printers/jsonLine.ut.cpp
     Printers/detail/maxDigits.ut.cpp
+    Tree/KeyExtractor.ut.cpp
     Tree/Logs.ut.cpp
     Tree/Node.ut.cpp
     Tree/Path.ut.cpp
