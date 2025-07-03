@@ -111,7 +111,7 @@ inline std::string fromUnixTs(std::optional<int64_t> const ts, int64_t const div
 } // unnamed namespace
 
 
-std::string KeyExtractor::extract(nlohmann::json const& in) const
+std::string KeyExtractor::operator()(nlohmann::json const& in) const
 {
   switch(sourceFormat_)
   {

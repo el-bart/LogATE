@@ -31,11 +31,7 @@ struct KeyExtractor final
   KeyExtractor(KeyExtractor const&) = default;
   KeyExtractor& operator=(KeyExtractor const&) = default;
 
-  std::string extract(nlohmann::json const& in) const; // TODO: legacy - remove
-  std::string operator()(nlohmann::json const& in) const
-  {
-    return extract(in);
-  }
+  std::string operator()(nlohmann::json const& in) const;
 
   auto const& path() const { return path_; }
 
