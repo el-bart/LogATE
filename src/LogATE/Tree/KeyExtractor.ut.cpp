@@ -25,7 +25,7 @@ TEST_CASE_FIXTURE(Fixture, "getting key in raw SourceFormat")
 
   SUBCASE("raw SourceFormat")
   {
-    auto sourceFormat = KeyExtractor::SourceFormat::Raw;
+    auto const sourceFormat = KeyExtractor::SourceFormat::Raw;
     SUBCASE("existing path (string)")
     {
       KeyExtractor const ke{ Path::parse(".foo.bar"), sourceFormat };
@@ -45,7 +45,7 @@ TEST_CASE_FIXTURE(Fixture, "getting key in raw SourceFormat")
 
   SUBCASE("ISO8601_ns")
   {
-    auto sourceFormat = KeyExtractor::SourceFormat::ISO8601_ns;
+    auto const sourceFormat = KeyExtractor::SourceFormat::ISO8601_ns;
     SUBCASE("valid")
     {
       KeyExtractor const ke{ Path::parse(".iso"), sourceFormat };
@@ -60,7 +60,7 @@ TEST_CASE_FIXTURE(Fixture, "getting key in raw SourceFormat")
 
   SUBCASE("UNIX")
   {
-    auto sourceFormat = KeyExtractor::SourceFormat::UNIX;
+    auto const sourceFormat = KeyExtractor::SourceFormat::UNIX;
     SUBCASE("valid")
     {
       KeyExtractor const ke{ Path::parse(".unix"), sourceFormat };
@@ -75,7 +75,7 @@ TEST_CASE_FIXTURE(Fixture, "getting key in raw SourceFormat")
 
   SUBCASE("UNIX_ms")
   {
-    auto sourceFormat = KeyExtractor::SourceFormat::UNIX_ms;
+    auto const sourceFormat = KeyExtractor::SourceFormat::UNIX_ms;
     SUBCASE("valid")
     {
       KeyExtractor const ke{ Path::parse(".unix_ms"), sourceFormat };
@@ -90,7 +90,7 @@ TEST_CASE_FIXTURE(Fixture, "getting key in raw SourceFormat")
 
   SUBCASE("UNIX_us")
   {
-    auto sourceFormat = KeyExtractor::SourceFormat::UNIX_us;
+    auto const sourceFormat = KeyExtractor::SourceFormat::UNIX_us;
     SUBCASE("valid")
     {
       KeyExtractor const ke{ Path::parse(".unix_us"), sourceFormat };
@@ -105,7 +105,7 @@ TEST_CASE_FIXTURE(Fixture, "getting key in raw SourceFormat")
 
   SUBCASE("UNIX_ns")
   {
-    auto sourceFormat = KeyExtractor::SourceFormat::UNIX_ns;
+    auto const sourceFormat = KeyExtractor::SourceFormat::UNIX_ns;
     SUBCASE("valid")
     {
       KeyExtractor const ke{ Path::parse(".unix_ns"), sourceFormat };
@@ -118,37 +118,29 @@ TEST_CASE_FIXTURE(Fixture, "getting key in raw SourceFormat")
     }
   }
 
-  // TODO: tests for invalid paths
-#if 0
-  TEST_CASE_FIXTURE(Fixture, "non-unique path is not allowed for keys")
+  SUBCASE("non-unique path is not allowed for keys")
   {
+    auto const sourceFormat = KeyExtractor::SourceFormat::UNIX_ns;
     SUBCASE("empty path")
     {
-      CHECK_THROWS_AS( (TcpServer{workers_, port_, Path{}, parseMode_, serverTimeout_}), TcpServer::InvalidKeyPath );
-      CHECK_THROWS_AS( (TcpServer{workers_, port_, Path::parse("."), parseMode_, serverTimeout_}), TcpServer::InvalidKeyPath );
+      CHECK_THROWS_AS( (KeyExtractor{Path{}, sourceFormat}), KeyExtractor::InvalidKeyPath );
+      CHECK_THROWS_AS( (KeyExtractor{Path::parse("."), sourceFormat}), KeyExtractor::InvalidKeyPath );
     }
     SUBCASE("non-asbolute path")
     {
-      const auto path = Path::parse("non.absolute");
-      CHECK_THROWS_AS( (TcpServer{workers_, port_, path, parseMode_, serverTimeout_}), TcpServer::InvalidKeyPath );
+      CHECK_THROWS_AS( (KeyExtractor{Path::parse("non.absolute"), sourceFormat}), KeyExtractor::InvalidKeyPath );
     }
     SUBCASE("non-unique path")
     {
-      const auto path = Path::parse(".has.wildcards[].in.it");
-      CHECK_THROWS_AS( (TcpServer{workers_, port_, path, parseMode_, serverTimeout_}), TcpServer::InvalidKeyPath );
-    }
-    SUBCASE("empty path makes no sense for a key")
-    {
-      const auto path = Path{};
-      CHECK_THROWS_AS( (TcpServer{workers_, port_, path, parseMode_, serverTimeout_}), TcpServer::InvalidKeyPath );
+      CHECK_THROWS_AS( (KeyExtractor{Path::parse(".has.wildcards[].in.it"), sourceFormat}), KeyExtractor::InvalidKeyPath );
     }
   }
 
-  TEST_CASE_FIXTURE(Fixture, "non-wildcard arrays are allowed")
+  SUBCASE("non-wildcard arrays are allowed")
   {
-    CHECK_NOTHROW( (TcpServer{workers_, port_, Path::parse(".foo[42].bar[13].narf"), parseMode_, serverTimeout_}) );
+    auto const sourceFormat = KeyExtractor::SourceFormat::UNIX_ns;
+    CHECK_NOTHROW( KeyExtractor{ Path::parse(".foo[42].bar[13].narf"), sourceFormat } );
   }
-#endif
 }
 
 }

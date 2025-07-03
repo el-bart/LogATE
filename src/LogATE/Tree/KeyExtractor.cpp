@@ -15,6 +15,10 @@ KeyExtractor::KeyExtractor(Path path, SourceFormat const sourceFormat):
     BUT_THROW(InvalidKeyPath, "key path must be absolute: " << path_.str() );
   if( not path_.isUnique() )
     BUT_THROW(InvalidKeyPath, "key path must be unique (no wildcards allowed): " << path_.str() );
+  // TODO[array]: support for arrays shall be added over time for keys as well...
+  for(auto& e: path.data())
+    if( e.isArray() )
+      throw std::logic_error{"arrays in key path are not supported atm"};
 }
 
 
@@ -27,17 +31,6 @@ auto invalidKey() { return "<< invalid key >>"; }
 nlohmann::json const* getKeyNode(nlohmann::json const& json, Path const& path)
 {
   auto* node = &json;
-  BUT_ASSERT( path.isUnique() );
-  BUT_ASSERT( not path.empty() );
-  {
-    // TODO[array]: support for arrays shall be added over time for keys as well...
-    for(auto& e: path.data())
-    {
-      BUT_ASSERT( not e.isArray() );
-      if( e.isArray() )
-        throw std::logic_error{"arrays in key path are not supported atm"};
-    }
-  }
   for(auto pit = path.begin(); pit != path.end(); ++pit)
   {
     auto it = node->find( pit->name() );    // TODO[array]: ok only for non-array elements!
