@@ -1,6 +1,9 @@
 # release notes
 
 ## dev
+WIP.
+
+* using C++20 by default
 
 ## v1.3.0
 BUT update.
