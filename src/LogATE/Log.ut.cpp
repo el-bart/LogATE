@@ -97,9 +97,9 @@ TEST_CASE("annotated log directly from string")
   }
   SUBCASE("empty JSON is fine")
   {
-    CHECK_NOTHROW( (AnnotatedLog{ "\"\"", keyExtractor }) );
-    CHECK_NOTHROW( (AnnotatedLog{ "{}", keyExtractor }) );
-    CHECK_NOTHROW( (AnnotatedLog{ "[]", keyExtractor }) );
+    CHECK_NOTHROW( (AnnotatedLog{ R"("")", keyExtractor }) );
+    CHECK_NOTHROW( (AnnotatedLog{ R"({})", keyExtractor }) );
+    CHECK_NOTHROW( (AnnotatedLog{ R"([])", keyExtractor }) );
   }
   SUBCASE("sequence numbers are assigned uniquely and consecutively")
   {

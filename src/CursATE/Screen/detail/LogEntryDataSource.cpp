@@ -33,14 +33,16 @@ But::Optional<LogEntryDataSource::Id> LogEntryDataSource::nearestTo(Id const& id
 
 But::Optional<LogEntryDataSource::Id> LogEntryDataSource::first() const
 {
-  BUT_ASSERT( not entries_.empty() );
+  if( entries_.empty() )
+    return {};
   return Id{0};
 }
 
 
 But::Optional<LogEntryDataSource::Id> LogEntryDataSource::last() const
 {
-  BUT_ASSERT( not entries_.empty() );
+  if( entries_.empty() )
+    return {};
   return Id{entries_.size()-1u};
 }
 
