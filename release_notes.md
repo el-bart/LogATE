@@ -4,6 +4,7 @@
 WIP.
 
 * using C++20 by default
+* SDK now preserves command line history
 
 ## v1.3.0
 BUT update.
