@@ -47,6 +47,11 @@ target_link_libraries(CursATE
   CursATEimpl
 )
 
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+  # clang has a problem with C++20-allowed struct - disabling it for the affected file
+  set_source_files_properties(extractConfig.cpp PROPERTIES COMPILE_FLAGS "-Wno-c99-designator -Wno-missing-braces")
+endif()
+
 
 install(TARGETS CursATE
         RUNTIME DESTINATION bin)
