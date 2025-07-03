@@ -73,7 +73,15 @@ struct Queue: But::Threading::BasicLockable<Queue>,
 private:
   struct Entry
   {
-    Entry(Entry&&) = default;   // as of C++17 std::deque(&&) is not noexcept, thus w/o this declaration we have a problem...
+    Entry(Tree::NodeType type, Tree::NodeName name, queue_type queue):
+      type_{ std::move(type) },
+      name_{ std::move(name) },
+      queue_{ std::move(queue) }
+    { }
+
+    // as of C++17 std::deque(&&) is not noexcept, thus w/o this declaration we have a problem...
+    Entry(Entry&&) = default;
+    Entry& operator=(Entry&&) = default;
 
     Tree::NodeType type_;
     Tree::NodeName name_;
