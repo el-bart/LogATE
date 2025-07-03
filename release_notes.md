@@ -5,6 +5,14 @@ WIP.
 
 * using C++20 by default
 * SDK now preserves command line history
+* added auto-displaying of parsed key (instead of a raw key from log entry)
+* added support for multiple input timestamp formats:
+  * `raw` - use field as-is
+  * `iso8601-ns` - used ISO8601 with nanosecond accuracy (UTC)
+  * `unix` - numeric UNIX timestamp value
+  * `unix-ms` - numeric UNIX timestamp, counted in milliseconds
+  * `unix-us` - numeric UNIX timestamp, counted in microseconds
+  * `unix-ns` - numeric UNIX timestamp, counted in nanoseconds
 
 ## v1.3.0
 BUT update.
