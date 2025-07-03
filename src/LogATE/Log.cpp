@@ -42,6 +42,7 @@ AnnotatedLog::AnnotatedLog(Log log):
 
 namespace
 {
+// TODO: replace with KeyExtractor!
 auto getKey(nlohmann::json const& json, Tree::Path const& keyPath, const SequenceNumber sn)
 {
   auto* node = &json;

@@ -13,7 +13,7 @@ struct KeyExtractor final
 {
   BUT_DEFINE_EXCEPTION(Error, But::Exception, "KeyExtractor error");
 
-  enum Format
+  enum SourceFormat
   {
     Raw,        // use raw format of the key (i.e. as it is defined; just converted to the string)
     ISO8601_ns, // ISO8601 timestamp with nanoseconds precision (this is the format used internally)
@@ -23,16 +23,16 @@ struct KeyExtractor final
     UNIX_ns     // UNIX timestamp in nanoseconds
   };
 
-  KeyExtractor(Path path, Format const format):
+  KeyExtractor(Path path, SourceFormat const sourceFormat):
     path_{ std::move(path) },
-    format_{format}
+    sourceFormat_{sourceFormat}
   { }
 
   std::string extract(nlohmann::json const& in) const;
 
 private:
   Path const path_;
-  Format const format_;
+  SourceFormat const sourceFormat_;
 };
 
 

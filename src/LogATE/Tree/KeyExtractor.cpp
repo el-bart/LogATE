@@ -104,14 +104,14 @@ inline std::string fromUnixTs(std::optional<int64_t> const ts, int64_t const div
 
 std::string KeyExtractor::extract(nlohmann::json const& in) const
 {
-  switch(format_)
+  switch(sourceFormat_)
   {
-    case KeyExtractor::Format::Raw:        return getKeyAny(in, path_);
-    case KeyExtractor::Format::ISO8601_ns: return ensureIso( getKeyStr(in, path_) );
-    case KeyExtractor::Format::UNIX:       return fromUnixTs( getKeyInt(in, path_), 1 );
-    case KeyExtractor::Format::UNIX_ms:    return fromUnixTs( getKeyInt(in, path_), 1'000 );
-    case KeyExtractor::Format::UNIX_us:    return fromUnixTs( getKeyInt(in, path_), 1'000'000 );
-    case KeyExtractor::Format::UNIX_ns:    return fromUnixTs( getKeyInt(in, path_), 1'000'000'000 );
+    case KeyExtractor::SourceFormat::Raw:        return getKeyAny(in, path_);
+    case KeyExtractor::SourceFormat::ISO8601_ns: return ensureIso( getKeyStr(in, path_) );
+    case KeyExtractor::SourceFormat::UNIX:       return fromUnixTs( getKeyInt(in, path_), 1 );
+    case KeyExtractor::SourceFormat::UNIX_ms:    return fromUnixTs( getKeyInt(in, path_), 1'000 );
+    case KeyExtractor::SourceFormat::UNIX_us:    return fromUnixTs( getKeyInt(in, path_), 1'000'000 );
+    case KeyExtractor::SourceFormat::UNIX_ns:    return fromUnixTs( getKeyInt(in, path_), 1'000'000'000 );
   }
   BUT_THROW(KeyExtractor::Error, "invalid format requested");
 }
