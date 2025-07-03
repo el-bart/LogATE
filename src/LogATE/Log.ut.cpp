@@ -95,11 +95,11 @@ TEST_CASE("annotated log directly from string")
   {
     CHECK_THROWS( (AnnotatedLog{ std::string{"["} + str, keyExtractor }) );
   }
-  SUBCASE("empty JSON throws")
+  SUBCASE("empty JSON is fine")
   {
-    CHECK_THROWS( (AnnotatedLog{ "", keyExtractor }) );
-    CHECK_THROWS( (AnnotatedLog{ "{}", keyExtractor }) );
-    CHECK_THROWS( (AnnotatedLog{ "[]", keyExtractor }) );
+    CHECK_NOTHROW( (AnnotatedLog{ "\"\"", keyExtractor }) );
+    CHECK_NOTHROW( (AnnotatedLog{ "{}", keyExtractor }) );
+    CHECK_NOTHROW( (AnnotatedLog{ "[]", keyExtractor }) );
   }
   SUBCASE("sequence numbers are assigned uniquely and consecutively")
   {

@@ -4,7 +4,6 @@
 #include "SequenceNumber.hpp"
 #include <nlohmann/json.hpp>
 #include <But/NotNull.hpp>
-#include <But/Exception.hpp>
 #include <string>
 
 namespace LogATE
@@ -79,8 +78,6 @@ struct Log final
     But::NotNullShared<const std::string> value_;
     SequenceNumber sn_;
   };
-
-  BUT_DEFINE_EXCEPTION(InvalidEntry, But::Exception, "LogATE::Log: invalid entry");
 
   Log(Key key, char const* in): Log{ std::move(key), std::string{in} } { }
   Log(Key key, std::string const& in);
