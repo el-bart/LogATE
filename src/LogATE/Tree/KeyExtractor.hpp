@@ -12,6 +12,7 @@ namespace LogATE::Tree
 struct KeyExtractor final
 {
   BUT_DEFINE_EXCEPTION(Error, But::Exception, "KeyExtractor error");
+  BUT_DEFINE_EXCEPTION(InvalidKeyPath, Error, "invalid key path");
 
   enum SourceFormat
   {
@@ -23,19 +24,25 @@ struct KeyExtractor final
     UNIX_ns     // UNIX timestamp in nanoseconds
   };
 
-  KeyExtractor(Path path, SourceFormat const sourceFormat):
-    path_{ std::move(path) },
-    sourceFormat_{sourceFormat}
-  { }
+  KeyExtractor(Path path, SourceFormat const sourceFormat);
 
-  std::string extract(nlohmann::json const& in) const;
+  KeyExtractor(KeyExtractor&&) = default;
+  KeyExtractor& operator=(KeyExtractor&&) = default;
+  KeyExtractor(KeyExtractor const&) = default;
+  KeyExtractor& operator=(KeyExtractor const&) = default;
+
+  std::string extract(nlohmann::json const& in) const; // TODO: legacy - remove
+  std::string operator()(nlohmann::json const& in) const
+  {
+    return extract(in);
+  }
 
 private:
-  Path const path_;
+  Path path_;
   SourceFormat const sourceFormat_;
 };
 
 
-using KeyExtractorShPtrNN = But::NotNull<std::shared_ptr<KeyExtractor>>;
+using KeyExtractorShNN = But::NotNull<std::shared_ptr<KeyExtractor>>;
 
 }

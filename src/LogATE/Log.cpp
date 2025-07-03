@@ -40,40 +40,9 @@ AnnotatedLog::AnnotatedLog(Log log):
 { }
 
 
-namespace
-{
-// TODO: replace with KeyExtractor!
-auto getKey(nlohmann::json const& json, Tree::Path const& keyPath, const SequenceNumber sn)
-{
-  auto* node = &json;
-  BUT_ASSERT( keyPath.isUnique() );
-  BUT_ASSERT( not keyPath.empty() );
-  {
-    // TODO[array]: support for arrays shall be added over time for keys as well...
-    for(auto& e: keyPath.data())
-    {
-      BUT_ASSERT( not e.isArray() );
-      if( e.isArray() )
-        throw std::logic_error{"arrays in key path are not supported atm"};
-    }
-  }
-  for(auto pit=keyPath.begin(); pit!=keyPath.end(); ++pit)
-  {
-    auto it = node->find( pit->name() );    // TODO[array]: ok only for non-array elements!
-    if( it == node->end() )
-      return Log::Key{"<< key not found >>", sn};
-    node = &*it;
-  }
-  auto opt = Utils::value2str(*node);
-  if(not opt)
-    return Log::Key{"<< key not found >>", sn};
-  return Log::Key{ std::move(*opt), sn };
-}
-}
-
-AnnotatedLog::AnnotatedLog(std::string str, Tree::Path const& keyPath):
+AnnotatedLog::AnnotatedLog(std::string str, Tree::KeyExtractor const& keyExtractor):
   json_( nlohmann::json::parse(str) ),
-  log_{ Log::DirectInitTag{}, getKey( json_, keyPath, SequenceNumber::next() ), std::move(str) }
+  log_{ Log::DirectInitTag{}, Log::Key{ keyExtractor(json_), SequenceNumber::next() }, std::move(str) }
 { }
 
 }

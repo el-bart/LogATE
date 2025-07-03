@@ -66,7 +66,7 @@ public:
 
 private:
   Data logs_;
-  mutable detail::LogKeyIndexCache cache_{&logs_};  // TODO: hack until more decent data strucutr efor keeping logs is introduced...
+  mutable detail::LogKeyIndexCache cache_{&logs_};  // TODO: hack until more decent data strucutre for keeping logs is introduced...
 };
 
 }

@@ -1,6 +1,6 @@
 #pragma once
 #include "LogATE/SequenceNumber.hpp"
-#include "LogATE/Tree/Path.hpp"
+#include "LogATE/Tree/KeyExtractor.hpp"
 #include "SequenceNumber.hpp"
 #include <nlohmann/json.hpp>
 #include <But/NotNull.hpp>
@@ -120,7 +120,7 @@ struct AnnotatedLog final
    *  @note this c-tor does NOT perform JSON compacting - it is assummed it is already compacted.
    *  @note syntax of JSON is still being checked.
    */
-  AnnotatedLog(std::string str, Tree::Path const& keyPath);
+  AnnotatedLog(std::string str, Tree::KeyExtractor const& keyExtractor);
 
   AnnotatedLog(AnnotatedLog const&) = default;
   AnnotatedLog& operator=(AnnotatedLog const&) = default;

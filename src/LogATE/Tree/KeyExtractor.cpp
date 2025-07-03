@@ -5,6 +5,19 @@
 namespace LogATE::Tree
 {
 
+KeyExtractor::KeyExtractor(Path path, SourceFormat const sourceFormat):
+  path_{ std::move(path) },
+  sourceFormat_{sourceFormat}
+{
+  if( path_.empty() )
+    BUT_THROW(InvalidKeyPath, "key path cannot be empty");
+  if( not path_.isAbsolute() )
+    BUT_THROW(InvalidKeyPath, "key path must be absolute: " << path_.str() );
+  if( not path_.isUnique() )
+    BUT_THROW(InvalidKeyPath, "key path must be unique (no wildcards allowed): " << path_.str() );
+}
+
+
 namespace
 {
 auto notFound()   { return "<< key not found >>"; }
@@ -69,6 +82,7 @@ inline std::optional<int64_t> getKeyInt(nlohmann::json const& json, Path const& 
   return node->get<int64_t>();
 }
 
+
 inline std::string ensureIso(std::string&& key)
 {
   if( key.size() != sizeof("2025-07-02T22:06:13.123456789Z")-1u )
@@ -76,6 +90,7 @@ inline std::string ensureIso(std::string&& key)
   // TODO: more robust key checks one day...
   return key;
 }
+
 
 inline std::string fromUnixTs(std::optional<int64_t> const ts, int64_t const div)
 {
@@ -100,7 +115,8 @@ inline std::string fromUnixTs(std::optional<int64_t> const ts, int64_t const div
       );
   return buf;
 }
-}
+} // unnamed namespace
+
 
 std::string KeyExtractor::extract(nlohmann::json const& in) const
 {

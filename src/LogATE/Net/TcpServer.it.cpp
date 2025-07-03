@@ -7,6 +7,8 @@
 
 using LogATE::Log;
 using LogATE::Tree::Path;
+using LogATE::Tree::KeyExtractor;
+using LogATE::Tree::KeyExtractorShNN;
 using LogATE::Net::Port;
 using LogATE::Net::TcpServer;
 using LogATE::Net::TcpClient;
@@ -28,7 +30,7 @@ struct Fixture
   const nlohmann::json log1_{ str2json( R"({ "foo": "bar" })" ) };
   const nlohmann::json log2_{ str2json( R"({ "xxx": "yyy" })" ) };
   const TcpServer::JsonParsingMode parseMode_{TcpServer::JsonParsingMode::ParseToEndOfJson};
-  const LogATE::Tree::Path keyPath_{ LogATE::Tree::Path::parse(".But::PreciseDT") };
+  const KeyExtractorShNN keyExtractor_{ But::makeSharedNN<KeyExtractor>( Path::parse(".But::PreciseDT"), KeyExtractor::SourceFormat::ISO8601_ns ) };
 };
 
 
@@ -40,7 +42,7 @@ TEST_CASE_FIXTURE(Fixture, "client fails to connect to a closed socket")
 
 TEST_CASE_FIXTURE(Fixture, "server can handle one client")
 {
-  TcpServer s{workers_, port_, keyPath_, parseMode_, serverTimeout_};
+  TcpServer s{workers_, port_, keyExtractor_, parseMode_, serverTimeout_};
   TcpClient c{host_, port_};
   CHECK( s.errors() == 0 );
 
@@ -54,7 +56,7 @@ TEST_CASE_FIXTURE(Fixture, "server can handle one client")
 
 TEST_CASE_FIXTURE(Fixture, "server can handle one client and multiple messages")
 {
-  TcpServer s{workers_, port_, keyPath_, parseMode_, serverTimeout_};
+  TcpServer s{workers_, port_, keyExtractor_, parseMode_, serverTimeout_};
   TcpClient c{host_, port_};
 
   for(auto const& json: {log1_, log2_})
@@ -70,7 +72,7 @@ TEST_CASE_FIXTURE(Fixture, "server can handle one client and multiple messages")
 
 TEST_CASE_FIXTURE(Fixture, "server does not disconnect on parse errors")
 {
-  TcpServer s{workers_, port_, keyPath_, parseMode_, serverTimeout_};
+  TcpServer s{workers_, port_, keyExtractor_, parseMode_, serverTimeout_};
   TcpRawClient rc{host_, port_};
 
   CHECK( s.errors() == 0 );
@@ -86,7 +88,7 @@ TEST_CASE_FIXTURE(Fixture, "server does not disconnect on parse errors")
 
 TEST_CASE_FIXTURE(Fixture, "server can handle json spread through multiple lines")
 {
-  TcpServer s{workers_, port_, keyPath_, parseMode_, serverTimeout_};
+  TcpServer s{workers_, port_, keyExtractor_, parseMode_, serverTimeout_};
   TcpRawClient rc{host_, port_};
 
   const auto jsonStr = std::string{R"( {
@@ -104,7 +106,7 @@ TEST_CASE_FIXTURE(Fixture, "server can handle json spread through multiple lines
 
 TEST_CASE_FIXTURE(Fixture, "server can handle jsons attached to next other")
 {
-  TcpServer s{workers_, port_, keyPath_, parseMode_, serverTimeout_};
+  TcpServer s{workers_, port_, keyExtractor_, parseMode_, serverTimeout_};
   TcpRawClient rc{host_, port_};
 
   const auto jsonStr = std::string{R"({"foo":"bar"})"};
@@ -126,7 +128,7 @@ TEST_CASE_FIXTURE(Fixture, "server can handle jsons attached to next other")
 
 TEST_CASE_FIXTURE(Fixture, "server gets back to accepting connections once current client disconnects")
 {
-  TcpServer s{workers_, port_, keyPath_, parseMode_, serverTimeout_};
+  TcpServer s{workers_, port_, keyExtractor_, parseMode_, serverTimeout_};
 
   for(auto i=0; i<2; ++i)
   {
@@ -143,7 +145,7 @@ TEST_CASE_FIXTURE(Fixture, "server gets back to accepting connections once curre
 TEST_CASE_FIXTURE(Fixture, "server can be stopped even when client is still connected")
 {
   But::Optional<TcpRawClient> rc;
-  TcpServer s{workers_, port_, keyPath_, parseMode_, serverTimeout_};
+  TcpServer s{workers_, port_, keyExtractor_, parseMode_, serverTimeout_};
   rc.emplace(host_, port_);
 }
 
@@ -151,7 +153,7 @@ TEST_CASE_FIXTURE(Fixture, "server can be stopped even when client is still conn
 TEST_CASE_FIXTURE(Fixture, "server can be stopped even when client is in a middle of json transfer")
 {
   But::Optional<TcpRawClient> rc;
-  TcpServer s{workers_, port_, keyPath_, parseMode_, serverTimeout_};
+  TcpServer s{workers_, port_, keyExtractor_, parseMode_, serverTimeout_};
   rc.emplace(host_, port_);
   rc->write(R"({ "foo":)");
   std::this_thread::yield();
@@ -161,7 +163,7 @@ TEST_CASE_FIXTURE(Fixture, "server can be stopped even when client is in a middl
 
 TEST_CASE_FIXTURE(Fixture, "server recovers from an error in one of the JSONs")
 {
-  TcpServer s{workers_, port_, keyPath_, parseMode_, serverTimeout_};
+  TcpServer s{workers_, port_, keyExtractor_, parseMode_, serverTimeout_};
   TcpRawClient c{host_, port_};
 
   c.write( log1_.dump() );
@@ -181,37 +183,6 @@ TEST_CASE_FIXTURE(Fixture, "server recovers from an error in one of the JSONs")
   CHECK( out[0].json() == log1_ );
   CHECK( out[1].json() == log2_ );
   CHECK( s.errors() == 1 );
-}
-
-
-TEST_CASE_FIXTURE(Fixture, "non-unique path is not allowed for keys")
-{
-  SUBCASE("empty path")
-  {
-    CHECK_THROWS_AS( (TcpServer{workers_, port_, Path{}, parseMode_, serverTimeout_}), TcpServer::InvalidKeyPath );
-    CHECK_THROWS_AS( (TcpServer{workers_, port_, Path::parse("."), parseMode_, serverTimeout_}), TcpServer::InvalidKeyPath );
-  }
-  SUBCASE("non-asbolute path")
-  {
-    const auto path = Path::parse("non.absolute");
-    CHECK_THROWS_AS( (TcpServer{workers_, port_, path, parseMode_, serverTimeout_}), TcpServer::InvalidKeyPath );
-  }
-  SUBCASE("non-unique path")
-  {
-    const auto path = Path::parse(".has.wildcards[].in.it");
-    CHECK_THROWS_AS( (TcpServer{workers_, port_, path, parseMode_, serverTimeout_}), TcpServer::InvalidKeyPath );
-  }
-  SUBCASE("empty path makes no sense for a key")
-  {
-    const auto path = Path{};
-    CHECK_THROWS_AS( (TcpServer{workers_, port_, path, parseMode_, serverTimeout_}), TcpServer::InvalidKeyPath );
-  }
-}
-
-
-TEST_CASE_FIXTURE(Fixture, "non-wildcard arrays are allowed")
-{
-  CHECK_NOTHROW( (TcpServer{workers_, port_, Path::parse(".foo[42].bar[13].narf"), parseMode_, serverTimeout_}) );
 }
 
 

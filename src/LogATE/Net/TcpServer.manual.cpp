@@ -3,6 +3,8 @@
 #include <memory>
 #include <iostream>
 
+using LogATE::Tree::KeyExtractor;
+
 std::weak_ptr<LogATE::Net::TcpServer> g_serverPtr;
 
 void signalHandler(int sig)
@@ -19,8 +21,8 @@ int main()
 {
   const auto workers = But::makeSharedNN<LogATE::Utils::WorkerThreads>();
   const auto parseMode = LogATE::Net::TcpServer::JsonParsingMode::ParseToEndOfJson;
-  const auto keyPath = LogATE::Tree::Path::parse(".But::PreciseDT");
-  auto server = std::make_shared<LogATE::Net::TcpServer>(workers, LogATE::Net::Port{6666}, keyPath, parseMode);
+  const auto keyExtractor = But::makeSharedNN<KeyExtractor>( LogATE::Tree::Path::parse(".But::PreciseDT"), KeyExtractor::SourceFormat::ISO8601_ns );
+  auto server = std::make_shared<LogATE::Net::TcpServer>(workers, LogATE::Net::Port{6666}, keyExtractor, parseMode);
   g_serverPtr = server;
   for(auto sig: {SIGTERM, SIGHUP, SIGINT})
     if( signal(sig, signalHandler) == SIG_ERR )

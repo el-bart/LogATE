@@ -84,21 +84,21 @@ TEST_CASE("annotated log")
 TEST_CASE("annotated log directly from string")
 {
   const auto str = R"({"answer":42})";
-  const auto path = LogATE::Tree::Path::parse(".answer");
+  const auto keyExtractor = LogATE::Tree::KeyExtractor{ LogATE::Tree::Path::parse(".answer"), LogATE::Tree::KeyExtractor::SourceFormat::Raw };
   SUBCASE("valid JSON")
   {
-    const auto al = AnnotatedLog{str, path};
+    const auto al = AnnotatedLog{str, keyExtractor};
     CHECK( al.log().str() == str );
     CHECK( al.log().json() == nlohmann::json::parse(str) );
   }
   SUBCASE("invalid JSON throws")
   {
-    CHECK_THROWS( (AnnotatedLog{ std::string{"["} + str, path }) );
+    CHECK_THROWS( (AnnotatedLog{ std::string{"["} + str, keyExtractor }) );
   }
   SUBCASE("sequence numbers are assigned uniquely and consecutively")
   {
-    const auto al1 = AnnotatedLog{str, path};
-    const auto al2 = AnnotatedLog{str, path};
+    const auto al1 = AnnotatedLog{str, keyExtractor};
+    const auto al2 = AnnotatedLog{str, keyExtractor};
     CHECK( al1.log().sequenceNumber() < al2.log().sequenceNumber() );
   }
 }

@@ -20,7 +20,7 @@ auto makePrinter(Config const& config)
 }
 
 Main::Main(Config const& config):
-  server_{workers_, config.port_, config.keyPath_, config.jsonParsingMode_},
+  server_{workers_, config.port_, config.keyExtractor_, config.jsonParsingMode_},
   logList_{ workers_, [&] { return server_.errors(); }, makePrinter(config), config.trimFields_ },
   root_{ logList_.root() }
 {

@@ -5,7 +5,7 @@
 #include "LogATE/Net/Socket.hpp"
 #include "LogATE/Net/detail/TcpServerImpl.hpp"
 #include "LogATE/Utils/WorkerThreads.hpp"
-#include "LogATE/Tree/Path.hpp"
+#include "LogATE/Tree/KeyExtractor.hpp"
 #include <But/Threading/Fifo.hpp>
 #include <But/Threading/JoiningThread.hpp>
 #include <chrono>
@@ -18,8 +18,6 @@ namespace LogATE::Net
 class TcpServer final: public Server
 {
 public:
-  BUT_DEFINE_EXCEPTION(InvalidKeyPath, But::Exception, "invalid key path");
-
   enum class JsonParsingMode
   {
     ParseToEndOfJson,
@@ -28,7 +26,7 @@ public:
 
   TcpServer(Utils::WorkerThreadsShPtr workers,
             Port port,
-            Tree::Path keyPath,
+            Tree::KeyExtractorShNN keyExtractor,
             JsonParsingMode jsonParsingMode,
             std::chrono::milliseconds bulkPackageTimeout = std::chrono::milliseconds{500});
   ~TcpServer();
@@ -55,7 +53,7 @@ private:
 
   const JsonParsingMode jsonParsingMode_;
   const std::chrono::milliseconds bulkPackageTimeout_;
-  const Tree::Path keyPath_;
+  const Tree::KeyExtractorShNN keyExtractor_;
   But::NotNullShared<std::atomic<size_t>> errors_{ But::makeSharedNN<std::atomic<size_t>>(0) };
   But::NotNullShared<std::atomic<bool>> quit_{ But::makeSharedNN<std::atomic<bool>>(false) };
   But::NotNullShared<Queue> queue_{ But::makeSharedNN<Queue>() };

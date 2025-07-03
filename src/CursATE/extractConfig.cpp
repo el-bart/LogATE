@@ -44,15 +44,15 @@ auto parseConfig(int argc, char** argv, po::options_description const& desc)
 }
 
 
-void setPort(Config& cfg, po::variables_map const& vm)
+uint16_t getPort(po::variables_map const& vm)
 {
-  if( vm.count("port") == 0 )
-    return;
-  cfg.port_.value_ = vm["port"].as<uint16_t>();
+  if( not vm.count("port") )
+    return 4242;
+  return vm["port"].as<uint16_t>();
 }
 
 
-void setParsingMode(Config& cfg, po::variables_map const& vm)
+auto getParsingMode(po::variables_map const& vm)
 {
   auto mode = 0x00;
   if( vm.count("parse-by-json") )
@@ -62,20 +62,25 @@ void setParsingMode(Config& cfg, po::variables_map const& vm)
 
   switch(mode)
   {
-    case 0x00: return;
-    case 0x01: cfg.jsonParsingMode_ = LogATE::Net::TcpServer::JsonParsingMode::ParseToEndOfJson; return;
-    case 0x10: cfg.jsonParsingMode_ = LogATE::Net::TcpServer::JsonParsingMode::HardBreakOnNewLine; return;
+    case 0x00: return LogATE::Net::TcpServer::JsonParsingMode::HardBreakOnNewLine; // default
+    case 0x01: return LogATE::Net::TcpServer::JsonParsingMode::ParseToEndOfJson;
+    case 0x10: return LogATE::Net::TcpServer::JsonParsingMode::HardBreakOnNewLine;
     case 0x11: BUT_THROW(InvalidConfig, "parsing by JSON and parsing by line cannot be set at the same time");
   }
   BUT_ASSERT(!"code never reaches here");
+  throw std::logic_error{"getParsingMode(): code never reaches here"};
 }
 
 
-void setKeyPath(Config& cfg, po::variables_map const& vm)
+auto getKeyExtractor(po::variables_map const& vm)
 {
+  using LogATE::Tree::KeyExtractor;
+  auto sourceFormat = KeyExtractor::SourceFormat::ISO8601_ns; // default
+  // TODO: make SourceFormat a cmd-line param
   if( not vm.count("key-path") )
-    return;
-  cfg.keyPath_ = LogATE::Tree::Path::parse( vm["key-path"].as<std::string>() );
+    BUT_THROW(InvalidConfig, "key path has not been specified");
+  auto path = LogATE::Tree::Path::parse( vm["key-path"].as<std::string>() );
+  return But::makeSharedNN<KeyExtractor>( std::move(path), sourceFormat );
 }
 
 
@@ -90,19 +95,19 @@ auto toVectorOfString(std::string const& jsonIn)
 
 
 
-void setSilentTags(Config& cfg, po::variables_map const& vm)
+LogATE::Printers::OrderedPrettyPrint::SilentTags getSilentTags(po::variables_map const& vm)
 {
   if( not vm.count("silent-tags") )
-    return;
-  cfg.silentTags_ = LogATE::Printers::OrderedPrettyPrint::SilentTags{ toVectorOfString( vm["silent-tags"].as<std::string>() ) };
+    return {};
+  return LogATE::Printers::OrderedPrettyPrint::SilentTags{ toVectorOfString( vm["silent-tags"].as<std::string>() ) };
 }
 
 
-void setPriorityTags(Config& cfg, po::variables_map const& vm)
+LogATE::Printers::OrderedPrettyPrint::PriorityTags getPriorityTags(po::variables_map const& vm)
 {
   if( not vm.count("priority-tags") )
-    return;
-  cfg.priorityTags_ = LogATE::Printers::OrderedPrettyPrint::PriorityTags{ toVectorOfString( vm["priority-tags"].as<std::string>() ) };
+    return {};
+  return LogATE::Printers::OrderedPrettyPrint::PriorityTags{ toVectorOfString( vm["priority-tags"].as<std::string>() ) };
 }
 
 
@@ -116,11 +121,11 @@ auto toVectorOfPaths(std::string const& jsonIn)
 }
 
 
-void setTrimFields(Config& cfg, po::variables_map const& vm)
+LogATE::Tree::Node::TrimFields getTrimFields(po::variables_map const& vm)
 {
   if( not vm.count("trim-fields") )
-    return;
-  cfg.trimFields_ = LogATE::Tree::Node::TrimFields{ toVectorOfPaths( vm["trim-fields"].as<std::string>() ) };
+    return {};
+  return LogATE::Tree::Node::TrimFields{ toVectorOfPaths( vm["trim-fields"].as<std::string>() ) };
 }
 }
 
@@ -137,13 +142,14 @@ But::Optional<Config> extractConfig(int argc, char** argv)
 
   try
   {
-    Config cfg;
-    setPort(cfg, vm);
-    setParsingMode(cfg, vm);
-    setKeyPath(cfg, vm);
-    setSilentTags(cfg, vm);
-    setPriorityTags(cfg, vm);
-    setTrimFields(cfg, vm);
+    Config cfg{
+      .port_ = getPort(vm),
+      .jsonParsingMode_ = getParsingMode(vm),
+      .keyExtractor_ = getKeyExtractor(vm),
+      .silentTags_ = getSilentTags(vm),
+      .priorityTags_ = getPriorityTags(vm),
+      .trimFields_ = getTrimFields(vm)
+    };
     return cfg;
   }
   catch(std::exception const& ex)

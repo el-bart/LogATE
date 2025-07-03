@@ -12,25 +12,14 @@ constexpr auto g_maxElementsInQueue = 500u;
 }
 
 
-auto pathCheck(Tree::Path keyPath)
-{
-  if( keyPath.empty() )
-    BUT_THROW(TcpServer::InvalidKeyPath, "key path cannot be empty");
-  if( not keyPath.isAbsolute() )
-    BUT_THROW(TcpServer::InvalidKeyPath, "key path must be absolute: " << keyPath.str() );
-  if( not keyPath.isUnique() )
-    BUT_THROW(TcpServer::InvalidKeyPath, "key path must be unique (no wildcards allowed): " << keyPath.str() );
-  return keyPath;
-}
-
 TcpServer::TcpServer(Utils::WorkerThreadsShPtr workers,
                      const Port port,
-                     Tree::Path keyPath,
+                     Tree::KeyExtractorShNN keyExtractor,
                      const JsonParsingMode jsonParsingMode,
                      std::chrono::milliseconds bulkPackageTimeout):
   jsonParsingMode_{jsonParsingMode},
   bulkPackageTimeout_{bulkPackageTimeout},
-  keyPath_{ pathCheck(std::move(keyPath)) },
+  keyExtractor_{ std::move(keyExtractor) },
   workers_{ std::move(workers) },
   server_{port},
   workerThread_{ [this]{ this->workerLoop(); } }
@@ -122,7 +111,7 @@ void TcpServer::processClient(Socket& socket)
 
 namespace
 {
-auto parseToAnnotatedLogs(std::vector<std::string>&& jsons, Tree::Path const& keyPath, std::atomic<uint64_t>& errors)
+auto parseToAnnotatedLogs(std::vector<std::string>&& jsons, Tree::KeyExtractor const& keyExtractor, std::atomic<uint64_t>& errors)
 {
   std::vector<AnnotatedLog> out;
   out.reserve( jsons.size() );
@@ -130,7 +119,7 @@ auto parseToAnnotatedLogs(std::vector<std::string>&& jsons, Tree::Path const& ke
   {
     try
     {
-      auto log = AnnotatedLog{ std::move(str), keyPath };
+      auto log = AnnotatedLog{ std::move(str), keyExtractor };
       out.push_back( std::move(log) );
     }
     catch(...)
@@ -150,7 +139,7 @@ void TcpServer::sendOutRemainingLogs(std::vector<std::string>&& jsons)
     return;
   if( jsons.empty() )
     return;
-  auto logs = parseToAnnotatedLogs( std::move(jsons), keyPath_, *errors_ );
+  auto logs = parseToAnnotatedLogs( std::move(jsons), *keyExtractor_, *errors_ );
   Queue::lock_type lock{*queue_};
   queue_->push( std::move(logs) );
 }
@@ -175,12 +164,12 @@ void TcpServer::queueJsonsForParsing(std::vector<std::string>& jsons)
   if( not waitForQueueSizeLowEnough() )
     return;
 
-  workers_->enqueueBatch( [queue = queue_, c = std::move(tmp), quit = quit_, keyPath = keyPath_, errors = errors_] () mutable {
+  workers_->enqueueBatch( [queue = queue_, c = std::move(tmp), quit = quit_, keyExtractor = keyExtractor_, errors = errors_] () mutable {
       if(*quit)
         return;
       if( c.empty() )
         return;
-      auto logs = parseToAnnotatedLogs( std::move(c), keyPath, *errors );
+      auto logs = parseToAnnotatedLogs( std::move(c), *keyExtractor, *errors );
       Queue::lock_type lock{*queue};
       queue->push( std::move(logs) );
     } );

@@ -7,6 +7,7 @@
 
 using Clock = std::chrono::system_clock;
 using Thread = But::Threading::JoiningThread<std::thread>;
+using LogATE::Tree::KeyExtractor;
 
 
 int main()
@@ -14,8 +15,8 @@ int main()
   const auto port = LogATE::Net::Port{6666};
   const auto workers = But::makeSharedNN<LogATE::Utils::WorkerThreads>();
   const auto parseMode = LogATE::Net::TcpServer::JsonParsingMode::ParseToEndOfJson;
-  const auto keyPath = LogATE::Tree::Path::parse(".But::PreciseDT");
-  LogATE::Net::TcpServer server{workers, port, keyPath, parseMode};
+  const auto keyExtractor = But::makeSharedNN<KeyExtractor>( LogATE::Tree::Path::parse(".But::PreciseDT"), KeyExtractor::SourceFormat::ISO8601_ns );
+  LogATE::Net::TcpServer server{workers, port, keyExtractor, parseMode};
   LogATE::Net::TcpRawClient client{"127.0.0.1", port};
   const auto N = 1'000'000u;
 
