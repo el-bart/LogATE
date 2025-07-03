@@ -27,6 +27,7 @@ std::string OrderedPrettyPrint::operator()(LogATE::Log const& in) const
   std::stringstream ss;
   const auto snDigits = detail::maxDigits( SequenceNumber::lastIssued().value_ );
   ss << std::setw(snDigits) << std::setfill('0') << in.sequenceNumber().value_ << std::setw(0) << " ";
+  ss << in.key().str() << " ";
   const auto & value = in.json();
   if( value.is_object() )
   {
