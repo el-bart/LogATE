@@ -31,6 +31,7 @@ private:
   const CursATE::Curses::Init init_;
   const LogATE::Utils::WorkerThreadsShPtr workers_{ But::makeSharedNN<LogATE::Utils::WorkerThreads>() };
   LogATE::Net::TcpServer server_;
+  std::atomic<size_t> errors_{0};
   Screen::LogList logList_;
   LogATE::Tree::NodeShPtr root_;
   std::atomic<bool> quit_{false};

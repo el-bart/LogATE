@@ -21,7 +21,7 @@ auto makePrinter(Config const& config)
 
 Main::Main(Config const& config):
   server_{workers_, config.port_, config.keyExtractor_, config.jsonParsingMode_},
-  logList_{ workers_, [&] { return server_.errors(); }, makePrinter(config), config.trimFields_ },
+  logList_{ workers_, [&] { return server_.errors() + errors_; }, makePrinter(config), config.trimFields_ },
   root_{ logList_.root() }
 {
   const auto threads = threadsCount();
@@ -58,10 +58,14 @@ void Main::dataPumpLoop()
     {
       auto logs = server_.readNextLogs();
       for(auto&& log: std::move(logs))
-        root_->insert( std::move(log) );
+        if( log.json().is_object() ) // TODO: for now top level element must be an object
+          root_->insert( std::move(log) );
+        else
+          ++errors_;
     }
     catch(...)
     {
+      ++errors_;
       // LOG DOWN! MEDIC!
     }
 }
