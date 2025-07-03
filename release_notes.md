@@ -13,6 +13,7 @@ WIP.
   * `unix-ms` - numeric UNIX timestamp, counted in milliseconds
   * `unix-us` - numeric UNIX timestamp, counted in microseconds
   * `unix-ns` - numeric UNIX timestamp, counted in nanoseconds
+* numeric timestamps are also allowed in a string format
 * fixed bug with empty log entry causing assertion failure
 
 ## v1.3.0

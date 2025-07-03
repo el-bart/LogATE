@@ -21,7 +21,13 @@ TEST_CASE_FIXTURE(Fixture, "getting key in raw SourceFormat")
   j["unix_ms"] = 1751486773123;
   j["unix_us"] = 1751486773123456;
   j["unix_ns"] = 1751486773123456789;
+  j["str-unix"]    = "1751486773";
+  j["str-unix_ms"] = "1751486773123";
+  j["str-unix_us"] = "1751486773123456";
+  j["str-unix_ns"] = "1751486773123456789";
   j["foo"]["bar"] = "sth";
+  j["float"] = 3.14;
+  j["str-float"] = "3.14";
 
   SUBCASE("getting path back")
   {
@@ -72,9 +78,24 @@ TEST_CASE_FIXTURE(Fixture, "getting key in raw SourceFormat")
       KeyExtractor const ke{ Path::parse(".unix"), sourceFormat };
       CHECK( ke(j) ==  "2025-07-02T20:06:13.000000000Z" );
     }
-    SUBCASE("invalid")
+    SUBCASE("valid, but string")
+    {
+      KeyExtractor const ke{ Path::parse(".str-unix"), sourceFormat };
+      CHECK( ke(j) ==  "2025-07-02T20:06:13.000000000Z" );
+    }
+    SUBCASE("invalid string")
     {
       KeyExtractor const ke{ Path::parse(".foo.bar"), sourceFormat };
+      CHECK( ke(j) ==  "<< invalid key >>" );
+    }
+    SUBCASE("invalid float")
+    {
+      KeyExtractor const ke{ Path::parse(".float"), sourceFormat };
+      CHECK( ke(j) ==  "<< invalid key >>" );
+    }
+    SUBCASE("invalid float as string")
+    {
+      KeyExtractor const ke{ Path::parse(".str-float"), sourceFormat };
       CHECK( ke(j) ==  "<< invalid key >>" );
     }
   }
@@ -87,9 +108,24 @@ TEST_CASE_FIXTURE(Fixture, "getting key in raw SourceFormat")
       KeyExtractor const ke{ Path::parse(".unix_ms"), sourceFormat };
       CHECK( ke(j) ==  "2025-07-02T20:06:13.123000000Z" );
     }
-    SUBCASE("invalid")
+    SUBCASE("valid, but string")
+    {
+      KeyExtractor const ke{ Path::parse(".str-unix_ms"), sourceFormat };
+      CHECK( ke(j) ==  "2025-07-02T20:06:13.123000000Z" );
+    }
+    SUBCASE("invalid string")
     {
       KeyExtractor const ke{ Path::parse(".foo.bar"), sourceFormat };
+      CHECK( ke(j) ==  "<< invalid key >>" );
+    }
+    SUBCASE("invalid float")
+    {
+      KeyExtractor const ke{ Path::parse(".float"), sourceFormat };
+      CHECK( ke(j) ==  "<< invalid key >>" );
+    }
+    SUBCASE("invalid float as string")
+    {
+      KeyExtractor const ke{ Path::parse(".str-float"), sourceFormat };
       CHECK( ke(j) ==  "<< invalid key >>" );
     }
   }
@@ -102,9 +138,24 @@ TEST_CASE_FIXTURE(Fixture, "getting key in raw SourceFormat")
       KeyExtractor const ke{ Path::parse(".unix_us"), sourceFormat };
       CHECK( ke(j) ==  "2025-07-02T20:06:13.123456000Z" );
     }
-    SUBCASE("invalid")
+    SUBCASE("valid, but string")
+    {
+      KeyExtractor const ke{ Path::parse(".str-unix_us"), sourceFormat };
+      CHECK( ke(j) ==  "2025-07-02T20:06:13.123456000Z" );
+    }
+    SUBCASE("invalid string")
     {
       KeyExtractor const ke{ Path::parse(".foo.bar"), sourceFormat };
+      CHECK( ke(j) ==  "<< invalid key >>" );
+    }
+    SUBCASE("invalid float")
+    {
+      KeyExtractor const ke{ Path::parse(".float"), sourceFormat };
+      CHECK( ke(j) ==  "<< invalid key >>" );
+    }
+    SUBCASE("invalid float as string")
+    {
+      KeyExtractor const ke{ Path::parse(".str-float"), sourceFormat };
       CHECK( ke(j) ==  "<< invalid key >>" );
     }
   }
@@ -117,9 +168,24 @@ TEST_CASE_FIXTURE(Fixture, "getting key in raw SourceFormat")
       KeyExtractor const ke{ Path::parse(".unix_ns"), sourceFormat };
       CHECK( ke(j) ==  "2025-07-02T20:06:13.123456789Z" );
     }
-    SUBCASE("invalid")
+    SUBCASE("valid, but string")
+    {
+      KeyExtractor const ke{ Path::parse(".str-unix_ns"), sourceFormat };
+      CHECK( ke(j) ==  "2025-07-02T20:06:13.123456789Z" );
+    }
+    SUBCASE("invalid string")
     {
       KeyExtractor const ke{ Path::parse(".foo.bar"), sourceFormat };
+      CHECK( ke(j) ==  "<< invalid key >>" );
+    }
+    SUBCASE("invalid float")
+    {
+      KeyExtractor const ke{ Path::parse(".float"), sourceFormat };
+      CHECK( ke(j) ==  "<< invalid key >>" );
+    }
+    SUBCASE("invalid float as string")
+    {
+      KeyExtractor const ke{ Path::parse(".str-float"), sourceFormat };
       CHECK( ke(j) ==  "<< invalid key >>" );
     }
   }

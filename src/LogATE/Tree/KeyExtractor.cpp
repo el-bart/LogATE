@@ -65,14 +65,42 @@ inline std::string getKeyStr(nlohmann::json const& json, Path const& path)
 }
 
 
+inline std::optional<int64_t> toOptNumber(std::string const& in)
+{
+    try
+    {
+      auto first = true;
+      for(auto c: in)
+      {
+        if(first && c == '-')
+        {
+          first = false;
+          continue;
+        }
+        first = false;
+        if(not isdigit(c))
+          return {};
+      }
+
+      return std::stoll(in);
+    }
+    catch(...)
+    {
+      return {};
+    }
+}
+
+
 inline std::optional<int64_t> getKeyInt(nlohmann::json const& json, Path const& path)
 {
   auto const* node = getKeyNode(json, path);
   if(not node)
     return {};
-  if( not node->is_number_integer() )
-    return {};
-  return node->get<int64_t>();
+  if( node->is_number_integer() )
+    return node->get<int64_t>();
+  if( node->is_string() )
+    return toOptNumber( node->get<std::string>() );
+  return {};
 }
 
 
