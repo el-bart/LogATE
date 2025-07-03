@@ -1,9 +1,13 @@
 #include "CursATE/extractConfig.hpp"
 #include <boost/program_options.hpp>
 #include <iostream>
+#include <sstream>
+#include <map>
+#include <string>
 #include <But/assert.hpp>
 
 namespace po = boost::program_options;
+using KeyFormat = LogATE::Tree::KeyExtractor::SourceFormat;
 
 
 namespace CursATE
@@ -11,13 +15,52 @@ namespace CursATE
 
 namespace
 {
+auto possibleKeyFormats()
+{
+  return std::map<std::string, KeyFormat>{
+    {"raw",        KeyFormat::Raw},
+    {"iso8601-ns", KeyFormat::ISO8601_ns},
+    {"unix",       KeyFormat::UNIX},
+    {"unix-ms",    KeyFormat::UNIX_ms},
+    {"unix-us",    KeyFormat::UNIX_us},
+    {"unix-ns",    KeyFormat::UNIX_ns},
+  };
+}
+
+auto toKeyFormat(std::string const& name)
+{
+  auto const pkf = possibleKeyFormats();
+  auto const it = pkf.find(name);
+  if( it == pkf.end() )
+    BUT_THROW(InvalidConfig, "unkown key format: " << name);
+  return it->second;
+}
+
+auto defaultKeyFormat() { return KeyFormat::ISO8601_ns; }
+
+auto allKeyValues()
+{
+  std::ostringstream os;
+  auto spacer = "";
+  for(auto& e: possibleKeyFormats())
+  {
+    os << spacer << e.first;
+    if( e.second == defaultKeyFormat() )
+      os << " [default]";
+    spacer = ", ";
+  }
+  return os.str();
+}
+
 auto prepareOptions()
 {
+  static const std::string keyFormatDescription = "format of the key: " + allKeyValues();
   po::options_description desc{"CursATE options"};
   desc.add_options()
     ("help", "a hort desclimer on what to do when you spot a bear in the woods")
     ("port", po::value<uint16_t>(), "port service should listen on for JSON logs (default 4242)")
     ("key-path", po::value<std::string>(), "path to JSON value to be used as a key for sorting logs")
+    ("key-format", po::value<std::string>(), keyFormatDescription.c_str())
     ("parse-by-json", "parses JSON until its end; does not need EOLs; may break on invalid JSON in the middle (default: off)")
     ("parse-by-line", "assume one JSON per line; will not work for pretty-printed JSONs; will recover from syntax errors at EOLs (defualt: on)")
     ("silent-tags", po::value<std::string>(), "JSON array of tag names that shall be displayed as just a value")
@@ -74,13 +117,11 @@ auto getParsingMode(po::variables_map const& vm)
 
 auto getKeyExtractor(po::variables_map const& vm)
 {
-  using LogATE::Tree::KeyExtractor;
-  auto sourceFormat = KeyExtractor::SourceFormat::ISO8601_ns; // default
-  // TODO: make SourceFormat a cmd-line param
+  auto const sourceFormat = vm.count("key-format") ? toKeyFormat( vm["key-format"].as<std::string>() ) : defaultKeyFormat();
   if( not vm.count("key-path") )
     BUT_THROW(InvalidConfig, "key path has not been specified");
   auto path = LogATE::Tree::Path::parse( vm["key-path"].as<std::string>() );
-  return But::makeSharedNN<KeyExtractor>( std::move(path), sourceFormat );
+  return But::makeSharedNN<LogATE::Tree::KeyExtractor>( std::move(path), sourceFormat );
 }
 
 
