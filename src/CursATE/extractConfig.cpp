@@ -66,6 +66,7 @@ auto prepareOptions()
     ("silent-tags", po::value<std::string>(), "JSON array of tag names that shall be displayed as just a value")
     ("priority-tags", po::value<std::string>(), "JSON array of tag names, that shall be displayed as first in line (prioirty by order in array)")
     ("trim-fields", po::value<std::string>(), "JSON array of paths to tags, that shall not be displayed by default (visible only in detailed view)")
+    ("dont-trim-key", "disables auto-trimming field defined as a key")
     ;
   return desc;
 }
@@ -191,7 +192,8 @@ But::Optional<Config> extractConfig(int argc, char** argv)
       .priorityTags_ = getPriorityTags(vm),
       .trimFields_ = getTrimFields(vm)
     };
-    cfg.trimFields_.push_back( cfg.keyExtractor_->path() );     // processed key is displayed instead
+    if( not vm.count("dont-trim-key") )
+        cfg.trimFields_.push_back( cfg.keyExtractor_->path() ); // processed key is anyway always on display
     return cfg;
   }
   catch(std::exception const& ex)
