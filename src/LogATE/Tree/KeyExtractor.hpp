@@ -37,7 +37,7 @@ struct KeyExtractor final
 
 private:
   Path path_;
-  SourceFormat const sourceFormat_;
+  SourceFormat sourceFormat_;
 };
 
 
