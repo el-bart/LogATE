@@ -37,6 +37,8 @@ struct KeyExtractor final
     return extract(in);
   }
 
+  auto const& path() const { return path_; }
+
 private:
   Path path_;
   SourceFormat const sourceFormat_;

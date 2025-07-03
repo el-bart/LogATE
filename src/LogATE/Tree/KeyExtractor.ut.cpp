@@ -23,6 +23,12 @@ TEST_CASE_FIXTURE(Fixture, "getting key in raw SourceFormat")
   j["unix_ns"] = 1751486773123456789;
   j["foo"]["bar"] = "sth";
 
+  SUBCASE("getting path back")
+  {
+    KeyExtractor const ke{ Path::parse(".foo.bar"), KeyExtractor::SourceFormat::Raw };
+    CHECK( ke.path().str() == ".foo.bar" );
+  }
+
   SUBCASE("raw SourceFormat")
   {
     auto const sourceFormat = KeyExtractor::SourceFormat::Raw;
