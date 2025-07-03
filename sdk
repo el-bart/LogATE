@@ -1,16 +1,33 @@
-#!/bin/bash -ex
-DIR=$(dirname "$(readlink -e "$0")")
-IMAGE="logate-sdk"
+#!/bin/bash
+set -eu -o pipefail
+app_dir=$(dirname "$(readlink -e "$0")")
+image="logate-sdk"
+home_host="$app_dir/build/.home"
+home_docker="/home/user"
 
-docker build -t "$IMAGE" docker/sdk/
+docker build -t "$image" docker/sdk/
 
-exec docker run \
-       -it \
-       --rm \
-       --network host \
-       -u "$(id -u):$(id -g)" \
-       -v "$DIR:/mnt/prj" \
-       -w "/mnt/prj/" \
-       --cap-add SYS_PTRACE \
-       "$IMAGE" \
-       "$@"
+mkdir -p build/.home
+
+flags=()
+flags+=(-it)
+flags+=(--rm)
+
+# make access to ports easier
+flags+=(--network host)
+
+# run as local user
+flags+=(-u "$(id -u):$(id -g)")
+
+# start within project's dir
+flags+=(-v "$app_dir:/mnt/prj")
+flags+=(-w "/mnt/prj/")
+
+# allow debugging
+flags+=(--cap-add SYS_PTRACE)
+
+# save command history and stuff
+flags+=(-v "$home_host:$home_docker")
+flags+=(-e "HOME=$home_docker")
+
+exec docker run "${flags[@]}" "$image" "$@"
