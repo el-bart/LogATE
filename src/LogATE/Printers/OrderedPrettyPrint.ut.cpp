@@ -31,30 +31,30 @@ TEST_CASE_FIXTURE(Fixture, "directly converting to pretty print")
   const OrderedPrettyPrint opp_;
   SUBCASE("basic types")
   {
-    CHECK( "00013 mystring=xxx" == opp_( makeLog(13, R"({"mystring": "xxx"})") ) );
-    CHECK( "00013 myint=42" == opp_( makeLog(13, R"({"myint":42})") ) );
-    CHECK( "00013 mybigint=1234567890" == opp_( makeLog(13, R"({"mybigint":1234567890})") ) );
-    CHECK( "00013 myfloat=4.5" == opp_( makeLog(13, R"({"myfloat":4.5})") ) );
-    CHECK( "00013 mysmallfloat=0.0005" == opp_( makeLog(13, R"({"mysmallfloat":0.0005})") ) );
-    CHECK( "00013 mybigfloat=123456789.5" == opp_( makeLog(13, R"({"mybigfloat":123456789.5})") ) );
-    CHECK( "00013 mybool=true" == opp_( makeLog(13, R"({"mybool":true})") ) );
+    CHECK( "00013 some-key mystring=xxx" == opp_( makeLog(13, R"({"mystring": "xxx"})") ) );
+    CHECK( "00013 some-key myint=42" == opp_( makeLog(13, R"({"myint":42})") ) );
+    CHECK( "00013 some-key mybigint=1234567890" == opp_( makeLog(13, R"({"mybigint":1234567890})") ) );
+    CHECK( "00013 some-key myfloat=4.5" == opp_( makeLog(13, R"({"myfloat":4.5})") ) );
+    CHECK( "00013 some-key mysmallfloat=0.0005" == opp_( makeLog(13, R"({"mysmallfloat":0.0005})") ) );
+    CHECK( "00013 some-key mybigfloat=123456789.5" == opp_( makeLog(13, R"({"mybigfloat":123456789.5})") ) );
+    CHECK( "00013 some-key mybool=true" == opp_( makeLog(13, R"({"mybool":true})") ) );
   }
   SUBCASE("basic structures")
   {
-    CHECK( "00013 " == opp_( makeLog(13, R"({})") ) );
-    CHECK( "00013 foo=bar" == opp_( makeLog(13, R"({"foo":"bar"})") ) );
+    CHECK( "00013 some-key " == opp_( makeLog(13, R"({})") ) );
+    CHECK( "00013 some-key foo=bar" == opp_( makeLog(13, R"({"foo":"bar"})") ) );
     const auto dualFields = opp_( makeLog(13, R"({"foo":"bar", "answer":42})") );
-    if( "00013 foo=bar answer=42" != dualFields && "00013 answer=42 foo=bar" != dualFields )
+    if( "00013 some-key foo=bar answer=42" != dualFields && "00013 some-key answer=42 foo=bar" != dualFields )
     {
-      CHECK( "00013 foo=bar answer=42" == dualFields );
-      CHECK( "00013 answer=42 foo=bar" == dualFields );
+      CHECK( "00013 some-key foo=bar answer=42" == dualFields );
+      CHECK( "00013 some-key answer=42 foo=bar" == dualFields );
     }
   }
   SUBCASE("nested structures")
   {
-    CHECK( "00013 answer={ expected={ } }" == opp_( makeLog(13, R"({"answer":{ "expected":{} }})") ) );
-    CHECK( "00013 answer={ expected=42 }" == opp_( makeLog(13, R"({"answer":{ "expected":42 }})") ) );
-    CHECK( "00013 narf={ fran={ xxx=42 } }" == opp_( makeLog(13, R"({"narf": { "fran": { "xxx":42 } } })") ) );
+    CHECK( "00013 some-key answer={ expected={ } }" == opp_( makeLog(13, R"({"answer":{ "expected":{} }})") ) );
+    CHECK( "00013 some-key answer={ expected=42 }" == opp_( makeLog(13, R"({"answer":{ "expected":42 }})") ) );
+    CHECK( "00013 some-key narf={ fran={ xxx=42 } }" == opp_( makeLog(13, R"({"narf": { "fran": { "xxx":42 } } })") ) );
   }
 }
 
@@ -64,21 +64,21 @@ TEST_CASE_FIXTURE(Fixture, "converting with priorities")
   const OrderedPrettyPrint opp_{ OrderedPrettyPrint::PriorityTags{{"foo", "bar"}} };
   SUBCASE("root elements")
   {
-    CHECK( "00013 narf=xxx" == opp_( makeLog(13, R"({"narf": "xxx"})") ) );
-    CHECK( "00013 foo=xxx narf=yyy" == opp_( makeLog(13, R"({"narf": "yyy", "foo":"xxx"})") ) );
-    CHECK( "00013 bar=xxx narf=yyy" == opp_( makeLog(13, R"({"narf": "yyy", "bar":"xxx"})") ) );
-    CHECK( "00013 foo=xxx bar=zzz narf=yyy" == opp_( makeLog(13, R"({"narf": "yyy", "bar":"zzz", "foo":"xxx"})") ) );
+    CHECK( "00013 some-key narf=xxx" == opp_( makeLog(13, R"({"narf": "xxx"})") ) );
+    CHECK( "00013 some-key foo=xxx narf=yyy" == opp_( makeLog(13, R"({"narf": "yyy", "foo":"xxx"})") ) );
+    CHECK( "00013 some-key bar=xxx narf=yyy" == opp_( makeLog(13, R"({"narf": "yyy", "bar":"xxx"})") ) );
+    CHECK( "00013 some-key foo=xxx bar=zzz narf=yyy" == opp_( makeLog(13, R"({"narf": "yyy", "bar":"zzz", "foo":"xxx"})") ) );
   }
   SUBCASE("nested elements tags")
   {
-    CHECK( "00013 root={ narf=xxx }" == opp_( makeLog(13, R"({"root": {"narf": "xxx"} })") ) );
-    CHECK( "00013 root={ foo=xxx narf=yyy }" == opp_( makeLog(13, R"({"root": {"narf": "yyy", "foo":"xxx"} })") ) );
-    CHECK( "00013 root={ bar=xxx narf=yyy }" == opp_( makeLog(13, R"({"root": {"narf": "yyy", "bar":"xxx"} })") ) );
-    CHECK( "00013 root={ foo=xxx bar=zzz narf=yyy }" == opp_( makeLog(13, R"({"root": {"narf": "yyy", "bar":"zzz", "foo":"xxx"} })") ) );
+    CHECK( "00013 some-key root={ narf=xxx }" == opp_( makeLog(13, R"({"root": {"narf": "xxx"} })") ) );
+    CHECK( "00013 some-key root={ foo=xxx narf=yyy }" == opp_( makeLog(13, R"({"root": {"narf": "yyy", "foo":"xxx"} })") ) );
+    CHECK( "00013 some-key root={ bar=xxx narf=yyy }" == opp_( makeLog(13, R"({"root": {"narf": "yyy", "bar":"xxx"} })") ) );
+    CHECK( "00013 some-key root={ foo=xxx bar=zzz narf=yyy }" == opp_( makeLog(13, R"({"root": {"narf": "yyy", "bar":"zzz", "foo":"xxx"} })") ) );
   }
   SUBCASE("long input JSON")
   {
-    CHECK( "00013 foo=#9 " == opp_( makeLog(13, R"({
+    CHECK( "00013 some-key foo=#9 " == opp_( makeLog(13, R"({
                                                  "00": "11",
                                                  "11": "22",
                                                  "22": "33",
@@ -100,7 +100,7 @@ TEST_CASE_FIXTURE(Fixture, "converting with priorities")
                                                  "vxyz": "#7",
                                                  "01234": "#8",
                                                  "foo": "#9"
-                                               })") ).substr(0,13) );
+                                               })") ).substr(0,22) );
   }
 }
 
@@ -110,16 +110,16 @@ TEST_CASE_FIXTURE(Fixture, "silent tags")
   const OrderedPrettyPrint opp_{ OrderedPrettyPrint::SilentTags{{"foo", "bar"}} };
   SUBCASE("root elements")
   {
-    CHECK( "00013 narf=xxx" == opp_( makeLog(13, R"({"narf": "xxx"})") ) );
-    CHECK( "00013 xxx" == opp_( makeLog(13, R"({"bar": "xxx"})") ) );
-    CHECK( "00013 xxx" == opp_( makeLog(13, R"({"foo": "xxx"})") ) );
+    CHECK( "00013 some-key narf=xxx" == opp_( makeLog(13, R"({"narf": "xxx"})") ) );
+    CHECK( "00013 some-key xxx" == opp_( makeLog(13, R"({"bar": "xxx"})") ) );
+    CHECK( "00013 some-key xxx" == opp_( makeLog(13, R"({"foo": "xxx"})") ) );
   }
   SUBCASE("nested elements tags")
   {
-    CHECK( "00013 root={ narf=xxx }" == opp_( makeLog(13, R"({"root": {"narf": "xxx"} })") ) );
-    CHECK( "00013 root={ xxx }" == opp_( makeLog(13, R"({"root": {"bar": "xxx"} })") ) );
-    CHECK( "00013 root={ xxx }" == opp_( makeLog(13, R"({"root": {"foo": "xxx"} })") ) );
-    CHECK( "00013 { narf=xxx }" == opp_( makeLog(13, R"({"bar": {"narf": "xxx"} })") ) );
+    CHECK( "00013 some-key root={ narf=xxx }" == opp_( makeLog(13, R"({"root": {"narf": "xxx"} })") ) );
+    CHECK( "00013 some-key root={ xxx }" == opp_( makeLog(13, R"({"root": {"bar": "xxx"} })") ) );
+    CHECK( "00013 some-key root={ xxx }" == opp_( makeLog(13, R"({"root": {"foo": "xxx"} })") ) );
+    CHECK( "00013 some-key { narf=xxx }" == opp_( makeLog(13, R"({"bar": {"narf": "xxx"} })") ) );
   }
 }
 
@@ -127,7 +127,7 @@ TEST_CASE_FIXTURE(Fixture, "silent tags")
 TEST_CASE_FIXTURE(Fixture, "silent tags with priorities")
 {
   const OrderedPrettyPrint opp_{ OrderedPrettyPrint::SilentTags{{"foo", "bar"}}, OrderedPrettyPrint::PriorityTags{{"foo", "narf"}} };
-  CHECK( "00013 xxx narf=yyy zzz" == opp_( makeLog(13, R"({"narf": "yyy", "bar":"zzz", "foo":"xxx"})") ) );
+  CHECK( "00013 some-key xxx narf=yyy zzz" == opp_( makeLog(13, R"({"narf": "yyy", "bar":"zzz", "foo":"xxx"})") ) );
 }
 
 
@@ -137,7 +137,7 @@ TEST_CASE_FIXTURE(Fixture, "non-printable characters are converted")
   nlohmann::json json;
   json["xx\1\t"] = "x\r\x3xx";
   const auto log = LogATE::Log{ LogATE::Log::Key{"foo", LogATE::SequenceNumber{13}}, json };
-  CHECK( "00013 xx\\x01\\t=x\\r\\x03xx" == opp_(log) );
+  CHECK( "00013 foo xx\\x01\\t=x\\r\\x03xx" == opp_(log) );
 }
 
 
@@ -146,21 +146,21 @@ TEST_CASE_FIXTURE(Fixture, "converting arrays")
   const OrderedPrettyPrint opp_{};
   SUBCASE("root element")
   {
-    CHECK( "00013 [ ]" == opp_( makeLog(13, R"([])") ) );
-    CHECK( "00013 [ 1 ]" == opp_( makeLog(13, R"([1])") ) );
-    CHECK( "00013 [ 1 2 3 ]" == opp_( makeLog(13, R"([1,2,3])") ) );
+    CHECK( "00013 some-key [ ]" == opp_( makeLog(13, R"([])") ) );
+    CHECK( "00013 some-key [ 1 ]" == opp_( makeLog(13, R"([1])") ) );
+    CHECK( "00013 some-key [ 1 2 3 ]" == opp_( makeLog(13, R"([1,2,3])") ) );
   }
   SUBCASE("member element")
   {
-    CHECK( "00013 foo=[ ]" == opp_( makeLog(13, R"({ "foo": [] })") ) );
-    CHECK( "00013 foo=[ 1 ]" == opp_( makeLog(13, R"({ "foo": [1] })") ) );
-    CHECK( "00013 foo=[ 1 2 3 ]" == opp_( makeLog(13, R"({ "foo": [1, 2, 3] })") ) );
+    CHECK( "00013 some-key foo=[ ]" == opp_( makeLog(13, R"({ "foo": [] })") ) );
+    CHECK( "00013 some-key foo=[ 1 ]" == opp_( makeLog(13, R"({ "foo": [1] })") ) );
+    CHECK( "00013 some-key foo=[ 1 2 3 ]" == opp_( makeLog(13, R"({ "foo": [1, 2, 3] })") ) );
   }
   SUBCASE("nested element")
   {
-    CHECK( "00013 foo=[ { bar=[ 1 2 ] } { narf=[ 42 13 ] } ]" == opp_( makeLog(13, R"({ "foo": [ { "bar": [ 1,2] }, { "narf": [42,13] } ] })") ) );
-    CHECK( "00013 foo=[ 1 ]" == opp_( makeLog(13, R"({ "foo": [1] })") ) );
-    CHECK( "00013 foo=[ 1 2 3 ]" == opp_( makeLog(13, R"({ "foo": [1, 2, 3] })") ) );
+    CHECK( "00013 some-key foo=[ { bar=[ 1 2 ] } { narf=[ 42 13 ] } ]" == opp_( makeLog(13, R"({ "foo": [ { "bar": [ 1,2] }, { "narf": [42,13] } ] })") ) );
+    CHECK( "00013 some-key foo=[ 1 ]" == opp_( makeLog(13, R"({ "foo": [1] })") ) );
+    CHECK( "00013 some-key foo=[ 1 2 3 ]" == opp_( makeLog(13, R"({ "foo": [1, 2, 3] })") ) );
   }
 }
 

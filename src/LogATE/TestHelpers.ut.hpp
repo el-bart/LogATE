@@ -4,7 +4,7 @@
 namespace LogATE
 {
 
-inline auto makeKey(const unsigned num, std::string const& str="str")
+inline auto makeKey(const unsigned num, std::string const& str="some-key")
 {
   return Log::Key{ str, LogATE::SequenceNumber{num} };
 }
