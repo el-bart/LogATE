@@ -191,6 +191,7 @@ But::Optional<Config> extractConfig(int argc, char** argv)
       .priorityTags_ = getPriorityTags(vm),
       .trimFields_ = getTrimFields(vm)
     };
+    cfg.trimFields_.push_back( cfg.keyExtractor_->path() );     // processed key is displayed instead
     return cfg;
   }
   catch(std::exception const& ex)
