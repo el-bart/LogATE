@@ -19,11 +19,20 @@ auto minimalString(nlohmann::json const& in)
   str.shrink_to_fit();
   return str;
 }
+
+bool checkLog(nlohmann::json const& log)
+{
+  if( log.empty() )
+    BUT_THROW(Log::InvalidEntry, "input JSON cannot be empty");
+  return true;
+}
 }
 
 Log::Log(Key key, nlohmann::json const& in):
   Log{ DirectInitTag{}, std::move(key), minimalString(in) }
-{ }
+{
+  checkLog(in);
+}
 
 
 Log::Log(DirectInitTag&&, Key&& key, std::string&& in):
@@ -37,12 +46,16 @@ Log::Log(DirectInitTag&&, Key&& key, std::string&& in):
 AnnotatedLog::AnnotatedLog(Log log):
   json_( log.json() ),
   log_{ std::move(log) }
-{ }
+{
+  BUT_ASSERT( checkLog(json_) );
+}
 
 
 AnnotatedLog::AnnotatedLog(std::string str, Tree::KeyExtractor const& keyExtractor):
   json_( nlohmann::json::parse(str) ),
   log_{ Log::DirectInitTag{}, Log::Key{ keyExtractor(json_), SequenceNumber::next() }, std::move(str) }
-{ }
+{
+  checkLog(json_);
+}
 
 }
