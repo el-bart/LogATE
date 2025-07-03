@@ -29,5 +29,7 @@ flags+=(--cap-add SYS_PTRACE)
 # save command history and stuff
 flags+=(-v "$home_host:$home_docker")
 flags+=(-e "HOME=$home_docker")
+# utilities
+flags+=(-e "HISTCONTROL=${HISTCONTROL:-ignoredups}")
 
 exec docker run "${flags[@]}" "$image" "$@"
