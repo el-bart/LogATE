@@ -32,7 +32,7 @@ auto toKeyFormat(std::string const& name)
   auto const pkf = possibleKeyFormats();
   auto const it = pkf.find(name);
   if( it == pkf.end() )
-    BUT_THROW(InvalidConfig, "unkown key format: " << name);
+    throw std::runtime_error{"toKeyFormat(): unkown key format: " + name};
   return it->second;
 }
 
@@ -110,7 +110,7 @@ auto getParsingMode(po::variables_map const& vm)
     case 0x00: return LogATE::Net::TcpServer::JsonParsingMode::HardBreakOnNewLine; // default
     case 0x01: return LogATE::Net::TcpServer::JsonParsingMode::ParseToEndOfJson;
     case 0x10: return LogATE::Net::TcpServer::JsonParsingMode::HardBreakOnNewLine;
-    case 0x11: BUT_THROW(InvalidConfig, "parsing by JSON and parsing by line cannot be set at the same time");
+    case 0x11: throw std::runtime_error{"getParsingMode(): parsing by JSON and parsing by line cannot be set at the same time"};
   }
   BUT_ASSERT(!"code never reaches here");
   throw std::logic_error{"getParsingMode(): code never reaches here"};
@@ -121,7 +121,7 @@ auto getKeyExtractor(po::variables_map const& vm)
 {
   auto const sourceFormat = vm.count("key-format") ? toKeyFormat( vm["key-format"].as<std::string>() ) : defaultKeyFormat();
   if( not vm.count("key-path") )
-    BUT_THROW(InvalidConfig, "key path has not been specified");
+    throw std::runtime_error{"getKeyExtractor(): key path has not been specified"};
   auto path = LogATE::Tree::Path::parse( vm["key-path"].as<std::string>() );
   return But::makeSharedNN<LogATE::Tree::KeyExtractor>( std::move(path), sourceFormat );
 }
@@ -130,8 +130,8 @@ auto getKeyExtractor(po::variables_map const& vm)
 auto toVectorOfString(std::string const& jsonIn)
 {
   const auto json = nlohmann::json::parse(jsonIn);
-  if( not json.is_object() )
-    BUT_THROW(InvalidConfig, "toVectorOfString(): input object is not a json array");
+  if( not json.is_array() )
+    throw std::runtime_error{"toVectorOfString(): input object is not a json array"};
   std::vector<std::string> out;
   for(auto& e: json)
     out.push_back( e.get<std::string>() );
@@ -150,7 +150,7 @@ LogATE::Printers::OrderedPrettyPrint::SilentTags getSilentTags(po::variables_map
   }
   catch(std::exception const& ex)
   {
-    BUT_THROW(InvalidConfig, "getSilentTags(): " << ex.what());
+    throw std::runtime_error{"getSilentTags(): " + std::string{ex.what()}};
   }
 }
 
@@ -165,7 +165,7 @@ LogATE::Printers::OrderedPrettyPrint::PriorityTags getPriorityTags(po::variables
   }
   catch(std::exception const& ex)
   {
-    BUT_THROW(InvalidConfig, "getPriorityTags(): " << ex.what());
+    throw std::runtime_error{"getPriorityTags(): " + std::string{ex.what()}};
   }
 }
 
@@ -173,6 +173,8 @@ LogATE::Printers::OrderedPrettyPrint::PriorityTags getPriorityTags(po::variables
 auto toVectorOfPaths(std::string const& jsonIn)
 {
   const auto json = nlohmann::json::parse(jsonIn);
+  if( not json.is_array() )
+    throw std::runtime_error{"toVectorOfPaths(): input object is not a json array"};
   std::vector<LogATE::Tree::Path> out;
   for(auto& e: json)
     out.push_back( LogATE::Tree::Path::parse( e.get<std::string>() ) );
@@ -190,7 +192,7 @@ LogATE::Tree::Node::TrimFields getTrimFields(po::variables_map const& vm)
   }
   catch(std::exception const& ex)
   {
-    BUT_THROW(InvalidConfig, "getTrimFields(): " << ex.what());
+    throw std::runtime_error{"getTrimFields(): " + std::string{ex.what()}};
   }
 }
 
@@ -199,13 +201,13 @@ auto toMapStringNumber(std::string const& jsonIn)
 {
   const auto json = nlohmann::json::parse(jsonIn);
   if( not json.is_object() )
-    BUT_THROW(InvalidConfig, "padded-fields element is not an json object");
+    throw std::runtime_error{"toMapStringNumber(): padded-fields element is not an json object"};
   std::map<std::string, unsigned> out;
   for(auto& [k, v]: json.items())
     if( v.is_number_integer() )
       out[k] = v.get<unsigned>();
     else
-      BUT_THROW(InvalidConfig, "toMapStringNumber(): value under key '" << k << "' is not a number");
+      throw std::runtime_error("toMapStringNumber(): value under key '" + k + "' is an integer");
   return out;
 }
 
@@ -220,7 +222,7 @@ LogATE::Printers::OrderedPrettyPrint::PaddedFields getPaddedFields(po::variables
   }
   catch(std::exception const& ex)
   {
-    BUT_THROW(InvalidConfig, "getPaddedFields(): " << ex.what());
+    throw std::runtime_error{"getPaddedFields(): " + std::string{ex.what()}};
   }
 }
 
