@@ -45,6 +45,6 @@ time timeout 30m \
 
 echo "$app: running automated tests"
 time timeout 5m \
-  ctest -V
+  ctest -V -j "$(nproc)"
 
 echo "$app: all tests passed!"
