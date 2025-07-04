@@ -66,6 +66,7 @@ auto prepareOptions()
     ("silent-tags", po::value<std::string>(), "JSON array of tag names that shall be displayed as just a value")
     ("priority-tags", po::value<std::string>(), "JSON array of tag names, that shall be displayed as first in line (prioirty by order in array)")
     ("trim-fields", po::value<std::string>(), "JSON array of paths to tags, that shall not be displayed by default (visible only in detailed view)")
+    ("padded-fields", po::value<std::string>(), "JSON object of key-value pairs (field name to expected padding; default is 0)")
     ("dont-trim-key", "disables auto-trimming field defined as a key")
     ;
   return desc;
@@ -129,6 +130,8 @@ auto getKeyExtractor(po::variables_map const& vm)
 auto toVectorOfString(std::string const& jsonIn)
 {
   const auto json = nlohmann::json::parse(jsonIn);
+  if( not json.is_object() )
+    BUT_THROW(InvalidConfig, "toVectorOfString(): input object is not a json array");
   std::vector<std::string> out;
   for(auto& e: json)
     out.push_back( e.get<std::string>() );
@@ -139,17 +142,31 @@ auto toVectorOfString(std::string const& jsonIn)
 
 LogATE::Printers::OrderedPrettyPrint::SilentTags getSilentTags(po::variables_map const& vm)
 {
-  if( not vm.count("silent-tags") )
-    return {};
-  return LogATE::Printers::OrderedPrettyPrint::SilentTags{ toVectorOfString( vm["silent-tags"].as<std::string>() ) };
+  try
+  {
+    if( not vm.count("silent-tags") )
+      return {};
+    return LogATE::Printers::OrderedPrettyPrint::SilentTags{ toVectorOfString( vm["silent-tags"].as<std::string>() ) };
+  }
+  catch(std::exception const& ex)
+  {
+    BUT_THROW(InvalidConfig, "getSilentTags(): " << ex.what());
+  }
 }
 
 
 LogATE::Printers::OrderedPrettyPrint::PriorityTags getPriorityTags(po::variables_map const& vm)
 {
-  if( not vm.count("priority-tags") )
-    return {};
-  return LogATE::Printers::OrderedPrettyPrint::PriorityTags{ toVectorOfString( vm["priority-tags"].as<std::string>() ) };
+  try
+  {
+    if( not vm.count("priority-tags") )
+      return {};
+    return LogATE::Printers::OrderedPrettyPrint::PriorityTags{ toVectorOfString( vm["priority-tags"].as<std::string>() ) };
+  }
+  catch(std::exception const& ex)
+  {
+    BUT_THROW(InvalidConfig, "getPriorityTags(): " << ex.what());
+  }
 }
 
 
@@ -165,17 +182,55 @@ auto toVectorOfPaths(std::string const& jsonIn)
 
 LogATE::Tree::Node::TrimFields getTrimFields(po::variables_map const& vm)
 {
-  if( not vm.count("trim-fields") )
-    return {};
-  return LogATE::Tree::Node::TrimFields{ toVectorOfPaths( vm["trim-fields"].as<std::string>() ) };
+  try
+  {
+    if( not vm.count("trim-fields") )
+      return {};
+    return LogATE::Tree::Node::TrimFields{ toVectorOfPaths( vm["trim-fields"].as<std::string>() ) };
+  }
+  catch(std::exception const& ex)
+  {
+    BUT_THROW(InvalidConfig, "getTrimFields(): " << ex.what());
+  }
 }
+
+
+auto toMapStringNumber(std::string const& jsonIn)
+{
+  const auto json = nlohmann::json::parse(jsonIn);
+  if( not json.is_object() )
+    BUT_THROW(InvalidConfig, "padded-fields element is not an json object");
+  std::map<std::string, unsigned> out;
+  for(auto& [k, v]: json.items())
+    if( v.is_number_integer() )
+      out[k] = v.get<unsigned>();
+    else
+      BUT_THROW(InvalidConfig, "toMapStringNumber(): value under key '" << k << "' is not a number");
+  return out;
+}
+
+
+LogATE::Printers::OrderedPrettyPrint::PaddedFields getPaddedFields(po::variables_map const& vm)
+{
+  try
+  {
+    if( not vm.count("padded-fields") )
+      return {};
+    return LogATE::Printers::OrderedPrettyPrint::PaddedFields{ toMapStringNumber( vm["padded-fields"].as<std::string>() ) };
+  }
+  catch(std::exception const& ex)
+  {
+    BUT_THROW(InvalidConfig, "getPaddedFields(): " << ex.what());
+  }
+}
+
 
 auto getOppConfig(po::variables_map const& vm)
 {
   return LogATE::Printers::OrderedPrettyPrint::Config{
-      .silentTags_ = getSilentTags(vm),
+      .silentTags_   = getSilentTags(vm),
       .priorityTags_ = getPriorityTags(vm),
-      .paddedFields_ = {} // TODO
+      .paddedFields_ = getPaddedFields(vm)
   };
 }
 }
