@@ -45,10 +45,10 @@ private:
   bool isSilent(std::string const& tag) const;
   unsigned paddingFor(std::string const& tag) const;
 
-  const Utils::PrintableStringConverter printable_;
-  const std::unordered_set<std::string> silentTags_;
-  const PriorityTags priorityTags_;
-  const PaddedFields paddedFields_;
+  const Utils::PrintableStringConverter printable_{};
+  const std::unordered_set<std::string> silentTags_{};
+  const PriorityTags priorityTags_{};
+  const PaddedFields paddedFields_{};
 };
 
 }
