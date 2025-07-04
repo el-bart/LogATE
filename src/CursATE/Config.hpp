@@ -13,8 +13,7 @@ struct Config final
   LogATE::Net::Port port_{0};
   LogATE::Net::TcpServer::JsonParsingMode jsonParsingMode_{LogATE::Net::TcpServer::JsonParsingMode::HardBreakOnNewLine};
   LogATE::Tree::KeyExtractorShNN keyExtractor_;
-  LogATE::Printers::OrderedPrettyPrint::SilentTags silentTags_;
-  LogATE::Printers::OrderedPrettyPrint::PriorityTags priorityTags_;
+  LogATE::Printers::OrderedPrettyPrint::Config oppConfig_;
   LogATE::Tree::Node::TrimFields trimFields_;
 };
 

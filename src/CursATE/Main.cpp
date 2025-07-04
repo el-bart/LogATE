@@ -15,7 +15,7 @@ auto threadsCount()
 
 auto makePrinter(Config const& config)
 {
-  return LogATE::Printers::OrderedPrettyPrint{config.silentTags_, config.priorityTags_};
+  return LogATE::Printers::OrderedPrettyPrint{config.oppConfig_};
 }
 }
 

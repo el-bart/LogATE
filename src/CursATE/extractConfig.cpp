@@ -169,6 +169,15 @@ LogATE::Tree::Node::TrimFields getTrimFields(po::variables_map const& vm)
     return {};
   return LogATE::Tree::Node::TrimFields{ toVectorOfPaths( vm["trim-fields"].as<std::string>() ) };
 }
+
+auto getOppConfig(po::variables_map const& vm)
+{
+  return LogATE::Printers::OrderedPrettyPrint::Config{
+      .silentTags_ = getSilentTags(vm),
+      .priorityTags_ = getPriorityTags(vm),
+      .paddedFields_ = {} // TODO
+  };
+}
 }
 
 But::Optional<Config> extractConfig(int argc, char** argv)
@@ -188,8 +197,7 @@ But::Optional<Config> extractConfig(int argc, char** argv)
       .port_ = getPort(vm),
       .jsonParsingMode_ = getParsingMode(vm),
       .keyExtractor_ = getKeyExtractor(vm),
-      .silentTags_ = getSilentTags(vm),
-      .priorityTags_ = getPriorityTags(vm),
+      .oppConfig_ = getOppConfig(vm),
       .trimFields_ = getTrimFields(vm)
     };
     if( not vm.count("dont-trim-key") )

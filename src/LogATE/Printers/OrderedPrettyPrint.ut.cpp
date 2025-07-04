@@ -61,7 +61,10 @@ TEST_CASE_FIXTURE(Fixture, "directly converting to pretty print")
 
 TEST_CASE_FIXTURE(Fixture, "converting with priorities")
 {
-  const OrderedPrettyPrint opp_{ OrderedPrettyPrint::PriorityTags{{"foo", "bar"}} };
+  const OrderedPrettyPrint::Config cfg{
+    .priorityTags_ = OrderedPrettyPrint::PriorityTags{{"foo", "bar"}}
+  };
+  const OrderedPrettyPrint opp_{cfg};
   SUBCASE("root elements")
   {
     CHECK( "00013 some-key narf=xxx" == opp_( makeLog(13, R"({"narf": "xxx"})") ) );
@@ -107,7 +110,10 @@ TEST_CASE_FIXTURE(Fixture, "converting with priorities")
 
 TEST_CASE_FIXTURE(Fixture, "silent tags")
 {
-  const OrderedPrettyPrint opp_{ OrderedPrettyPrint::SilentTags{{"foo", "bar"}} };
+  const OrderedPrettyPrint::Config cfg{
+    .silentTags_ = OrderedPrettyPrint::SilentTags{{"foo", "bar"}}
+  };
+  const OrderedPrettyPrint opp_{cfg};
   SUBCASE("root elements")
   {
     CHECK( "00013 some-key narf=xxx" == opp_( makeLog(13, R"({"narf": "xxx"})") ) );
@@ -124,10 +130,44 @@ TEST_CASE_FIXTURE(Fixture, "silent tags")
 }
 
 
-TEST_CASE_FIXTURE(Fixture, "silent tags with priorities")
+TEST_CASE_FIXTURE(Fixture, "padded fields")
 {
-  const OrderedPrettyPrint opp_{ OrderedPrettyPrint::SilentTags{{"foo", "bar"}}, OrderedPrettyPrint::PriorityTags{{"foo", "narf"}} };
-  CHECK( "00013 some-key xxx narf=yyy zzz" == opp_( makeLog(13, R"({"narf": "yyy", "bar":"zzz", "foo":"xxx"})") ) );
+  const OrderedPrettyPrint::Config cfg{
+    .paddedFields_ = OrderedPrettyPrint::PaddedFields{{ {"narf", 5} }}
+  };
+  const OrderedPrettyPrint opp_{cfg};
+  SUBCASE("root elements")
+  {
+    CHECK( "00013 some-key narf=  xxx" == opp_( makeLog(13, R"({"narf": "xxx"})") ) );
+    CHECK( "00013 some-key narf=12345" == opp_( makeLog(13, R"({"narf": "12345"})") ) );
+  }
+  SUBCASE("nested elements tags")
+  {
+    CHECK( "00013 some-key root={ narf=  xxx }" == opp_( makeLog(13, R"({"root": {"narf": "xxx"} })") ) );
+    CHECK( "00013 some-key root={ narf=   42 }" == opp_( makeLog(13, R"({"root": {"narf": 42} })") ) );
+    CHECK( "00013 some-key root={ narf= true }" == opp_( makeLog(13, R"({"root": {"narf": true} })") ) );
+    CHECK( "00013 some-key root={ narf=  4.2 }" == opp_( makeLog(13, R"({"root": {"narf": 4.2} })") ) );
+  }
+  SUBCASE("non-leaf elements are not affected by padding")
+  {
+    CHECK( "00013 some-key narf={ narf=  xxx }" == opp_( makeLog(13, R"({"narf": {"narf": "xxx"} })") ) );
+  }
+  SUBCASE("padding does not last for other fields")
+  {
+    CHECK( "00013 some-key a={ narf=  def } b=def c={ narf=  abc }" == opp_( makeLog(13, R"({ "a": {"narf": "def"}, "b": "def", "c": {"narf": "abc"} })") ) );
+  }
+}
+
+
+TEST_CASE_FIXTURE(Fixture, "silent tags with priorities and padded fields")
+{
+  const OrderedPrettyPrint::Config cfg{
+    .silentTags_ = OrderedPrettyPrint::SilentTags{{"foo", "bar"}},
+    .priorityTags_ = OrderedPrettyPrint::PriorityTags{{"foo", "narf"}},
+    .paddedFields_ = OrderedPrettyPrint::PaddedFields{{ {"narf", 5} }}
+  };
+  const OrderedPrettyPrint opp_{cfg};
+  CHECK( "00013 some-key xxx narf=  yyy zzz" == opp_( makeLog(13, R"({"narf": "yyy", "bar":"zzz", "foo":"xxx"})") ) );
 }
 
 
@@ -143,7 +183,7 @@ TEST_CASE_FIXTURE(Fixture, "non-printable characters are converted")
 
 TEST_CASE_FIXTURE(Fixture, "converting arrays")
 {
-  const OrderedPrettyPrint opp_{};
+  const OrderedPrettyPrint opp_;
   SUBCASE("root element")
   {
     CHECK( "00013 some-key [ ]" == opp_( makeLog(13, R"([])") ) );

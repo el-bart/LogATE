@@ -16,9 +16,10 @@ auto makeSilentTags(std::vector<std::string> const& in)
 }
 }
 
-OrderedPrettyPrint::OrderedPrettyPrint(PriorityTags const& priorityTags, SilentTags const& silentTags):
-  silentTags_{ makeSilentTags(silentTags.tags_) },
-  priorityTags_{ priorityTags }
+OrderedPrettyPrint::OrderedPrettyPrint(Config const& config):
+  silentTags_{ makeSilentTags(config.silentTags_.tags_) },
+  priorityTags_{ config.priorityTags_ },
+  paddedFields_{ config.paddedFields_ }
 { }
 
 
@@ -35,7 +36,7 @@ std::string OrderedPrettyPrint::operator()(LogATE::Log const& in) const
     constructObject(ss, value, printBrace);
   }
   else
-    printNode(ss, value);
+    printNode( ss, value, paddingFor( in.key().str() ) );
   return ss.str();
 }
 
@@ -51,18 +52,18 @@ auto normalFloat(double in)
 }
 }
 
-void OrderedPrettyPrint::printNode(std::stringstream& ss, nlohmann::json const& in) const
+void OrderedPrettyPrint::printNode(std::stringstream& ss, nlohmann::json const& in, unsigned const padding) const
 {
   if( in.is_object() ) { constructObject(ss, in); return; }
   if( in.is_array() )  { constructArray(ss, in); return; }
-  constructValue(ss, in);
+  constructValue(ss, in, padding);
 }
 
 void OrderedPrettyPrint::printNode(std::stringstream& ss, std::string const& key, nlohmann::json const& value) const
 {
   if( not isSilent(key) )
     ss << printable_(key) << "=";
-  printNode(ss, value);
+  printNode( ss, value, paddingFor(key) );
 }
 
 
@@ -90,12 +91,12 @@ auto prioritizedIteratorsVector(std::vector<std::string> const& priorityTags, nl
 }
 }
 
-void OrderedPrettyPrint::constructValue(std::stringstream& ss, nlohmann::json const& in) const
+void OrderedPrettyPrint::constructValue(std::stringstream& ss, nlohmann::json const& in, unsigned padding) const
 {
-  if( in.is_string() )         { ss << printable_( in.get<std::string>() ); return; }
-  if( in.is_number_integer() ) { ss << in.get<int64_t>(); return; }
-  if( in.is_number_float() )   { ss << normalFloat( in.get<double>() ); return; }
-  if( in.is_boolean() )        { ss << ( in.get<bool>() ? "true" : "false" ); return; }
+  if( in.is_string() )         { ss << std::setw(padding) << std::setfill(' ') << printable_( in.get<std::string>() ); return; }
+  if( in.is_number_integer() ) { ss << std::setw(padding) << std::setfill(' ') << in.get<int64_t>(); return; }
+  if( in.is_number_float() )   { ss << std::setw(padding) << std::setfill(' ') << normalFloat( in.get<double>() ); return; }
+  if( in.is_boolean() )        { ss << std::setw(padding) << std::setfill(' ') << ( in.get<bool>() ? "true" : "false" ); return; }
 
   throw std::logic_error{"OrderedPrettyPrint::constructValue(): unsupported value type"};
 }
@@ -132,7 +133,7 @@ void OrderedPrettyPrint::constructArray(std::stringstream& ss, nlohmann::json co
   for(auto& e: in)
   {
     ss << ' ';
-    printNode(ss, e);
+    printNode(ss, e, 0);
   }
 
   ss << " ]";
@@ -141,6 +142,16 @@ void OrderedPrettyPrint::constructArray(std::stringstream& ss, nlohmann::json co
 bool OrderedPrettyPrint::isSilent(std::string const& tag) const
 {
   return silentTags_.find(tag) != end(silentTags_);
+}
+
+
+unsigned OrderedPrettyPrint::paddingFor(std::string const& tag) const
+{
+  auto const& pf = paddedFields_.padding_;
+  auto const it = pf.find(tag);
+  if( it == pf.end() )
+    return 0;
+  return it->second;
 }
 
 }
