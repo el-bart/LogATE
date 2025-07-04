@@ -3,6 +3,9 @@
 ## dev
 WIP
 
+* added `--padded-fields` support, to improve displaying certain variable-width fields in TUI
+* improved readability of errors from parsing command line options
+
 
 ## v1.4.0
 support for multiple input timestamps formats.
