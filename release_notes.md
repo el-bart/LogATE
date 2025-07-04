@@ -1,7 +1,13 @@
 # release notes
 
 ## dev
-WIP.
+WIP
+
+
+## v1.4.0
+support for multiple input timestamps formats.
+moving to C++20.
+minor improvements and fixes.
 
 * using C++20 by default
 * SDK now preserves command line history
@@ -16,17 +22,20 @@ WIP.
 * numeric timestamps are also allowed in a string format
 * fixed bug with empty log entry causing assertion failure
 
+
 ## v1.3.0
 BUT update.
 
 * upgraded BUT to v2.0.0
 * fixed build issue with old paths
 
+
 ## v1.2.0
 port to debian:12
 
 * using edbian:12 as a base OS for both SDK and runtime
 * upgraded doctest framework
+
 
 ## v1.1.1
 bugfix for helper script
@@ -69,7 +78,7 @@ parallel processing and many usability features.
 
 
 ## v0.2.1
-minor bugfix
+minor bugfix.
 
 * added missing `boost::program_options` library to a runtime image.
 
@@ -116,6 +125,6 @@ first release of PoC.
 * move all filters to a given log line (or close to it, when given log is not in all of them).
 * move all child filters to a given log line (or close to it, when given log is not in all of them).
 * multi-threaded logs processing.
-* ncurses based viewer.
+* `ncurses` based viewer.
 * show number of logs per subtree.
 * window with verbose display of a selected log.
