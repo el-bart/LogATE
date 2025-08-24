@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.24)
 project(LogATE-all)
 
 set(LOGATE_ENABLE_TESTS     OFF CACHE BOOL   "build tests (useful for development. to be turned off when preparing installation builds)")

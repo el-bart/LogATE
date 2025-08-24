@@ -1,4 +1,4 @@
-FROM debian:12
+FROM debian:13
 RUN apt-get update && apt-get dist-upgrade -y
 
 RUN apt-get update && apt-get install -y \
@@ -26,8 +26,7 @@ RUN cd /usr/src/ && \
     cp -rv "doctest-${DOCTEST_VER}/doctest" /usr/local/include && \
     rm "v${DOCTEST_VER}.tar.gz"
 
-# TODO: next BUT release, when available
-ENV BUT_VER=2.0.0
+ENV BUT_VER=2.2.0
 RUN cd /usr/src/ && \
     wget "https://github.com/el-bart/but/archive/v${BUT_VER}.tar.gz" && \
     tar xzvf "v${BUT_VER}.tar.gz" && \

@@ -1,4 +1,4 @@
-FROM debian:12
+FROM debian:13
 RUN apt-get update
 RUN apt-get dist-upgrade -y
 
