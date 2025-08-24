@@ -19,6 +19,9 @@ RUN apt-get update && apt-get install -y \
     kcachegrind \
     valgrind \
     wget
+RUN apt-get update && apt-get install -y \
+    binutils \
+    binutils-gold
 
 ENV DOCTEST_VER=2.4.11
 RUN cd /usr/src/ && \
