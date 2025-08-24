@@ -10,12 +10,12 @@ echo "$app: building dockerized SDK"
 time ./sdk true
 
 echo "$app: building CursATE binary"
-time ./sdk ./ci/build gcc Release none
+time ./sdk ./ci/build clang Release none
 
 echo "$app: building CursATE docker image"
 mkdir -p "$out_dir"
 cp -rv docker/runtime/* "$out_dir/"
-cp -v build/gcc/Release/none/src/CursATE/CursATE "$out_dir/"
+cp -v build/clang/Release/none/src/CursATE/CursATE "$out_dir/"
 time docker build -t "$img_name" "$out_dir/"
 
 cat <<EOF
