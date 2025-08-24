@@ -6,7 +6,8 @@ RUN apt-get update && apt-get install -y \
     ninja-build
 RUN apt-get update && apt-get install -y \
     g++ \
-    clang
+    clang \
+    llvm
 RUN apt-get update && apt-get install -y \
     libboost-all-dev \
     libncurses-dev \
