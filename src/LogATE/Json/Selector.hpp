@@ -3,6 +3,7 @@
 #include <But/assert.hpp>
 #include <stack>
 #include <string>
+#include <cstdint>
 
 namespace LogATE::Json
 {

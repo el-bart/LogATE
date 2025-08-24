@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <string>
+#include <cstdint>
 #include <But/Exception.hpp>
 #include <But/assert.hpp>
 
