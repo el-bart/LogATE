@@ -1,6 +1,7 @@
 #include "LogATE/Utils/PrintableStringConverter.hpp"
 #include <sstream>
 #include <cstring>
+#include <cstdint>
 
 namespace LogATE::Utils
 {

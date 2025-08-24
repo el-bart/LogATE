@@ -5,6 +5,8 @@ WIP
 
 * added `--padded-fields` support, to improve displaying certain variable-width fields in TUI
 * improved readability of errors from parsing command line options
+* moved to Debian:13 as a base
+* switched default compiler to clang
 
 
 ## v1.4.0
