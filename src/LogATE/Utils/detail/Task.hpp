@@ -8,7 +8,14 @@ namespace LogATE::Utils::detail
 
 struct TaskBase
 {
+  TaskBase(TaskBase const&) = delete;
+  TaskBase& operator=(TaskBase const&) = delete;
+  TaskBase(TaskBase &&) = delete;
+  TaskBase& operator=(TaskBase &&) = delete;
+
+  TaskBase() = default;
   virtual ~TaskBase() = default;
+
   virtual void run() = 0;
 };
 
