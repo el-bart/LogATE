@@ -41,7 +41,10 @@ void WorkerThreads::waitForAll()
     const auto hasMoreTasks = queued() > 0u;
     waitAll->set();
     if(not hasMoreTasks)
+    {
+      BUT_ASSERT( running() == threads() );
       return;
+    }
   }
 }
 
