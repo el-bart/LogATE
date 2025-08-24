@@ -10,8 +10,9 @@ docker build -t "$image" docker/sdk/
 mkdir -p build/.home
 
 flags=()
-flags+=(-it)
+stty > /dev/null && flags+=(-it)
 flags+=(--rm)
+flags+=(--init)
 
 # make access to ports easier
 flags+=(--network host)
