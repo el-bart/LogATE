@@ -31,6 +31,7 @@ auto makeTree(WorkerThreadsShPtr workers)
   for(auto i=0; i<2; ++i)
     root->add( sampleNode(workers) );
   root->children()[0]->add( sampleNode(workers) );
+  workers->waitForAll(); // nodes addition is async
   return NodeShPtr{ std::move(root) };
 }
 
