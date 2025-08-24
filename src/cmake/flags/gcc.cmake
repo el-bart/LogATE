@@ -58,11 +58,7 @@ endif()
 #  - optimizations are enabled
 #  - address sanitizer is on
 # there incorrect "may be used uninitialized" warnings comming up from standard library's internals.
-if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-  if ("${CMAKE_CXX_COMPILER_VERSION}" MATCHES "^12\\.")
-    if("${CMAKE_BUILD_TYPE}" MATCHES "^Release|Relwithdebinfo|Profile$")
-      message(WARNING "BUT: disabling -Wmaybe-uninitialized for buggy GCC version")
-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-maybe-uninitialized")
-    endif()
-  endif()
+if("${CMAKE_BUILD_TYPE}" MATCHES "^Release|Relwithdebinfo|Profile$")
+  message(WARNING "BUT: disabling -Wmaybe-uninitialized for buggy GCC version")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-maybe-uninitialized")
 endif()
