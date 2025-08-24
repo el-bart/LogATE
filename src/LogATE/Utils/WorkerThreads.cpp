@@ -39,12 +39,11 @@ void WorkerThreads::waitForAll()
     for(auto& b: blocked)
       b->wait();
     const auto hasMoreTasks = queued() > 0u;
+    if(not hasMoreTasks)
+      BUT_ASSERT( running() == threads() );
     waitAll->set();
     if(not hasMoreTasks)
-    {
-      BUT_ASSERT( running() == threads() );
       return;
-    }
   }
 }
 
