@@ -295,27 +295,27 @@ TEST_CASE_FIXTURE(Fixture, "required compares count is reasonable") // though no
     const auto data = populate({});
     auto result = s_.search( logs_, LogATE::makeKey(42), forward_, LookForAnswer{3} );
     result.value_.wait_for(timeout_);
-    CHECK( *result.requiredCompares_ == data.size() );
-    CHECK( *result.comparesDone_ == 0u );
-    CHECK( *result.comparesDone_ <= *result.requiredCompares_ );
+    CHECK( result.requiredCompares_->load() == data.size() );
+    CHECK( result.comparesDone_->load() == 0u );
+    CHECK( result.comparesDone_->load() <= *result.requiredCompares_ );
   }
   SUBCASE("less than one block")
   {
     const auto data = populate({1,2,3,4});
     auto result = s_.search( logs_, data[0].key(), forward_, LookForAnswer{3} );
     result.value_.wait_for(timeout_);
-    CHECK( *result.requiredCompares_ == data.size() );
-    CHECK( *result.comparesDone_ > 0u );
-    CHECK( *result.comparesDone_ <= *result.requiredCompares_ );
+    CHECK( result.requiredCompares_->load() == data.size() );
+    CHECK( result.comparesDone_->load() > 0u );
+    CHECK( result.comparesDone_->load() <= *result.requiredCompares_ );
   }
   SUBCASE("multiple blocks")
   {
     const auto data = populate({1,2,3,4,5, 6,7,8,9,10});
     auto result = s_.search( logs_, data[0].key(), forward_, LookForAnswer{3} );
     result.value_.wait_for(timeout_);
-    CHECK( *result.requiredCompares_ >= data.size() );
-    CHECK( *result.comparesDone_ > 0u );
-    CHECK( *result.comparesDone_ <= *result.requiredCompares_ );
+    CHECK( result.requiredCompares_->load() >= data.size() );
+    CHECK( result.comparesDone_->load() > 0u );
+    CHECK( result.comparesDone_->load() <= *result.requiredCompares_ );
   }
 }
 
