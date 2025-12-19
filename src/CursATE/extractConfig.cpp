@@ -24,6 +24,7 @@ auto possibleKeyFormats()
     {"unix-ms",    KeyFormat::UNIX_ms},
     {"unix-us",    KeyFormat::UNIX_us},
     {"unix-ns",    KeyFormat::UNIX_ns},
+    {"unix-float", KeyFormat::UNIX_float},
   };
 }
 
