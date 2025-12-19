@@ -125,7 +125,8 @@ void help()
   const auto ss = detail::smallerScreenSize(2);
   const auto ds = But::makeSharedNN<detail::ConstStringDataSource>( options() );
   auto status = [ds](const size_t pos) { return detail::nOFmWithPercent(pos, ds->size()); };
-  ScrolableWindow win{ ds, sp, ss, Window::Boxed::True, std::move(status) };
+  auto caps = Window::Captions{"help screen", "press 'q' to close"};
+  ScrolableWindow win{ ds, sp, ss, std::move(caps), std::move(status) };
   navigate(win, *ds);
 }
 
