@@ -1,7 +1,19 @@
-CMakeLists.txt.user
+# vim
 .*.swp
 .*.swo
+
+# kate
+*.kate-swp
+
+# python
 *.pyc
+
+# git
 *.orig
+*.rej
+
+# ctags
 tags
-/build/*
+
+# build artifacts
+/build
