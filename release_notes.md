@@ -3,6 +3,8 @@
 ## dev
 WIP
 
+* added rudimentary navigation keys to `README.md`
+* added captions (names + how to quit hint) to all windows
 * added `--padded-fields` support, to improve displaying certain variable-width fields in TUI
 * improved readability of errors from parsing command line options
 * moved to Debian:13 as a base
