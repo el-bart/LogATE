@@ -42,11 +42,12 @@ void FilterWindows::prune()
 
 But::NotNullShared<Curses::ScrolableWindow> FilterWindows::newWindow(LogATE::Tree::NodeShPtr node) const
 {
+  auto const n = node;
   auto trimmedLog2str = [toStr=log2str_, tf=node->trimFields()](Log const& in) { return toStr( trimFields(in, tf) ); };
   const auto ds = But::makeSharedNN<LogDataSource>( std::move(node), std::move(trimmedLog2str) );
   const auto sp = Curses::ScreenPosition{Curses::Row{0}, Curses::Column{0}};
   const auto ss = Curses::ScreenSize::global();
-  const auto boxed = Curses::Window::Boxed::True;
+  auto caps = Curses::Window::Captions{n->type().value_ + "::" + n->name().value_, "press 'q' to quit"};
   auto status = [ds, thStats = workerThreadsStats_, errCnt = inputErrors_](const size_t pos) {
     std::stringstream ss;
     ss << thStats() << " ";
@@ -54,7 +55,7 @@ But::NotNullShared<Curses::ScrolableWindow> FilterWindows::newWindow(LogATE::Tre
     ss << "E:" << errCnt();
     return ss.str();
   };
-  return But::makeSharedNN<Curses::ScrolableWindow>(ds, sp, ss, boxed, std::move(status));
+  return But::makeSharedNN<Curses::ScrolableWindow>(ds, sp, ss, std::move(caps), std::move(status));
 }
 
 }
