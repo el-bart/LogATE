@@ -113,7 +113,8 @@ LogATE::Tree::NodeShPtr FilterTree::selectNext(LogATE::Tree::NodeShPtr const& cu
   {
     const auto ds = But::makeSharedNN<detail::FilterTreeDataSource>(root_);
     auto status = [ds](const size_t pos) { return detail::nOFmWithPercent(pos, ds->size()); };
-    ScrolableWindow win{ds, sp, ss, Window::Boxed::True, std::move(status)};
+    auto caps = Window::Captions{"filter tree", "press 'q' to close"};
+    ScrolableWindow win{ds, sp, ss, std::move(caps), std::move(status)};
     const auto id = ds->node2id(selectedNode);
     const auto newId = navigate( win, id, *ds, [&](auto const& node){ return this->deleteNode(node); } );
     selectedNode = ds->id2node(newId.first);
