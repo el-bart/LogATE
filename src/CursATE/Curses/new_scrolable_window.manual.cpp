@@ -33,7 +33,11 @@ int main()
   ScrolableWindow win{ dataSource,
                        ScreenPosition{Row{2}, Column{10}},
                        ScreenSize{Rows{12}, Columns{60}},
+#if 0
                        Window::Boxed::True,
+#else
+                       Window::Captions{"Test window", "press 'q' to quit"},
+#endif
                        Location{dataSource} };
 
   if(true) // preinit
