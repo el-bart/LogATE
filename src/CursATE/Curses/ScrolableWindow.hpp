@@ -15,14 +15,16 @@ struct ScrolableWindow
                   const ScreenSize ss,
                   const Window::Boxed boxed,
                   std::function<std::string(size_t)> status = {}):
-    dataSource_{std::move(dataSource)},
-    backend_{dataSource_},
-    window_{sp, ss, boxed},
-    userAreaSize_{ window_.userAreaSize() },
-    status_{ std::move(status) }
-  {
-    backend_.resize( window_.userAreaSize() );
-  }
+    ScrolableWindow{ std::move(dataSource), std::move(status), sp, ss, boxed }
+  { }
+
+  ScrolableWindow(DataSourceShNN dataSource,
+                  const ScreenPosition sp,
+                  const ScreenSize ss,
+                  Window::Captions captions,
+                  std::function<std::string(size_t)> status = {}):
+    ScrolableWindow{ std::move(dataSource), std::move(status), sp, ss, std::move(captions) }
+  { }
 
   void refresh();
   void forceNextRefresh() { contentChanged_ = true; }
@@ -58,6 +60,19 @@ struct ScrolableWindow
   But::Optional<DataSource::Id> currentSelection() const { return backend_.currentSelection(); }
 
 private:
+  template<typename ...WindowArgs>
+  ScrolableWindow(DataSourceShNN dataSource,
+                  std::function<std::string(size_t)> status,
+                  WindowArgs&& ...windowArgs):
+    dataSource_{std::move(dataSource)},
+    backend_{dataSource_},
+    window_{ std::forward<WindowArgs>(windowArgs)... },
+    userAreaSize_{ window_.userAreaSize() },
+    status_{ std::move(status) }
+  {
+    backend_.resize( window_.userAreaSize() );
+  }
+
   void displayStatus();
   ScreenSize userAreaSize() const;
 
