@@ -3,6 +3,7 @@
 ## dev
 WIP
 
+* added support for floating point UNIX timestamp
 * added rudimentary navigation keys to `README.md`
 * added captions (names + how to quit hint) to all windows
 * added `--padded-fields` support, to improve displaying certain variable-width fields in TUI

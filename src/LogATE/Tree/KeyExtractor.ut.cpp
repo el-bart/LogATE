@@ -21,10 +21,12 @@ TEST_CASE_FIXTURE(Fixture, "getting key in raw SourceFormat")
   j["unix_ms"] = 1751486773123;
   j["unix_us"] = 1751486773123456;
   j["unix_ns"] = 1751486773123456789;
+  j["unix_fp"] = 1751486773.123456/*789*/; // json lib does not do this very preciselly...
   j["str-unix"]    = "1751486773";
   j["str-unix_ms"] = "1751486773123";
   j["str-unix_us"] = "1751486773123456";
   j["str-unix_ns"] = "1751486773123456789";
+  j["str-unix_fp"] = "1751486773.123456"; //789";
   j["foo"]["bar"] = "sth";
   j["float"] = 3.14;
   j["str-float"] = "3.14";
@@ -186,6 +188,36 @@ TEST_CASE_FIXTURE(Fixture, "getting key in raw SourceFormat")
     SUBCASE("invalid float as string")
     {
       KeyExtractor const ke{ Path::parse(".str-float"), sourceFormat };
+      CHECK( ke(j) ==  "<< invalid key >>" );
+    }
+  }
+
+  SUBCASE("UNIX_float")
+  {
+    auto const sourceFormat = KeyExtractor::SourceFormat::UNIX_float;
+    SUBCASE("valid")
+    {
+      KeyExtractor const ke{ Path::parse(".unix_fp"), sourceFormat };
+      CHECK( ke(j) ==  "2025-07-02T20:06:13.123456000Z" );
+    }
+    SUBCASE("valid, but string")
+    {
+      KeyExtractor const ke{ Path::parse(".str-unix_fp"), sourceFormat };
+      CHECK( ke(j) ==  "2025-07-02T20:06:13.123456000Z" );
+    }
+    SUBCASE("valid int")
+    {
+      KeyExtractor const ke{ Path::parse(".unix"), sourceFormat };
+      CHECK( ke(j) ==  "2025-07-02T20:06:13.000000000Z" );
+    }
+    SUBCASE("valid int, but string")
+    {
+      KeyExtractor const ke{ Path::parse(".str-unix"), sourceFormat };
+      CHECK( ke(j) ==  "2025-07-02T20:06:13.000000000Z" );
+    }
+    SUBCASE("invalid string")
+    {
+      KeyExtractor const ke{ Path::parse(".foo.bar"), sourceFormat };
       CHECK( ke(j) ==  "<< invalid key >>" );
     }
   }

@@ -21,7 +21,8 @@ struct KeyExtractor final
     UNIX,       // UNIX timestamp (in seconds)
     UNIX_ms,    // UNIX timestamp in miliseconds
     UNIX_us,    // UNIX timestamp in microseconds
-    UNIX_ns     // UNIX timestamp in nanoseconds
+    UNIX_ns,    // UNIX timestamp in nanoseconds
+    UNIX_float  // UNIX timestamp (in seconds, as floating point)
   };
 
   KeyExtractor(Path path, SourceFormat const sourceFormat);

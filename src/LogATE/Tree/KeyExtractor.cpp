@@ -65,7 +65,7 @@ inline std::string getKeyStr(nlohmann::json const& json, Path const& path)
 }
 
 
-inline std::optional<int64_t> toOptNumber(std::string const& in)
+inline std::optional<int64_t> toOptInt(std::string const& in)
 {
     try
     {
@@ -91,7 +91,41 @@ inline std::optional<int64_t> toOptNumber(std::string const& in)
 }
 
 
-inline std::optional<int64_t> getKeyInt(nlohmann::json const& json, Path const& path)
+inline std::optional<double> toOptFloat(std::string const& in)
+{
+    try
+    {
+      auto first = true;
+      auto hasDot = false;
+      for(auto c: in)
+      {
+        if(first && c == '-')
+        {
+          first = false;
+          continue;
+        }
+        first = false;
+        if(c == '.')
+        {
+          if(hasDot)
+            return {};
+          hasDot = true;
+          continue;
+        }
+        if(not isdigit(c))
+          return {};
+      }
+
+      return std::stod(in);
+    }
+    catch(...)
+    {
+      return {};
+    }
+}
+
+
+std::optional<int64_t> getKeyInt(nlohmann::json const& json, Path const& path)
 {
   auto const* node = getKeyNode(json, path);
   if(not node)
@@ -99,7 +133,22 @@ inline std::optional<int64_t> getKeyInt(nlohmann::json const& json, Path const& 
   if( node->is_number_integer() )
     return node->get<int64_t>();
   if( node->is_string() )
-    return toOptNumber( node->get<std::string>() );
+    return toOptInt( node->get<std::string>() );
+  return {};
+}
+
+
+std::optional<double> getKeyFloat(nlohmann::json const& json, Path const& path)
+{
+  auto const* node = getKeyNode(json, path);
+  if(not node)
+    return {};
+  if( node->is_number_float() )
+    return node->get<double>();
+  if( node->is_number_integer() ) // in case some lib encoded '1.0' as '1'
+    return node->get<int64_t>();
+  if( node->is_string() )
+    return toOptFloat( node->get<std::string>() );
   return {};
 }
 
@@ -113,7 +162,7 @@ inline std::string ensureIso(std::string&& key)
 }
 
 
-inline std::string fromUnixTs(std::optional<int64_t> const ts, int64_t const div)
+std::string fromUnixTs(std::optional<int64_t> const ts, int64_t const div)
 {
   if(not ts)
     return invalidKey();
@@ -136,6 +185,13 @@ inline std::string fromUnixTs(std::optional<int64_t> const ts, int64_t const div
       );
   return buf;
 }
+
+inline std::string fromUnixTsFloat(std::optional<double> const ts)
+{
+  if(not ts)
+    return invalidKey();
+  return fromUnixTs( static_cast<int64_t>( *ts * 1'000'000'000 ), 1'000'000'000 );
+}
 } // unnamed namespace
 
 
@@ -149,6 +205,7 @@ std::string KeyExtractor::operator()(nlohmann::json const& in) const
     case KeyExtractor::SourceFormat::UNIX_ms:    return fromUnixTs( getKeyInt(in, path_), 1'000 );
     case KeyExtractor::SourceFormat::UNIX_us:    return fromUnixTs( getKeyInt(in, path_), 1'000'000 );
     case KeyExtractor::SourceFormat::UNIX_ns:    return fromUnixTs( getKeyInt(in, path_), 1'000'000'000 );
+    case KeyExtractor::SourceFormat::UNIX_float: return fromUnixTsFloat( getKeyFloat(in, path_) );
   }
   BUT_THROW(KeyExtractor::Error, "invalid format requested");
 }
