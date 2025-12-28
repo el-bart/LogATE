@@ -38,7 +38,7 @@ std::unique_ptr<LogATE::Tree::Node> LogEntry::process()
   const auto ss = detail::smallerScreenSize(1);
   const auto ds = But::makeSharedNN<detail::LogEntryDataSource>(log_);
   auto status = [ds](const size_t pos) { return detail::nOFmWithPercent(pos, ds->size()); };
-  auto caps = Window::Captions{"log details", "press 'q' to close"};
+  auto caps = Window::Captions{"log details", "press 'h' for help, or 'q' to close"};
   ScrolableWindow win{ ds, sp, ss, std::move(caps), std::move(status) };
   return navigate(win, *ds);
 }

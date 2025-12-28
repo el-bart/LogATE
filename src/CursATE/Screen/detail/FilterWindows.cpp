@@ -47,7 +47,7 @@ But::NotNullShared<Curses::ScrolableWindow> FilterWindows::newWindow(LogATE::Tre
   const auto ds = But::makeSharedNN<LogDataSource>( std::move(node), std::move(trimmedLog2str) );
   const auto sp = Curses::ScreenPosition{Curses::Row{0}, Curses::Column{0}};
   const auto ss = Curses::ScreenSize::global();
-  auto caps = Curses::Window::Captions{n->type().value_ + "::" + n->name().value_, "press 'q' to quit"};
+  auto caps = Curses::Window::Captions{n->type().value_ + "::" + n->name().value_, "press 'h' for help, or 'q' to quit"};
   auto status = [ds, thStats = workerThreadsStats_, errCnt = inputErrors_](const size_t pos) {
     std::stringstream ss;
     ss << thStats() << " ";

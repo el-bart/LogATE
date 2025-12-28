@@ -65,7 +65,7 @@ void multiLinePreview(std::string const& in)
   const auto ss = detail::smallerScreenSize(2);
   const auto psc = PrintableStringConverter{};
   const auto ds = But::makeSharedNN<detail::ConstStringDataSource>( detail::splitIntoLines( psc(in) , ss.columns_.value_) );
-  auto caps = Window::Captions{"multiline preview", "press 'q' to close"};
+  auto caps = Window::Captions{"multiline preview", "press 'h' for help, or 'q' to close"};
   auto status = [ds](const size_t pos) { return detail::nOFmWithPercent(pos, ds->size()); };
   ScrolableWindow win{ ds, sp, ss, std::move(caps), std::move(status) };
   navigate(win);
