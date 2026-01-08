@@ -3,6 +3,12 @@
 ## dev
 WIP
 
+
+## v1.5.0
+tools and libs upgrade.
+new formats.
+minor display and usability improvements.
+
 * added support for floating point UNIX timestamp
 * added rudimentary navigation keys to `README.md`
 * added captions (names + how to quit hint) to all windows
