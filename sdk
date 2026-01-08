@@ -10,7 +10,8 @@ docker build -t "$image" docker/sdk/
 mkdir -p build/.home
 
 flags=()
-stty > /dev/null && flags+=(-it)
+stty > /dev/null && flags+=(--interactive)
+flags+=(--tty)
 flags+=(--rm)
 flags+=(--init)
 
