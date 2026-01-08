@@ -75,6 +75,7 @@ private:
 
   void displayStatus();
   ScreenSize userAreaSize() const;
+  void refreshWindow();
 
   struct DisplayDataSummary
   {

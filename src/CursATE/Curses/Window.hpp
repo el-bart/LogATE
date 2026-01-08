@@ -5,6 +5,7 @@
 #include "CursATE/Curses/Color.hpp"
 #include <ncurses.h>
 #include <optional>
+#include <functional>
 
 namespace CursATE::Curses
 {
@@ -53,11 +54,13 @@ struct Window
     wclear(window_);
   }
 
-  void refresh() const
+  void refresh(std::function<void()> overlay = {}) const
   {
     if(boxed_)
       box(window_, 0, 0);
     addCaptions();
+    if(overlay)
+      overlay();
     wrefresh(window_);
   }
 

@@ -29,8 +29,7 @@ void ScrolableWindow::refresh()
   const auto dds = displayDataSummary<DisplayDataSummary>(displayData);
   if( userAreaSize_ == uas && dds_ == dds && not contentChanged_ )
   {
-    displayStatus();
-    window_.refresh();
+    refreshWindow();
     return;
   }
 
@@ -52,8 +51,7 @@ void ScrolableWindow::refresh()
       wattr_off( window_.get(), markAttr, nullptr);
   }
 
-  displayStatus();
-  window_.refresh();
+  refreshWindow();
 
   userAreaSize_ = uas;
   dds_ = dds;
@@ -69,24 +67,27 @@ void ScrolableWindow::displayStatus()
   const auto index = sel ? dataSource_->index(*sel) + 1 : 0;
   const auto stat = status_(index);
   const auto uas = userAreaSize();
-  const auto row = uas.rows_.value_ + 1;
+  const auto row = uas.rows_.value_ + (window_.boxed() ? 1 : 0);
   const auto colStart = window_.boxed() ? 1 : 0;
-  const auto col = std::max( colStart, uas.columns_.value_ - static_cast<int>(stat.size()) + 1 );
+  const auto col = std::max( colStart, uas.columns_.value_ - static_cast<int>(stat.size()) - 2 );
 
   const auto cp = 2;
   init_pair( cp, static_cast<int>(Color::Cyan), static_cast<int>(Color::Black) );
   wattron( window_.get(), COLOR_PAIR(cp) );
-  mvwprintw( window_.get(), row, col, "%s", stat.c_str());
+  mvwprintw( window_.get(), row, col, " %s ", stat.c_str());
   wattroff( window_.get(), COLOR_PAIR(cp) );
 }
 
 
 ScreenSize ScrolableWindow::userAreaSize() const
 {
-  auto uas = window_.userAreaSize();
-  if(status_)
-    uas.rows_.value_ = std::max( uas.rows_.value_-1, 0 );
-  return uas;
+  return window_.userAreaSize();
+}
+
+
+void ScrolableWindow::refreshWindow()
+{
+  window_.refresh( [this]{ this->displayStatus(); } );
 }
 
 }

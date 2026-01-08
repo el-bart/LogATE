@@ -10,6 +10,7 @@ WIP
 * improved readability of errors from parsing command line options
 * moved to Debian:13 as a base
 * switched default compiler to clang
+* added display stats on top of the window border, to get an extra line of logs
 
 
 ## v1.4.0
