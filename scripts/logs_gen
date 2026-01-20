@@ -4,31 +4,37 @@ import sys
 import time
 import json
 
-delay = float(sys.argv[1])
-n = 0
 
-names = [ "john", "edvard", "jackob", "albert" ]
+def generate_logs():
+    delay = float(sys.argv[1])
+    n = 0
+    names = [ "john", "edvard", "jackob", "albert" ]
 
-while True:
-    log = { 'LOG_NUMBER': n,
-            'date': time.time(),
-            'uname': str(os.uname()),
-            'male_name': names[n%len(names)],
-            'misc': {
-              'answer': 42,
-              'periodic': n%10
-            },
-            'periodic': n%21,
-           'env': {
-             'user': os.environ['USER'],
-             'home': os.environ['HOME']
-           }
-          }
-    if n % (2*len(names)) == 0:
-        del log['male_name']
-    n += 1
-    sys.stdout.write( json.dumps(log) + "\n" )
-    if delay > 0:
-        time.sleep(delay)
-        sys.stdout.flush()
+    while True:
+        log = { 'LOG_NUMBER': n,
+                'date': time.time(),
+                'uname': str(os.uname()),
+                'male_name': names[n%len(names)],
+                'misc': {
+                  'answer': 42,
+                  'periodic': n%10
+                },
+                'periodic': n%21,
+               'env': {
+                 'user': os.environ['USER'],
+                 'home': os.environ['HOME']
+               }
+              }
+        if n % (2*len(names)) == 0:
+            del log['male_name']
+        n += 1
+        sys.stdout.write( json.dumps(log) + "\n" )
+        if delay > 0:
+            time.sleep(delay)
+            sys.stdout.flush()
 
+
+try:
+    generate_logs()
+except BrokenPipeError:
+    sys.exit(0)
