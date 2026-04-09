@@ -6,6 +6,7 @@
 #include "CursATE/Screen/detail/formatAsPercentage.hpp"
 #include "CursATE/Screen/detail/smallerScreenSize.hpp"
 #include "CursATE/Screen/detail/id2key.hpp"
+#include "CursATE/Screen/detail/regexEscape.hpp"
 #include "CursATE/Curses/Form.hpp"
 #include "CursATE/Curses/Field/Button.hpp"
 #include "CursATE/Curses/Field/Input.hpp"
@@ -28,6 +29,7 @@ using CursATE::Curses::ctrl;
 using CursATE::Curses::Row;
 using CursATE::Curses::Column;
 using CursATE::Screen::detail::key2id;
+using CursATE::Screen::detail::regexEscape;
 
 namespace CursATE::Screen
 {
@@ -136,7 +138,7 @@ But::Optional<std::string> selectFilter()
 auto makeRegexInput(But::Optional<std::string> const& value)
 {
   if(value)
-    return Input{"regex", "^" + *value + "$"};  // TODO: add escaping of regex special values
+    return Input{"regex", "^" + regexEscape(*value) + "$"};  // TODO: add escaping of regex special values
   return Input{"regex"};
 }
 

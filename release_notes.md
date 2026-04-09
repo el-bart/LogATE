@@ -3,6 +3,8 @@
 ## dev
 WIP
 
+* auto-escaping `grep` filter regex's default value
+
 
 ## v1.5.0
 tools and libs upgrade.
