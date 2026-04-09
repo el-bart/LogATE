@@ -4,31 +4,32 @@ project(CursATE)
 add_library(CursATEimpl
   Curses/ColorGuard.cpp
   Curses/CursorVisibility.cpp
-  Curses/Init.cpp
   Curses/Field/Button.cpp
   Curses/Field/Input.cpp
   Curses/Field/Radio.cpp
   Curses/Field/detail/resizePadded.cpp
+  Curses/Init.cpp
   Curses/ScrolableWindow.cpp
-  Curses/getChar.cpp
   Curses/detail/ScrolableWindowBackend.cpp
+  Curses/getChar.cpp
   Screen/FilterTree.cpp
   Screen/LogEntry.cpp
   Screen/LogList.cpp
   Screen/ProgressBar.cpp
   Screen/Search.cpp
-  Screen/displayError.cpp
-  Screen/help.cpp
-  Screen/multiLinePreview.cpp
   Screen/detail/ConstStringDataSource.cpp
-  Screen/detail/FilterWindows.cpp
   Screen/detail/FilterTreeDataSource.cpp
+  Screen/detail/FilterWindows.cpp
   Screen/detail/LogDataSource.cpp
   Screen/detail/LogEntryDataSource.cpp
   Screen/detail/Marks.cpp
   Screen/detail/formatAsPercentage.cpp
   Screen/detail/id2key.cpp
+  Screen/detail/regexEscape.cpp
   Screen/detail/splitIntoLines.cpp
+  Screen/displayError.cpp
+  Screen/help.cpp
+  Screen/multiLinePreview.cpp
   Main.cpp
   extractConfig.cpp
 )
@@ -64,6 +65,7 @@ if(LOGATE_ENABLE_TESTS)
     Screen/detail/Marks.ut.cpp
     Screen/detail/formatAsPercentage.ut.cpp
     Screen/detail/id2key.ut.cpp
+    Screen/detail/regexEscape.ut.cpp
     Screen/detail/splitIntoLines.ut.cpp
     main.ut.cpp
   )
