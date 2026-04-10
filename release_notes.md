@@ -3,6 +3,7 @@
 ## dev
 WIP
 
+* changed default RE engine from `egrep` to `ECMAScript`
 * auto-escaping `grep` filter regex's default value
 
 

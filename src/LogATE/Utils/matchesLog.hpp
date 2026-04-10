@@ -7,7 +7,7 @@
 namespace LogATE::Utils
 {
 
-static constexpr auto g_defaultRegexType = std::regex_constants::egrep | std::regex_constants::optimize;
+static constexpr auto g_defaultRegexType = std::regex_constants::ECMAScript | std::regex_constants::optimize;
 
 bool matchesKey(AnnotatedLog const& log, Tree::Path const& path, std::regex const& re);
 bool matchesValue(AnnotatedLog const& log, Tree::Path const& path, std::regex const& re);
