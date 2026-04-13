@@ -11,23 +11,23 @@ TEST_SUITE("CursATE::Screen::detail::regexEscape")
 {
 
 #define CHECK_ESCAPING(in, exp) \
-	SUBCASE(in) \
-	{ \
-		CHECK( regexEscape(in) == exp ); \
-		\
-		auto const out = regexEscape(in); \
-		try \
-		{ \
-			std::regex const re{"^" + out + "$", LogATE::Utils::g_defaultRegexType}; \
-			CHECK( std::regex_search(in, re) ); \
-		} \
-		catch(std::exception const& ex) \
-		{ \
-			INFO(in); \
-			INFO(out); \
-			FAIL( ("input string generted invalid RE: " + std::string{ex.what()}) ); \
-		} \
-	}
+  SUBCASE(in) \
+  { \
+    CHECK( regexEscape(in) == exp ); \
+    \
+    auto const out = regexEscape(in); \
+    try \
+    { \
+      std::regex const re{"^" + out + "$", LogATE::Utils::g_defaultRegexType}; \
+      CHECK( std::regex_search(in, re) ); \
+    } \
+    catch(std::exception const& ex) \
+    { \
+      INFO(in); \
+      INFO(out); \
+      FAIL( ("input string generted invalid RE: " + std::string{ex.what()}) ); \
+    } \
+  }
 
 
 TEST_CASE("direct output")
